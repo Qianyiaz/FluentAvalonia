@@ -2,7 +2,7 @@
 
 namespace FluentAvalonia.Interop.Win32;
 
-internal readonly unsafe struct HRESULT : IComparable, IComparable<HRESULT>, IEquatable<HRESULT>, IFormattable
+internal readonly struct HRESULT : IComparable, IComparable<HRESULT>, IEquatable<HRESULT>, IFormattable
 {
     public readonly int Value;
 

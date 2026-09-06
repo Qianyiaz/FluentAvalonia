@@ -1,5 +1,4 @@
-﻿using System;
-using FluentAvalonia.UI.Controls;
+﻿using FluentAvalonia.UI.Controls;
 
 namespace FAControlsGallery.ViewModels;
 

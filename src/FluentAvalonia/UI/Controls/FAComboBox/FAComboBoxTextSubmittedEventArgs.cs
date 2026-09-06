@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace FluentAvalonia.UI.Controls;
+﻿namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
 /// Provides data when the user enters custom text into the ComboBox.

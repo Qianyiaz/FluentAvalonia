@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using FluentAvalonia.Interop;
+﻿using FluentAvalonia.Interop;
 
 namespace FluentAvalonia.Core;
 

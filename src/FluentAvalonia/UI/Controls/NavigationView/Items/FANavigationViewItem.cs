@@ -1,10 +1,8 @@
 ﻿using Avalonia;
-using Avalonia.Automation.Peers;
 using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
-using Avalonia.Layout;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using FluentAvalonia.Core;

@@ -127,29 +127,4 @@ public partial class FluentAvaloniaTheme
             LoadDefaultAccentColor();
         }
     }
-
-    /// <summary>
-    /// On Windows, forces a specific <see cref="Window"/> to the current theme
-    /// </summary>
-    /// <param name="window">The window to force</param>
-    /// <param name="theme">The theme to use, or null to use the current RequestedTheme</param>
-    /// <exception cref="ArgumentNullException">If window is null</exception>
-    public void ForceWin32WindowToTheme(Window window, ThemeVariant theme = null)
-    {
-        if (window == null)
-            throw new ArgumentNullException(nameof(window));
-
-        if (!OperatingSystem.IsWindows())
-            return;
-
-        try
-        {
-            Win32Interop.ApplyTheme(window.TryGetPlatformHandle().Handle, theme == ThemeVariant.Dark);
-        }
-        catch
-        {
-            Logger.TryGet(LogEventLevel.Information, "FluentAvaloniaTheme")?
-                        .Log("FluentAvaloniaTheme", "Unable to set window to theme.");
-        }
-    }
 }

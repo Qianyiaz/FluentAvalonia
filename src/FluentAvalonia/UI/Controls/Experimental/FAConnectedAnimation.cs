@@ -1,7 +1,6 @@
 ﻿// NOTE: This class is experimental and will not receive support.
 // Use at your own risk
 
-using System.Diagnostics;
 using System.Numerics;
 using Avalonia;
 using Avalonia.Animation.Easings;

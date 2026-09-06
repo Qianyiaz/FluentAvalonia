@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.Text;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Layout;
-using Avalonia.Styling;
 using FluentAvalonia.UI.Controls;
 
 namespace FAControlsGallery.ViewModels;

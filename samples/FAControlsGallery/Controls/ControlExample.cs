@@ -4,7 +4,6 @@ using Avalonia.Controls.Primitives;
 using FluentAvalonia.UI.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Styling;
-using System.Diagnostics;
 using FAControlsGallery.Services;
 using Avalonia.Rendering.Composition;
 using Avalonia.Rendering.Composition.Animations;

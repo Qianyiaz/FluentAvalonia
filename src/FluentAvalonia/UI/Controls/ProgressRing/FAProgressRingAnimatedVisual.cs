@@ -1,7 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
-using Avalonia.Platform;
 using Avalonia.Rendering.Composition;
 using Avalonia.Skia;
 using Avalonia.VisualTree;

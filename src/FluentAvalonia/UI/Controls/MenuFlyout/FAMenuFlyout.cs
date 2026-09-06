@@ -5,7 +5,6 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Templates;
 using Avalonia.Metadata;
 using Avalonia.Styling;
-using FluentAvalonia.Core;
 using System.Collections;
 using System.Collections.Specialized;
 

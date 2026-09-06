@@ -4,9 +4,7 @@
 using System.Collections;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using Avalonia;
 using Avalonia.Collections;
-using Avalonia.Collections.Pooled;
 using Avalonia.Data;
 using Avalonia.Logging;
 using FluentAvalonia.Core;

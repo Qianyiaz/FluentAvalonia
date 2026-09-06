@@ -1,5 +1,4 @@
 ﻿using Avalonia.Media;
-using FluentAvalonia.Core;
 using System.ComponentModel;
 using System.Globalization;
 

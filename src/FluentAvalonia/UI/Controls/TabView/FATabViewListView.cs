@@ -10,7 +10,6 @@ using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.Logging;
 using Avalonia.Threading;
-using Avalonia.Utilities;
 using Avalonia.VisualTree;
 using FluentAvalonia.Core;
 using FluentAvalonia.UI.Data;

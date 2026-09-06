@@ -1,4 +1,3 @@
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Platform;
 using Avalonia.Interactivity;
@@ -25,7 +24,6 @@ public partial class AppWindowPage : ControlsPageBase
         SplashButton2.Click += ShowSplashClick;
         SplashButton3.Click += ShowSplashClick;
 
-        ColorPicker1.ColorChanged += HandleColorPicker1ColorChanged;
         SetTaskBarProgressBar.Click += SetTaskBarProgressBar_Click;
     }
 
@@ -65,15 +63,6 @@ public partial class AppWindowPage : ControlsPageBase
                     aw.PlatformFeatures.SetTaskBarProgressBarValue(value, 100);
                 }
             }                      
-        }
-    }
-
-    private void HandleColorPicker1ColorChanged(object sender, ColorChangedEventArgs args)
-    {
-        var tl = TopLevel.GetTopLevel(this);
-        if (tl is FAAppWindow aw)
-        {
-            aw.PlatformFeatures.SetWindowBorderColor(args.NewColor);
         }
     }
 

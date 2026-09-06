@@ -1,8 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Styling;
-using Avalonia.VisualTree;
-using FAControlsGallery.Controls;
 using FluentAvalonia.UI.Controls;
 using FluentAvalonia.UI.Media.Animation;
 

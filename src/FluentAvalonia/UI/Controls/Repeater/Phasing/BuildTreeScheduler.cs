@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Avalonia.Threading;
+﻿using Avalonia.Threading;
 
 namespace FluentAvalonia.UI.Controls;
 

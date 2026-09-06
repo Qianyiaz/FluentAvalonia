@@ -1,8 +1,4 @@
-using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 using FluentAvalonia.UI.Controls;
-using FluentAvalonia.UI.Media.Animation;
-using FAControlsGallery.Pages.NVSamplePages;
 using Avalonia.Interactivity;
 using System.Collections.ObjectModel;
 

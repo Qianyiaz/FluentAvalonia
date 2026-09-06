@@ -2,7 +2,6 @@
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
-using Avalonia.Skia;
 using SkiaSharp;
 
 namespace FluentAvalonia.UI.Controls;

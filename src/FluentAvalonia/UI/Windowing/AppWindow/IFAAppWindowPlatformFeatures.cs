@@ -1,6 +1,4 @@
-﻿using Avalonia.Media;
-
-namespace FluentAvalonia.UI.Windowing;
+﻿namespace FluentAvalonia.UI.Windowing;
 
 /// <summary>
 /// Represents constants that define the TaskBarProgressBar's state
@@ -39,11 +37,6 @@ public enum FATaskBarProgressBarState
 /// </summary>
 public interface IFAAppWindowPlatformFeatures
 {
-    /// <summary>
-    /// Windows11 only, sets the border color of the current window to the specified color
-    /// </summary>
-    void SetWindowBorderColor(Color color);
-
     /// <summary>
     /// Activate the taskbar progressbar indicator with the given state
     /// </summary>

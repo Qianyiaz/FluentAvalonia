@@ -1,10 +1,7 @@
 using System.Collections;
 using System.Collections.Specialized;
 using Avalonia.Collections;
-using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.VisualTree;
-using FluentAvalonia.Core;
 using FluentAvalonia.UI.Controls;
 using FluentAvalonia.UI.Windowing;
 

@@ -1,4 +1,3 @@
-using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using FAControlsGallery.ViewModels;
 using FluentAvalonia.UI.Controls;

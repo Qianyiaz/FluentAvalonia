@@ -1,6 +1,5 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Data;
-using Avalonia.Styling;
 using Avalonia;
 using Avalonia.Controls.Metadata;
 using FluentAvalonia.Core;

@@ -1,6 +1,5 @@
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using FluentAvalonia.Core;
 using FluentAvalonia.UI.Controls;
 using FAControlsGallery.Pages.NVSamplePages;
 using FAControlsGallery.ViewModels;

@@ -1,6 +1,6 @@
 ﻿namespace FluentAvalonia.Interop.Win32;
 
-internal readonly unsafe struct COLORREF : IComparable, IComparable<COLORREF>, IEquatable<COLORREF>, IFormattable
+internal readonly struct COLORREF : IComparable, IComparable<COLORREF>, IEquatable<COLORREF>, IFormattable
 {
 	public readonly uint Value;
 

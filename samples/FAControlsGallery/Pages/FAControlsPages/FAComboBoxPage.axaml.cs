@@ -1,4 +1,3 @@
-using Avalonia.Controls;
 using FAControlsGallery.ViewModels;
 using FluentAvalonia.UI.Controls;
 

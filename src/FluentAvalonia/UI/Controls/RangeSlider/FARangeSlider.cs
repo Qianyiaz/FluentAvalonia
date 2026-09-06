@@ -1,15 +1,10 @@
 ﻿using System.Collections.Concurrent;
-using System.Diagnostics;
 using Avalonia;
-using Avalonia.Automation;
-using Avalonia.Automation.Peers;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Shapes;
 using Avalonia.Input;
 using Avalonia.Threading;
-using Avalonia.Utilities;
-using Avalonia.VisualTree;
 using FluentAvalonia.Core;
 
 namespace FluentAvalonia.UI.Controls;

@@ -1,7 +1,6 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
 using Avalonia.Controls.Templates;
-using FluentAvalonia.UI.Controls;
 
 namespace FluentAvalonia.UI.Controls;
 

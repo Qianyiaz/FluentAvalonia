@@ -1,6 +1,4 @@
 ﻿using Avalonia.Collections;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace FluentAvalonia.UI.Controls;

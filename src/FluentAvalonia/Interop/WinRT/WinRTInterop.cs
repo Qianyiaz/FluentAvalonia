@@ -1,7 +1,5 @@
-﻿using System;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Threading;
 using FluentAvalonia.Interop.Win32;
 using MicroCom.Runtime;
 
