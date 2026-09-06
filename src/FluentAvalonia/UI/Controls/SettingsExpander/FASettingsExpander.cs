@@ -207,7 +207,7 @@ public partial class FASettingsExpander : HeaderedItemsControl, ICommandSource
         if (_expanderToggleButton != null)
             _expanderToggleButton.Click -= ExpanderToggleButtonClick;
 
-        var header = _expander.GetTemplateChildren().OfType<ToggleButton>().FirstOrDefault();
+        var header = _expander.GetTemplateDescendants().OfType<ToggleButton>().FirstOrDefault();
         if (header == null)
             throw new InvalidOperationException("Invalid template for SettingsExpander. Unable to find ToggleButton inside Expander");
 

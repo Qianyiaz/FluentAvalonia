@@ -551,7 +551,7 @@ public partial class FATabView : TemplatedControl
 
     private void OnScrollViewerLoaded(object sender, RoutedEventArgs args)
     {
-        var buttons = _scrollViewer.GetTemplateChildren()
+        var buttons = _scrollViewer.GetTemplateDescendants()
             .Where(x => x is RepeatButton);
 
         foreach (RepeatButton button in buttons)
