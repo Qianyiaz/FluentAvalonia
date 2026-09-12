@@ -29,7 +29,7 @@ public class FATaskDialogButtonsPanel : Panel
         double wid = 0;
         double hgt = 0;
         var ct = Children.Count;
-        for (int i = 0; i < ct; i++)
+        for (var i = 0; i < ct; i++)
         {
             Children[i].Measure(Size.Infinity);
 
@@ -62,7 +62,7 @@ public class FATaskDialogButtonsPanel : Panel
                 var buttonWidth = (finalSize.Width - spacingSpace) / ct;
                 Rect rc;
                 double x = 0;
-                for (int i = 0; i < ct; i++)
+                for (var i = 0; i < ct; i++)
                 {
                     rc = new Rect(x, 0, buttonWidth, finalSize.Height);
                     Children[i].Arrange(rc);

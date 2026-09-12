@@ -40,7 +40,7 @@ internal class LayoutContextAdapter : FAVirtualizingLayoutContext
 
     private int GetElementIndexCore(Control element)
     {
-        int idx = -1;
+        var idx = -1;
         if (_nonVirtualizingContext != null)
         {
             var children = _nonVirtualizingContext.Children;

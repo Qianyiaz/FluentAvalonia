@@ -50,8 +50,8 @@ internal class VirtualLayoutContextAdapter : FANonVirtualizingLayoutContext
 
         public IEnumerator<Control> GetEnumerator()
         {
-            int ct = Count;
-            for (int i = 0; i < ct; i++)
+            var ct = Count;
+            for (var i = 0; i < ct; i++)
             {
                 yield return this[i];
             }

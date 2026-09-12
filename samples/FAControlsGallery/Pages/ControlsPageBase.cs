@@ -286,7 +286,7 @@ public class ControlsPageBase : UserControl
     {
         var sz = e.NewSize.Width;
 
-        bool isSmallWidth2 = sz < 580;
+        var isSmallWidth2 = sz < 580;
 
         PseudoClasses.Set(":smallWidth", sz < 710);
         PseudoClasses.Set(":smallWidth2", isSmallWidth2);
@@ -391,7 +391,7 @@ public class ControlsPageBase : UserControl
         // If TargetType is not set, we know we're currently on a CoreControls page since those
         // are grouped pages - whereas, FA controls only display one control per page and
         // set all the extra properties
-        bool isFAControlPage = TargetType != null;
+        var isFAControlPage = TargetType != null;
 
         // Only setup the ConnectedAnimation if it makes sense
         if ((!isFAControlPage && e.SourcePageType == typeof(CoreControlsPageViewModel)) || 

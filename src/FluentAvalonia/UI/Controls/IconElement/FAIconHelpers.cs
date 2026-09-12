@@ -82,7 +82,7 @@ public static class FAIconHelpers
         // This one works slightly differently to avoid holding multiple instances of the same
         // bitmap in memory (since IconSources are meant for sharing). We don't alter the properties, 
         // but instead just link the SKBitmap from BitmapIconSource into the BitmapIcon. 
-        FABitmapIcon bi = new FABitmapIcon();
+        var bi = new FABitmapIcon();
         bi.LinkToBitmapIconSource(bis);
 
         if (bis.IsSet(FAIconSource.ForegroundProperty))
@@ -126,19 +126,23 @@ public static class FAIconHelpers
         {
             return CreateBitmapIconFromBitmapIconSource(bis);
         }
-        else if (src is FAFontIconSource fis)
+
+        if (src is FAFontIconSource fis)
         {
             return CreateFontIconFromFontIconSource(fis);
         }
-        else if (src is FAPathIconSource pis)
+
+        if (src is FAPathIconSource pis)
         {
             return CreatePathIconFromPathIconSource(pis);
         }
-        else if (src is FASymbolIconSource sis)
+
+        if (src is FASymbolIconSource sis)
         {
             return CreateSymbolIconFromSymbolIconSource(sis);
         }
-        else if (src is FAImageIconSource iis)
+
+        if (src is FAImageIconSource iis)
         {
             return CreateImageIconFromImageIconSource(iis);
         }

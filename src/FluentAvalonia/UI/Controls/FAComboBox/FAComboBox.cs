@@ -134,7 +134,7 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
 
     protected override bool NeedsContainerOverride(object item, int index, out object recycleKey)
     {
-        bool isContainer = item is FAComboBoxItem;
+        var isContainer = item is FAComboBoxItem;
         recycleKey = isContainer ? null : nameof(FAComboBoxItem);
         return !isContainer;
     }
@@ -152,8 +152,8 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
         if (e.Handled)
             return;
 
-        bool isOpen = IsDropDownOpen;
-        bool isEditable = IsEditable;
+        var isOpen = IsDropDownOpen;
+        var isEditable = IsEditable;
 
         if ((e.Key == Key.F4 && e.KeyModifiers.HasFlag(KeyModifiers.Alt) == false) ||
                 ((e.Key == Key.Down || e.Key == Key.Up) && e.KeyModifiers.HasFlag(KeyModifiers.Alt)))
@@ -305,7 +305,7 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
                 {
                     // Only open the dropdown here if we're not editable
                     // Editable CB requires clicking on the DropDownOverlay
-                    bool open = IsDropDownOpen;
+                    var open = IsDropDownOpen;
                     IsDropDownOpen = !open;
                 }
 
@@ -549,7 +549,7 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
         var thisRoot = TopLevel.GetTopLevel(this);
         var popupRoot = TopLevel.GetTopLevel(child);
 
-        bool isPopupAbove = false;
+        var isPopupAbove = false;
         if (popupRoot == thisRoot)
         {
             Debug.Assert(thisRoot == popupRoot);
@@ -559,29 +559,21 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
 
             isPopupAbove = pt2.Y < pt.Y;
         }
-        else
-        {
-            // v2-p6.1, PlatformImpl was hidden and they're stupidly doing it without providing
-            // access to common APIs that are only accessible in the PlatformImpl, like the 
-            // Window position, so popup will always have the unrounded top, rounded bottoms
 
-            //var popupPosition = (_popup?.Host as PopupRoot)?.PlatformImpl?.Position;
-
-            //// If we can't get the screen position of the popup, cancel now, the result will
-            //// be the default behavior of unrounded bottom ComboBox and unrounded top popup
-            //if (!popupPosition.HasValue)
-            //    return;
-
-            //var pt = child.PointToScreen(new Point(0, 0));
-            //var thisInScreenSpace = this.PointToScreen(new Point(0, 0));
-
-            //isPopupAbove = pt.Y < thisInScreenSpace.Y;
-
-            //// HACK: Windowed popups appear to be +1 offset on x-axis for some reason
-            //// which makes the popup look off center. Overlay popups are fine
-            //_popup.HorizontalOffset = -1;
-        }
-
+        // v2-p6.1, PlatformImpl was hidden and they're stupidly doing it without providing
+        // access to common APIs that are only accessible in the PlatformImpl, like the 
+        // Window position, so popup will always have the unrounded top, rounded bottoms
+        //var popupPosition = (_popup?.Host as PopupRoot)?.PlatformImpl?.Position;
+        //// If we can't get the screen position of the popup, cancel now, the result will
+        //// be the default behavior of unrounded bottom ComboBox and unrounded top popup
+        //if (!popupPosition.HasValue)
+        //    return;
+        //var pt = child.PointToScreen(new Point(0, 0));
+        //var thisInScreenSpace = this.PointToScreen(new Point(0, 0));
+        //isPopupAbove = pt.Y < thisInScreenSpace.Y;
+        //// HACK: Windowed popups appear to be +1 offset on x-axis for some reason
+        //// which makes the popup look off center. Overlay popups are fine
+        //_popup.HorizontalOffset = -1;
         PseudoClasses.Set(s_pcPopupAbove, isPopupAbove);
     }
 
@@ -736,7 +728,7 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
         static bool IsSelectable(object o) => (o as AvaloniaObject)?.GetValue(IsEnabledProperty) ?? true;
 
         var count = ItemCount;
-        for (int i = startIndex + step; i != startIndex; i += step)
+        for (var i = startIndex + step; i != startIndex; i += step)
         {
             if (i < 0 || i >= count)
             {
@@ -846,16 +838,15 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
         {
             return cc.Content.ToString();
         }
-        else if (item is string s)
+
+        if (item is string s)
         {
             return s;
         }
-        else
-        {
-            var result = GetBindingEvaluator().Evaluate(item)?.ToString();
-            _displayMemberBindingEvaluator.ClearDataContext();
-            return result;
-        }
+
+        var result = GetBindingEvaluator().Evaluate(item)?.ToString();
+        _displayMemberBindingEvaluator.ClearDataContext();
+        return result;
     }
 
     private BindingEvaluator<object> GetBindingEvaluator()
@@ -925,22 +916,22 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
 
     private void UpdateTextCompletion(bool user)
     {
-        string text = Text;
+        var text = Text;
         if (ItemCount > 0)
         {
             if (IsTextSearchEnabled && _textBox != null && user)
             {
-                int curLen = _textBox.Text.Length;
-                int selStart = _textBox.SelectionStart;
+                var curLen = _textBox.Text.Length;
+                var selStart = _textBox.SelectionStart;
 
                 if (selStart == text.Length && selStart > _currentTextSelectionStart)
                 {
-                    var firstMatch = TryGetMatch(text, out int index);
+                    var firstMatch = TryGetMatch(text, out var index);
 
                     if (firstMatch is not null)
                     {
                         var value = FormatValue(firstMatch);
-                        int minLength = Math.Min(value.Length, text.Length);
+                        var minLength = Math.Min(value.Length, text.Length);
                         if (Compare(text, value, minLength))
                         {
                             UpdateTextValue(value, null);
@@ -979,9 +970,9 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
     {
         index = -1;
         var items = ItemsView;
-        int count = items.Count;
+        var count = items.Count;
 
-        for (int i = 0; i < count; i++)
+        for (var i = 0; i < count; i++)
         {
             var item = items[i];
             var value = FormatValue(item);
@@ -1058,7 +1049,7 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
         var binding = DisplayMemberBinding;
         var evaluator = GetBindingEvaluator();
 
-        for (int i = 0; i < ct; i++)
+        for (var i = 0; i < ct; i++)
         {
             var item = items[i];
 
@@ -1095,8 +1086,8 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
     private Border _dropDownOverlay;
     private IDataTemplate _displayMemberTemplate;
     private int _dropDownSelectedIndex = -1;
-    private int _ignoreTextPropertyChange = 0;
-    private bool _ignoreTextSelectionChange = false;
+    private int _ignoreTextPropertyChange;
+    private bool _ignoreTextSelectionChange;
     private bool _hasUnsubmittedText;
     private int _currentTextSelectionStart;
     private readonly ITemplate<Control> _noFocusAdornerTemplate = new FuncTemplate<Control>(() => new Decorator());

@@ -59,7 +59,7 @@ public class FANavigationViewItemSeparator : FANavigationViewItemBase
             return;
 
         //States: :horizontalcompact, :horizontal, :vertical
-        bool isTop = Position == NavigationViewRepeaterPosition.TopFooter || Position == NavigationViewRepeaterPosition.TopPrimary;
+        var isTop = Position == NavigationViewRepeaterPosition.TopFooter || Position == NavigationViewRepeaterPosition.TopPrimary;
 
         PseudoClasses.Set(s_pcHorizontal, !isTop && !_isClosedCompact);
         PseudoClasses.Set(s_pcHorizontalCompact, !isTop && _isClosedCompact);

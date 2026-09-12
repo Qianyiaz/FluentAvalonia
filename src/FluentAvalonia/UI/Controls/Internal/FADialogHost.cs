@@ -32,7 +32,8 @@ public class FADialogHost : ContentControl
         {
             return tl.ClientSize;
         }
-        else if (TopLevel.GetTopLevel(this) is Control c)
+
+        if (TopLevel.GetTopLevel(this) is Control c)
         {
             return c.Bounds.Size;
         }

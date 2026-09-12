@@ -39,11 +39,13 @@
                                     VerticalAlignment="Top"
                                     IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TemplateSettings.BackButtonVisibility}"
                                     IsEnabled="{TemplateBinding IsBackEnabled}"
-                                    ToolTip.Tip="Go Back" />
+                                    AutomationProperties.Name="Back"
+                                    ToolTip.Tip="Back" />
                             
                             <Button Name="NavigationViewCloseButton"
                                     Theme="{StaticResource NavigationBackButtonNormalStyle}"
                                     VerticalAlignment="Top"
+                                    AutomationProperties.Name="Close"
                                     ToolTip.Tip="Close Navigation" />
                             
                             <Button Name="TogglePaneButton"
@@ -147,7 +149,9 @@
                                                Content="More"
                                                Margin="{DynamicResource TopNavigationViewOverflowButtonMargin}"
                                                Theme="{StaticResource NavigationViewOverflowButtonStyleWhenPaneOnTop}"
-                                               IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TemplateSettings.OverflowButtonVisibility}">
+                                               IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TemplateSettings.OverflowButtonVisibility}"
+                                               AutomationProperties.Name="More"
+                                               ToolTip.Tip="More">
                                         <Button.Styles>
                                             <Style Selector="FlyoutPresenter">
                                                 <Setter Property="Theme" Value="{StaticResource NavViewFlyoutStyle}" />
@@ -275,7 +279,8 @@
                                         <Button Name="PaneAutoSuggestButton"
                                                 Theme="{StaticResource NavigationViewPaneSearchButtonStyle}"
                                                 IsVisible="False"
-                                                Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TemplateSettings.SmallerPaneToggleButtonWidth}" />
+                                                Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TemplateSettings.SmallerPaneToggleButtonWidth}"
+                                                AutomationProperties.Name="Click to search" />
                                     </Panel>
 
                                     <ContentControl Name="PaneCustomContentBorder"

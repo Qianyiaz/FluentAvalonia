@@ -88,7 +88,7 @@ public class FACommandBarOverflowPresenter : ItemsControl
 
     private void RegisterItems(IList l)
     {
-        for (int i = 0; i < l.Count; i++)
+        for (var i = 0; i < l.Count; i++)
         {
             if (l[i] is FACommandBarButton cbb)
             {
@@ -119,7 +119,7 @@ public class FACommandBarOverflowPresenter : ItemsControl
 
     private void UnregisterItems(IList l)
     {
-        for (int i = 0; i < l.Count; i++)
+        for (var i = 0; i < l.Count; i++)
         {
             if (l[i] is FACommandBarButton cbb)
             {
@@ -158,9 +158,9 @@ public class FACommandBarOverflowPresenter : ItemsControl
     {
         var items = Items as IList;
 
-        bool icon = _hasIcons > 0;
-        bool toggle = _hasToggle > 0;
-        for (int i = 0; i < items.Count; i++)
+        var icon = _hasIcons > 0;
+        var toggle = _hasToggle > 0;
+        for (var i = 0; i < items.Count; i++)
         {
             if (items[i] is Control c && c.Classes is IPseudoClasses pc)
             {

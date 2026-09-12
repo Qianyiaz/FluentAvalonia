@@ -47,7 +47,7 @@ public class NavViewPageViewModel : ViewModelBase
             var pg = Activator.CreateInstance(Type.GetType(smpPage));
             CurrentPage = (Control)pg;
         }
-        else if (SelectedCategory is FANavigationViewItem nvi)
+        else if (SelectedCategory is FANavigationViewItem)
         {
             var smpPage = $"FAControlsGallery.Pages.NVSamplePages.NVSamplePageSettings";
             var pg = Activator.CreateInstance(Type.GetType(smpPage));

@@ -21,10 +21,8 @@ internal static class IEnumerableExtensions
         {
             return collec.Count;
         }
-        else
-        {
-            return Enumerable.Count(items.Cast<object>());
-        }
+
+        return Enumerable.Count(items.Cast<object>());
     }
 
     /// <summary>
@@ -38,22 +36,20 @@ internal static class IEnumerableExtensions
         {
             return list.IndexOf(item);
         }
-        else
+
+        var index = 0;
+
+        foreach (var i in items)
         {
-            int index = 0;
-
-            foreach (var i in items)
+            if (ReferenceEquals(i, item))
             {
-                if (ReferenceEquals(i, item))
-                {
-                    return index;
-                }
-
-                ++index;
+                return index;
             }
 
-            return -1;
+            ++index;
         }
+
+        return -1;
     }
 
     /// <summary>
@@ -71,10 +67,8 @@ internal static class IEnumerableExtensions
         {
             return list[reqIndex];
         }
-        else
-        {
-            return Enumerable.ElementAt(items.Cast<object>(), reqIndex);
-        }
+
+        return Enumerable.ElementAt(items.Cast<object>(), reqIndex);
 
     }
 
@@ -87,17 +81,15 @@ internal static class IEnumerableExtensions
         {
             return list.Contains(item);
         }
-        else
-        {
-            foreach (var i in items)
-            {
-                if (ReferenceEquals(i, item))
-                {
-                    return true;
-                }
-            }
 
-            return false;
+        foreach (var i in items)
+        {
+            if (ReferenceEquals(i, item))
+            {
+                return true;
+            }
         }
+
+        return false;
     }
 }

@@ -27,7 +27,7 @@ public sealed class MainViewViewModel : ViewModelBase
 
         if (pageItem is CoreControlsPageViewModel ccpg)
         {
-            for (int i = 0; i < ccpg.CoreControlGroups.Count; i++)
+            for (var i = 0; i < ccpg.CoreControlGroups.Count; i++)
             {
                 var item = ccpg.CoreControlGroups[i];
 
@@ -36,9 +36,9 @@ public sealed class MainViewViewModel : ViewModelBase
         }
         else if (pageItem is FAControlsOverviewPageViewModel fapg)
         {
-            for (int i = 0; i < fapg.ControlGroups.Count; i++)
+            for (var i = 0; i < fapg.ControlGroups.Count; i++)
             {
-                for (int j = 0; j < fapg.ControlGroups[i].Controls.Count; j++)
+                for (var j = 0; j < fapg.ControlGroups[i].Controls.Count; j++)
                 {
                     var item = fapg.ControlGroups[i].Controls[j];
 
@@ -52,11 +52,11 @@ public sealed class MainViewViewModel : ViewModelBase
             if (item.SearchKeywords is null)
                 return;
 
-            string ctrlNamespace = "Avalonia.UI.Controls";
+            var ctrlNamespace = "Avalonia.UI.Controls";
             if (item is FAControlsPageItem fa)
                 ctrlNamespace = fa.Namespace;
 
-            for (int i = 0; i < item.SearchKeywords.Length; i++)
+            for (var i = 0; i < item.SearchKeywords.Length; i++)
             {
                 SearchTerms.Add(new MainAppSearchItem
                 {
@@ -102,45 +102,48 @@ public sealed class NavigationFactory : IFANavigationPageFactory
                 DataContext = target
             };
         }
-        else if (target is CoreControlsPageViewModel)
+
+        if (target is CoreControlsPageViewModel)
         {
             return new CoreControlsPage
             {
                 DataContext = target
             };
         }
-        else if (target is FAControlsOverviewPageViewModel)
+
+        if (target is FAControlsOverviewPageViewModel)
         {
             return new FAControlsOverviewPage
             {
                 DataContext = target
             };
         }
-        else if (target is PlaygroundPageViewModel)
+
+        if (target is PlaygroundPageViewModel)
         {
             return new PlaygroundPage
             {
                 DataContext = target
             };
         }
-        else if (target is DesignPageViewModel)
+
+        if (target is DesignPageViewModel)
         {
             return new DesignPage
             {
                 DataContext = target
             };
         }
-        else if (target is SettingsPageViewModel)
+
+        if (target is SettingsPageViewModel)
         {
             return new SettingsPage
             {
                 DataContext = target
             };
         }
-        else
-        {
-            return ResolvePage(target as PageBaseViewModel);
-        }
+
+        return ResolvePage(target as PageBaseViewModel);
     }
 
     private Control ResolvePage(PageBaseViewModel pbvm)

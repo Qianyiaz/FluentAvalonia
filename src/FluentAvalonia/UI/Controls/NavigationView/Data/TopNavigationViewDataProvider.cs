@@ -18,7 +18,7 @@ internal class TopNavigationViewDataProvider : SplitDataSourceBase<object, Navig
     public TopNavigationViewDataProvider(FANavigationView owner) : base(5)
     {
         //Wow Microsoft, creative naming
-        Func<object, int> lambda = (object value) =>
+        var lambda = (object value) =>
         {
             return IndexOf(value);
         };
@@ -80,8 +80,8 @@ internal class TopNavigationViewDataProvider : SplitDataSourceBase<object, Navig
 
     public int IndexOf(object value, NavigationViewSplitVectorID id)
     {
-        int indexInOriginalVector = IndexOf(value);
-        int index = -1;
+        var indexInOriginalVector = IndexOf(value);
+        var index = -1;
         if (indexInOriginalVector != -1)
         {
             var vector = GetVectorForItem(indexInOriginalVector);
@@ -119,7 +119,7 @@ internal class TopNavigationViewDataProvider : SplitDataSourceBase<object, Navig
 
     public void MoveAllItemsToPrimaryList()
     {
-        for (int i = 0; i < Size; i++)
+        for (var i = 0; i < Size; i++)
         {
             MoveItemToVector(i, NavigationViewSplitVectorID.PrimaryList);
         }
@@ -127,7 +127,7 @@ internal class TopNavigationViewDataProvider : SplitDataSourceBase<object, Navig
 
     public IList<int> ConvertPrimaryIndexToIndex(IList<int> indicesInPrimary)
     {
-        List<int> indices = new List<int>();
+        var indices = new List<int>();
         if (indicesInPrimary.Count != 0)
         {
             var vector = GetVector(NavigationViewSplitVectorID.PrimaryList);
@@ -165,8 +165,8 @@ internal class TopNavigationViewDataProvider : SplitDataSourceBase<object, Navig
     {
         get
         {
-            int count = 0;
-            for (int i = 0; i < Size; i++)
+            var count = 0;
+            for (var i = 0; i < Size; i++)
             {
                 if (IsItemInPrimaryList(i) && IsContainerNavigationViewItem(i))
                 {
@@ -181,8 +181,8 @@ internal class TopNavigationViewDataProvider : SplitDataSourceBase<object, Navig
     {
         get
         {
-            int count = 0;
-            for (int i = 0; i < Size; i++)
+            var count = 0;
+            for (var i = 0; i < Size; i++)
             {
                 if (IsContainerNavigationViewItem(i))
                 {
@@ -206,7 +206,7 @@ internal class TopNavigationViewDataProvider : SplitDataSourceBase<object, Navig
     public double WidthRequiredToRecoveryAllItemsToPrimary()
     {
         var width = 0.0;
-        for (int i = 0; i < Size; i++)
+        for (var i = 0; i < Size; i++)
         {
             if (!IsItemInPrimaryList(i))
             {
@@ -219,7 +219,7 @@ internal class TopNavigationViewDataProvider : SplitDataSourceBase<object, Navig
 
     public bool HasInvalidWidth(IList<int> items)
     {
-        bool hasInvalidWidth = false;
+        var hasInvalidWidth = false;
         foreach (var index in items)
         {
             if (!IsValidWidthForItem(index))
@@ -243,7 +243,7 @@ internal class TopNavigationViewDataProvider : SplitDataSourceBase<object, Navig
 
     public double CalculateWidthForItems(IList<int> items)
     {
-        double width = 0.0;
+        var width = 0.0;
         foreach (var index in items)
         {
             width += GetWidthForItem(index);
@@ -264,7 +264,7 @@ internal class TopNavigationViewDataProvider : SplitDataSourceBase<object, Navig
 
     public bool IsItemSelectableInPrimaryList(object value)
     {
-        int index = IndexOf(value);
+        var index = IndexOf(value);
         return (index != -1);
     }
 

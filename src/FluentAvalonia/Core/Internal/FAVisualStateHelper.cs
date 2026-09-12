@@ -50,7 +50,7 @@ public sealed class FAVisualStateHelper
         if (string.IsNullOrEmpty(classes))
             return;
 
-        CharacterReader cr = new CharacterReader(classes.AsSpan());
+        var cr = new CharacterReader(classes.AsSpan());
 
         while (!cr.End)
         {

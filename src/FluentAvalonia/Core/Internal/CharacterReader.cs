@@ -16,7 +16,7 @@ internal ref struct CharacterReader
     public char Take()
     {
         Position++;
-        char taken = _s[0];
+        var taken = _s[0];
         _s = _s.Slice(1);
         return taken;
     }
@@ -35,10 +35,8 @@ internal ref struct CharacterReader
             Take();
             return true;
         }
-        else
-        {
-            return false;
-        }
+
+        return false;
     }
 
     internal bool TakeIf(string s)

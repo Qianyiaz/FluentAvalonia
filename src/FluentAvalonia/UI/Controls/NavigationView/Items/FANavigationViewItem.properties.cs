@@ -196,7 +196,7 @@ public partial class FANavigationViewItem
     {
         get
         {
-            bool isPaneDisplayModeTop = true;
+            var isPaneDisplayModeTop = true;
             if (GetNavigationView is FANavigationView nv)
             {
                 // There is a delay between the NavigationViewPaneDisplayMode update and the 

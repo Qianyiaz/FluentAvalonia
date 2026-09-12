@@ -15,7 +15,7 @@ public partial class NumberBoxPage : ControlsPageBase
         var nm = this.FindControl<FANumberBox>("FormattedNumBox");
         nm.NumberFormatter = (input) =>
         {
-            double increment = 1 / 0.25;
+            var increment = 1 / 0.25;
             return (Math.Round(input * increment, MidpointRounding.AwayFromZero) / increment).ToString("F2");
         };
 

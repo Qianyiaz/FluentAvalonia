@@ -158,7 +158,7 @@ public partial class FATabViewItem : FASelectorItem
                 BeginCheckingForDrag(pointer.Id);
 
                 var mod = TopLevel.GetTopLevel(this).GetPlatformSettings().HotkeyConfiguration.CommandModifiers;
-                bool ctrlDown = (e.KeyModifiers & mod) == mod;
+                var ctrlDown = (e.KeyModifiers & mod) == mod;
 
                 if (ctrlDown)
                 {
@@ -199,8 +199,6 @@ public partial class FATabViewItem : FASelectorItem
     {
         base.OnPointerReleased(e);
 
-        var pointer = e.Pointer;
-
         StopCheckingForDrag(e.Pointer.Id);
         UpdateDragDropVisualState(false);
 
@@ -208,7 +206,7 @@ public partial class FATabViewItem : FASelectorItem
         {
             if (e.GetCurrentPoint(null).Properties.PointerUpdateKind == PointerUpdateKind.MiddleButtonReleased)
             {
-                bool wasPressed = _isMiddlePointerButtonPressed;
+                var wasPressed = _isMiddlePointerButtonPressed;
                 _isMiddlePointerButtonPressed = false;
                 // Pointer capture release is implicit
 
@@ -277,13 +275,13 @@ public partial class FATabViewItem : FASelectorItem
             // ListView also handles Alt+Arrow  (no Shift) by just doing regular XY focus,
             // same as how it handles Arrow without any modifier keys, so in that case
             // we do want to handle things so we get the improved keyboarding experience.
-            bool isAltDown = (e.KeyModifiers & KeyModifiers.Alt) == KeyModifiers.Alt;
-            bool isShiftDown = (e.KeyModifiers & KeyModifiers.Shift) == KeyModifiers.Shift;
+            var isAltDown = (e.KeyModifiers & KeyModifiers.Alt) == KeyModifiers.Alt;
+            var isShiftDown = (e.KeyModifiers & KeyModifiers.Shift) == KeyModifiers.Shift;
 
             if (!isAltDown || !isShiftDown)
             {
-                bool moveForward = FlowDirection == FlowDirection.LeftToRight && e.Key == Key.Right ||
-                    FlowDirection == FlowDirection.RightToLeft && e.Key == Key.Left;
+                var moveForward = FlowDirection == FlowDirection.LeftToRight && e.Key == Key.Right ||
+                                  FlowDirection == FlowDirection.RightToLeft && e.Key == Key.Left;
 
                 e.Handled = ParentTabView?.MoveFocus(moveForward) ?? false;
             }
@@ -333,7 +331,7 @@ public partial class FATabViewItem : FASelectorItem
         if (_location == FATabViewTabStripLocation.Left || _location == FATabViewTabStripLocation.Right)
             return;
 
-        bool isTop = _location == FATabViewTabStripLocation.Top;
+        var isTop = _location == FATabViewTabStripLocation.Top;
         var height = Bounds.Height;
         var popupRadius = this.TryFindResource(c_overlayCornerRadiusKey, out var value) ? (CornerRadius)value : default;
         var leftCorner = popupRadius.TopLeft;
@@ -578,7 +576,7 @@ public partial class FATabViewItem : FASelectorItem
         if (_location == FATabViewTabStripLocation.Left || _location == FATabViewTabStripLocation.Right)
             return;
 
-        bool top = _location == FATabViewTabStripLocation.Top;
+        var top = _location == FATabViewTabStripLocation.Top;
         var path = _selectedBackgroundPath;
 
         var offset = path.Bounds.Y;
@@ -619,10 +617,10 @@ public partial class FATabViewItem : FASelectorItem
     private Path _selectedBackgroundPath;
     private FATabViewTabStripLocation _location;
 
-    private bool _hasPointerCapture = false;
-    private bool _isMiddlePointerButtonPressed = false;
+    private bool _hasPointerCapture;
+    private bool _isMiddlePointerButtonPressed;
     //private bool _isBeingDragged = false;
-    private bool _isPointerOver = false;
+    private bool _isPointerOver;
     private Point _lastPointerPressedPosition;
     private int _dragPointerId;
     private bool _isCheckingForDrag;

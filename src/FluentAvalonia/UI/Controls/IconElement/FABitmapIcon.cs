@@ -91,15 +91,15 @@ public partial class FABitmapIcon : FAIconElement
                 var avColor = Foreground is ISolidColorBrush sc ? sc.Color : Colors.White;
 
                 var color = new SKColor(avColor.R, avColor.G, avColor.B, avColor.A);
-                SKPaint paint = new SKPaint();
+                var paint = new SKPaint();
                 paint.ColorFilter = SKColorFilter.CreateBlendMode(color, SKBlendMode.SrcATop);
 
-                skDC.DrawBitmap(finalBmp, new SKRect(0, 0, (float)wid, (float)hei), paint);
+                skDC.DrawBitmap(finalBmp, new SKRect(0, 0, wid, hei), paint);
                 paint.Dispose();
             }
             else
             {
-                skDC.DrawBitmap(finalBmp, new SKRect(0, 0, (float)wid, (float)hei));
+                skDC.DrawBitmap(finalBmp, new SKRect(0, 0, wid, hei));
             }
 
             finalBmp.Dispose();
@@ -142,10 +142,7 @@ public partial class FABitmapIcon : FAIconElement
 
     internal void LinkToBitmapIconSource(FABitmapIconSource bis)
     {
-        if (bis == null)
-            throw new ArgumentNullException("BitmapIconSource", "BitmapIconSource cannot be null");
-
-        _bis = bis;
+        _bis = bis ?? throw new ArgumentNullException("BitmapIconSource", "BitmapIconSource cannot be null");
         OnLinkedBitmapIconSourceChanged(null, null);
         bis.OnBitmapChanged += OnLinkedBitmapIconSourceChanged;
     }

@@ -44,7 +44,7 @@ public partial class FANavigationView : HeaderedContentControl
         if (DoesNavigationViewItemHaveChildren(start) && start.IsExpanded)
         {
             var ct = start.GetRepeater.ItemsSourceView.Count;
-            for (int j = ct - 1; j >= 0; j--)
+            for (var j = ct - 1; j >= 0; j--)
             {
                 if (start.GetRepeater.TryGetElement(j) is FANavigationViewItem nvi)
                 {
@@ -65,10 +65,10 @@ public partial class FANavigationView : HeaderedContentControl
     private bool IsTopPrimaryListVisible => _topNavRepeater != null && TemplateSettings.TopPaneVisibility;
 
     private double GetPaneToggleButtonWidth() =>
-        this.TryFindResource(s_resPaneToggleButtonWidth, out object value) ? (double)value : 40;
+        this.TryFindResource(s_resPaneToggleButtonWidth, out var value) ? (double)value : 40;
 
     private double GetPaneToggleButtonHeight() =>
-        this.TryFindResource(s_resPaneToggleButtonHeight, out object value) ? (double)value : 40;
+        this.TryFindResource(s_resPaneToggleButtonHeight, out var value) ? (double)value : 40;
 
     internal bool IsOverlay => _splitView != null && _splitView.DisplayMode == SplitViewDisplayMode.Overlay;
 
@@ -118,7 +118,7 @@ public partial class FANavigationView : HeaderedContentControl
     {
         get
         {
-            bool vis = IsBackButtonVisible;
+            var vis = IsBackButtonVisible;
             return vis;
         }
     }
@@ -206,7 +206,7 @@ public partial class FANavigationView : HeaderedContentControl
     private IndexPath GetIndexPathForContainer(FANavigationViewItemBase nvib)
     {
         var path = new List<int>(4);
-        bool isInFooterMenu = false;
+        var isInFooterMenu = false;
 
         Control child = nvib;
         var parent = nvib.GetVisualParent();
@@ -299,16 +299,6 @@ public partial class FANavigationView : HeaderedContentControl
 
     private int GetNavigationViewItemCountInTopNav =>
         _topDataProvider?.NavigationViewItemCountInTopNav ?? 0;
-
-    private bool IsSettingsItem(object item)
-    {
-        if (item != null && _settingsItem != null)
-        {
-            return (item == _settingsItem) || (_settingsItem.Content == item);
-        }
-
-        return false;
-    }
 
     private double MeasureTopNavigationViewDesiredWidth(Size availableSize) =>
         LayoutHelper.MeasureChild(_topNavGrid, availableSize, new Thickness()).Width;
@@ -438,10 +428,8 @@ public partial class FANavigationView : HeaderedContentControl
         {
             return nvi;
         }
-        else
-        {
-            return NavigationViewItemOrSettingsContentFromData(SelectedItem);
-        }
+
+        return NavigationViewItemOrSettingsContentFromData(SelectedItem);
     }
 
     private IEnumerable GetChildren(FANavigationViewItem nvi)
@@ -505,10 +493,8 @@ public partial class FANavigationView : HeaderedContentControl
                  FASlideNavigationTransitionEffect.FromRight : FASlideNavigationTransitionEffect.FromLeft
             };
         }
-        else
-        {
-            return new FAEntranceNavigationTransitionInfo();
-        }
+
+        return new FAEntranceNavigationTransitionInfo();
     }
 
     internal NavigationViewItemsFactory ItemsFactory => _itemsFactory;

@@ -126,7 +126,7 @@ internal class ElementManager
     {
         Debug.Assert(IsVirtualizingContext());
 
-        for (int i = 0; i < count; i++)
+        for (var i = 0; i < count; i++)
         {
             // Clear from the edges so that ItemsRepeater can optimize on maintaining 
             // realized indices without walking through all the children every time.
@@ -137,7 +137,7 @@ internal class ElementManager
             }
         }
 
-        int endIndex = realizedIndex + count;
+        var endIndex = realizedIndex + count;
         _realizedElements.RemoveRange(realizedIndex, endIndex - realizedIndex);
 
         if (_useLayoutBounds)
@@ -205,11 +205,9 @@ internal class ElementManager
                 GetDataIndexFromRealizedRangeIndex(0) <= index &&
                 GetDataIndexFromRealizedRangeIndex(realizedCount - 1) >= index;
         }
-        else
-        {
-            // Non virtualized - everything is realized
-            return index >= 0 && index < _context.ItemCount;
-        }
+
+        // Non virtualized - everything is realized
+        return index >= 0 && index < _context.ItemCount;
     }
 
     public bool IsIndexValidInData(int currentIndex) =>
@@ -254,7 +252,7 @@ internal class ElementManager
         Debug.Assert(IsVirtualizingContext());
         Debug.Assert(_useLayoutBounds);
 
-        bool intersects = false;
+        var intersects = false;
         if (_realizedElementLayoutBounds.Count > 0)
         {
             var firstElementBounds = GetLayoutBoundsForRealizedIndex(0);
@@ -310,7 +308,7 @@ internal class ElementManager
                         // Instead, we can just clear those items and set the element to
                         // null (sentinel) and let the next measure get new containers for them.
                         var startRealizedIndex = GetRealizedRangeIndexFromDataIndex(oldStartIndex);
-                        for (int realizedIndex = startRealizedIndex; realizedIndex < startRealizedIndex + oldSize; realizedIndex++)
+                        for (var realizedIndex = startRealizedIndex; realizedIndex < startRealizedIndex + oldSize; realizedIndex++)
                         {
                             if (_realizedElements[realizedIndex] is Control c)
                             {
@@ -336,7 +334,7 @@ internal class ElementManager
                 break;
 
             case NotifyCollectionChangedAction.Move:
-                int size = args.OldItems?.Count ?? 1;
+                var size = args.OldItems?.Count ?? 1;
                 OnItemsRemoved(args.OldStartingIndex, size);
                 OnItemsAdded(args.NewStartingIndex, size);
                 break;
@@ -392,18 +390,18 @@ internal class ElementManager
         // might be empty if the BringIntoView is issued before the first
         // layout pass).
 
-        int realizedRangeSize = GetRealizedElementCount();
-        int frontCutoffIndex = -1;
-        int backCutoffIndex = realizedRangeSize;
+        var realizedRangeSize = GetRealizedElementCount();
+        var frontCutoffIndex = -1;
+        var backCutoffIndex = realizedRangeSize;
 
-        for (int i =0; 
+        for (var i =0; 
             i < realizedRangeSize && !Intersects(window, _realizedElementLayoutBounds[i], orientation);
             i++)
         {
             ++frontCutoffIndex;
         }
 
-        for (int i = realizedRangeSize - 1;
+        for (var i = realizedRangeSize - 1;
             i >= 0 && !Intersects(window, _realizedElementLayoutBounds[i], orientation);
             i--)
         {
@@ -436,19 +434,19 @@ internal class ElementManager
         // Using the old indices here (before it was updated by the collection change)
         // if the insert data index is between the first and last realized data index, we need
         // to insert items.
-        int lastRealizedDataIndex = _firstRealizedDataIndex + GetRealizedElementCount() - 1;
-        int newStartingIndex = index;
+        var lastRealizedDataIndex = _firstRealizedDataIndex + GetRealizedElementCount() - 1;
+        var newStartingIndex = index;
         if (newStartingIndex >= _firstRealizedDataIndex &&
             newStartingIndex <= lastRealizedDataIndex)
         {
             // Inserted within the realized range
-            int insertRangeStartIndex = newStartingIndex - _firstRealizedDataIndex;
-            for (int i = 0; i < count; i++)
+            var insertRangeStartIndex = newStartingIndex - _firstRealizedDataIndex;
+            for (var i = 0; i < count; i++)
             {
                 // Insert null (sentinel) here instead of an element, that way we dont 
                 // end up creating a lot of elements only to be thrown out in the next layout.
-                int insertRangeIndex = insertRangeStartIndex + i;
-                int dataIndex = newStartingIndex + i;
+                var insertRangeIndex = insertRangeStartIndex + i;
+                var dataIndex = newStartingIndex + i;
                 // This is to keep the contiguousness of the mapping
                 Insert(insertRangeIndex, dataIndex, null);
             }
@@ -463,10 +461,10 @@ internal class ElementManager
 
     private void OnItemsRemoved(int index, int count)
     {
-        int lastRealizedDataIndex = _firstRealizedDataIndex + _realizedElements.Count - 1;
-        int startIndex = Math.Max(_firstRealizedDataIndex, index);
-        int endIndex = Math.Min(lastRealizedDataIndex, index + count - 1);
-        bool removeAffectsFirstRealizedDataIndex = index <= _firstRealizedDataIndex;
+        var lastRealizedDataIndex = _firstRealizedDataIndex + _realizedElements.Count - 1;
+        var startIndex = Math.Max(_firstRealizedDataIndex, index);
+        var endIndex = Math.Min(lastRealizedDataIndex, index + count - 1);
+        var removeAffectsFirstRealizedDataIndex = index <= _firstRealizedDataIndex;
 
         if (endIndex >= startIndex)
         {
@@ -484,7 +482,7 @@ internal class ElementManager
         if (_context != null)
         {
             var rect = _context.RealizationRect;
-            bool hasInfiniteSize = double.IsInfinity(rect.Height) || double.IsInfinity(rect.Width);
+            var hasInfiniteSize = double.IsInfinity(rect.Height) || double.IsInfinity(rect.Width);
             return !hasInfiniteSize;
         }
 
@@ -495,5 +493,5 @@ internal class ElementManager
     private List<Control> _realizedElements = new List<Control>();
     private List<Rect> _realizedElementLayoutBounds = new List<Rect>();
     private int _firstRealizedDataIndex = -1;
-    private FAVirtualizingLayoutContext _context = null;
+    private FAVirtualizingLayoutContext _context;
 }

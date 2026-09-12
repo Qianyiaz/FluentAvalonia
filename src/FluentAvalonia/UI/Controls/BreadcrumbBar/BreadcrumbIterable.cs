@@ -41,14 +41,13 @@ internal class BreadcrumbIterable : IEnumerable
                 {
                     return null;
                 }
-                else if (HasCurrent())
+
+                if (HasCurrent())
                 {
                     return _itemsSource.GetAt(_currentIndex - 1);
                 }
-                else
-                {
-                    throw new IndexOutOfRangeException();
-                }
+
+                throw new IndexOutOfRangeException();
             }
         }
 
@@ -59,10 +58,8 @@ internal class BreadcrumbIterable : IEnumerable
                 _currentIndex++;
                 return HasCurrent();
             }
-            else
-            {
-                throw new IndexOutOfRangeException();
-            }
+
+            throw new IndexOutOfRangeException();
         }
 
         public void Reset()

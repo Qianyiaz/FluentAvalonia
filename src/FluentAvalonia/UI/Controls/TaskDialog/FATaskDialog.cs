@@ -9,7 +9,6 @@ using Avalonia.Threading;
 using Avalonia.VisualTree;
 using FluentAvalonia.Core;
 using FluentAvalonia.UI.Controls.Primitives;
-using FluentAvalonia.UI.Windowing;
 
 namespace FluentAvalonia.UI.Controls;
 
@@ -155,7 +154,7 @@ public partial class FATaskDialog : ContentControl
     /// </remarks>
     public async Task<object> ShowAsync(bool showHosted = false)
     {
-        bool declaredInXaml = this.IsAttachedToVisualTree();
+        var declaredInXaml = this.IsAttachedToVisualTree();
         if (!declaredInXaml && XamlRoot == null)
         {
             throw new InvalidOperationException("XamlRoot not set on TaskDialog. This should be set to the TopLevel that should own or host the dialog.");
@@ -239,43 +238,6 @@ public partial class FATaskDialog : ContentControl
 
             PseudoClasses.Set(s_pcHidden, false);
             PseudoClasses.Set(s_pcHosted, false);
-
-            var host = new FAAppWindow()
-            {
-                CanResize = false,
-                SizeToContent = SizeToContent.WidthAndHeight,
-                WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                ShowAsDialog = true,
-                Content = this,
-                MinWidth = 100,
-                MinHeight = 100
-            };
-
-            if (_host == null)
-            {
-                host[!Window.TitleProperty] = this[!TitleProperty];
-                host.Opened += (s, e) =>
-                {
-                    OnOpened();
-
-                    TrySetInitialFocus();
-                };
-                host.Closing += (s, e) =>
-                {
-                    if (_ignoreWindowClosingEvent)
-                        return;
-
-                    // Cancel the window event now, and we'll use our normal closing logic to determine
-                    // if we should actually cancel
-                    e.Cancel = true;
-                    CloseCore(FATaskDialogStandardResult.None);
-                };
-            }            
-            
-            _host = host;
-            IsVisible = true;
-
-            result = await host.ShowDialog<object>(owner as Window);
         }
 
         _isOpening = false;
@@ -469,9 +431,9 @@ public partial class FATaskDialog : ContentControl
         if (_buttons == null)
             return;
 
-        List<FATaskDialogButtonHost> buttons = new List<FATaskDialogButtonHost>();
-        bool foundDefault = false;
-        for (int i = 0; i < _buttons.Count; i++)
+        var buttons = new List<FATaskDialogButtonHost>();
+        var foundDefault = false;
+        for (var i = 0; i < _buttons.Count; i++)
         {
             var button = _buttons[i];
             var b = new FATaskDialogButtonHost
@@ -504,12 +466,12 @@ public partial class FATaskDialog : ContentControl
         if (_commands == null)
             return;
 
-        List<Control> commands = new List<Control>();
+        var commands = new List<Control>();
 
-        bool foundDefault = _defaultButton != null;
-        int iconCount = 0;
-        int normalCommandCount = 0;
-        for (int i = 0; i < _commands.Count; i++)
+        var foundDefault = _defaultButton != null;
+        var iconCount = 0;
+        var normalCommandCount = 0;
+        for (var i = 0; i < _commands.Count; i++)
         {
             if (_commands[i] is FATaskDialogCheckBox tdcb)
             {
@@ -574,7 +536,7 @@ public partial class FATaskDialog : ContentControl
         {
             // We have an item with no icon - force it to display as if one
             // was present so that its aligned with the others
-            for (int i = 0; i < commands.Count; i++)
+            for (var i = 0; i < commands.Count; i++)
             {
                 (commands[i].Classes as IPseudoClasses).Set(FASharedPseudoclasses.s_pcIcon, true);
             }
@@ -586,7 +548,7 @@ public partial class FATaskDialog : ContentControl
     private void TrySetInitialFocus()
     {
         var curFocus = TopLevel.GetTopLevel(this).FocusManager.GetFocusedElement() as Control;
-        bool setFocus = false;
+        var setFocus = false;
         if (curFocus?.FindAncestorOfType<FATaskDialog>() == null)
         {
             setFocus = true;
@@ -606,7 +568,7 @@ public partial class FATaskDialog : ContentControl
         }
         else
         {
-            var fm = TopLevel.GetTopLevel(this).FocusManager;
+            _ = TopLevel.GetTopLevel(this).FocusManager;
             // TODO: v3 - does this work?
             var next = FocusManager.FindFirstFocusableElement(this);
             if (next != null)
@@ -615,7 +577,7 @@ public partial class FATaskDialog : ContentControl
             }
             else
             {
-                this.Focus();
+                Focus();
             }
 
 #if DEBUG
@@ -637,7 +599,7 @@ public partial class FATaskDialog : ContentControl
     private int _xamlOwnerChildIndex;
     private Control _host;
     private TaskCompletionSource<object> _tcs;
-    internal bool _hasDeferralActive = false;
+    internal bool _hasDeferralActive;
 
     private IInputElement _previousFocus;
     private bool _ignoreWindowClosingEvent;

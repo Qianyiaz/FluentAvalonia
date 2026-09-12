@@ -52,7 +52,7 @@ public partial class HomePage : UserControl
         var panel = TileItemsControl.ItemsPanelRoot;
 
         _animations = GetAnimations();
-        for (int i = 0; i < panel.Children.Count; i++)
+        for (var i = 0; i < panel.Children.Count; i++)
         {
             var item = panel.Children[i];
             var vis = ElementComposition.GetElementVisual(item);

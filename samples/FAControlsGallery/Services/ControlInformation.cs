@@ -25,7 +25,7 @@ public sealed class ControlInformation
     private static string GetControlsList(string name)
     {
         using (var stream = AssetLoader.Open(new Uri(name)))
-        using (StreamReader reader = new StreamReader(stream))
+        using (var reader = new StreamReader(stream))
         {
             return reader.ReadToEnd();
         }

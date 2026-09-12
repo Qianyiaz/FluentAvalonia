@@ -13,7 +13,7 @@ public partial class FAXamlUICommand : AvaloniaObject, ICommand
 
     public bool CanExecute(object param)
     {
-        bool canExec = false;
+        var canExec = false;
 
         var args = new FACanExecuteRequestedEventArgs(param);
 
@@ -24,7 +24,7 @@ public partial class FAXamlUICommand : AvaloniaObject, ICommand
         var command = Command;
         if (command != null)
         {
-            bool canExecCommand = command.CanExecute(param);
+            var canExecCommand = command.CanExecute(param);
             canExec = canExec && canExecCommand;
         }
 

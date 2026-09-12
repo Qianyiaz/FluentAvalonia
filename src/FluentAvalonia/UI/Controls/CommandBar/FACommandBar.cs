@@ -92,7 +92,7 @@ public partial class FACommandBar : ContentControl
     /// <inheritdoc/>
     protected override Size MeasureOverride(Size availableSize)
     {
-        bool isDynamic = IsDynamicOverflowEnabled;
+        var isDynamic = IsDynamicOverflowEnabled;
         if (isDynamic)
         {
             if (!_moreButton.IsVisible)
@@ -107,7 +107,6 @@ public partial class FACommandBar : ContentControl
                 return sz;
             }
 
-            double availWid = availableSize.Width;
             // TODO: May need special case if CommandBar is returned to a container
             // with infinite width and items are in overflow, but this seems like 
             // a very rare, specific thing, so I'm not gonna worry about that here.
@@ -119,13 +118,13 @@ public partial class FACommandBar : ContentControl
 
             if (_minRecoverWidth < availWidForItems && _numInOverflow > 0)
             {
-                double trackWid = _primaryItemsHost.DesiredSize.Width;
+                var trackWid = _primaryItemsHost.DesiredSize.Width;
                 while (_numInOverflow > 0)
                 {
                     var items = GetReturnToPrimaryItems();
                     double groupWid = 0;
 
-                    for (int i = 0; i < items.Count; i++)
+                    for (var i = 0; i < items.Count; i++)
                     {
                         groupWid += _widthCache[items[i]];
 
@@ -156,7 +155,7 @@ public partial class FACommandBar : ContentControl
                     var items = GetNextItemsToOverflow();
                     if (items != null)
                     {
-                        for (int i = 0; i < items.Count; i++)
+                        for (var i = 0; i < items.Count; i++)
                         {
                             var itemAsIControl = items[i] as Control;
                             UpdateWidthCacheForItem(items[i], itemAsIControl.DesiredSize.Width);
@@ -289,7 +288,7 @@ public partial class FACommandBar : ContentControl
         switch (e.Action)
         {
             case NotifyCollectionChangedAction.Add:
-                for (int i = 0; i < e.NewItems.Count; i++)
+                for (var i = 0; i < e.NewItems.Count; i++)
                 {
                     if (e.NewItems[i] is IFACommandBarElement ele)
                     {
@@ -301,7 +300,7 @@ public partial class FACommandBar : ContentControl
                 break;
 
             case NotifyCollectionChangedAction.Remove:
-                for (int i = 0; i < e.OldItems.Count; i++)
+                for (var i = 0; i < e.OldItems.Count; i++)
                 {
                     if (e.OldItems[i] is IFACommandBarElement ele)
                     {
@@ -318,7 +317,7 @@ public partial class FACommandBar : ContentControl
                 break;
 
             case NotifyCollectionChangedAction.Replace:
-                for (int i = 0; i < e.OldItems.Count; i++)
+                for (var i = 0; i < e.OldItems.Count; i++)
                 {
                     if (e.OldItems[i] is IFACommandBarElement ele)
                     {
@@ -328,7 +327,7 @@ public partial class FACommandBar : ContentControl
                 }
                 _primaryItems.RemoveRange(e.OldStartingIndex, e.OldItems.Count);
                 _primaryItems.InsertRange(e.NewStartingIndex, e.NewItems.Cast<IFACommandBarElement>());
-                for (int i = 0; i < e.NewItems.Count; i++)
+                for (var i = 0; i < e.NewItems.Count; i++)
                 {
                     if (e.NewItems[i] is IFACommandBarElement ele)
                     {
@@ -361,18 +360,18 @@ SetState:
         }
 
         // TODO: Test that this works...
-        int startIndex = _numInOverflow == 0 ? 0 : _numInOverflow + 1;
+        var startIndex = _numInOverflow == 0 ? 0 : _numInOverflow + 1;
         switch (e.Action)
         {
             case NotifyCollectionChangedAction.Add:
-                for (int i = 0; i < e.NewItems.Count; i++)
+                for (var i = 0; i < e.NewItems.Count; i++)
                 {
                     _overflowItems.Insert(e.NewStartingIndex + i + startIndex, e.NewItems[i] as IFACommandBarElement);
                 }
                 break;
 
             case NotifyCollectionChangedAction.Remove:
-                for (int i = 0; i < e.OldItems.Count; i++)
+                for (var i = 0; i < e.OldItems.Count; i++)
                 {
                     _overflowItems.RemoveAt(e.OldStartingIndex + i + startIndex);
                 }
@@ -384,11 +383,11 @@ SetState:
 
             case NotifyCollectionChangedAction.Replace:
             case NotifyCollectionChangedAction.Move:
-                for (int i = 0; i < e.OldItems.Count; i++)
+                for (var i = 0; i < e.OldItems.Count; i++)
                 {
                     _overflowItems.RemoveAt(e.OldStartingIndex + i + startIndex);
                 }
-                for (int i = 0; i < e.NewItems.Count; i++)
+                for (var i = 0; i < e.NewItems.Count; i++)
                 {
                     _overflowItems.Insert(e.NewStartingIndex + i + startIndex, e.NewItems[i] as IFACommandBarElement);
                 }
@@ -416,7 +415,7 @@ SetState:
 
             if (IsDynamicOverflowEnabled)
             {
-                for (int i = 0; i < _primaryItems.Count; i++)
+                for (var i = 0; i < _primaryItems.Count; i++)
                 {
                     if (_primaryItems[i].DynamicOverflowOrder != 0)
                         _hasOrderedOverflow++;
@@ -454,7 +453,7 @@ SetState:
             case NotifyCollectionChangedAction.Add:
                 {
                     var items = e.NewItems;
-                    for (int i = 0; i < items.Count; i++)
+                    for (var i = 0; i < items.Count; i++)
                     {
                         if (items[i] is Control c && c.Classes is IPseudoClasses pc)
                         {
@@ -472,7 +471,7 @@ SetState:
                     var items = e.OldItems;
                     if (items != null)
                     {
-                        for (int i = 0; i < items.Count; i++)
+                        for (var i = 0; i < items.Count; i++)
                         {
                             if (items[i] is Control c && c.Classes is IPseudoClasses pc)
                             {
@@ -489,7 +488,7 @@ SetState:
 
     private void ReturnOverflowToPrimary()
     {
-        for (int i = _numInOverflow - 1; i >= 0; i--)
+        for (var i = _numInOverflow - 1; i >= 0; i--)
         {
             var item = _overflowItems[i];
             _overflowItems.RemoveAt(i);
@@ -511,10 +510,10 @@ SetState:
                 return null;
 
             // TODO: Don't loop over this multiple times...
-            List<IFACommandBarElement> l = new List<IFACommandBarElement>(2);
-            int nextOverflowOrder = int.MaxValue;
-            bool hasAnotherOrder = false;
-            for (int i = _primaryItems.Count - 1; i >= 0; i--)
+            var l = new List<IFACommandBarElement>(2);
+            var nextOverflowOrder = int.MaxValue;
+            var hasAnotherOrder = false;
+            for (var i = _primaryItems.Count - 1; i >= 0; i--)
             {
                 if (_primaryItems[i].DynamicOverflowOrder == 0)
                     continue;
@@ -525,7 +524,7 @@ SetState:
 
             if (hasAnotherOrder)
             {
-                for (int i = 0; i < _primaryItems.Count; i++)
+                for (var i = 0; i < _primaryItems.Count; i++)
                 {
                     if (_primaryItems[i].DynamicOverflowOrder == nextOverflowOrder)
                     {
@@ -535,18 +534,14 @@ SetState:
 
                 return l;
             }
-            else
-            {
-                return new[] { _primaryItems[_primaryItems.Count - 1] };
-            }
-        }
-        else
-        {
-            if (_primaryItems.Count == 0)
-                return null;
 
             return new[] { _primaryItems[_primaryItems.Count - 1] };
         }
+
+        if (_primaryItems.Count == 0)
+            return null;
+
+        return new[] { _primaryItems[_primaryItems.Count - 1] };
     }
 
     private IList<IFACommandBarElement> GetReturnToPrimaryItems()
@@ -554,10 +549,10 @@ SetState:
         if (_overflowItems[_numInOverflow - 1].DynamicOverflowOrder == 0)
             return new[] { _overflowItems[_numInOverflow - 1] };
 
-        int currentGroup = _overflowItems[_numInOverflow - 1].DynamicOverflowOrder;
+        var currentGroup = _overflowItems[_numInOverflow - 1].DynamicOverflowOrder;
 
-        int count = 1;
-        for (int i = _numInOverflow - 2; i >= 0; i--)
+        var count = 1;
+        for (var i = _numInOverflow - 2; i >= 0; i--)
         {
             if (_overflowItems[i].DynamicOverflowOrder == currentGroup)
             {
@@ -595,7 +590,7 @@ SetState:
         }
     }
 
-    private bool _appliedTemplate = false;
+    private bool _appliedTemplate;
 
     // These are the actual lists sent to the Items Controls
     // We don't want to move items in the actual lists to not
@@ -610,8 +605,8 @@ SetState:
 
     private FACommandBarSeparator _overflowSeparator;
 
-    private int _hasOrderedOverflow = 0;
+    private int _hasOrderedOverflow;
     private Dictionary<IFACommandBarElement, double> _widthCache;
-    private int _numInOverflow = 0;
+    private int _numInOverflow;
     private double _minRecoverWidth;
 }

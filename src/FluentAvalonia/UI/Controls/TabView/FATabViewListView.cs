@@ -124,7 +124,7 @@ public sealed class FATabViewListView : ListBox
 
     protected override bool NeedsContainerOverride(object item, int index, out object recycleKey)
     {
-        bool isItem = item is FATabViewItem;
+        var isItem = item is FATabViewItem;
         recycleKey = isItem ? null : nameof(FATabViewItem);
         return !isItem;
     }
@@ -219,7 +219,7 @@ public sealed class FATabViewListView : ListBox
             // Also added unit test to ensure this is fixed.
 
             var selIndex = SelectedIndex;
-            int state = -1;
+            var state = -1;
             if (selIndex != -1)
             {
                 if (index == selIndex)
@@ -320,8 +320,8 @@ public sealed class FATabViewListView : ListBox
         var package = new DataPackage();
         DragItemsStartingEventArgs dragArgs = null;
         object[] dragItems = null;
-        bool canReorder = CanReorderItems;
-        bool canDrag = CanDragItems;
+        var canReorder = CanReorderItems;
+        var canDrag = CanDragItems;
 
         if (canDrag)
         {
@@ -419,8 +419,8 @@ public sealed class FATabViewListView : ListBox
             _lastDragOverPoint = pt;
         }
 
-        bool canReorder = CanReorderItems;
-        bool isInReorderFromExternalSource = (!_isDraggingOverSelf && canReorder);
+        var canReorder = CanReorderItems;
+        var isInReorderFromExternalSource = (!_isDraggingOverSelf && canReorder);
 
         if (!_isDragWithinTabStrip)
         {
@@ -535,8 +535,8 @@ public sealed class FATabViewListView : ListBox
         // Container & original index - TabView does not support multi-item drag
         // so we don't need anything else here
         var dragIndex = _dragIndex;
-        bool isDragItemFocused = _isDragItemFocused;
-        bool isDragItemSelected = _isDragItemSelected;
+        var isDragItemFocused = _isDragItemFocused;
+        var isDragItemSelected = _isDragItemSelected;
 
         var insertIndex = _liveReorderHelper.GetInsertionIndexForLiveReorder();
         _liveReorderHelper.ResetAllItemsForLiveReorder();
@@ -607,8 +607,8 @@ public sealed class FATabViewListView : ListBox
 
     private void ComputeEdgeScrollVelocity(Point dragPoint, out Vector pVelocity)
     {
-        bool isVerticalEnabled = false;
-        bool isHorizontalEnabled = false;
+        var isVerticalEnabled = false;
+        var isHorizontalEnabled = false;
         Size extent = default;
         Size viewport = default;
         Vector offset = default;
@@ -659,7 +659,7 @@ public sealed class FATabViewListView : ListBox
             vVelocity = -ComputeEdgeScrollVelocityFromEdgeDistance(dragPoint.Y, threshold);
             if (vVelocity == 0)
             {
-                double height = Bounds.Size.Height;
+                var height = Bounds.Size.Height;
                 vVelocity = ComputeEdgeScrollVelocityFromEdgeDistance(height - dragPoint.Y, threshold);
                 bound = extent.Height - viewport.Height;
             }
@@ -759,7 +759,7 @@ public sealed class FATabViewListView : ListBox
         var panel = ItemsPanelRoot;
         if (panel is VirtualizingStackPanel vsp)
             return vsp.Orientation;
-        else if (panel is StackPanel sp)
+        if (panel is StackPanel sp)
             return sp.Orientation;
 
         return null;
@@ -850,8 +850,8 @@ public sealed class FATabViewListView : ListBox
     private int _dragIndex = -1;
     private bool _isDragItemFocused;
     private bool _isDragItemSelected;
-    private bool _isInDrag = false;
-    private bool _isInReorder = false;
+    private bool _isInDrag;
+    private bool _isInReorder;
     private IDisposable _dragItemOpacitySub;
     private Point? _initialPoint;
     private double _cxDrag = double.NaN;

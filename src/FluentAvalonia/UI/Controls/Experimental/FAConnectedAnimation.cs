@@ -145,7 +145,7 @@ public class FAConnectedAnimation
 
         if (coordinatedVisuals != null)
         {
-            for (int i = 0; i < coordinatedVisuals.Count; i++)
+            for (var i = 0; i < coordinatedVisuals.Count; i++)
             {
                 CreateCoordinatedAnimation(coordinatedVisuals[i], duration, easing);
             }

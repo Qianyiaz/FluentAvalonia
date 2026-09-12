@@ -74,7 +74,7 @@ internal sealed class RecentFavoriteService
 
     private void SaveRecents()
     {
-        string textToWrite = string.Empty;
+        var textToWrite = string.Empty;
         if (_recentItems != null && _recentItems.Count > 0)
         {
             textToWrite = string.Join(',', _recentItems);
@@ -111,7 +111,7 @@ internal sealed class RecentFavoriteService
 
     private void SaveFavorites()
     {
-        string textToWrite = string.Empty;
+        var textToWrite = string.Empty;
         if (_favorites != null && _favorites.Count > 0)
         {
             textToWrite = string.Join(',', _favorites);

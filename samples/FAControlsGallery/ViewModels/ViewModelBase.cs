@@ -11,7 +11,7 @@ public class ViewModelBase : INotifyPropertyChanged
     protected string GetAssemblyResource(string name)
     {
         using (var stream = AssetLoader.Open(new Uri(name)))
-        using (StreamReader reader = new StreamReader(stream))
+        using (var reader = new StreamReader(stream))
         {
             return reader.ReadToEnd();
         }

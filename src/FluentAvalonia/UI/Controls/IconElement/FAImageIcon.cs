@@ -52,15 +52,15 @@ public class FAImageIcon : FAIconElement
         var src = Source;
         if (src != null && size.Width > 0 && size.Height > 0)
         {
-            Rect viewport = new Rect(size);
+            var viewport = new Rect(size);
 
-            Vector scale = new Vector(size.Width / src.Size.Width, size.Height / src.Size.Height);
-            Size scaledSize = src.Size * scale;
+            var scale = new Vector(size.Width / src.Size.Width, size.Height / src.Size.Height);
+            var scaledSize = src.Size * scale;
 
-            Rect destRect = viewport
+            var destRect = viewport
                 .CenterRect(new Rect(scaledSize))
                 .Intersect(viewport);
-            Rect srcRect = new Rect(src.Size)
+            var srcRect = new Rect(src.Size)
                 .CenterRect(new Rect(destRect.Size / scale));
 
             context.DrawImage(src, srcRect, destRect);

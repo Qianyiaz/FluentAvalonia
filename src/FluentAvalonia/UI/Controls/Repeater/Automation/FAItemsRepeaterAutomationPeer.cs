@@ -19,9 +19,9 @@ public class FAItemsRepeaterAutomationPeer : ControlAutomationPeer
         var childrenPeers = base.GetChildrenCore();
         var peerCount = childrenPeers.Count;
 
-        List<(int, AutomationPeer)> realizedPeers = new List<(int, AutomationPeer)>(peerCount);
+        var realizedPeers = new List<(int, AutomationPeer)>(peerCount);
 
-        for (int i = 0; i < peerCount; i++)
+        for (var i = 0; i < peerCount; i++)
         {
             var childPeer = childrenPeers[i];
             if (GetElement((ControlAutomationPeer)childPeer, repeater) is Control c)

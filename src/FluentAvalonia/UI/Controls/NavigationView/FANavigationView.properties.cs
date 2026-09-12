@@ -142,13 +142,7 @@ public partial class FANavigationView : HeaderedContentControl
     /// </summary>
     public static readonly StyledProperty<bool> IsPaneVisibleProperty =
         AvaloniaProperty.Register<FANavigationView, bool>(nameof(IsPaneVisible), true);
-
-    /// <summary>
-    /// Defines the <see cref="IsSettingsVisible"/> property
-    /// </summary>
-    public static readonly StyledProperty<bool> IsSettingsVisibleProperty =
-        AvaloniaProperty.Register<FANavigationView, bool>(nameof(IsSettingsVisible), true);
-
+    
     //SKIP for now, IsTitleBarAutoPaddingEnabled...
 
     /// <summary>
@@ -235,13 +229,6 @@ public partial class FANavigationView : HeaderedContentControl
     /// </remarks>
     public static readonly StyledProperty<bool> SelectionFollowsFocusProperty =
         AvaloniaProperty.Register<FANavigationView, bool>(nameof(SelectionFollowsFocus));
-
-    /// <summary>
-    /// Defines the <see cref="SettingsItem"/> property
-    /// </summary>
-    public static readonly DirectProperty<FANavigationView, FANavigationViewItem> SettingsItemProperty =
-        AvaloniaProperty.RegisterDirect<FANavigationView, FANavigationViewItem>(nameof(SettingsItem),
-            x => x.SettingsItem);
 
     //Ignore Shoulder Navigation (xbox)
 
@@ -379,15 +366,6 @@ public partial class FANavigationView : HeaderedContentControl
     }
 
     /// <summary>
-    /// Gets or sets a value that indicates whether the settings button is shown.
-    /// </summary>
-    public bool IsSettingsVisible
-    {
-        get => GetValue(IsSettingsVisibleProperty);
-        set => SetValue(IsSettingsVisibleProperty, value);
-    }
-
-    /// <summary>
     /// Gets or sets the DataTemplate used to display each menu item.
     /// </summary>
     public IDataTemplate MenuItemTemplate
@@ -520,15 +498,6 @@ public partial class FANavigationView : HeaderedContentControl
     }
 
     /// <summary>
-    /// Gets the navigation item that represents the entry point to app settings.
-    /// </summary>
-    public FANavigationViewItem SettingsItem
-    {
-        get => _settingsItem;
-        internal set => SetAndRaise(SettingsItemProperty, ref _settingsItem, value);
-    }
-
-    /// <summary>
     /// Gets an object that provides calculated values that can be referenced as TemplateBinding sources 
     /// when defining templates for a NavigationView control.
     /// </summary>
@@ -612,7 +581,6 @@ public partial class FANavigationView : HeaderedContentControl
     private IList<object> _menuItems;
     private IList<object> _footerMenuItems;
     private FANavigationViewDisplayMode _displayMode = FANavigationViewDisplayMode.Minimal;
-    private FANavigationViewItem _settingsItem;
 
     private const string s_tpTogglePaneButton = "TogglePaneButton";
     private const string s_tpPaneHeaderContentBorder = "PaneHeaderContentBorder";

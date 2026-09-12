@@ -70,7 +70,7 @@ public class ContentDialogPageViewModel : ViewModelBase
 
     public async void ExecuteLaunchCommand(object parameter)
     {
-        bool hasDeferral = bool.Parse(parameter.ToString());
+        var hasDeferral = bool.Parse(parameter.ToString());
 
         var cd = new FAContentDialog
         {

@@ -20,7 +20,7 @@ public sealed class FANavigationViewAutomationPeer : ControlAutomationPeer, ISel
         if (Owner is FANavigationView nv)
         {
             var nvi = nv.GetSelectedContainer();
-            var peer = ControlAutomationPeer.CreatePeerForElement(nvi);
+            var peer = CreatePeerForElement(nvi);
             return new[] { peer };
         }
 

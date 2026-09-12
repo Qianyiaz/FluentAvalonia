@@ -167,8 +167,8 @@ public sealed class FAGroupedDataCollectionView : IFACollectionView, IFAAdvanced
 
     public int IndexOf(object item)
     {
-        int index = 0;
-        for (int i = 0; i < CollectionGroups.Count; i++)
+        var index = 0;
+        for (var i = 0; i < CollectionGroups.Count; i++)
         {
             var tmp = CollectionGroups[i].GroupItems.IndexOf(item);
             if (tmp != -1)
@@ -249,11 +249,11 @@ public sealed class FAGroupedDataCollectionView : IFACollectionView, IFAAdvanced
         if (index == -1)
             return null;
 
-        int idx = 0;
-        for (int i = 0; i < CollectionGroups.Count; i++)
+        var idx = 0;
+        for (var i = 0; i < CollectionGroups.Count; i++)
         {
             var g = CollectionGroups[i];
-            int max = idx + g.GroupItems.Count;
+            var max = idx + g.GroupItems.Count;
 
             if (index < max)
             {
@@ -268,7 +268,7 @@ public sealed class FAGroupedDataCollectionView : IFACollectionView, IFAAdvanced
 
     private void CreateGroups()
     {
-        bool useSpecialized = _hasSortOrFilter;
+        var useSpecialized = _hasSortOrFilter;
         var groups = new List<CollectionViewGroup>();
 
         _ignoreGroupChanges = true;
@@ -297,9 +297,9 @@ public sealed class FAGroupedDataCollectionView : IFACollectionView, IFAAdvanced
 
     private void OnBackingCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
     {
-        bool isSpecialized = _hasSortOrFilter;
+        var isSpecialized = _hasSortOrFilter;
         var groups = CollectionGroups;
-        int dItems = 0;
+        var dItems = 0;
         switch (args.Action)
         {
             case NotifyCollectionChangedAction.Add:
@@ -307,7 +307,7 @@ public sealed class FAGroupedDataCollectionView : IFACollectionView, IFAAdvanced
                     var insertIndexInView = GetItemCountToIndex(groups, args.NewStartingIndex);
                     var list = new List<CollectionViewGroup>(args.NewItems.Count);
 
-                    for (int i = 0; i < args.NewItems.Count; i++)
+                    for (var i = 0; i < args.NewItems.Count; i++)
                     {
                         var g = isSpecialized ?
                             new SpecializedCollectionViewGroup(this, args.NewItems[i], _itemsBinding != null) :
@@ -323,7 +323,7 @@ public sealed class FAGroupedDataCollectionView : IFACollectionView, IFAAdvanced
 
                     _count += dItems;
 
-                    IList<object> inccList = PopulateINCCList(args.NewStartingIndex, args.NewItems.Count, dItems);
+                    var inccList = PopulateINCCList(args.NewStartingIndex, args.NewItems.Count, dItems);
 
                     OnVectorChanged(new NotifyCollectionChangedEventArgs(
                             NotifyCollectionChangedAction.Add, (IList)inccList, insertIndexInView));
@@ -335,7 +335,7 @@ public sealed class FAGroupedDataCollectionView : IFACollectionView, IFAAdvanced
                     var insertIndexInView = GetItemCountToIndex(CollectionGroups, args.OldStartingIndex);
                     dItems = GetItemCount(args.OldStartingIndex, args.OldItems.Count);
 
-                    IList<object> inccList = PopulateINCCList(args.OldStartingIndex, args.OldItems.Count, dItems);
+                    var inccList = PopulateINCCList(args.OldStartingIndex, args.OldItems.Count, dItems);
 
                     groups.RemoveRange(args.OldStartingIndex, args.OldItems.Count);
 
@@ -357,13 +357,13 @@ public sealed class FAGroupedDataCollectionView : IFACollectionView, IFAAdvanced
                     var insertIndexInView = GetItemCountToIndex(groups, args.NewStartingIndex);
                     dItems = GetItemCount(args.OldStartingIndex, args.OldItems.Count);
 
-                    IList<object> inccListOld = PopulateINCCList(args.OldStartingIndex, args.NewItems.Count, dItems);
+                    var inccListOld = PopulateINCCList(args.OldStartingIndex, args.NewItems.Count, dItems);
 
                     _count -= dItems;
 
                     var list = new List<CollectionViewGroup>(args.NewItems.Count);
                     dItems = 0;
-                    for (int i = 0; i < args.NewItems.Count; i++)
+                    for (var i = 0; i < args.NewItems.Count; i++)
                     {
                         var g = isSpecialized ?
                             new SpecializedCollectionViewGroup(this, args.NewItems[i], _itemsBinding != null) :
@@ -427,7 +427,7 @@ public sealed class FAGroupedDataCollectionView : IFACollectionView, IFAAdvanced
         IList<object> PopulateINCCList(int groupStart, int groupCount, int itemCount)
         {
             var l = new List<object>(itemCount);
-            for (int i = groupStart; i < groupStart + groupCount; i++)
+            for (var i = groupStart; i < groupStart + groupCount; i++)
             {
                 var g = CollectionGroups[i];
                 if (g.GroupItems.Count == 0)
@@ -441,8 +441,8 @@ public sealed class FAGroupedDataCollectionView : IFACollectionView, IFAAdvanced
 
         int GetItemCount(int start, int count)
         {
-            int ct = 0;
-            for (int i = start; i < start + count; i++)
+            var ct = 0;
+            for (var i = start; i < start + count; i++)
             {
                 ct += CollectionGroups[i].GroupItems.Count;
             }
@@ -452,8 +452,8 @@ public sealed class FAGroupedDataCollectionView : IFACollectionView, IFAAdvanced
 
         static int GetItemCountToIndex(IList<IFACollectionViewGroup> groups, int index)
         {
-            int ct = 0;
-            for (int i = 0; i < groups.Count; i++)
+            var ct = 0;
+            for (var i = 0; i < groups.Count; i++)
             {
                 if (i == index)
                     break;
@@ -497,8 +497,8 @@ public sealed class FAGroupedDataCollectionView : IFACollectionView, IFAAdvanced
             if (gIndex == 0)
                 return index;
 
-            int count = 0;
-            for (int i = 0; i < gIndex; i++)
+            var count = 0;
+            for (var i = 0; i < gIndex; i++)
             {
                 count += CollectionGroups[i].GroupItems?.Count ?? 0;
             }
@@ -533,7 +533,7 @@ public sealed class FAGroupedDataCollectionView : IFACollectionView, IFAAdvanced
                 // Because this is a reset, we have to recalculate the view count as we probably
                 // don't have the info in the EventArgs, and the actual list is already cleared
                 var ct = 0;
-                for (int i = 0; i < CollectionGroups.Count; i++)
+                for (var i = 0; i < CollectionGroups.Count; i++)
                 {
                     ct += CollectionGroups[i].GroupItems.Count;
                 }
@@ -581,7 +581,7 @@ public sealed class FAGroupedDataCollectionView : IFACollectionView, IFAAdvanced
         var currentItem = CurrentItem;
 
         var groups = CollectionGroups;
-        int count = 0;
+        var count = 0;
         foreach (var g in groups)
         {
             count += (g as SpecializedCollectionViewGroup).Refresh();
@@ -662,7 +662,7 @@ public sealed class FAGroupedDataCollectionView : IFACollectionView, IFAAdvanced
 
             if (_filter != null)
             {
-                int count = 0;
+                var count = 0;
                 var groups = CollectionGroups;
                 foreach (var group in groups)
                 {
@@ -771,7 +771,7 @@ public sealed class FAGroupedDataCollectionView : IFACollectionView, IFAAdvanced
 
         public bool MoveNext()
         {
-            int groupCount = _owner.CollectionGroups.Count;
+            var groupCount = _owner.CollectionGroups.Count;
 
             if (groupCount == 0)
                 return false;
@@ -789,7 +789,8 @@ public sealed class FAGroupedDataCollectionView : IFACollectionView, IFAAdvanced
                 Current = null;
                 return false;
             }
-            else if (_curPos == g.GroupItems.Count)
+
+            if (_curPos == g.GroupItems.Count)
             {
                 // We've reached the end of the current group, move to the next
                 _curPos = 0;

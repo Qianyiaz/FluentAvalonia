@@ -42,7 +42,7 @@ internal class ViewportManager
         get
         {
             // The element generated during the ItemsRepeater.MakeAnchor call has precedence over the next tick.
-            Control suggestedAnchor = _makeAnchorElement;
+            var suggestedAnchor = _makeAnchorElement;
             Control owner = _owner;
 
             if (suggestedAnchor == null)
@@ -242,10 +242,10 @@ internal class ViewportManager
 
             if (HasScroller)
             {
-                double maximumHorizontalCacheBufferPerSide = _maximumHorizontalCacheLength * _visibleWindow.Width / 2;
-                double maximumVerticalCacheBufferPerSide = _maximumVerticalCacheLength * _visibleWindow.Height / 2;
+                var maximumHorizontalCacheBufferPerSide = _maximumHorizontalCacheLength * _visibleWindow.Width / 2;
+                var maximumVerticalCacheBufferPerSide = _maximumVerticalCacheLength * _visibleWindow.Height / 2;
 
-                bool continueBuildingCache =
+                var continueBuildingCache =
                     _horizontalCacheBufferPerSide < maximumHorizontalCacheBufferPerSide ||
                     _verticalCacheBufferPerSide < maximumVerticalCacheBufferPerSide;
 
@@ -355,8 +355,8 @@ internal class ViewportManager
 
     private Control GetImmediateChildOfRepeater(Control descendant)
     {
-        Control targetChild = descendant;
-        Control parent = (Control)descendant.GetVisualParent();
+        var targetChild = descendant;
+        var parent = (Control)descendant.GetVisualParent();
         while (parent != null && parent != _owner)
         {
             targetChild = parent;

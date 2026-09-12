@@ -177,7 +177,8 @@ public class FAMenuFlyoutPresenter : ItemsControl
                                 args.Handled = true;
                                 break;
                             }
-                            else if (cont == item)
+
+                            if (cont == item)
                             {
                                 // If we loop back to the original item, stop 
                                 break; 
@@ -210,7 +211,8 @@ public class FAMenuFlyoutPresenter : ItemsControl
                                 args.Handled = true;
                                 break;
                             }
-                            else if (cont == item)
+
+                            if (cont == item)
                             {
                                 // If we loop back to the original item, stop 
                                 break;
@@ -393,8 +395,8 @@ public class FAMenuFlyoutPresenter : ItemsControl
         // v2 Change: ControlThemes means we can't use styling on the MFP to apply the 
         // Icon/Toggle adjustments and we have to put them directly on the items
 
-        bool icon = _iconCount > 0;
-        bool toggle = _toggleCount > 0;
+        var icon = _iconCount > 0;
+        var toggle = _toggleCount > 0;
         foreach (var item in GetRealizedContainers())
         {
             ((IPseudoClasses)item.Classes).Set(s_pcIcons, icon);
@@ -406,8 +408,8 @@ public class FAMenuFlyoutPresenter : ItemsControl
     private FAMenuFlyoutSubItem _openedItem;
     private IDisposable _closingCancelDisp;
 
-    private int _iconCount = 0;
-    private int _toggleCount = 0;
+    private int _iconCount;
+    private int _toggleCount;
 
     private const string s_pcIcons = ":icons";
     private const string s_pcToggle = ":toggle";

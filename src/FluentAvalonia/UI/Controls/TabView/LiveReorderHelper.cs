@@ -42,11 +42,11 @@ internal class LiveReorderHelper
 
         // AdjustDragPoint adjusts the coordinate for scrolling
         var dragPoint = AdjustDragPoint(args.GetPosition(_owner), _owner.Scroller.Offset, orientation);
-        int draggedIndex = dragItemIndex;
-        int insertionIndex = -1;
-        int dragOverIndex = GetClosestElement(dragPoint);// IndexFromContainer(currentItem); // The raw item index under the pointer
+        var draggedIndex = dragItemIndex;
+        var insertionIndex = -1;
+        var dragOverIndex = GetClosestElement(dragPoint);// IndexFromContainer(currentItem); // The raw item index under the pointer
         var previousDragOverIndex = _liveReorderIndices.draggedOverIndex;
-        int itemsCount = _owner.ItemCount;
+        var itemsCount = _owner.ItemCount;
 
         if (draggedIndex == -1)
             draggedIndex = itemsCount;
@@ -63,7 +63,7 @@ internal class LiveReorderHelper
         {
             // If we didn't start in this TabView, see if the index is actually the end or -1
             var spLastElement = _owner.ContainerFromIndex(insertionIndex);
-            if (spLastElement is FATabViewItem tvi)
+            if (spLastElement is FATabViewItem)
             {
                 if (IsInBottomHalf(args.GetPosition(spLastElement), new Rect(spLastElement.Bounds.Size), orientation.Value))
                 {
@@ -98,15 +98,13 @@ internal class LiveReorderHelper
             {
                 return (pt.X - rc.Left) >= rc.Width * 0.5;
             }
-            else
-            {
-                return (pt.Y - rc.Top) >= rc.Height * 0.5;
-            }
+
+            return (pt.Y - rc.Top) >= rc.Height * 0.5;
         }
 
         static int GetDragOverIndex(int closestElementIndex, int insertionIndex, int previousDragOverIndex)
         {
-            int dragOverIndex = closestElementIndex;
+            var dragOverIndex = closestElementIndex;
 
             if (insertionIndex == closestElementIndex)
             {
@@ -174,28 +172,28 @@ internal class LiveReorderHelper
             var firstRealized = _firstCachedContainerIndex;
             var lastRealized = firstRealized + _cachedContainerBounds.Count - 1;
             var orientation = vsp.Orientation;
-            var movedItems = _movedItems.AsSpan();
-            int closestIndex = -1;
-            double closestDist = double.PositiveInfinity;
+            _movedItems.AsSpan();
+            var closestIndex = -1;
+            var closestDist = double.PositiveInfinity;
             Rect closestItemRect = default;
 
             // Loop over the currently realized items to find the closest
-            for (int i = firstRealized; i <= lastRealized; i++)
+            for (var i = firstRealized; i <= lastRealized; i++)
             {
                 // If the item is currently in our MovedItems list, it may not be 
                 // where it usually is, so we can't test the actual Bounds or we'll
                 // estimate the wrong index, but we have the original bounds saved
-                Rect rc = _cachedContainerBounds[i - firstRealized];
+                var rc = _cachedContainerBounds[i - firstRealized];
                 double dist;
 
                 if (orientation == Orientation.Horizontal)
                 {
-                    double cx = double.Clamp(dragPoint.X, rc.X, rc.Right);
+                    var cx = double.Clamp(dragPoint.X, rc.X, rc.Right);
                     dist = double.Abs(dragPoint.X - cx);
                 }
                 else
                 {
-                    double cy = double.Clamp(dragPoint.Y, rc.Y, rc.Bottom);
+                    var cy = double.Clamp(dragPoint.Y, rc.Y, rc.Bottom);
                     dist = double.Abs(dragPoint.Y - cy);
                 }
 
@@ -227,7 +225,8 @@ internal class LiveReorderHelper
 
             return closestIndex;
         }
-        else if (panel is StackPanel sp)
+
+        if (panel is StackPanel)
         {
             //var children = sp.Children;
             //var orientation = sp.Orientation;
@@ -314,16 +313,16 @@ internal class LiveReorderHelper
 
     private void GetNewMovedItemsForLiveReorder(IList<MovedItem> newItems)
     {
-        int startIndex = _liveReorderIndices.draggedItemIndex;
-        int endIndex = _liveReorderIndices.draggedOverIndex;
-        int increment = (startIndex < endIndex) ? 1 : -1;
+        var startIndex = _liveReorderIndices.draggedItemIndex;
+        var endIndex = _liveReorderIndices.draggedOverIndex;
+        var increment = (startIndex < endIndex) ? 1 : -1;
 
         // Debug.WriteLine($"GetNewMovedItems: {startIndex} -> {endIndex}");
 
         newItems.Clear();
-        for (int i = startIndex; i != endIndex; i += increment)
+        for (var i = startIndex; i != endIndex; i += increment)
         {
-            int targetIndex = i - increment;
+            var targetIndex = i - increment;
 
             if (i == startIndex)
             {
@@ -360,7 +359,8 @@ internal class LiveReorderHelper
         {
             // make sure we grab the original bounds. If virtualizing, translate
             // to index in our container cache
-            var adjIndex = host.ItemsPanelRoot is VirtualizingStackPanel vsp ?
+            var adjIndex = host.ItemsPanelRoot is VirtualizingStackPanel
+                ?
                 index - host._firstCachedContainerIndex : index;
 
             if (adjIndex < 0 || adjIndex >= host._cachedContainerBounds.Count)
@@ -421,19 +421,19 @@ internal class LiveReorderHelper
             _firstCachedContainerIndex = firstRealized;
             _cachedContainerBounds ??= new List<Rect>((lastRealized - firstRealized) + 1);
 
-            for (int i = firstRealized; i <= lastRealized; i++)
+            for (var i = firstRealized; i <= lastRealized; i++)
             {
                 var cont = _owner.ContainerFromIndex(i);
                 _cachedContainerBounds.Add(cont.Bounds);
             }
         }
-        else if (panel is StackPanel sp)
+        else if (panel is StackPanel)
         {
             _firstCachedContainerIndex = 0;
             var itemCount = _owner.ItemCount;
             _cachedContainerBounds ??= new List<Rect>(itemCount);
             // Stack Panels don't virtualize and arrange in order so this is safe
-            for (int i = 0; i < itemCount; i++)
+            for (var i = 0; i < itemCount; i++)
             {
                 _cachedContainerBounds.Add(panel.Children[i].Bounds);
             }
@@ -461,10 +461,8 @@ internal class LiveReorderHelper
             {
                 return new Point(rawPoint.X + offset.X, rawPoint.Y);
             }
-            else
-            {
-                return new Point(rawPoint.X, rawPoint.Y + offset.Y);
-            }
+
+            return new Point(rawPoint.X, rawPoint.Y + offset.Y);
         }
 
         return rawPoint + offset;
@@ -514,25 +512,25 @@ internal class MovedItems : IEnumerable<MovedItem>
     public void Update(in bool isOrientationVertical, IList<MovedItem> newItems,
         IList<MovedItem> newItemsToMove, IList<MovedItem> oldItemsToMoveBack)
     {
-        int newItemsSize = newItems.Count;
-        int movedItemsSize = _items.Count;
+        var newItemsSize = newItems.Count;
+        var movedItemsSize = _items.Count;
 
         // our items should always be ordered from the dragIndex to the dragOverIndex
-        int newItemsStartIndex = newItems[0].sourceIndex;
-        int newItemsEndIndex = newItems[^1].sourceIndex;
-        int newItemsIncrement = (newItemsStartIndex < newItemsEndIndex) ? 1 : -1;
+        var newItemsStartIndex = newItems[0].sourceIndex;
+        var newItemsEndIndex = newItems[^1].sourceIndex;
+        var newItemsIncrement = (newItemsStartIndex < newItemsEndIndex) ? 1 : -1;
 
         // the index we should use to start adding new items
-        int startIndexForAddMovedItems = -1;
+        var startIndexForAddMovedItems = -1;
 
         newItemsToMove.Clear();
         oldItemsToMoveBack.Clear();
 
         if (movedItemsSize > 0)
         {
-            int movedItemsStartIndex = _items[0].sourceIndex;
-            int movedItemsEndIndex = _items[^1].sourceIndex;
-            int movedItemsIncrement = (movedItemsStartIndex < movedItemsEndIndex) ? 1 : -1;
+            var movedItemsStartIndex = _items[0].sourceIndex;
+            var movedItemsEndIndex = _items[^1].sourceIndex;
+            var movedItemsIncrement = (movedItemsStartIndex < movedItemsEndIndex) ? 1 : -1;
 
             // in the same drag motion, the sourceIndex should always be the same
             Debug.Assert(newItemsStartIndex == movedItemsStartIndex);
@@ -571,7 +569,7 @@ internal class MovedItems : IEnumerable<MovedItem>
 
     public void RemoveMovedItems(int from, int to, IList<MovedItem> oldItemsToMoveBack)
     {
-        for (int i = to; i >= from; --i)
+        for (var i = to; i >= from; --i)
         {
             oldItemsToMoveBack.Add(_items[i]);
             _items.RemoveAt(i);
@@ -582,7 +580,7 @@ internal class MovedItems : IEnumerable<MovedItem>
         IList<MovedItem> newItems, IList<MovedItem> newItemsToMove)
     {
         // move the new indexes that have not been moved yet
-        for (int i = from; i < newItems.Count; i++)
+        for (var i = from; i < newItems.Count; i++)
         {
             var newItem = newItems[i];
 
@@ -593,7 +591,7 @@ internal class MovedItems : IEnumerable<MovedItem>
                 // find the item whose sourceIndex is the destinationIndex of the new item to be moved
                 var destination = _items[^1];
 
-                bool forward = (newItem.sourceIndex > newItem.destinationIndex) ? true : false;
+                var forward = (newItem.sourceIndex > newItem.destinationIndex) ? true : false;
 
                 // if the items are of the same size, use the destinations original location
                 // else if the destination is the sourceIndex of the first moved item (meaning it's the dragged item), use its original location

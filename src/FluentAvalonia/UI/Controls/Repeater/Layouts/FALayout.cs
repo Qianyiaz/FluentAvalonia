@@ -52,15 +52,14 @@ public abstract class FALayout : AvaloniaObject
         {
             return vlc;
         }
-        else if (context is FANonVirtualizingLayoutContext nvlc)
+
+        if (context is FANonVirtualizingLayoutContext nvlc)
         {
             var adapter = nvlc.GetVirtualizingContextAdapter();
             return adapter;
         }
-        else
-        {
-            throw new NotImplementedException();
-        }
+
+        throw new NotImplementedException();
     }
 
     private static FANonVirtualizingLayoutContext GetNonVirtualizingLayoutContext(FALayoutContext context)
@@ -69,15 +68,14 @@ public abstract class FALayout : AvaloniaObject
         {
             return nvlc;
         }
-        else if (context is FAVirtualizingLayoutContext vlc)
+
+        if (context is FAVirtualizingLayoutContext vlc)
         {
             var adapter = vlc.GetNonVirtualizingContextAdapter();
             return adapter;
         }
-        else
-        {
-            throw new NotImplementedException();
-        }
+
+        throw new NotImplementedException();
     }
 
     /// <summary>
@@ -134,15 +132,14 @@ public abstract class FALayout : AvaloniaObject
             var vc = GetVirtualizingLayoutContext(context);
             return vl.MeasureOverride(vc, availableSize);
         }
-        else if (this is FANonVirtualizingLayout nvl)
+
+        if (this is FANonVirtualizingLayout nvl)
         {
             var nvc = GetNonVirtualizingLayoutContext(context);
             return nvl.MeasureOverride(nvc, availableSize);
         }
-        else
-        {
-            throw new NotImplementedException();
-        }
+
+        throw new NotImplementedException();
     }
 
     /// <summary>
@@ -157,15 +154,14 @@ public abstract class FALayout : AvaloniaObject
             var vc = GetVirtualizingLayoutContext(context);
             return vl.ArrangeOverride(vc, finalSize);
         }
-        else if (this is FANonVirtualizingLayout nvl)
+
+        if (this is FANonVirtualizingLayout nvl)
         {
             var nvc = GetNonVirtualizingLayoutContext(context);
             return nvl.ArrangeOverride(nvc, finalSize);
         }
-        else
-        {
-            throw new NotImplementedException();
-        }
+
+        throw new NotImplementedException();
     }
 
     /// <summary>

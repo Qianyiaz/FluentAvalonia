@@ -195,10 +195,10 @@ public class FAFlowLayout : FAVirtualizingLayout, IOrientationBasedMeasures, IFl
     FlowLayoutAnchorInfo IFlowLayoutAlgorithmDelegates.Algorithm_GetAnchorForRealizationRect(Size availableSize, 
         FAVirtualizingLayoutContext context)
     {
-        int anchorIndex = -1;
-        double offset = double.NaN;
+        var anchorIndex = -1;
+        var offset = double.NaN;
 
-        int itemsCount = context.ItemCount;
+        var itemsCount = context.ItemCount;
         if (itemsCount > 0)
         {
             var realizationRect = context.RealizationRect;
@@ -207,16 +207,16 @@ public class FAFlowLayout : FAVirtualizingLayout, IOrientationBasedMeasures, IFl
             var lastExtent = flowState.FlowAlgorithm.LastExtent;
 
             double averageItemsPerLine = 0;
-            double averageLineSize = GetAverageLineInfo(availableSize, context, flowState, ref averageItemsPerLine) + LineSpacing();
+            var averageLineSize = GetAverageLineInfo(availableSize, context, flowState, ref averageItemsPerLine) + LineSpacing();
             Debug.Assert(averageItemsPerLine != 0);
 
-            double extentMajorSize = this.MajorSize(lastExtent) == 0 ? (itemsCount / averageItemsPerLine) * averageLineSize : this.MajorSize(lastExtent);
+            var extentMajorSize = this.MajorSize(lastExtent) == 0 ? (itemsCount / averageItemsPerLine) * averageLineSize : this.MajorSize(lastExtent);
             if (itemsCount > 0 &&
                 this.MajorSize(realizationRect) >0 &&
                 DoesRealizationWindowOverlapExtent(realizationRect, this.MinorMajorRect(this.MinorStart(lastExtent), this.MajorStart(lastExtent), this.Minor(availableSize), extentMajorSize)))
             {
-                double realizationWindowStartWithExtent = this.MajorStart(realizationRect) - this.MajorStart(lastExtent);
-                int lineIndex = Math.Max(0, (int)(realizationWindowStartWithExtent / averageLineSize));
+                var realizationWindowStartWithExtent = this.MajorStart(realizationRect) - this.MajorStart(lastExtent);
+                var lineIndex = Math.Max(0, (int)(realizationWindowStartWithExtent / averageLineSize));
                 anchorIndex = (int)(lineIndex * averageItemsPerLine);
 
                 // Clamp it to be within valid range
@@ -231,9 +231,9 @@ public class FAFlowLayout : FAVirtualizingLayout, IOrientationBasedMeasures, IFl
     FlowLayoutAnchorInfo IFlowLayoutAlgorithmDelegates.Algorithm_GetAnchorForTargetElement(int targetIndex, 
         Size availableSize, FAVirtualizingLayoutContext context)
     {
-        double offset = double.NaN;
-        int index = -1;
-        int itemsCount = context.ItemCount;
+        var offset = double.NaN;
+        var index = -1;
+        var itemsCount = context.ItemCount;
 
         if (targetIndex >= 0 && targetIndex < itemsCount)
         {
@@ -241,8 +241,8 @@ public class FAFlowLayout : FAVirtualizingLayout, IOrientationBasedMeasures, IFl
             var state = context.LayoutState;
             var flowState = GetAsFlowState(state);
             double averageItemsPerLine = 0;
-            double averageLineSize = GetAverageLineInfo(availableSize, context, flowState, ref averageItemsPerLine) + LineSpacing();
-            int lineIndex = (int)(targetIndex / averageItemsPerLine);
+            var averageLineSize = GetAverageLineInfo(availableSize, context, flowState, ref averageItemsPerLine) + LineSpacing();
+            var lineIndex = (int)(targetIndex / averageItemsPerLine);
             offset = lineIndex * averageLineSize + this.MajorStart(flowState.FlowAlgorithm.LastExtent);
         }
 
@@ -255,25 +255,25 @@ public class FAFlowLayout : FAVirtualizingLayout, IOrientationBasedMeasures, IFl
     {
         Rect extent = default;
 
-        int itemsCount = context.ItemCount;
+        var itemsCount = context.ItemCount;
         if (itemsCount > 0)
         {
-            double availableSizeMinor = this.Minor(availableSize);
+            var availableSizeMinor = this.Minor(availableSize);
             var state = context.LayoutState;
             var flowState = GetAsFlowState(state);
             double averageItemsPerLine = 0;
-            double averageLineSize = GetAverageLineInfo(availableSize, context, flowState, ref averageItemsPerLine) + LineSpacing();
+            var averageLineSize = GetAverageLineInfo(availableSize, context, flowState, ref averageItemsPerLine) + LineSpacing();
 
             Debug.Assert(averageItemsPerLine != 0);
             if (firstRealized != null)
             {
                 Debug.Assert(lastRealized != null);
-                int linesBeforeFirst = (int)(firstRealizedItemIndex / averageItemsPerLine);
-                double extentMajorStart = this.MajorStart(firstRealizedLayoutBounds) - linesBeforeFirst * averageLineSize;
+                var linesBeforeFirst = (int)(firstRealizedItemIndex / averageItemsPerLine);
+                var extentMajorStart = this.MajorStart(firstRealizedLayoutBounds) - linesBeforeFirst * averageLineSize;
                 this.SetMajorStart(ref extent, extentMajorStart);
-                int remainingItems = itemsCount - lastRealizedItemIndex - 1;
-                int remainingLinesAfterLast = (int)(remainingItems / averageItemsPerLine);
-                double extentMajorSize = this.MajorEnd(lastRealizedLayoutBounds) -
+                var remainingItems = itemsCount - lastRealizedItemIndex - 1;
+                var remainingLinesAfterLast = (int)(remainingItems / averageItemsPerLine);
+                var extentMajorSize = this.MajorEnd(lastRealizedLayoutBounds) -
                     this.MajorStart(extent) + remainingLinesAfterLast * averageLineSize;
                 this.SetMajorSize(ref extent, extentMajorSize);
 
@@ -288,7 +288,7 @@ public class FAFlowLayout : FAVirtualizingLayout, IOrientationBasedMeasures, IFl
                 var lineSpacing = LineSpacing();
                 var minItemSpacing = MinItemSpacing();
                 // We dont have anything realized. make an educated guess.
-                int numLines = (int)Math.Ceiling(itemsCount / averageItemsPerLine);
+                var numLines = (int)Math.Ceiling(itemsCount / averageItemsPerLine);
                 extent = !double.IsInfinity(availableSizeMinor) ?
                     this.MinorMajorRect(0, 0, availableSizeMinor, Math.Max(0, numLines * averageLineSize - lineSpacing)) :
                     this.MinorMajorRect(0, 0,
@@ -340,7 +340,7 @@ public class FAFlowLayout : FAVirtualizingLayout, IOrientationBasedMeasures, IFl
             var desiredSize = flowState.FlowAlgorithm.MeasureElement(tmpElement, 0, availableSize, context);
             context.RecycleElement(tmpElement);
 
-            int estimatedCountInLine = Math.Max(1, (int)(this.Major(availableSize) / this.Minor(desiredSize)));
+            var estimatedCountInLine = Math.Max(1, (int)(this.Major(availableSize) / this.Minor(desiredSize)));
             flowState.OnLineArranged(0, estimatedCountInLine, this.Major(desiredSize), context);
             flowState.SpecialElementDesiredSize = desiredSize;
         }
@@ -358,7 +358,7 @@ public class FAFlowLayout : FAVirtualizingLayout, IOrientationBasedMeasures, IFl
     //}
 
     private FlowLayoutAlgorithm.LineAlignment _lineAlignment = FlowLayoutAlgorithm.LineAlignment.Start;
-    private double _minColumnSpacing = 0.0;
-    private double _minRowSpacing = 0.0;
+    private double _minColumnSpacing;
+    private double _minRowSpacing;
     private Orientation _orientation = Orientation.Horizontal;
 }

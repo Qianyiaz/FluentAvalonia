@@ -60,7 +60,7 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
     {
         get
         {
-            IndexPath anchor = IndexPath.Unselected;
+            var anchor = IndexPath.Unselected;
             if (_rootNode.AnchorIndex >= 0)
             {
                 var path = new List<int>();
@@ -171,7 +171,7 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
                                 var currentCount = node.SelectedCount;
                                 if (index >= currentIndex && index < currentIndex + currentCount)
                                 {
-                                    int targetIndex = node.SelectedIndices()[index - currentIndex];
+                                    var targetIndex = node.SelectedIndices()[index - currentIndex];
                                     item = node.ItemsSourceView.GetAt(targetIndex);
                                     break;
                                 }
@@ -218,16 +218,16 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
                 var indices = new SelectedItems<IndexPath>(selectedInfos,
                     (infos, index) =>
                     {
-                        int currentIndex = 0;
-                        IndexPath path = IndexPath.Unselected;
+                        var currentIndex = 0;
+                        var path = IndexPath.Unselected;
                         foreach(var info in infos)
                         {
                             if (info.Node.TryGetTarget(out var node))
                             {
-                                int currentCount = node.SelectedCount;
+                                var currentCount = node.SelectedCount;
                                 if (index >= currentIndex && index < currentIndex + currentCount)
                                 {
-                                    int targetIndex = node.SelectedIndices()[index - currentIndex];
+                                    var targetIndex = node.SelectedIndices()[index - currentIndex];
                                     path = info.Path.CloneWithChildIndex(targetIndex);
                                     break;
                                 }
@@ -313,9 +313,9 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
     {
         var path = index;
         Debug.Assert(path.IsValid());
-        bool isRealized = true;
+        var isRealized = true;
         var node = _rootNode;
-        for (int i = 0; i < path.GetSize() - 1; i++)
+        for (var i = 0; i < path.GetSize() - 1; i++)
         {
             var childIndex = path.GetAt(i);
             node = node.GetAt(childIndex, false);
@@ -544,7 +544,7 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
 
     private void SelectWithPathImpl(IndexPath index, bool select, bool raiseSelectionChanged)
     {
-        bool newSelection = true;
+        var newSelection = true;
 
         // Handle single select differently as comparing indexpaths is faster
         if (_singleSelect)
@@ -568,9 +568,9 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
         // Selection is actually different from previous one, so update.
         if (newSelection)
         {
-            bool selected = false;
+            var selected = false;
             // If we unselect something, raise event any way, otherwise changedSelection is false
-            bool changedSelection = false;
+            var changedSelection = false;
 
             // We only need to clear selection by walking the data structure from the beginning when:
             // - we are in single selection mode and 
@@ -616,7 +616,7 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
 
     private void SelectRangeFromAnchorImpl(int index, bool select)
     {
-        int anchorIndex = 0;
+        var anchorIndex = 0;
         var anchor = AnchorIndex;
         if (anchor != IndexPath.Unselected)
         {
@@ -624,7 +624,7 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
             anchorIndex = anchor.GetAt(0);
         }
 
-        bool selected = _rootNode.SelectRange(new IndexRange(anchorIndex, index), select);
+        var selected = _rootNode.SelectRange(new IndexRange(anchorIndex, index), select);
         if (selected)
         {
             OnSelectionChanged();
@@ -633,8 +633,8 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
 
     private void SelectRangeFromAnchorWithGroupImpl(int endGroupIndex, int endItemIndex, bool select)
     {
-        int startGroupIndex = 0;
-        int startItemIndex = 0;
+        var startGroupIndex = 0;
+        var startItemIndex = 0;
         var anchorIndex = AnchorIndex;
         if (anchorIndex != IndexPath.Unselected)
         {
@@ -647,7 +647,7 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
         if (startGroupIndex > endGroupIndex ||
             (startGroupIndex == endGroupIndex && startItemIndex > endItemIndex))
         {
-            int temp = startGroupIndex;
+            var temp = startGroupIndex;
             startGroupIndex = endGroupIndex;
             endGroupIndex = temp;
             temp = startItemIndex;
@@ -655,8 +655,8 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
             endItemIndex = temp;
         }
 
-        bool selected = false;
-        for (int groupIdx = startGroupIndex; groupIdx <= endGroupIndex; groupIdx++)
+        var selected = false;
+        for (var groupIdx = startGroupIndex; groupIdx <= endGroupIndex; groupIdx++)
         {
             var groupNode = _rootNode.GetAt(groupIdx, true);
             var startIndex = groupIdx == startGroupIndex ? startItemIndex : 0;

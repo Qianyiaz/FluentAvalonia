@@ -65,7 +65,7 @@ public class FANavigationViewItemHeader : FANavigationViewItemBase
     private void UpdateVisualState()
     {
         //states :headertextcollapsed, :headertextvisible
-        bool collapsed = _isClosedCompact && IsTopLevelItem;
+        var collapsed = _isClosedCompact && IsTopLevelItem;
         PseudoClasses.Set(s_pcHeaderTextCollapsed, collapsed);
         PseudoClasses.Set(s_pcHeaderTextVisible, !collapsed);
 

@@ -58,8 +58,8 @@ public class FARecyclePool
             if (elements.Count > 0)
             {
                 ElementInfo elementInfo = default;
-                bool found = false;
-                for (int i = 0; i < elements.Count; i++)
+                var found = false;
+                for (var i = 0; i < elements.Count; i++)
                 {
                     var x = elements[i];
                     if (x.Owner == owner || x.Owner == null)
@@ -84,7 +84,7 @@ public class FARecyclePool
                     var panel = elementInfo.Owner as Panel;
                     if (panel != null)
                     {
-                        bool foundE = panel.Children.Remove(elementInfo.Element);
+                        var foundE = panel.Children.Remove(elementInfo.Element);
                         if (!foundE)
                             throw new Exception("ItemsRepeater's child not found in its Children collection.");
                     }

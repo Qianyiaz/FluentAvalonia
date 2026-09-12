@@ -58,8 +58,8 @@ public class FAStackLayout : FAVirtualizingLayout, IFlowLayoutAlgorithmDelegates
 
     ScrollOrientation IOrientationBasedMeasures.ScrollOrientation 
     {
-        get => this.ScrollOrientation;
-        set => this.ScrollOrientation = value;
+        get => ScrollOrientation;
+        set => ScrollOrientation = value;
     }
 
     protected internal override void InitializeForContextCore(FAVirtualizingLayoutContext context)
@@ -128,8 +128,8 @@ public class FAStackLayout : FAVirtualizingLayout, IFlowLayoutAlgorithmDelegates
 
     private FlowLayoutAnchorInfo GetAnchorForRealizationRect(Size availableSize, FAVirtualizingLayoutContext context)
     {
-        int anchorIndex = -1;
-        double offset = double.NaN;
+        var anchorIndex = -1;
+        var offset = double.NaN;
 
         var itemsCount = context.ItemCount;
         if (itemsCount > 0)
@@ -138,9 +138,9 @@ public class FAStackLayout : FAVirtualizingLayout, IFlowLayoutAlgorithmDelegates
             var state = GetAsStackState(context.LayoutState);
             var lastExtent = state.FlowAlgorithm.LastExtent;
 
-            double averageElementSize = GetAverageElementSize(availableSize, context, state) + _itemSpacing;
-            double realizationWindowOffsetInExtent = this.MajorStart(realizationRect) - this.MajorStart(lastExtent);
-            double majorSize = this.MajorSize(lastExtent) == 0 ?
+            var averageElementSize = GetAverageElementSize(availableSize, context, state) + _itemSpacing;
+            var realizationWindowOffsetInExtent = this.MajorStart(realizationRect) - this.MajorStart(lastExtent);
+            var majorSize = this.MajorSize(lastExtent) == 0 ?
                 Math.Max(0, averageElementSize * itemsCount - _itemSpacing) : this.MajorSize(lastExtent);
             if (itemsCount > 0 && this.MajorSize(realizationRect) >= 0 &&
                 // MajorSize = 0 will account for when a nested repeater is outside the realization rect but still being measured. Also,
@@ -165,9 +165,9 @@ public class FAStackLayout : FAVirtualizingLayout, IFlowLayoutAlgorithmDelegates
     {
         var extent = new Rect();
 
-        int itemsCount = context.ItemCount;
+        var itemsCount = context.ItemCount;
         var stackState = GetAsStackState(context.LayoutState);
-        double averageElementSize = GetAverageElementSize(availableSize, context, stackState) + _itemSpacing;
+        var averageElementSize = GetAverageElementSize(availableSize, context, stackState) + _itemSpacing;
 
         this.SetMinorSize(ref extent, stackState.MaxArrangeBounds);
         this.SetMajorSize(ref extent, Math.Max(0, itemsCount * averageElementSize - _itemSpacing));
@@ -240,15 +240,15 @@ public class FAStackLayout : FAVirtualizingLayout, IFlowLayoutAlgorithmDelegates
     FlowLayoutAnchorInfo IFlowLayoutAlgorithmDelegates.Algorithm_GetAnchorForTargetElement(int targetIndex, 
         Size availableSize, FAVirtualizingLayoutContext context)
     {
-        double offset = double.NaN;
-        int index = -1;
-        int itemsCount = context.ItemCount;
+        var offset = double.NaN;
+        var index = -1;
+        var itemsCount = context.ItemCount;
 
         if (targetIndex >= 0 && targetIndex < itemsCount)
         {
             index = targetIndex;
             var state = GetAsStackState(context.LayoutState);
-            double averageElementSize = GetAverageElementSize(availableSize, context, state) + _itemSpacing;
+            var averageElementSize = GetAverageElementSize(availableSize, context, state) + _itemSpacing;
             offset = index * averageElementSize + this.MajorStart(state.FlowAlgorithm.LastExtent);
         }
 

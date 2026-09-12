@@ -57,7 +57,7 @@ internal class FACompositeDisposable : ICollection<IDisposable>, IEnumerable<IDi
 
     public void Dispose()
     {
-        for (int i = _list.Count - 1; i >= 0; i--)
+        for (var i = _list.Count - 1; i >= 0; i--)
         {
             _list[i].Dispose();
             _list.RemoveAt(i);

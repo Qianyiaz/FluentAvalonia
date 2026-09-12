@@ -42,7 +42,7 @@ public class FANavigationViewItemBase : ListBoxItem
     {
         get
         {
-            if (_navView != null && _navView.TryGetTarget(out FANavigationView target))
+            if (_navView != null && _navView.TryGetTarget(out var target))
             {
                 return target;
             }

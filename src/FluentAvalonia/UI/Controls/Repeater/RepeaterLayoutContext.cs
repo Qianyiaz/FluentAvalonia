@@ -62,7 +62,7 @@ internal class RepeaterLayoutContext : FAVirtualizingLayoutContext
 
     protected override int RecommendedAnchorIndexCore()
     {
-        int anchorIndex = -1;
+        var anchorIndex = -1;
         var repeater = GetOwner();
         var anchor = repeater?.SuggestedAnchor;
         if (anchor != null)

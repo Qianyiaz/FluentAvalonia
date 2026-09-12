@@ -49,8 +49,7 @@ public partial class ColorsPage : ControlsPageBase
 
         if (oldIndex > index)
             return FASlideNavigationTransitionEffect.FromRight;
-        else
-            return FASlideNavigationTransitionEffect.FromLeft;
+        return FASlideNavigationTransitionEffect.FromLeft;
     }
 
     private FANavigationTransitionInfo GetTransitionInfo(int oldIndex, int index)
@@ -59,13 +58,11 @@ public partial class ColorsPage : ControlsPageBase
         {
             return new FASuppressNavigationTransitionInfo();
         }
-        else
+
+        return new FASlideNavigationTransitionInfo
         {
-            return new FASlideNavigationTransitionInfo
-            {
-                Effect = GetEffect(oldIndex, index)
-            };
-        }
+            Effect = GetEffect(oldIndex, index)
+        };
     }
 
     protected override void ToggleThemeButtonClick(object sender, RoutedEventArgs e)

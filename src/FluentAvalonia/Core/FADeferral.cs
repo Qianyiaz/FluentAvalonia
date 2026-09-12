@@ -15,10 +15,7 @@ public class FADeferral
     /// <param name="completedHandler">A DeferralCompletedHandler to be called upon completion of the deferral.</param>
     public FADeferral(FADeferralCompletedHandler completedHandler)
     {
-        if (completedHandler is null)
-            throw new ArgumentNullException(nameof(completedHandler), "Completion delegate cannot be null");
-
-        _handler = completedHandler;
+        _handler = completedHandler ?? throw new ArgumentNullException(nameof(completedHandler), "Completion delegate cannot be null");
     }
 
     /// <summary>

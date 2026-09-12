@@ -10,7 +10,7 @@ public sealed class DesignPageViewModel : MainPageViewModelBase
         set => RaiseAndSetIfChanged(ref _currentIndex, value);
     }
 
-    private int _currentIndex = 0;
+    private int _currentIndex;
 
     public const string TypographyKey = "Typography Design Guidelines";
     public const string IconsKey = "Icons Design Guidelines";

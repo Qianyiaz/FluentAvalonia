@@ -170,7 +170,7 @@ public sealed partial class SampleCodePresenter : HeaderedContentControl
         const string avares = "avares";
 
         if (sampleString.StartsWith(avares) && 
-            Uri.TryCreate(sampleString, UriKind.Absolute, out Uri result))
+            Uri.TryCreate(sampleString, UriKind.Absolute, out var result))
         {
             using (var s = AssetLoader.Open(result))
             using (var sr = new StreamReader(s))
@@ -179,7 +179,7 @@ public sealed partial class SampleCodePresenter : HeaderedContentControl
             }
         }
 
-        bool isCSharp = SampleType == SampleCodePresenterType.CSharp;
+        var isCSharp = SampleType == SampleCodePresenterType.CSharp;
 
         // Trim out stray blank lines at start and end.
         sampleString = sampleString.TrimStart('\n').TrimEnd();

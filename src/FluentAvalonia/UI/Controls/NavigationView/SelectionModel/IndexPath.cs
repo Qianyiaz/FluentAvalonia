@@ -47,9 +47,9 @@ internal struct IndexPath : IComparable<IndexPath>, IEquatable<IndexPath>
 
     public int CompareTo(IndexPath rhs)
     {
-        int compareResult = 0;
-        int lhsCount = GetSize();
-        int rhsCount = rhs.GetSize();
+        var compareResult = 0;
+        var lhsCount = GetSize();
+        var rhsCount = rhs.GetSize();
 
         if (lhsCount == 0 || rhsCount == 0)
         {
@@ -59,14 +59,15 @@ internal struct IndexPath : IComparable<IndexPath>, IEquatable<IndexPath>
         else
         {
             // both paths are non-empty, but can be of different size
-            for (int i = 0; i < Math.Min(lhsCount, rhsCount); i++)
+            for (var i = 0; i < Math.Min(lhsCount, rhsCount); i++)
             {
                 if (_path[i] < rhs._path[i])
                 {
                     compareResult = -1;
                     break;
                 }
-                else if (_path[i] > rhs._path[i])
+
+                if (_path[i] > rhs._path[i])
                 {
                     compareResult = 1;
                     break;
@@ -87,7 +88,7 @@ internal struct IndexPath : IComparable<IndexPath>, IEquatable<IndexPath>
 
     public override string ToString()
     {
-        string result = "R";
+        var result = "R";
         foreach (var index in _path)
         {
             result += $".{index}";
@@ -98,7 +99,7 @@ internal struct IndexPath : IComparable<IndexPath>, IEquatable<IndexPath>
 
     public bool IsValid()
     {
-        for (int i = 0; i < _path.Count; i++)
+        for (var i = 0; i < _path.Count; i++)
         {
             if (_path[i] < 0)
             {

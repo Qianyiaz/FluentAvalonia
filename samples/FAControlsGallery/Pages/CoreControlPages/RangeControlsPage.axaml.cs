@@ -35,5 +35,5 @@ public partial class RangeControlsPage : ControlsPageBase
     }
 
     private readonly string[] values = { "Item1", "Item2", "Item3", "Item4", "Item5" };
-    private int _currentIndex = 0;
+    private int _currentIndex;
 }

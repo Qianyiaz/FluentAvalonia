@@ -68,7 +68,7 @@ internal class BreadcrumbElementFactory : FAElementFactory
     {
         if (args.Element is Control c)
         {
-            bool isEllipsisDropDownItem = false; // Use of isEllipsisDropDownItem is workaround for
+            var isEllipsisDropDownItem = false; // Use of isEllipsisDropDownItem is workaround for
             // crashing bug when attempting to show ellipsis dropdown after clicking one of its items.
 
             if (c is FABreadcrumbBarItem bcbItem)

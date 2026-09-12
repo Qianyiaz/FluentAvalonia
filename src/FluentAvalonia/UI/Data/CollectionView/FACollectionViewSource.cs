@@ -217,11 +217,9 @@ public class FACollectionViewSource : AvaloniaObject, ISupportInitialize
                     gdcv.UpdateViewFromCollectionViewSource(_filter, _liveFilterProperties, _sortDescriptions);
                     return;
                 }
-                else
-                {
-                    View = new FAGroupedDataCollectionView(ie, _itemsBinding, _isLiveShapingEnabled,
-                        _filter, _liveFilterProperties, _sortDescriptions);
-                }
+
+                View = new FAGroupedDataCollectionView(ie, _itemsBinding, _isLiveShapingEnabled,
+                    _filter, _liveFilterProperties, _sortDescriptions);
             }
             else
             {

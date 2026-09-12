@@ -44,7 +44,7 @@ public partial class TaskDialogPage : ControlsPageBase
 
         td.Commands.Add(_apiInActionTD.Commands[0]);
 
-        for (int i = 0; i < _apiInActionTD.Buttons.Count; i++)
+        for (var i = 0; i < _apiInActionTD.Buttons.Count; i++)
         {
             td.Buttons.Add(_apiInActionTD.Buttons[i]);
         }
@@ -179,7 +179,7 @@ public partial class TaskDialogPage : ControlsPageBase
         }
 
         _apiInActionTD.Buttons.Clear();
-        for (int i = 0; i < l.Count; i++)
+        for (var i = 0; i < l.Count; i++)
         {
             _apiInActionTD.Buttons.Add(l[i]);
         }
@@ -210,9 +210,9 @@ public partial class TaskDialogPage : ControlsPageBase
             // We immediately begin the progress task as soon as the dialog opens
             await Task.Run(async () =>
             {
-                int progress = 0;
-                FATaskDialogProgressState state = FATaskDialogProgressState.Normal;
-                int delay = 100;
+                var progress = 0;
+                var state = FATaskDialogProgressState.Normal;
+                var delay = 100;
                 while (progress < 100)
                 {
                     await Task.Delay(delay);
@@ -275,7 +275,7 @@ public partial class TaskDialogPage : ControlsPageBase
                 var deferral = e.GetDeferral();
 
                 td.ShowProgressBar = true;
-                int value = 0;
+                var value = 0;
                 DispatcherTimer timer = null;
                 void Tick(object s, EventArgs e)
                 {

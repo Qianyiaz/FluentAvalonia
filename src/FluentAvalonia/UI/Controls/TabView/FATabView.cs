@@ -59,7 +59,6 @@ public partial class FATabView : TemplatedControl
             CommandParameter = TabViewCommandType.CtrlShftTab
         });
 
-        _tabCloseButtonTooltipText = FALocalizationHelper.Instance.GetLocalizedStringResource(SR_TabViewCloseButtonTooltipWithKA);
         PseudoClasses.Set(s_pcTop, true);
         DragDrop.SetAllowDrop(this, true);
     }
@@ -121,18 +120,6 @@ public partial class FATabView : TemplatedControl
         _addButton = e.NameScope.Find<Button>(s_tpAddButton);
         if (_addButton != null)
         {
-            var name = AutomationProperties.GetName(_addButton);
-            if (name == null)
-            {
-                var addButtonName = FALocalizationHelper.Instance.GetLocalizedStringResource(SR_TabViewAddButtonName);
-                AutomationProperties.SetName(_addButton, addButtonName);
-            }
-
-            if (ToolTip.GetTip(_addButton) == null)
-            {
-                ToolTip.SetTip(_addButton, FALocalizationHelper.Instance.GetLocalizedStringResource(SR_TabViewAddButtonTooltip));
-            }
-
             _addButton.Click += OnAddButtonClick;
             _addButton.KeyDown += OnAddButtonKeyDown;
         }
@@ -310,13 +297,13 @@ public partial class FATabView : TemplatedControl
 
     private void UpdateTabBottomBorderLineVisualStates()
     {
-        int numItems = TabItems.Count();
-        int selIndex = SelectedIndex;
+        var numItems = TabItems.Count();
+        var selIndex = SelectedIndex;
 
-        for (int i = 0; i < numItems; i++)
+        for (var i = 0; i < numItems; i++)
         {
             // -1 = normal, 0 = no bottom border, 1 = leftofselectedtab, 2 = rightofselectedtab
-            int state = -1;
+            var state = -1;
             if (_isDragging)
             {
                 state = 0;
@@ -391,8 +378,8 @@ public partial class FATabView : TemplatedControl
 
         var newValue = change.GetNewValue<FATabViewWidthMode>();
         // Switch the visual states of all tab items to the correct TabViewWidthMode
-        int itemCount = TabItems.Count;
-        for (int i = 0; i < itemCount; i++)
+        var itemCount = TabItems.Count;
+        for (var i = 0; i < itemCount; i++)
         {
             if (ContainerFromIndex(i) is FATabViewItem tvi)
             {
@@ -405,8 +392,8 @@ public partial class FATabView : TemplatedControl
     {
         var newValue = change.GetNewValue<FATabViewCloseButtonOverlayMode>();
         // Switch the visual states of all tab items to the correct TabViewWidthMode
-        int itemCount = TabItems.Count;
-        for (int i = 0; i < itemCount; i++)
+        var itemCount = TabItems.Count;
+        for (var i = 0; i < itemCount; i++)
         {
             if (ContainerFromIndex(i) is FATabViewItem tvi)
             {
@@ -559,15 +546,11 @@ public partial class FATabView : TemplatedControl
             if (button.Name == s_tpScrollDecreaseButton)
             {
                 _scrollDecreaseButton = button;
-                ToolTip.SetTip(_scrollDecreaseButton,
-                    FALocalizationHelper.Instance.GetLocalizedStringResource(SR_TabViewScrollDecreaseButtonTooltip));
                 _scrollDecreaseButton.Click += OnScrollDecreaseClick;
             }
             else if (button.Name == s_tpScrollIncreaseButton)
             {
                 _scrollIncreaseButton = button;
-                ToolTip.SetTip(_scrollIncreaseButton,
-                    FALocalizationHelper.Instance.GetLocalizedStringResource(SR_TabViewScrollIncreaseButtonTooltip));
                 _scrollIncreaseButton.Click += OnScrollIncreaseClick;
             }
         }
@@ -645,7 +628,7 @@ public partial class FATabView : TemplatedControl
         {
             TabItemsChanged?.Invoke(this, args);
 
-            int numItems = TabItems.Count;
+            var numItems = TabItems.Count;
             var listViewInnerSelectedIndex = _listView.SelectedIndex;
             var selectedIndex = SelectedIndex;
 
@@ -664,12 +647,12 @@ public partial class FATabView : TemplatedControl
                     if (selectedIndex == -1 || selectedIndex == args.OldStartingIndex)
                     {
                         // Find the closest tab to select instead
-                        int startIndex = args.OldStartingIndex;
+                        var startIndex = args.OldStartingIndex;
                         if (startIndex >= numItems)
                         {
                             startIndex = numItems - 1;
                         }
-                        int index = startIndex;
+                        var index = startIndex;
 
                         do
                         {
@@ -754,7 +737,7 @@ public partial class FATabView : TemplatedControl
         {
             // This is a fallback scenario for tabs without a data context
             var numItems = TabItems.Count;
-            for (int i = 0; i < numItems; i++)
+            for (var i = 0; i < numItems; i++)
             {
                 var tabItem = ContainerFromIndex(i) as FATabViewItem;
                 if (tabItem.Content == item)
@@ -861,7 +844,7 @@ public partial class FATabView : TemplatedControl
                 // We should move the focus to the new tab content.
                 // The new tab content is not available at the time of the LosingFocus event, so we need to
                 // move focus later.
-                bool shouldMoveFocusToNewTab = false;
+                var shouldMoveFocusToNewTab = false;
                 _tabContentPresenter.LosingFocus += TabContentPresenterLostFocus;
 
                 void TabContentPresenterLostFocus(object sender, FocusChangingEventArgs args)
@@ -899,7 +882,7 @@ public partial class FATabView : TemplatedControl
     {
         // If the tab being closed is the currently focused tab, we'll move focus to the next tab
         // when the tab closes.
-        bool tabIsFocused = false;
+        var tabIsFocused = false;
         var focusedObject = TopLevel.GetTopLevel(this).FocusManager.GetFocusedElement();
         var focusedElement = focusedObject as Visual;
 
@@ -924,10 +907,10 @@ public partial class FATabView : TemplatedControl
 
                 if (!args.Canceled && !args.Handled)
                 {
-                    int focusedIndex = IndexFromContainer(container);
+                    var focusedIndex = IndexFromContainer(container);
                     Control newFocusedElement = null;
 
-                    for (int i = focusedIndex + 1; i < GetItemCount(); i++)
+                    for (var i = focusedIndex + 1; i < GetItemCount(); i++)
                     {
                         if (ContainerFromIndex(i) is Control element)
                         {
@@ -941,7 +924,7 @@ public partial class FATabView : TemplatedControl
 
                     if (newFocusedElement == null)
                     {
-                        for (int i = focusedIndex - 1; i >= 0; i--)
+                        for (var i = focusedIndex - 1; i >= 0; i--)
                         {
                             if (ContainerFromIndex(i) is Control element)
                             {
@@ -1007,8 +990,8 @@ public partial class FATabView : TemplatedControl
         //}
 
         var maxTabWidth = this.TryFindResource(c_tabViewItemMaxWidthName, out var mtw) ? (double)mtw : c_tabMaximumWidth;
-        double tabWidth = double.NaN;
-        int tabCount = TabItems.Count;
+        var tabWidth = double.NaN;
+        var tabCount = TabItems.Count;
 
         // If an item is being dragged over this TabView, then we'll want to act like there's an extra item
         // when updating tab widths, which will create a hole into which the item can be dragged.
@@ -1021,7 +1004,7 @@ public partial class FATabView : TemplatedControl
         if (_tabContainerGrid != null && isHorizontal)
         {
             // Add up width taken by custom content and + button
-            double widthTaken = 0.0;
+            var widthTaken = 0.0;
             if (_leftContentColumn != null)
             {
                 widthTaken += _leftContentColumn.ActualWidth;
@@ -1060,12 +1043,12 @@ public partial class FATabView : TemplatedControl
                         if (fillAllAvailableSpace)
                         {
                             // Calculate the proportional width of each tab given the width of the ScrollViewer.
-                            var tabWidthForScroller = (availableWidth - (padding.Horizontal() + headerWidth + footerWidth)) / (double)TabItems.Count();
+                            var tabWidthForScroller = (availableWidth - (padding.Horizontal() + headerWidth + footerWidth)) / TabItems.Count();
                             tabWidth = double.Clamp(tabWidthForScroller, minTabWidth, maxTabWidth);
                         }
                         else
                         {
-                            double availableTabViewSpace = (_tabColumn.ActualWidth - (padding.Horizontal() + headerWidth + footerWidth));
+                            var availableTabViewSpace = (_tabColumn.ActualWidth - (padding.Horizontal() + headerWidth + footerWidth));
                             if (_scrollIncreaseButton != null)
                             {
                                 if (_scrollIncreaseButton.IsVisible)
@@ -1083,7 +1066,7 @@ public partial class FATabView : TemplatedControl
                             }
 
                             // Use current size to update items to fill the currently occupied space
-                            var tabWidthUnclamped = availableTabViewSpace / (double)TabItems.Count();
+                            var tabWidthUnclamped = availableTabViewSpace / TabItems.Count();
                             tabWidth = double.Clamp(tabWidthUnclamped, minTabWidth, maxTabWidth);
                         }
 
@@ -1181,7 +1164,6 @@ public partial class FATabView : TemplatedControl
             
             if (_tabContainerGrid != null)
             {
-                var rows = _tabContainerGrid.RowDefinitions;
                 // Calcuate the height of the rows without the TabView
                 double height = 0;
                 foreach (var item in _tabContainerGrid.Children)
@@ -1326,10 +1308,8 @@ public partial class FATabView : TemplatedControl
         {
             return src.Count();
         }
-        else
-        {
-            return TabItems.Count;
-        }
+
+        return TabItems.Count;
     }
 
     internal bool MoveFocus(bool moveForward)
@@ -1349,7 +1329,7 @@ public partial class FATabView : TemplatedControl
             // Any element that's not focusable is skipped.
             using var focusOrderList = new PooledList<Control>();
             
-            for (int i = 0; i < GetItemCount(); i++)
+            for (var i = 0; i < GetItemCount(); i++)
             {
                 if (ContainerFromIndex(i) is FATabViewItem tab)
                 {
@@ -1386,10 +1366,10 @@ public partial class FATabView : TemplatedControl
             }
 
             // At this point, we know that the focused control is indeed in the focus list, so we'll move focus to the next or previous control in the list.
-            int sourceIndex = index;
-            int listSize = focusOrderList.Count;
-            int increment = moveForward ? 1 : -1;
-            int nextIndex = sourceIndex + increment;
+            var sourceIndex = index;
+            var listSize = focusOrderList.Count;
+            var increment = moveForward ? 1 : -1;
+            var nextIndex = sourceIndex + increment;
 
             if (nextIndex < 0)
             {
@@ -1406,13 +1386,13 @@ public partial class FATabView : TemplatedControl
             // IsTabStop = true before calling Focus(), and then set it back to false if it was previously false.
 
             var control = focusOrderList[nextIndex];
-            bool originalIsTabStop = control.IsTabStop;
+            var originalIsTabStop = control.IsTabStop;
 
             try
             {
                 control.IsTabStop = true;
 
-                bool focusResult = control.Focus(NavigationMethod.Tab);
+                var focusResult = control.Focus(NavigationMethod.Tab);
                 return focusResult;
             }
             finally
@@ -1426,10 +1406,10 @@ public partial class FATabView : TemplatedControl
 
     private bool MoveSelection(bool moveForward)
     {
-        int originalIndex = SelectedIndex;
-        int increment = moveForward ? 1 : -1;
-        int currentIndex = originalIndex + increment;
-        int itemCount = GetItemCount();
+        var originalIndex = SelectedIndex;
+        var increment = moveForward ? 1 : -1;
+        var currentIndex = originalIndex + increment;
+        var itemCount = GetItemCount();
 
         while (currentIndex != originalIndex)
         {
@@ -1456,7 +1436,7 @@ public partial class FATabView : TemplatedControl
 
     private bool RequestCloseCurrentTab()
     {
-        bool handled = false;
+        var handled = false;
         if (SelectedItem is FATabViewItem tvi)
         {
             if (tvi.IsClosable)
@@ -1647,8 +1627,8 @@ public partial class FATabView : TemplatedControl
 
     private TabViewCommand _keyboardAcceleratorHandler;
 
-    private bool _updateTabWidthOnPointerLeave = false;
-    private bool _pointerInTabstrip = false;
+    private bool _updateTabWidthOnPointerLeave;
+    private bool _pointerInTabstrip;
 
     private ColumnDefinition _leftContentColumn;
     private ColumnDefinition _tabColumn;

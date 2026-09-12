@@ -106,7 +106,7 @@ internal class SelectionNode : IDisposable
             {
                 if (_dataSource != null)
                 {
-                    for (int i = 0; i < _dataSource.Count; i++)
+                    for (var i = 0; i < _dataSource.Count; i++)
                     {
                         _childrenNodes.Add(null);
                     }
@@ -161,8 +161,8 @@ internal class SelectionNode : IDisposable
 
     public bool IsSelected(int index)
     {
-        bool isSelected = false;
-        for (int i = 0; i < _selected.Count; i++)
+        var isSelected = false;
+        for (var i = 0; i < _selected.Count; i++)
         {
             if (_selected[i].Contains(index))
             {
@@ -246,7 +246,7 @@ internal class SelectionNode : IDisposable
             _selectedIndicesCacheIsValid = true;
             foreach(var range in _selected)
             {
-                for (int index = range.Begin; index <= range.End; index++)
+                for (var index = range.Begin; index <= range.End; index++)
                 {
                     // Avoid duplicates
                     if (!_selectedIndicesCached.Contains(index))
@@ -340,8 +340,8 @@ internal class SelectionNode : IDisposable
         // TODO: Check for duplicates (Task 14107720)
         // TODO: Optimize by merging adjacent ranges (Task 14107720)
 
-        int oldCount = SelectedCount;
-        for (int i = addRange.Begin; i <= addRange.End; i++)
+        var oldCount = SelectedCount;
+        for (var i = addRange.Begin; i <= addRange.End; i++)
         {
             if (!IsSelected(i))
             {
@@ -362,10 +362,10 @@ internal class SelectionNode : IDisposable
 
     private void RemoveRange(IndexRange removeRange, bool raiseOnSelectionChanged)
     {
-        int oldCount = _selectedCount;
+        var oldCount = _selectedCount;
 
         // TODO: Prevent overlap of Ranges in _selected (Task 14107720)
-        for (int i = removeRange.Begin; i <= removeRange.End; i++)
+        for (var i = removeRange.Begin; i <= removeRange.End; i++)
         {
             if (IsSelected(i))
             {
@@ -414,7 +414,7 @@ internal class SelectionNode : IDisposable
                 }
             }
 
-            bool change = (toRemove.Count > 0) || (toAdd.Count > 0);
+            var change = (toRemove.Count > 0) || (toAdd.Count > 0);
 
             if (change)
             {
@@ -487,7 +487,7 @@ internal class SelectionNode : IDisposable
 
     private void OnSourceListChanged(object dataSource, NotifyCollectionChangedEventArgs args)
     {
-        bool selectionInvalidated = false;
+        var selectionInvalidated = false;
         switch (args.Action)
         {
             case NotifyCollectionChangedAction.Add:
@@ -518,17 +518,17 @@ internal class SelectionNode : IDisposable
 
     private bool OnItemsAdded(int index, int count)
     {
-        bool selectionInvalidated = false;
+        var selectionInvalidated = false;
         // Update ranges for leaf items
         var toAdd = new List<IndexRange>();
-        for (int i = 0; i < _selected.Count; i++)
+        for (var i = 0; i < _selected.Count; i++)
         {
             var range = _selected[i];
 
             // The range is after the inserted items, need to shift the range right
             if (range.End >= index)
             {
-                int begin = range.Begin;
+                var begin = range.Begin;
                 // If the index left of newIndex is inside the range,
                 // Split the range and remember the left piece to add later
                 if (range.Contains(index - 1))
@@ -555,7 +555,7 @@ internal class SelectionNode : IDisposable
         if (_childrenNodes.Count > 0)
         {
             selectionInvalidated = true;
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 _childrenNodes.Insert(index, null);
             }
@@ -593,12 +593,12 @@ internal class SelectionNode : IDisposable
 
     private bool OnItemsRemoved(int index, int count)
     {
-        bool selectionInvalidated = false;
+        var selectionInvalidated = false;
         // Remove the items from the selection for leaf
         if (ItemsSourceView.Count > 0)
         {
-            bool isSelected = false;
-            for (int i = index; i <= index + count - 1; i++)
+            var isSelected = false;
+            for (var i = index; i <= index + count - 1; i++)
             {
                 if (IsSelected(i))
                 {
@@ -613,7 +613,7 @@ internal class SelectionNode : IDisposable
                 selectionInvalidated = true;
             }
 
-            for (int i = 0; i < _selected.Count; i++)
+            for (var i = 0; i < _selected.Count; i++)
             {
                 var range = _selected[i];
 
@@ -632,7 +632,7 @@ internal class SelectionNode : IDisposable
             if (_childrenNodes.Count > 0)
             {
                 selectionInvalidated = true;
-                for (int i = 0; i < count; i++)
+                for (var i = 0; i < count; i++)
                 {
                     if (_childrenNodes[index] != null)
                     {
@@ -696,7 +696,7 @@ internal class SelectionNode : IDisposable
     {
         var selectionState = SelectionState.NotSelected;
         var realizedChildrenNodeCount = RealizedChildrenNodeCount;
-        int selectedCount = SelectedCount;
+        var selectedCount = SelectedCount;
 
         if (realizedChildrenNodeCount != 0 || selectedCount != 0)
         {
@@ -715,8 +715,8 @@ internal class SelectionNode : IDisposable
                 // There are child nodes, walk them individually and evaluate based on each child
                 // being selected/not selected or partially selected.
                 selectedCount = 0;
-                int notSelectedCount = 0;
-                for (int i = 0; i < ChildrenNodeCount; i++)
+                var notSelectedCount = 0;
+                for (var i = 0; i < ChildrenNodeCount; i++)
                 {
                     var child = GetAt(i, false /* realizeChild */);
                     if (child != null)
@@ -728,7 +728,8 @@ internal class SelectionNode : IDisposable
                             selectionState = SelectionState.PartiallySelected;
                             break;
                         }
-                        else if (isChildSelected.HasValue && isChildSelected.Value)
+
+                        if (isChildSelected.HasValue && isChildSelected.Value)
                         {
                             selectedCount++;
                         }

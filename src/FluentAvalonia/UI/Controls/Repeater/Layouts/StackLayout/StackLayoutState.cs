@@ -26,9 +26,9 @@ internal class StackLayoutState
 
     public void OnElementMeasured(int elementIndex, double majorSize, double minorSize)
     {
-        int estimationBufferIndex = elementIndex < BufferSize ? elementIndex :
+        var estimationBufferIndex = elementIndex < BufferSize ? elementIndex :
             elementIndex % BufferSize;
-        bool alreadyMeasured = _estimationBuffer[estimationBufferIndex] != 0;
+        var alreadyMeasured = _estimationBuffer[estimationBufferIndex] != 0;
         if (!alreadyMeasured)
         {
             TotalElementsMeasured++;

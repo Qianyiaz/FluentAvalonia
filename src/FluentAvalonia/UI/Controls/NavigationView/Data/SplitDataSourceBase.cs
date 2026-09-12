@@ -30,7 +30,7 @@ internal abstract class SplitDataSourceBase<T, TVectorID, AttachedDataType>
 
     public void ResetAttachedData(AttachedDataType attachedData)
     {
-        for (int i = 0; i < RawDataSize; i++)
+        for (var i = 0; i < RawDataSize; i++)
         {
             _attachedData[i] = attachedData;
         }
@@ -53,7 +53,7 @@ internal abstract class SplitDataSourceBase<T, TVectorID, AttachedDataType>
     public void MoveItemsToVector(int start, int end, TVectorID newVectorID)
     {
         Debug.Assert(start >= 0 && end <= RawDataSize);
-        for (int i = start; i < end; i++)
+        for (var i = start; i < end; i++)
         {
             MoveItemToVector(i, newVectorID);
         }
@@ -76,7 +76,7 @@ internal abstract class SplitDataSourceBase<T, TVectorID, AttachedDataType>
             var toVector = splitVectors[(int)(object)newVectorID];
             if (toVector != null)
             {
-                int pos = GetPreferIndex(index, newVectorID);
+                var pos = GetPreferIndex(index, newVectorID);
                 var value = GetAt(index);
                 toVector.InsertAt(pos, index, value);
             }
@@ -91,8 +91,8 @@ internal abstract class SplitDataSourceBase<T, TVectorID, AttachedDataType>
 
     protected int IndexOfImpl(T value, TVectorID vectorID)
     {
-        int indexInOriginalVector = IndexOf(value);
-        int index = -1;
+        var indexInOriginalVector = IndexOf(value);
+        var index = -1;
         if (indexInOriginalVector != -1)
         {
             var vector = GetVectorForItem(indexInOriginalVector);
@@ -133,7 +133,7 @@ internal abstract class SplitDataSourceBase<T, TVectorID, AttachedDataType>
 
     protected void OnRemoveAt(int startIndex, int count)
     {
-        for (int i = startIndex + count - 1; i >= startIndex; i--)
+        for (var i = startIndex + count - 1; i >= startIndex; i--)
         {
             OnRemoveAt(i);
         }
@@ -141,7 +141,7 @@ internal abstract class SplitDataSourceBase<T, TVectorID, AttachedDataType>
 
     protected void OnInsertAt(int startIndex, int count)
     {
-        for (int i = startIndex; i < startIndex + count; i++)
+        for (var i = startIndex; i < startIndex + count; i++)
         {
             OnInsertAt(i);
         }
@@ -152,7 +152,7 @@ internal abstract class SplitDataSourceBase<T, TVectorID, AttachedDataType>
     protected void SyncAndInitVectorFlagsWithID(TVectorID defaultID, AttachedDataType defaultAttachedData)
     {
         // Initialize the flags
-        for (int i = 0; i < Size; i++)
+        for (var i = 0; i < Size; i++)
         {
             flags.Add(defaultID);
             _attachedData.Add(defaultAttachedData);
@@ -217,8 +217,8 @@ internal abstract class SplitDataSourceBase<T, TVectorID, AttachedDataType>
 
     private int RangeCount(int start, int end, TVectorID vectorID)
     {
-        int count = 0;
-        for (int i = start; i < end; i++)
+        var count = 0;
+        for (var i = start; i < end; i++)
         {
             if (flags[i].Equals(vectorID))
             {
@@ -258,7 +258,7 @@ internal class SplitVector<T, TVectorId>
             RemoveAt(indexInOriginalVector);
         }
 
-        for (int i = 0; i < indicesInOriginalVector.Count; i++)
+        for (var i = 0; i < indicesInOriginalVector.Count; i++)
         {
             if (indicesInOriginalVector[i] > indexInOriginalVector)
             {
@@ -269,7 +269,7 @@ internal class SplitVector<T, TVectorId>
 
     public void OnRawDataInsert(int preferIndex, int indexInOriginalVector, T value, TVectorId vectorID)
     {
-        for (int i = 0; i < indicesInOriginalVector.Count; i++)
+        for (var i = 0; i < indicesInOriginalVector.Count; i++)
         {
             if (indicesInOriginalVector[i] >= indexInOriginalVector) // WinUI #5558
             {
@@ -317,7 +317,7 @@ internal class SplitVector<T, TVectorId>
 
     public int IndexOf(T value)
     {
-        int indexInOriginalVector = indexFunctionFromDataSource(value);
+        var indexInOriginalVector = indexFunctionFromDataSource(value);
         return IndexFromIndexInOriginalVector(indexInOriginalVector);
     }
 

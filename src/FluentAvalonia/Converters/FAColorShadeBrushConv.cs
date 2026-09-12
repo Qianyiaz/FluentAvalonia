@@ -18,7 +18,7 @@ public sealed class FAColorShadeBrushConv : IValueConverter
     {
         var color = (Color2)value;
 
-        if (!float.TryParse(parameter.ToString(), out float amount))
+        if (!float.TryParse(parameter.ToString(), out var amount))
         {
             amount = 0;
         }

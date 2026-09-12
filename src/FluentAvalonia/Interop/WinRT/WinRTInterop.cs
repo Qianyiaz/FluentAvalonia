@@ -14,28 +14,13 @@ internal static partial class WinRTInterop
         uint length,
         out IntPtr hstring);
 
-    [LibraryImport("api-ms-win-core-winrt-string-l1-1-0.dll")]
-    [UnmanagedCallConv(CallConvs = [typeof(CallConvStdcall)])]
-    internal static unsafe partial char* WindowsGetStringRawBuffer(IntPtr hstring, uint* length);
-
-    internal static unsafe string GetString(IntPtr hString)
-    {
-        uint length;
-        var buffer = WindowsGetStringRawBuffer(hString, &length);
-        return new string(buffer, 0, (int)length);
-    }
-
-    [LibraryImport("api-ms-win-core-winrt-string-l1-1-0.dll")]
-    [UnmanagedCallConv(CallConvs = [typeof(CallConvStdcall)])]
-    internal static unsafe partial BOOL WindowsIsStringEmpty(IntPtr @string);
-
     internal static IntPtr WindowsCreateString(string sourceString)
     {
         if (sourceString is null)
             throw new ArgumentNullException(nameof(sourceString));
 
         IntPtr hstring;
-        int hr = WindowsCreateString(sourceString, (uint)sourceString.Length, out hstring);
+        var hr = WindowsCreateString(sourceString, (uint)sourceString.Length, out hstring);
         if (hr < 0)
             throw new InvalidOperationException($"WindowsCreateString failed with HRESULT: 0x{hr:X8}");
         return hstring;
@@ -49,7 +34,7 @@ internal static partial class WinRTInterop
     {
         var s = WindowsCreateString(fullName);
         EnsureRoInitialized();
-        int hr = RoActivateInstance(s, out var pUnk);
+        var hr = RoActivateInstance(s, out var pUnk);
         if (hr < 0)
         {
             WindowsDeleteString(s);
@@ -67,7 +52,7 @@ internal static partial class WinRTInterop
     {
         if (_initialized)
             return;
-        int hr = RoInitialize(Thread.CurrentThread.GetApartmentState() == ApartmentState.STA ?
+        var hr = RoInitialize(Thread.CurrentThread.GetApartmentState() == ApartmentState.STA ?
             RO_INIT_TYPE.RO_INIT_SINGLETHREADED :
             RO_INIT_TYPE.RO_INIT_MULTITHREADED);
         if (hr < 0)
@@ -88,8 +73,4 @@ internal static partial class WinRTInterop
     private static partial int RoActivateInstance(
         IntPtr activatableClassId,
         out IntPtr instance);
-
-    // Updated signature to return HRESULT and output the activation factory pointer
-    [LibraryImport("combase.dll")]
-    private static partial int RoGetActivationFactory(IntPtr activatableClassId, ref Guid iid, out IntPtr factory);
 }

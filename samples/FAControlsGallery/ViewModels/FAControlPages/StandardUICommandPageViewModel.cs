@@ -22,7 +22,7 @@ public class StandardUICommandPageViewModel : ViewModelBase
         }
 
         TempItems = new AvaloniaList<string>(10);
-        for (int i = 0; i < 10; i++)
+        for (var i = 0; i < 10; i++)
         {
             TempItems.Add($"Temp item {i + 1}");
         }
@@ -45,7 +45,7 @@ public class StandardUICommandPageViewModel : ViewModelBase
         TempItems.Add($"New Item {++_addCounter}");
     }
 
-    private int _addCounter = 0;
+    private int _addCounter;
 }
 
 public class StandardCommandItem

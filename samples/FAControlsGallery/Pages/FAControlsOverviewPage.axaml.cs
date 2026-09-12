@@ -32,7 +32,7 @@ public partial class FAControlsOverviewPage : UserControl
             var lbi = v.FindAncestorOfType<ListBoxItem>(true);
             if (lbi != null && lbi.DataContext is FAControlsPageItem fci)
             {
-                var item = lbi.GetVisualDescendants()
+                lbi.GetVisualDescendants()
                     .FirstOrDefault(x => x is Viewbox && x.Name == "IconHost");
                 _animationPage = fci;
 

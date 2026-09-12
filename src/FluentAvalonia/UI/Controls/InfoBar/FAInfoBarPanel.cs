@@ -19,7 +19,7 @@ public sealed partial class FAInfoBarPanel : Panel
         double widOfWidest = 0;
         double hgtOfTallest = 0;
         double hgtOfTallestInHorizontal = 0;
-        int nItems = 0;
+        var nItems = 0;
 
         var parent = Parent as Control;
         var minHeight = parent == null ? 0d : (parent.MinHeight - Margin.Vertical());
@@ -27,7 +27,7 @@ public sealed partial class FAInfoBarPanel : Panel
         var children = Children;
         var childCount = children.Count;
 
-        for (int i = 0; i < children.Count; i++)
+        for (var i = 0; i < children.Count; i++)
         {
             children[i].Measure(availableSize);
             var childDesSize = children[i].DesiredSize;
@@ -71,19 +71,17 @@ public sealed partial class FAInfoBarPanel : Panel
             return new Size(widOfWidest + vertPad.Horizontal(),
                 totalHgt + vertPad.Vertical());
         }
-        else
-        {
-            _isVertical = false;
-            var horPad = HorizontalOrientationPadding;
 
-            return new Size(totalWid + horPad.Horizontal(),
-                hgtOfTallest + horPad.Vertical());
-        }
+        _isVertical = false;
+        var horPad = HorizontalOrientationPadding;
+
+        return new Size(totalWid + horPad.Horizontal(),
+            hgtOfTallest + horPad.Vertical());
     }
 
     protected override Size ArrangeOverride(Size finalSize)
     {
-        Size result = finalSize;
+        var result = finalSize;
 
 
         if (_isVertical)
@@ -92,8 +90,8 @@ public sealed partial class FAInfoBarPanel : Panel
             var vertPad = VerticalOrientationPadding;
             var vertOff = vertPad.Top;
 
-            bool hasPreviousElement = false;
-            for (int i = 0; i < Children.Count; i++)
+            var hasPreviousElement = false;
+            for (var i = 0; i < Children.Count; i++)
             {
                 var desSize = Children[i].DesiredSize;
                 if (desSize.Width != 0 && desSize.Height != 0)
@@ -112,10 +110,10 @@ public sealed partial class FAInfoBarPanel : Panel
         {
             var horPad = HorizontalOrientationPadding;
             var horOff = horPad.Left;
-            bool hasPreviousElement = false;
+            var hasPreviousElement = false;
 
             var count = Children.Count;
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 var desSize = Children[i].DesiredSize;
                 if (desSize.Width != 0 && desSize.Height != 0)

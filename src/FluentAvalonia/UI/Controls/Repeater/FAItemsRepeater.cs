@@ -61,8 +61,8 @@ public partial class FAItemsRepeater : Panel
 #endif
                 // Shortcut the apparent layout cycle by returning the previous desired size.
                 // This can occur when children have variable sizes that prevent the ItemsPresenter's desired size from settling.
-                Rect layoutExtent = _viewportManager.LayoutExtent;
-                Size desiredSize = new Size(layoutExtent.Width - layoutExtent.X,
+                var layoutExtent = _viewportManager.LayoutExtent;
+                var desiredSize = new Size(layoutExtent.Width - layoutExtent.X,
                     layoutExtent.Height - layoutExtent.Y );
                 return desiredSize;
             }
@@ -101,7 +101,7 @@ public partial class FAItemsRepeater : Panel
                 // Clear auto recycle candidate elements that have not been kept alive by layout - i.e layout did not
                 // call GetElementAt(index).
                 var children = Children;
-                for (int i = 0; i < children.Count; i++)
+                for (var i = 0; i < children.Count; i++)
                 {
                     var element = children[i];
                     var virtInfo = GetVirtualizationInfo(element);
@@ -153,7 +153,7 @@ public partial class FAItemsRepeater : Panel
             _viewManager.OnOwnerArranged();
 
             var children = Children;
-            for (int i = 0; i < children.Count; i++)
+            for (var i = 0; i < children.Count; i++)
             {
                 var element = children[i];
                 var vi = GetVirtualizationInfo(element);
@@ -171,7 +171,7 @@ public partial class FAItemsRepeater : Panel
                 else
                 {
                     var newBounds = element.Bounds;
-                    if (vi.ArrangeBounds != FAItemsRepeater.InvalidRect &&
+                    if (vi.ArrangeBounds != InvalidRect &&
                         newBounds != vi.ArrangeBounds)
                     {
                         _transitionManager.OnElementBoundsChanged(element, vi.ArrangeBounds, newBounds);
@@ -317,7 +317,7 @@ public partial class FAItemsRepeater : Panel
         // Clearing an element due to a collection change
         // is more strict in that pinned elements will be forcibly
         // unpinned and sent back to the view generator.
-        bool isClearedDueToCollectionChange =
+        var isClearedDueToCollectionChange =
             IsProcessingCollectionChange &&
             (_processingItemsSourceChange.Action == NotifyCollectionChangedAction.Remove ||
             _processingItemsSourceChange.Action == NotifyCollectionChangedAction.Replace ||
@@ -344,7 +344,7 @@ public partial class FAItemsRepeater : Panel
         Control result = null;
 
         var children = Children;
-        for (int i = 0; i < children.Count && (result == null); ++i)
+        for (var i = 0; i < children.Count && (result == null); ++i)
         {
             var element = children[i];
             var virtInfo = TryGetVirtualizationInfo(element);
@@ -369,7 +369,7 @@ public partial class FAItemsRepeater : Panel
             throw new Exception("GetOrCreateElement invocation is not allowed during layout");
 
         var element = GetElementFromIndexImpl(index);
-        bool isAnchorOutsideRealizedRange = element == null;
+        var isAnchorOutsideRealizedRange = element == null;
 
         if (isAnchorOutsideRealizedRange)
         {
@@ -457,7 +457,7 @@ public partial class FAItemsRepeater : Panel
                 {
                     vl.OnItemsChangedCore(GetLayoutContext(), newValue, args);
                 }
-                else if (Layout is FANonVirtualizingLayout nvl)
+                else if (Layout is FANonVirtualizingLayout)
                 {
                     // Walk through all the elements and make sure they are cleared for
                     // non-virtualizing layouts.
@@ -504,7 +504,7 @@ public partial class FAItemsRepeater : Panel
                 {
                     vl.OnItemsChangedCore(GetLayoutContext(), newValue, args);
                 }
-                else if (layout is FANonVirtualizingLayout nvl)
+                else if (layout is FANonVirtualizingLayout)
                 {
                     // Walk through all the elements and make sure they are cleared for
                     // non-virtualizing layouts.
@@ -545,7 +545,7 @@ public partial class FAItemsRepeater : Panel
 
     private void OnLayoutChanged(FALayout oldValue, FALayout newValue)
     {
-        bool isInitialSetup = !_wasLayoutChangedCalled;
+        var isInitialSetup = !_wasLayoutChangedCalled;
         _wasLayoutChangedCalled = true;
 
         if (_isLayoutInProgress)
@@ -573,7 +573,7 @@ public partial class FAItemsRepeater : Panel
 
             // Walk through all the elements and make sure they are cleared
             var children = Children;
-            for (int i = 0; i < children.Count; ++i)
+            for (var i = 0; i < children.Count; ++i)
             {
                 var element = children[i];
                 if (GetVirtualizationInfo(element).IsRealized)
@@ -597,7 +597,7 @@ public partial class FAItemsRepeater : Panel
             }
         }
 
-        bool isVirtualizingLayout = newValue != null && newValue is FAVirtualizingLayout;
+        var isVirtualizingLayout = newValue != null && newValue is FAVirtualizingLayout;
         _viewportManager.OnLayoutChanged(isVirtualizingLayout);
         InvalidateMeasure();
     }
@@ -720,7 +720,7 @@ public partial class FAItemsRepeater : Panel
     private NotifyCollectionChangedEventArgs _processingItemsSourceChange;
     
     private Size _lastAvailableSize;
-    private bool _isLayoutInProgress = false;
+    private bool _isLayoutInProgress;
     // The value of _layoutOrigin is expected to be set by the layout
     // when it gets measured. It should not be used outside of measure.
     private Point _layoutOrigin;
@@ -738,7 +738,7 @@ public partial class FAItemsRepeater : Panel
 
     // Used to avoid layout cycles with StackLayout layouts where variable sized children prevent
     // the ItemsRepeater's layout to settle.
-    private byte _stackLayoutMeasureCounter = 0;
+    private byte _stackLayoutMeasureCounter;
 
     // Bug in framework's reference tracking causes crash during
     // UIAffinityQueue cleanup. To avoid that bug, take a strong ref
@@ -747,7 +747,7 @@ public partial class FAItemsRepeater : Panel
     // Bug where DataTemplate with no content causes a crash.
     // See: https://github.com/microsoft/microsoft-ui-xaml/issues/776
     // Solution: Have flag that is only true when DataTemplate exists but it is empty.
-    private bool _isItemTemplateEmpty = false;
+    private bool _isItemTemplateEmpty;
 
     // If no ItemCollectionTransitionProvider is explicitly provided, we'll retrieve a default one
     // from the Layout object. In that case, we'll want to know that we own that object and can

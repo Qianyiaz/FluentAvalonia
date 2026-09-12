@@ -51,12 +51,12 @@ public partial class FAPathIcon : FAIconElement
     private static (Size size, Matrix transform) CalculateSizeAndTransform(Size availableSize, Rect shapeBounds,
         Stretch stretch, StretchDirection stretchDirection)
     {
-        Size shapeSize = new Size(shapeBounds.Right, shapeBounds.Bottom);
-        Matrix translate = Matrix.Identity;
-        double desiredX = availableSize.Width;
-        double desiredY = availableSize.Height;
-        double sx = 0.0;
-        double sy = 0.0;
+        var shapeSize = new Size(shapeBounds.Right, shapeBounds.Bottom);
+        var translate = Matrix.Identity;
+        var desiredX = availableSize.Width;
+        var desiredY = availableSize.Height;
+        var sx = 0.0;
+        var sy = 0.0;
 
         if (stretch != Stretch.None)
         {

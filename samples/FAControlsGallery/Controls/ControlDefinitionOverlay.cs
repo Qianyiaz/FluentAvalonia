@@ -358,7 +358,7 @@ public sealed class ControlDefinitionOverlay : TemplatedControl
             .Where(x => x.DeclaringType == t);
 
         // Keep track of enums used, we'll define them too at the end of the file
-        List<Type> enums = new List<Type>();
+        var enums = new List<Type>();
 
         foreach (var p in clr)
         {
@@ -478,7 +478,7 @@ public sealed class ControlDefinitionOverlay : TemplatedControl
             sb.Append("\n{\n");
 
             var names = Enum.GetNames(en);
-            for (int i = 0; i < names.Length; i++)
+            for (var i = 0; i < names.Length; i++)
             {
                 var fi = en.GetField(names[i]);
 
@@ -510,7 +510,7 @@ public sealed class ControlDefinitionOverlay : TemplatedControl
             .Where(x => x.DeclaringType == t);
 
         // Keep track of enums used, we'll define them too at the end of the file
-        List<Type> enums = new List<Type>();
+        var enums = new List<Type>();
 
         foreach (var p in clr)
         {
@@ -623,7 +623,7 @@ public sealed class ControlDefinitionOverlay : TemplatedControl
             sb.Append("\n{\n");
 
             var names = Enum.GetNames(en);
-            for (int i = 0; i < names.Length; i++)
+            for (var i = 0; i < names.Length; i++)
             {
                 var fi = en.GetField(names[i]);
 
@@ -657,44 +657,40 @@ public sealed class ControlDefinitionOverlay : TemplatedControl
             {
                 return $"{args[0]}?";
             }
-            else
-            {
-                return $"{genType}<{string.Join(',', args)}>";
-            }
-        }
-        else
-        {
-            if (t == typeof(object))
-                return "object";
-            else if (t == typeof(string))
-                return "string";
-            else if (t == typeof(bool))
-                return "bool";
-            else if (t == typeof(char))
-                return "char";
-            else if (t == typeof(int))
-                return "int";
-            else if (t == typeof(float))
-                return "float";
-            else if (t == typeof(double))
-                return "double";
-            else if (t == typeof(long))
-                return "long";
-            else if (t == typeof(ulong))
-                return "ulong";
-            else if (t == typeof(uint))
-                return "uint";
-            else if (t == typeof(byte))
-                return "byte";
-            else if (t == typeof(short))
-                return "short";
-            else if (t == typeof(decimal))
-                return "decimal";
-            else if (t == typeof(void))
-                return "void";
 
-            return t.Name;
+            return $"{genType}<{string.Join(',', args)}>";
         }
+
+        if (t == typeof(object))
+            return "object";
+        if (t == typeof(string))
+            return "string";
+        if (t == typeof(bool))
+            return "bool";
+        if (t == typeof(char))
+            return "char";
+        if (t == typeof(int))
+            return "int";
+        if (t == typeof(float))
+            return "float";
+        if (t == typeof(double))
+            return "double";
+        if (t == typeof(long))
+            return "long";
+        if (t == typeof(ulong))
+            return "ulong";
+        if (t == typeof(uint))
+            return "uint";
+        if (t == typeof(byte))
+            return "byte";
+        if (t == typeof(short))
+            return "short";
+        if (t == typeof(decimal))
+            return "decimal";
+        if (t == typeof(void))
+            return "void";
+
+        return t.Name;
     }
 
     private void OnCloseClick(object sender, RoutedEventArgs e)

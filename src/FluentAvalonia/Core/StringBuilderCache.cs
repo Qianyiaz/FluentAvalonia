@@ -31,7 +31,7 @@ internal static class StringBuilderCache
     {
         if (capacity <= MaxBuilderSize)
         {
-            StringBuilder sb = t_cachedInstance;
+            var sb = t_cachedInstance;
             if (sb != null)
             {
                 // Avoid stringbuilder block fragmentation by getting a new StringBuilder
@@ -60,7 +60,7 @@ internal static class StringBuilderCache
     /// <summary>ToString() the stringbuilder, Release it to the cache, and return the resulting string.</summary>
     public static string GetStringAndRelease(StringBuilder sb)
     {
-        string result = sb.ToString();
+        var result = sb.ToString();
         Release(sb);
         return result;
     }

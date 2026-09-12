@@ -22,10 +22,8 @@ public class FATeachingTipAutomationPeer : ContentControlAutomationPeer
         {
             return AutomationControlType.Window;
         }
-        else
-        {
-            return AutomationControlType.Pane;
-        }
+
+        return AutomationControlType.Pane;
     }
 
     protected override string GetClassNameCore() => nameof(TeachingTip);

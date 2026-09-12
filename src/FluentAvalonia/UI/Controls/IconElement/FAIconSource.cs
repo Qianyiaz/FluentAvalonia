@@ -46,27 +46,29 @@ public class IconSourceConverter : TypeConverter
         {
             return new FASymbolIconSource { Symbol = symbol };
         }
-        else if (value is IImage img)
+
+        if (value is IImage img)
         {
             return new FAImageIconSource { Source = img };
         }
-        else if (value is string val)
+
+        if (value is string val)
         {
             //First we try if the text is a valid Symbol
-            if (Enum.TryParse<FASymbol>(val, out FASymbol sym))
+            if (Enum.TryParse<FASymbol>(val, out var sym))
             {
                 return new FASymbolIconSource() { Symbol = sym };
             }
 
             //Try a PathIcon
-            if (FAPathIcon.IsDataValid(val, out Geometry g))
+            if (FAPathIcon.IsDataValid(val, out var g))
             {
                 return new FAPathIconSource() { Data = g };
             }
 
             try
             {
-                if (Uri.TryCreate(val, UriKind.RelativeOrAbsolute, out Uri result))
+                if (Uri.TryCreate(val, UriKind.RelativeOrAbsolute, out var result))
                 {
                     return new FABitmapIconSource() { UriSource = result };
                 }

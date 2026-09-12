@@ -24,7 +24,7 @@ internal class ViewManager
 
     public Control GetElement(int index, bool forceCreate, bool suppressAutoRecycle)
     {
-        bool elementIsAnchor = false;
+        var elementIsAnchor = false;
         var element = forceCreate ? null : GetElementIfAlreadyHeldByLayout(index);
         if (element == null)
         {
@@ -84,10 +84,10 @@ internal class ViewManager
     public void ClearElement(Control element, bool isClearedDueToCollectionChange)
     {
         var vi = FAItemsRepeater.GetVirtualizationInfo(element);
-        int index = vi.Index;
-        bool cleared = ClearElementToUniqueIdResetPool(element, vi) ||
-            ClearElementToAnimator(element, vi) ||
-            ClearElementToPinnedPool(element, vi, isClearedDueToCollectionChange);
+        var index = vi.Index;
+        var cleared = ClearElementToUniqueIdResetPool(element, vi) ||
+                      ClearElementToAnimator(element, vi) ||
+                      ClearElementToPinnedPool(element, vi, isClearedDueToCollectionChange);
 
         if (!cleared)
         {
@@ -114,12 +114,9 @@ internal class ViewManager
             // Last element is going away, shrink the range by one at the end.
             --_lastRealizedElementIndexHeldByLayout;
         }
-        else
-        {
-            // Index is either outside the range we are keeping track of or inside the range.
-            // In both these cases, we just keep the range we have. If this clear was due to 
-            // a collection change, then in the CollectionChanged event, we will invalidate these guys.
-        }
+        // Index is either outside the range we are keeping track of or inside the range.
+        // In both these cases, we just keep the range we have. If this clear was due to 
+        // a collection change, then in the CollectionChanged event, we will invalidate these guys.
     }
 
     // We need to clear the datacontext to prevent crashes from happening,
@@ -206,18 +203,18 @@ internal class ViewManager
         focusedChild = null;
         // Walk through all the children and find elements with index before and after the cleared index.
         // Note that during a delete the next element would now have the same index.
-        int previousIndex = int.MinValue;
-        int nextIndex = int.MaxValue;
+        var previousIndex = int.MinValue;
+        var nextIndex = int.MaxValue;
         Control nextElement = null;
         Control previousElement = null;
         var children = _owner.Children;
-        for (int i = 0; i < children.Count; i++)
+        for (var i = 0; i < children.Count; i++)
         {
             var child = children[i];
             var virtInfo = FAItemsRepeater.TryGetVirtualizationInfo(child);
             if (virtInfo != null && virtInfo.IsHeldByLayout)
             {
-                int currentIndex = virtInfo.Index;
+                var currentIndex = virtInfo.Index;
                 if (currentIndex < clearedIndex)
                 {
                     if (currentIndex > previousIndex)
@@ -279,7 +276,7 @@ internal class ViewManager
 
         // Go through pinned elements and make sure they still have
         // a reason to be pinned.
-        for (int i = 0; i < _pinnedPool.Count; i++)
+        for (var i = 0; i < _pinnedPool.Count; i++)
         {
             var ei = _pinnedPool[i];
             var vi = ei.VirtualizationInfo;
@@ -346,7 +343,7 @@ internal class ViewManager
                         _lastRealizedElementIndexHeldByLayout += newCount;
                         var children = _owner.Children;
                         var ct = children.Count;
-                        for (int i = 0; i < ct; i++)
+                        for (var i = 0; i < ct; i++)
                         {
                             var element = children[i];
                             var vi = FAItemsRepeater.GetVirtualizationInfo(element);
@@ -362,7 +359,7 @@ internal class ViewManager
                     {
                         // Indices held by layout are not affected
                         // We could still have items in the pinned elements that need updates. This is usually a very small vector.
-                        for (int i = 0; i < _pinnedPool.Count; i++)
+                        for (var i = 0; i < _pinnedPool.Count; i++)
                         {
                             var element = _pinnedPool[i];
                             var vi = element.VirtualizationInfo;
@@ -405,13 +402,13 @@ internal class ViewManager
                         throw new InvalidOperationException("Replace notification with args.NewItemCount value of 0 is not allowed. Use Remove action instead.");
                     }
 
-                    int countChange = newCount - oldCount;
+                    var countChange = newCount - oldCount;
                     if (countChange != 0)
                     {
                         // countChange > 0 : countChange items were added
                         // countChange < 0 : -countChange  items were removed
                         var children = _owner.Children;
-                        for (int i = 0; i < children.Count; ++i)
+                        for (var i = 0; i < children.Count; ++i)
                         {
                             var element = children[i];
                             var virtInfo = FAItemsRepeater.GetVirtualizationInfo(element);
@@ -438,7 +435,7 @@ internal class ViewManager
                     var oldStartIndex = args.OldStartingIndex;
                     var oldCount = args.OldItems.Count;
                     var children = _owner.Children;
-                    for (int i = 0; i < children.Count; ++i)
+                    for (var i = 0; i < children.Count; ++i)
                     {
                         var element = children[i];
                         var virtInfo = FAItemsRepeater.GetVirtualizationInfo(element);
@@ -475,7 +472,7 @@ internal class ViewManager
                         // Walk through all the elements and make sure they are cleared, they will go into
                         // the stable id reset pool.
                         var children = _owner.Children;
-                        for (int i = 0; i < children.Count; ++i)
+                        for (var i = 0; i < children.Count; ++i)
                         {
                             var element = children[i];
                             var virtInfo = FAItemsRepeater.GetVirtualizationInfo(element);
@@ -498,7 +495,7 @@ internal class ViewManager
         if (_firstRealizedElementIndexHeldByLayout == FirstRealizedElementIndexDefault)
         {
             // This will ensure that the indexes are updated.
-            var element = GetElementIfAlreadyHeldByLayout(0);
+            GetElementIfAlreadyHeldByLayout(0);
         }
     }
 
@@ -539,12 +536,12 @@ internal class ViewManager
     {
         Control element = null;
 
-        bool cachedFirstLastIndicesInvalid = _firstRealizedElementIndexHeldByLayout == FirstRealizedElementIndexDefault;
+        var cachedFirstLastIndicesInvalid = _firstRealizedElementIndexHeldByLayout == FirstRealizedElementIndexDefault;
 
         Debug.Assert(!cachedFirstLastIndicesInvalid || _lastRealizedElementIndexHeldByLayout == LastRealizedElementIndexDefault);
         
-        bool isRequestedIndexInRealizedRange = (_firstRealizedElementIndexHeldByLayout <= index && 
-            index <= _lastRealizedElementIndexHeldByLayout);
+        var isRequestedIndexInRealizedRange = (_firstRealizedElementIndexHeldByLayout <= index && 
+                                               index <= _lastRealizedElementIndexHeldByLayout);
 
         if (cachedFirstLastIndicesInvalid || isRequestedIndexInRealizedRange)
         {
@@ -555,14 +552,14 @@ internal class ViewManager
                 _lastRealizedElementIndexHeldByLayout != LastRealizedElementIndexDefault));
 
             var children = _owner.Children;
-            for (int i = 0; i < children.Count; ++i)
+            for (var i = 0; i < children.Count; ++i)
             {
                 var child = children[i];
                 var virtInfo = FAItemsRepeater.TryGetVirtualizationInfo(child);
                 if (virtInfo != null && virtInfo.IsHeldByLayout)
                 {
                     // Only give back elements held by layout. If someone else is holding it, they will be served by other methods.
-                    int childIndex = virtInfo.Index;
+                    var childIndex = virtInfo.Index;
                     _firstRealizedElementIndexHeldByLayout = Math.Min(_firstRealizedElementIndexHeldByLayout, childIndex);
                     _lastRealizedElementIndexHeldByLayout = Math.Max(_lastRealizedElementIndexHeldByLayout, childIndex);
                     if (virtInfo.Index == index)
@@ -611,7 +608,7 @@ internal class ViewManager
     {
         Control element = null;
 
-        for (int i = 0; i < _pinnedPool.Count; i++)
+        for (var i = 0; i < _pinnedPool.Count; i++)
         {
             var elementInfo = _pinnedPool[i];
             var virtInfo = elementInfo.VirtualizationInfo;
@@ -699,19 +696,14 @@ internal class ViewManager
             Log.Debug("Element Created");
 #endif
         }
-        else
-        {
-            // View obtained from ElementFactory already has a VirtualizationInfo attached to it
-            // which means that the element has been recycled and not created from scratch.
-#if DEBUG && REPEATER_TRACE
-            Log.Debug("Element Recycled");
-#endif
-        }
+
+        // View obtained from ElementFactory already has a VirtualizationInfo attached to it
+        // which means that the element has been recycled and not created from scratch.
         // Clear flag
         virtInfo.MustClearDataContext = false;
 
         FAContainerContentChangingEventArgs cArgs = null;
-        bool shouldPhase = _owner.ShouldPhase;
+        var shouldPhase = _owner.ShouldPhase;
 
         // NOTE: This code has been changed from WinUI in order to support our version of phased rendering
         if (data != element)
@@ -799,7 +791,7 @@ internal class ViewManager
 
     private bool ClearElementToAnimator(Control element, VirtualizationInfo virtInfo)
     {
-        bool cleared = _owner.TransitionManager.ClearElement(element);
+        var cleared = _owner.TransitionManager.ClearElement(element);
         if (cleared)
         {
             var clearedIndex = virtInfo.Index;
@@ -818,12 +810,12 @@ internal class ViewManager
 
     private bool ClearElementToPinnedPool(Control element, VirtualizationInfo virtInfo, bool isClearedDueToCollectionChange)
     {
-        bool moveToPinnedPool = !isClearedDueToCollectionChange && virtInfo.IsPinned;
+        var moveToPinnedPool = !isClearedDueToCollectionChange && virtInfo.IsPinned;
 
         if (moveToPinnedPool)
         {
 #if DEBUG
-            for (int i = 0; i < _pinnedPool.Count; i++)
+            for (var i = 0; i < _pinnedPool.Count; i++)
             {
                 Debug.Assert(_pinnedPool[i].PinnedElement != element);
             }

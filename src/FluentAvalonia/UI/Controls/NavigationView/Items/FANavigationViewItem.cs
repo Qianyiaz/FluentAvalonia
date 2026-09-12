@@ -203,7 +203,7 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
         var splitView = GetSplitView;
         if (splitView != null)
         {
-            double paneLength = splitView.CompactPaneLength;
+            var paneLength = splitView.CompactPaneLength;
             CompactPaneLength = paneLength;
 
             if (_presenter != null)
@@ -413,8 +413,8 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
 
         UpdateVisualStateForNavigationViewPositionChange();
 
-        bool showIcon = ShouldShowIcon;
-        bool showContent = ShouldShowContent;
+        var showIcon = ShouldShowIcon;
+        var showContent = ShouldShowContent;
 
         if (IsOnLeftNav)
         {
@@ -453,8 +453,8 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
 
             //States :chevronopen, :chevronclosed, :chevronhidden
 
-            bool show = HasChildren && !(_isClosedCompact && ShouldRepeaterShowInFlyout);
-            bool expand = IsExpanded;
+            var show = HasChildren && !(_isClosedCompact && ShouldRepeaterShowInFlyout);
+            var expand = IsExpanded;
 
             if (_presenter != null)
             {
@@ -470,7 +470,7 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
         if (_repeater == null)
             return;
 
-        bool shouldShowChildren = IsExpanded;
+        var shouldShowChildren = IsExpanded;
         _repeater.IsVisible = shouldShowChildren;
 
         if (ShouldRepeaterShowInFlyout)
@@ -530,7 +530,7 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
 
         var count = _repeater.ItemsSourceView.Count;
 
-        for (int i = 0; i < count; i++)
+        for (var i = 0; i < count; i++)
         {
             if (_repeater.TryGetElement(i) is FANavigationViewItemBase nvib)
             {

@@ -250,7 +250,7 @@ public partial class FASettingsExpanderItem : ContentControl, ICommandSource
 
     private void OnIsClickEnabledChanged(AvaloniaPropertyChangedEventArgs args)
     {
-        bool enabled = args.GetNewValue<bool>();
+        var enabled = args.GetNewValue<bool>();
         _allowInteraction = enabled && this.FindAncestorOfType<ToggleButton>() == null;
         PseudoClasses.Set(FASharedPseudoclasses.s_pcAllowClick, _allowInteraction);
 

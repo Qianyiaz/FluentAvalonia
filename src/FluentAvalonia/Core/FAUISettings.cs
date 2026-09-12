@@ -7,17 +7,12 @@ namespace FluentAvalonia.Core;
 /// </summary>
 public class FAUISettings
 {
-    static FAUISettings()
-    {
-        s_Instance = new FAUISettings();
-    }
-
     /// <summary>
     /// Checks whether animations are enabled or have been disabled
     /// </summary>
     public static bool AreAnimationsEnabled()
     {
-        return s_Instance._areAnimationsEnabled;
+        return Instance._areAnimationsEnabled;
     }
 
     /// <summary>
@@ -25,7 +20,7 @@ public class FAUISettings
     /// </summary>
     public static bool UseTabViewDragReorderPreview()
     {
-        return s_Instance._useTabViewDragReorderPreview;
+        return Instance._useTabViewDragReorderPreview;
     }
 
     /// <summary>
@@ -33,7 +28,7 @@ public class FAUISettings
     /// </summary>
     public static void SetUseTabViewDragReorderPreview(bool use)
     {
-        s_Instance._useTabViewDragReorderPreview = use;
+        Instance._useTabViewDragReorderPreview = use;
     }
 
     /// <summary>
@@ -41,7 +36,7 @@ public class FAUISettings
     /// </summary>
     public static void SetAnimationsEnabledAtAppLevel(bool isEnabled)
     {
-        s_Instance._areAnimationsEnabled = isEnabled;
+        Instance._areAnimationsEnabled = isEnabled;
     }
 
     /// <summary>
@@ -66,7 +61,7 @@ public class FAUISettings
         cyDrag = Win32Interop.GetSystemMetricsWithFallback(69, (uint)Math.Round(96 * scaling));
     }
 
-    private static readonly FAUISettings s_Instance;
+    private static readonly FAUISettings Instance = new();
     private bool _areAnimationsEnabled = true;
     private bool _useTabViewDragReorderPreview = true;
 }

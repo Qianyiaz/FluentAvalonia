@@ -15,7 +15,7 @@ public sealed class ItemsRepeaterPageViewModel : ViewModelBase
     {
         var rnd = new Random(7);
         BarItems = new List<Bar>(50);
-        for (int i = 0; i < 50; i++)
+        for (var i = 0; i < 50; i++)
         {
             BarItems.Add(new Bar(rnd.NextDouble() * 300, 300));
         }
@@ -133,10 +133,8 @@ public sealed class MyDataTemplateSelector : AvaloniaObject, IDataTemplate
         {
             return Normal.Build(param);
         }
-        else
-        {
-            return Accent.Build(param);
-        }
+
+        return Accent.Build(param);
     }
 
     public bool Match(object data) => true;
@@ -168,7 +166,8 @@ public sealed class StringOrIntTemplateSelector : AvaloniaObject, IDataTemplate
         {
             return StringTemplate.Build(param);
         }
-        else if (param is int)
+
+        if (param is int)
         {
             return IntTemplate.Build(param);
         }
@@ -197,10 +196,10 @@ public sealed class Recipe
     public void RandomizeIngredients()
     {
         // To give the items different heights, give recipes random numbers of random ingredients
-        Random rndNum = new Random();
-        Random rndIng = new Random();
+        var rndNum = new Random();
+        var rndIng = new Random();
 
-        ObservableCollection<string> extras = new ObservableCollection<string>{
+        var extras = new ObservableCollection<string>{
                                                      "Garlic",
                                                      "Lemon",
                                                      "Butter",
@@ -208,9 +207,9 @@ public sealed class Recipe
                                                      "Feta Cheese",
                                                      "Parmesan Cheese",
                                                      "Breadcrumbs"};
-        for (int i = 0; i < rndNum.Next(0, 4); i++)
+        for (var i = 0; i < rndNum.Next(0, 4); i++)
         {
-            string newIng = extras[rndIng.Next(0, 6)];
+            var newIng = extras[rndIng.Next(0, 6)];
             if (!IngList.Contains(newIng))
             {
                 Ingredients += "\n" + newIng;
@@ -280,7 +279,7 @@ public sealed class MyItemsSource : IList, IFAKeyIndexMapping, INotifyCollection
 
     public int IndexFromKey(string key)
     {
-        foreach (Recipe item in inner)
+        foreach (var item in inner)
         {
             if (item.Num.ToString() == key)
             {

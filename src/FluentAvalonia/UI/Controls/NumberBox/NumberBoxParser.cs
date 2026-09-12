@@ -11,7 +11,7 @@ internal static partial class NumberBoxParser
     {
         var tokens = new List<MathToken>();
 
-        bool expectNumber = true;
+        var expectNumber = true;
         while (input.Length > 0)
         {
             var nextChar = input[0];
@@ -73,7 +73,7 @@ internal static partial class NumberBoxParser
         {
             // Might be a number
             var matchLength = match.Current.Length;
-            if (double.TryParse(input[..matchLength], NumberStyles.Any, CultureInfo.CurrentCulture, out double result))
+            if (double.TryParse(input[..matchLength], NumberStyles.Any, CultureInfo.CurrentCulture, out var result))
             {
                 return (result, matchLength);
             }
@@ -88,7 +88,8 @@ internal static partial class NumberBoxParser
         {
             return 1;
         }
-        else if (c == '^')
+
+        if (c == '^')
         {
             return 2;
         }
@@ -99,8 +100,8 @@ internal static partial class NumberBoxParser
     // Converts a list of tokens from infix format (e.g. "3 + 5") to postfix (e.g. "3 5 +")
     public static IList<MathToken> ConvertInfixToPostfix(IList<MathToken> infixTokens)
     {
-        List<MathToken> postFixTokens = new List<MathToken>();
-        Stack<MathToken> operatorTokens = new Stack<MathToken>();
+        var postFixTokens = new List<MathToken>();
+        var operatorTokens = new Stack<MathToken>();
 
         foreach (var token in infixTokens)
         {
@@ -169,7 +170,7 @@ internal static partial class NumberBoxParser
 
     public static double? ComputePostfixExpression(IList<MathToken> tokens)
     {
-        Stack<double?> stack = new Stack<double?>();
+        var stack = new Stack<double?>();
 
         foreach (var token in tokens)
         {
@@ -205,10 +206,8 @@ internal static partial class NumberBoxParser
                         {
                             return double.NaN;
                         }
-                        else
-                        {
-                            result = op2 / op1;
-                        }
+
+                        result = op2 / op1;
                         break;
 
                     case '^':

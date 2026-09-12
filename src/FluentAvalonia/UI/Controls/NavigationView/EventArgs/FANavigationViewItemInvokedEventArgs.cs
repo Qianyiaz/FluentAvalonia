@@ -13,11 +13,6 @@ public class FANavigationViewItemInvokedEventArgs : EventArgs
     public object InvokedItem { get; internal set; }
 
     /// <summary>
-    /// Gets a value that indicates whether the InvokedItem is the menu item for Settings.
-    /// </summary>
-    public bool IsSettingsInvoked { get; internal set; }
-
-    /// <summary>
     /// Gets the container for the invoked item.
     /// </summary>
     public FANavigationViewItemBase InvokedItemContainer { get; internal set; }

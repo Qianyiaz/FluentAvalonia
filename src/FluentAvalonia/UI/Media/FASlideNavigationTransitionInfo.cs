@@ -29,7 +29,7 @@ public class FASlideNavigationTransitionInfo : FANavigationTransitionInfo
     public async override void RunAnimation(Animatable ctrl, CancellationToken cancellationToken)
     {
         double length = 0;
-        bool isVertical = false;
+        var isVertical = false;
         switch (Effect)
         {
             case FASlideNavigationTransitionEffect.FromLeft:

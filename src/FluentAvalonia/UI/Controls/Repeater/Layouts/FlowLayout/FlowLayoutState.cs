@@ -40,8 +40,8 @@ internal class FlowLayoutState
         // different from the rest of the lines and can throw off estimation.
         if (_totalLinesMeasured == 0 || startIndex + countInLine != context.ItemCount)
         {
-            int estimationBufferIndex = startIndex % _lineSizeEstimationBuffer.Length;
-            bool alreadyMeasured = _lineSizeEstimationBuffer[estimationBufferIndex] != 0;
+            var estimationBufferIndex = startIndex % _lineSizeEstimationBuffer.Length;
+            var alreadyMeasured = _lineSizeEstimationBuffer[estimationBufferIndex] != 0;
 
             if (!alreadyMeasured)
             {

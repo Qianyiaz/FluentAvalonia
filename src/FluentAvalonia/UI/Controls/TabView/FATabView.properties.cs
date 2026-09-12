@@ -444,7 +444,7 @@ public partial class FATabView
 
 
     private IList _tabItems;
-    private int _selectedIndex = 0;
+    private int _selectedIndex;
     private object _selectedItem;
 
     // Internal for unit test access

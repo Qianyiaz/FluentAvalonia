@@ -83,7 +83,7 @@ internal sealed class TransitionManager
 
     public bool ClearElement(Control element)
     {
-        bool canClear = false;
+        var canClear = false;
 
         if (_transitionProvider != null)
         {

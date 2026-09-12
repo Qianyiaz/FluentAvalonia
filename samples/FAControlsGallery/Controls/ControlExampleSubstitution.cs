@@ -17,7 +17,7 @@ public sealed class ControlExampleSubstitution : AvaloniaObject
 
     public string Key { get; set; }
 
-    private object _value = null;
+    private object _value;
     public object Value
     {
         get => _value;
@@ -48,7 +48,7 @@ public sealed class ControlExampleSubstitution : AvaloniaObject
             return string.Empty;
         }
 
-        object value = Value;
+        var value = Value;
 
         // For solid color brushes, use the underlying color.
         if (value is SolidColorBrush)

@@ -163,7 +163,7 @@ public class FAMenuFlyout : PopupFlyoutBase
     private static void SetPresenterClasses(Control presenter, Classes classes)
     {
         //Remove any classes no longer in use, ignoring pseudoclasses
-        for (int i = presenter.Classes.Count - 1; i >= 0; i--)
+        for (var i = presenter.Classes.Count - 1; i >= 0; i--)
         {
             if (!classes.Contains(presenter.Classes[i]) &&
                 !presenter.Classes[i].Contains(':'))

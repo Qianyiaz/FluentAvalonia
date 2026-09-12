@@ -169,15 +169,17 @@ public sealed class HomePageViewModel : MainPageViewModelBase
         {
             return designPage;
         }
-        else if (header.SequenceEqual(ico))
+
+        if (header.SequenceEqual(ico))
         {
             return designPage;
         }
-        else if (header.SequenceEqual(col))
+
+        if (header.SequenceEqual(col))
         {
             return designPage;
         }
-                
+
         return null;
     }
 }

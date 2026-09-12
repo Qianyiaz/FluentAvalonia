@@ -68,7 +68,7 @@ public class FACommandBarFlyout : PopupFlyoutBase
                 case NotifyCollectionChangedAction.Add:
                     _commandBar.SecondaryCommands.InsertRange(e.NewStartingIndex, e.NewItems.Cast<IFACommandBarElement>());
 
-                    for (int i = 0; i < e.NewItems.Count; i++)
+                    for (var i = 0; i < e.NewItems.Count; i++)
                     {
                         if (e.NewItems[i] is FACommandBarButton b)
                         {
@@ -86,7 +86,7 @@ public class FACommandBarFlyout : PopupFlyoutBase
                 case NotifyCollectionChangedAction.Remove:
                     _commandBar.SecondaryCommands.RemoveRange(e.OldStartingIndex, e.OldItems.Count);
 
-                    for (int i = 0; i < e.OldItems.Count; i++)
+                    for (var i = 0; i < e.OldItems.Count; i++)
                     {
                         if (e.OldItems[i] is FACommandBarButton b)
                         {
@@ -111,7 +111,7 @@ public class FACommandBarFlyout : PopupFlyoutBase
                     _commandBar.SecondaryCommands.Clear();
                     if (e.OldItems != null)
                     {
-                        for (int i = 0; i < e.OldItems.Count; i++)
+                        for (var i = 0; i < e.OldItems.Count; i++)
                         {
                             if (e.OldItems[i] is FACommandBarButton b)
                             {
@@ -190,7 +190,7 @@ public class FACommandBarFlyout : PopupFlyoutBase
         {
             _commandBar.SecondaryCommands.AddRange(SecondaryCommands);
 
-            for (int i = 0; i < SecondaryCommands.Count; i++)
+            for (var i = 0; i < SecondaryCommands.Count; i++)
             {
                 if (SecondaryCommands[i] is FACommandBarButton b)
                 {

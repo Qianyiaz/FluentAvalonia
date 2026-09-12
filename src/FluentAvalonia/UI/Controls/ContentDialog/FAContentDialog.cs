@@ -151,7 +151,7 @@ public partial class FAContentDialog : ContentControl, ICustomKeyboardNavigation
     /// Note that the placement parameter is not implemented and only accepts <see cref="FAContentDialogPlacement.Popup"/>
     /// </remarks>
     private Task<FAContentDialogResult> ShowAsyncCore(Window window, FAContentDialogPlacement placement = FAContentDialogPlacement.Popup) =>
-        ShowAsyncCoreForTopLevel((TopLevel)window);
+        ShowAsyncCoreForTopLevel(window);
 
     private async Task<FAContentDialogResult> ShowAsyncCoreForTopLevel(TopLevel topLevel)
     {
@@ -195,7 +195,7 @@ public partial class FAContentDialog : ContentControl, ICustomKeyboardNavigation
             if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime al)
             {
                 var windows = al.Windows;
-                for (int i = 0; i < windows.Count; i++)
+                for (var i = 0; i < windows.Count; i++)
                 {
                     if (windows[i].IsActive)
                     {
@@ -206,10 +206,7 @@ public partial class FAContentDialog : ContentControl, ICustomKeyboardNavigation
 
                 if (topLevel == null)
                 {
-                    if (al.MainWindow == null)
-                        throw new NotSupportedException("No TopLevel root found to parent ContentDialog");
-
-                    topLevel = al.MainWindow;
+                    topLevel = al.MainWindow ?? throw new NotSupportedException("No TopLevel root found to parent ContentDialog");
                 }
 
                 ol = OverlayLayer.GetOverlayLayer(topLevel);
@@ -358,7 +355,6 @@ public partial class FAContentDialog : ContentControl, ICustomKeyboardNavigation
         PseudoClasses.Set(s_pcSecondary, !string.IsNullOrEmpty(SecondaryButtonText));
         PseudoClasses.Set(s_pcClose, !string.IsNullOrEmpty(CloseButtonText));
 
-        var p = Presenter;
         switch (DefaultButton)
         {
             case FAContentDialogButton.Primary:
@@ -578,7 +574,7 @@ public partial class FAContentDialog : ContentControl, ICustomKeyboardNavigation
 
     private void OnFullSizedDesiredChanged(AvaloniaPropertyChangedEventArgs e)
     {
-        bool newVal = (bool)e.NewValue;
+        var newVal = (bool)e.NewValue;
         PseudoClasses.Set(s_pcFullSize, newVal);
     }
 
@@ -597,7 +593,7 @@ public partial class FAContentDialog : ContentControl, ICustomKeyboardNavigation
 
         if (direction == NavigationDirection.Next)
         {
-            for (int i = 0; i < children.Count; i++)
+            for (var i = 0; i < children.Count; i++)
             {
                 if (children[i] == current)
                 {
@@ -605,16 +601,14 @@ public partial class FAContentDialog : ContentControl, ICustomKeyboardNavigation
                     {
                         return (true, children[0]);
                     }
-                    else
-                    {
-                        return (true, children[i + 1]);
-                    }
+
+                    return (true, children[i + 1]);
                 }
             }
         }
         else if (direction == NavigationDirection.Previous)
         {
-            for (int i = children.Count - 1; i >= 0; i--)
+            for (var i = children.Count - 1; i >= 0; i--)
             {
                 if (children[i] == current)
                 {
@@ -622,10 +616,8 @@ public partial class FAContentDialog : ContentControl, ICustomKeyboardNavigation
                     {
                         return (true, children[children.Count - 1]);
                     }
-                    else
-                    {
-                        return (true, children[i - 1]);
-                    }
+
+                    return (true, children[i - 1]);
                 }
             }
         }

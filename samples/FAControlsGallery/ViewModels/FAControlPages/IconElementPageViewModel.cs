@@ -15,7 +15,7 @@ public class IconElementPageViewModel : ViewModelBase
             var symbolList = new List<SymbolItem>(symbols.Length);
 
             var type = typeof(FASymbol);
-            for (int i = 0; i < symbols.Length; i++)
+            for (var i = 0; i < symbols.Length; i++)
             {
                 var str = symbols[i].ToString();
 

@@ -26,7 +26,7 @@ public class FATextCommandBarFlyout : FACommandBarFlyout
             // in this state anyway, but this makes sure we don't have a light-dismiss layer
             // with nothing visible to light dismiss.
 
-            bool isStandard = ShowMode == FlyoutShowMode.Standard;
+            var isStandard = ShowMode == FlyoutShowMode.Standard;
 
             if (PrimaryCommands.Count == 0 &&
             (SecondaryCommands.Count == 0) || (!_commandBar.IsOpen && !isStandard))
@@ -93,7 +93,7 @@ public class FATextCommandBarFlyout : FACommandBarFlyout
 
     private TextControlButtons GetButtonsToAdd()
     {
-        TextControlButtons toAdd = TextControlButtons.None;
+        var toAdd = TextControlButtons.None;
         var target = Target;
 
         // Since we don't have RichTextBox, RichTextBlock, or PasswordBox, we'll just let TextBox get all
@@ -120,7 +120,7 @@ public class FATextCommandBarFlyout : FACommandBarFlyout
 
     private TextControlButtons GetTextBoxButtonsToAdd(TextBox textBox)
     {
-        TextControlButtons toAdd = TextControlButtons.None;
+        var toAdd = TextControlButtons.None;
 
         var selLength = Math.Abs(textBox.SelectionEnd - textBox.SelectionStart);
         if (!textBox.IsReadOnly)
@@ -193,7 +193,7 @@ public class FATextCommandBarFlyout : FACommandBarFlyout
 
     private TextControlButtons GetPasswordBoxButtonsToAdd(TextBox textBox)
     {
-        TextControlButtons toAdd = TextControlButtons.None;
+        var toAdd = TextControlButtons.None;
 
         if (textBox.CanPaste)
         {
@@ -362,68 +362,66 @@ public class FATextCommandBarFlyout : FACommandBarFlyout
         {
             return _buttons[textControlButton];
         }
-        else
+
+        switch (textControlButton)
         {
-            switch (textControlButton)
+            case TextControlButtons.Cut:
             {
-                case TextControlButtons.Cut:
-                    {
-                        var button = new FACommandBarButton();
-                        InitializeButtonWithUICommand(button, new FAStandardUICommand(FAStandardUICommandKind.Cut), ExecuteCutCommand);
-                        _buttons.Add(TextControlButtons.Cut, button);
-                        return button;
-                    }
-
-                case TextControlButtons.Copy:
-                    {
-                        var button = new FACommandBarButton();
-                        InitializeButtonWithUICommand(button, new FAStandardUICommand(FAStandardUICommandKind.Copy), ExecuteCopyCommand);
-                        _buttons.Add(TextControlButtons.Copy, button);
-                        return button;
-                    }
-
-                case TextControlButtons.Paste:
-                    {
-                        var button = new FACommandBarButton();
-                        InitializeButtonWithUICommand(button, new FAStandardUICommand(FAStandardUICommandKind.Paste), ExecutePasteCommand);
-                        _buttons.Add(TextControlButtons.Paste, button);
-                        return button;
-                    }
-
-                // Skip Bold/Italic/Underline, since we don't have those right now
-
-                case TextControlButtons.Bold:
-                case TextControlButtons.Italic:
-                case TextControlButtons.Underline:
-                    return null;
-
-                case TextControlButtons.Undo:
-                    {
-                        var button = new FACommandBarButton();
-                        InitializeButtonWithUICommand(button, new FAStandardUICommand(FAStandardUICommandKind.Undo), ExecuteUndoCommand);
-                        _buttons.Add(TextControlButtons.Undo, button);
-                        return button;
-                    }
-
-                case TextControlButtons.Redo:
-                    {
-                        var button = new FACommandBarButton();
-                        InitializeButtonWithUICommand(button, new FAStandardUICommand(FAStandardUICommandKind.Redo), ExecuteRedoCommand);
-                        _buttons.Add(TextControlButtons.Redo, button);
-                        return button;
-                    }
-
-                case TextControlButtons.SelectAll:
-                    {
-                        var button = new FACommandBarButton();
-                        InitializeButtonWithUICommand(button, new FAStandardUICommand(FAStandardUICommandKind.SelectAll), ExecuteSelectAllCommand);
-                        _buttons.Add(TextControlButtons.SelectAll, button);
-                        return button;
-                    }
-
-                default:
-                    throw new NotSupportedException("Invalid TextControlButtons");
+                var button = new FACommandBarButton();
+                InitializeButtonWithUICommand(button, new FAStandardUICommand(FAStandardUICommandKind.Cut), ExecuteCutCommand);
+                _buttons.Add(TextControlButtons.Cut, button);
+                return button;
             }
+
+            case TextControlButtons.Copy:
+            {
+                var button = new FACommandBarButton();
+                InitializeButtonWithUICommand(button, new FAStandardUICommand(FAStandardUICommandKind.Copy), ExecuteCopyCommand);
+                _buttons.Add(TextControlButtons.Copy, button);
+                return button;
+            }
+
+            case TextControlButtons.Paste:
+            {
+                var button = new FACommandBarButton();
+                InitializeButtonWithUICommand(button, new FAStandardUICommand(FAStandardUICommandKind.Paste), ExecutePasteCommand);
+                _buttons.Add(TextControlButtons.Paste, button);
+                return button;
+            }
+
+            // Skip Bold/Italic/Underline, since we don't have those right now
+
+            case TextControlButtons.Bold:
+            case TextControlButtons.Italic:
+            case TextControlButtons.Underline:
+                return null;
+
+            case TextControlButtons.Undo:
+            {
+                var button = new FACommandBarButton();
+                InitializeButtonWithUICommand(button, new FAStandardUICommand(FAStandardUICommandKind.Undo), ExecuteUndoCommand);
+                _buttons.Add(TextControlButtons.Undo, button);
+                return button;
+            }
+
+            case TextControlButtons.Redo:
+            {
+                var button = new FACommandBarButton();
+                InitializeButtonWithUICommand(button, new FAStandardUICommand(FAStandardUICommandKind.Redo), ExecuteRedoCommand);
+                _buttons.Add(TextControlButtons.Redo, button);
+                return button;
+            }
+
+            case TextControlButtons.SelectAll:
+            {
+                var button = new FACommandBarButton();
+                InitializeButtonWithUICommand(button, new FAStandardUICommand(FAStandardUICommandKind.SelectAll), ExecuteSelectAllCommand);
+                _buttons.Add(TextControlButtons.SelectAll, button);
+                return button;
+            }
+
+            default:
+                throw new NotSupportedException("Invalid TextControlButtons");
         }
     }
 

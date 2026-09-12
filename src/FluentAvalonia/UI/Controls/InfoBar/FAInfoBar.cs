@@ -26,22 +26,12 @@ public partial class FAInfoBar : ContentControl
         if (_closeButton != null)
         {
             _closeButton.Click += OnCloseButtonClick;
-
-            ToolTip.SetTip(_closeButton, FALocalizationHelper.Instance.GetLocalizedStringResource(SR_InfoBarCloseButtonTooltip));
-
-            if (AutomationProperties.GetName(_closeButton) == null)
-            {
-                var closeButtonName = FALocalizationHelper.Instance.GetLocalizedStringResource(SR_InfoBarCloseButtonName);
-                AutomationProperties.SetName(_closeButton, closeButtonName);
-            }
         }
 
         var iconTextBlock = e.NameScope.Find<FAFontIcon>(s_tpStandardIcon);
         if (iconTextBlock != null)
         {
             _standardIcon = iconTextBlock;
-            AutomationProperties.SetName(iconTextBlock,
-                FALocalizationHelper.Instance.GetLocalizedStringResource(GetIconSeverityLevelResourceName(Severity)));
         }
 
         _appliedTemplate = true;
@@ -173,29 +163,10 @@ public partial class FAInfoBar : ContentControl
                 {
                     _isVisible = true;
                     PseudoClasses.Set(FASharedPseudoclasses.s_pcHidden, false);
-
-                    if (notify && peer is FAInfoBarAutomationPeer p)
-                    {
-                        var local = FALocalizationHelper.Instance;
-                        var notificationString = $"{local.GetLocalizedStringResource(SR_InfoBarOpenedNotification)}" +
-                            $"{local.GetLocalizedStringResource(GetIconSeverityLevelResourceName(Severity))}" +
-                            $"{Title} {Message}";
-
-                        p.RaiseOpenedEvent(Severity, notificationString);
-                    }
-
                     AutomationProperties.SetAccessibilityView(this, AccessibilityView.Control);
                 }
                 else
                 {
-                    if (notify && peer is FAInfoBarAutomationPeer p)
-                    {
-                        var notificationString = FALocalizationHelper.Instance
-                            .GetLocalizedStringResource(SR_InfoBarClosedNotification);
-
-                        p.RaiseClosedEvent(Severity, notificationString);
-                    }
-
                     _isVisible = false;
                     PseudoClasses.Set(FASharedPseudoclasses.s_pcHidden, true);
                     AutomationProperties.SetAccessibilityView(this, AccessibilityView.Raw);
@@ -241,12 +212,6 @@ public partial class FAInfoBar : ContentControl
                 PseudoClasses.Set(s_pcInformational, true);
                 break;
         }
-
-        if (_standardIcon != null)
-        {
-            AutomationProperties.SetName(_standardIcon,
-                FALocalizationHelper.Instance.GetLocalizedStringResource(GetIconSeverityLevelResourceName(severity)));
-        }
     }
 
     private void UpdateIcon()
@@ -264,7 +229,7 @@ public partial class FAInfoBar : ContentControl
         }
         else
         {
-            bool hasUserIcon = IconSource != null;
+            var hasUserIcon = IconSource != null;
             PseudoClasses.Set(FASharedPseudoclasses.s_pcIcon, hasUserIcon);
             PseudoClasses.Set(s_pcStandardIcon, !hasUserIcon);
         }
@@ -277,7 +242,7 @@ public partial class FAInfoBar : ContentControl
 
     private void UpdateForeground()
     {
-        PseudoClasses.Set(s_pcForegroundSet, this.GetValue(TextElement.ForegroundProperty) != AvaloniaProperty.UnsetValue);
+        PseudoClasses.Set(s_pcForegroundSet, GetValue(TextElement.ForegroundProperty) != AvaloniaProperty.UnsetValue);
     }
 
     private void UpdateContentPosition()

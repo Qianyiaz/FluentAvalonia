@@ -8,9 +8,9 @@ public class FAControlsOverviewPageViewModel : MainPageViewModelBase
     {
         ControlGroups = ControlInformation.GetFAControlInfo();
 
-        for (int i = 0; i < ControlGroups.Count; i++)
+        for (var i = 0; i < ControlGroups.Count; i++)
         {
-            for (int j = 0; j < ControlGroups[i].Controls.Count; j++)
+            for (var j = 0; j < ControlGroups[i].Controls.Count; j++)
             {
                 ControlGroups[i].Controls[j].Parent = this;
             }

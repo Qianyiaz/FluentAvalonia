@@ -156,15 +156,15 @@ public class FABreadcrumbBarItem : ContentControl
         // This makes it so that you can drag away from the item and if you drag
         // back the click is canceled
 
-        bool pressed = _isPressed;
+        var pressed = _isPressed;
 
         if (pressed)
         {
-            bool over = IsPointerOver;
+            var over = IsPointerOver;
 
             var bnds = new Rect(Bounds.Size);
             var pt = args.GetPosition(this);
-            bool isInBounds = bnds.Contains(pt);
+            var isInBounds = bnds.Contains(pt);
 
             if (!isInBounds)
                 ProcessPointerCanceled(args);
@@ -318,7 +318,7 @@ public class FABreadcrumbBarItem : ContentControl
     private IList<object> CloneEllipsisItemSource(IEnumerable<object> ellipsisItemsSource)
     {
         // The new list contains all the elements in reverse order
-        int itemsSourceSize = ellipsisItemsSource.Count();
+        var itemsSourceSize = ellipsisItemsSource.Count();
         
         // A copy of the hidden elements array in BreadcrumbLayout is created
         // to avoid getting a Layout cycle exception
@@ -326,7 +326,7 @@ public class FABreadcrumbBarItem : ContentControl
 
         if (itemsSourceSize > 0)
         {
-            for (int i = itemsSourceSize - 1; i >= 0; i--)
+            for (var i = itemsSourceSize - 1; i >= 0; i--)
             {
                 newItemsSource.Add(ellipsisItemsSource.ElementAt(i));
             }

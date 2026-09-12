@@ -101,7 +101,7 @@ internal class UniformGridLayoutState
         {
             if (!double.IsNaN(itemWidth))
             {
-                double allowedColumnWidth = itemWidth;
+                var allowedColumnWidth = itemWidth;
                 if (stretch != FAUniformGridLayoutItemsStretch.None)
                 {
                     allowedColumnWidth += CalculateExtraPixelsInLine(maxItemsPerLine,
@@ -115,7 +115,7 @@ internal class UniformGridLayoutState
         {
             if (!double.IsNaN(itemHeight))
             {
-                double allowedRowHeight = itemHeight;
+                var allowedRowHeight = itemHeight;
                 if (stretch != FAUniformGridLayoutItemsStretch.None)
                 {
                     allowedRowHeight += CalculateExtraPixelsInLine(maxItemsPerLine,
@@ -134,7 +134,7 @@ internal class UniformGridLayoutState
         double itemSizeMinor, double minorItemSpacing)
     {
         int numItemsPerColumn;
-        int numItemsBasedOnSize = (int)Math.Max(1, availableSizeMinor / (itemSizeMinor + minorItemSpacing));
+        var numItemsBasedOnSize = (int)Math.Max(1, availableSizeMinor / (itemSizeMinor + minorItemSpacing));
         if (numItemsBasedOnSize == 0)
         {
             numItemsPerColumn = maxItemsPerLine;

@@ -20,5 +20,5 @@ public partial class XamlUICommandPage : ControlsPageBase
         this.FindControl<TextBlock>("XamlUICommandOutput").Text = $"You fired the custom command {counter} times";
     }
 
-    int counter = 0;
+    int counter;
 }

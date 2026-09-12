@@ -51,8 +51,7 @@ public partial class DesignPage : UserControl
 
         if (oldIndex > index)
             return FASlideNavigationTransitionEffect.FromRight;
-        else
-            return FASlideNavigationTransitionEffect.FromLeft;
+        return FASlideNavigationTransitionEffect.FromLeft;
     }
 
     private FANavigationTransitionInfo GetTransitionInfo(int oldIndex, int newIndex)
@@ -61,13 +60,11 @@ public partial class DesignPage : UserControl
         {
             return new FASuppressNavigationTransitionInfo();
         }
-        else
+
+        return new FASlideNavigationTransitionInfo
         {
-            return new FASlideNavigationTransitionInfo
-            {
-                Effect = GetEffect(oldIndex, newIndex),
-                FromHorizontalOffset = 70
-            };
-        }
+            Effect = GetEffect(oldIndex, newIndex),
+            FromHorizontalOffset = 70
+        };
     }
 }

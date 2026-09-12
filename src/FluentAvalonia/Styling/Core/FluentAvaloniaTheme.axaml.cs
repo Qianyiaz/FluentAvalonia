@@ -158,7 +158,7 @@ public partial class FluentAvaloniaTheme : Styles, IResourceProvider
     }
 
     bool IResourceNode.TryGetResource(object key, ThemeVariant theme, out object value) =>
-        this.TryGetResource(key, theme, out value);
+        TryGetResource(key, theme, out value);
 
     private void Init()
     {
@@ -332,16 +332,14 @@ public partial class FluentAvaloniaTheme : Styles, IResourceProvider
     private ThemeVariant GetThemeFromIPlatformSettings(IPlatformSettings platformSettings)
     {
         var platformColors = platformSettings.GetColorValues();
-        bool isSystemInHighContrast = platformColors.ContrastPreference == ColorContrastPreference.High;
+        var isSystemInHighContrast = platformColors.ContrastPreference == ColorContrastPreference.High;
         if (!isSystemInHighContrast)
         {
            return platformColors.ThemeVariant == PlatformThemeVariant.Light ?
                 ThemeVariant.Light : ThemeVariant.Dark;
         }
-        else
-        {
-            return HighContrastTheme;
-        }
+
+        return HighContrastTheme;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -426,13 +424,13 @@ public partial class FluentAvaloniaTheme : Styles, IResourceProvider
 
         Color2 col = _customAccentColor.Value;
 
-        UpdateAccentColors((Color)_customAccentColor.Value,
-            (Color)col.LightenPercent(0.15f),
-            (Color)col.LightenPercent(0.30f),
-            (Color)col.LightenPercent(0.45f),
-            (Color)col.LightenPercent(-0.15f),
-            (Color)col.LightenPercent(-0.30f),
-            (Color)col.LightenPercent(-0.45f));
+        UpdateAccentColors(_customAccentColor.Value,
+            col.LightenPercent(0.15f),
+            col.LightenPercent(0.30f),
+            col.LightenPercent(0.45f),
+            col.LightenPercent(-0.15f),
+            col.LightenPercent(-0.30f),
+            col.LightenPercent(-0.45f));
     }
         
     private void TryLoadMacOSAccentColor(IPlatformSettings platformSettings)
@@ -442,13 +440,13 @@ public partial class FluentAvaloniaTheme : Styles, IResourceProvider
             // Replaced old logic with PlatformSettings from Avalonia
             Color2 aColor = platformSettings.GetColorValues().AccentColor1;
 
-            UpdateAccentColors((Color)aColor,
-                (Color)aColor.LightenPercent(0.15f),
-                (Color)aColor.LightenPercent(0.30f),
-                (Color)aColor.LightenPercent(0.45f),
-                (Color)aColor.LightenPercent(-0.15f),
-                (Color)aColor.LightenPercent(-0.30f),
-                (Color)aColor.LightenPercent(-0.45f));
+            UpdateAccentColors(aColor,
+                aColor.LightenPercent(0.15f),
+                aColor.LightenPercent(0.30f),
+                aColor.LightenPercent(0.45f),
+                aColor.LightenPercent(-0.15f),
+                aColor.LightenPercent(-0.30f),
+                aColor.LightenPercent(-0.45f));
         }
         catch
         {
@@ -467,15 +465,15 @@ public partial class FluentAvaloniaTheme : Styles, IResourceProvider
         var aColor = LinuxThemeResolver.TryLoadAccentColor();
         if (aColor != null)
         {
-            Color2 col = aColor.Value;
+            var col = aColor.Value;
 
-            UpdateAccentColors((Color)col,
-                (Color)col.LightenPercent(0.15f),
-                (Color)col.LightenPercent(0.30f),
-                (Color)col.LightenPercent(0.45f),
-                (Color)col.LightenPercent(-0.15f),
-                (Color)col.LightenPercent(-0.30f),
-                (Color)col.LightenPercent(-0.45f));
+            UpdateAccentColors(col,
+                col.LightenPercent(0.15f),
+                col.LightenPercent(0.30f),
+                col.LightenPercent(0.45f),
+                col.LightenPercent(-0.15f),
+                col.LightenPercent(-0.30f),
+                col.LightenPercent(-0.45f));
         }
         else
         {

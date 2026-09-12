@@ -655,7 +655,7 @@ public struct Color2 : IEquatable<Color2>
                 break;
         }
 
-        Color2 newColor = new Color2();
+        var newColor = new Color2();
         newColor._cType = ColorType.RGB;
         newColor._c1 = r;
         newColor._c2 = g;
@@ -694,7 +694,7 @@ public struct Color2 : IEquatable<Color2>
                 break;
         }
 
-        Color2 newColor = new Color2();
+        var newColor = new Color2();
         newColor._cType = ColorType.HSV;
         newColor._c1 = h;
         newColor._c2 = s;
@@ -733,7 +733,7 @@ public struct Color2 : IEquatable<Color2>
                 break;
         }
 
-        Color2 newColor = new Color2();
+        var newColor = new Color2();
         newColor._cType = ColorType.HSL;
         newColor._c1 = h;
         newColor._c2 = s;
@@ -769,7 +769,7 @@ public struct Color2 : IEquatable<Color2>
                 break;
         }
 
-        Color2 newColor = new Color2();
+        var newColor = new Color2();
         newColor._cType = ColorType.CMYK;
         newColor._c1 = c;
         newColor._c2 = m;
@@ -853,11 +853,10 @@ public struct Color2 : IEquatable<Color2>
     /// <returns>Hex string of the color</returns>
     public string ToHexString(bool includeAlpha = true)
     {
-        GetRGB(out byte r, out byte g, out byte b, out byte a);
+        GetRGB(out var r, out var g, out var b, out var a);
         if (includeAlpha)
             return $"#{a:x2}{r:x2}{g:x2}{b:x2}";
-        else
-            return $"#{r:x2}{g:x2}{b:x2}";
+        return $"#{r:x2}{g:x2}{b:x2}";
     }
 
     /// <summary>
@@ -867,11 +866,10 @@ public struct Color2 : IEquatable<Color2>
     /// <returns>HTML formatted rgb(r,g,b) or rgba(r,g,b,a)</returns>
     public string ToHTML(bool includeAlpha = true)
     {
-        GetRGB(out byte r, out byte g, out byte b, out byte a);
+        GetRGB(out var r, out var g, out var b, out var a);
         if (includeAlpha)
             return $"rgba( {r}, {g}, {b}, {a} )";
-        else
-            return $"rgb( {r}, {g}, {b} )";
+        return $"rgb( {r}, {g}, {b} )";
     }
 
     public string GetDisplayName()
@@ -892,7 +890,7 @@ public struct Color2 : IEquatable<Color2>
     /// <returns></returns>
     public static Color2 Parse(string value)
     {
-        if (TryParse(value.AsSpan(), out Color2 ec))
+        if (TryParse(value.AsSpan(), out var ec))
             return ec;
 
         return Empty;
@@ -916,12 +914,12 @@ public struct Color2 : IEquatable<Color2>
             {
                 Span<char> normal = stackalloc char[v.Length * 2];
 
-                for (int i = 0; i < v.Length; i++)
+                for (var i = 0; i < v.Length; i++)
                 {
                     normal[i * 2] = normal[i * 2 + 1] = v[i];
                 }
 
-                if (uint.TryParse(normal, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out uint result))
+                if (uint.TryParse(normal, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var result))
                 {
                     ec = FromUInt(result | (v.Length == 3 ? 0xff000000 : 0u));
                     return true;
@@ -929,7 +927,7 @@ public struct Color2 : IEquatable<Color2>
             }
             else if (v.Length == 6 || v.Length == 8)
             {
-                if (uint.TryParse(v, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out uint result))
+                if (uint.TryParse(v, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var result))
                 {
                     ec = FromUInt(result | (v.Length == 6 ? 0xff000000 : 0u));
                     return true;
@@ -947,11 +945,11 @@ public struct Color2 : IEquatable<Color2>
                 return false;
             }
 
-            if (byte.TryParse(result[0].Trim(), out byte r) &&
-                byte.TryParse(result[1].Trim(), out byte g) &&
-                byte.TryParse(result[2].Trim(), out byte b))
+            if (byte.TryParse(result[0].Trim(), out var r) &&
+                byte.TryParse(result[1].Trim(), out var g) &&
+                byte.TryParse(result[2].Trim(), out var b))
             {
-                if (result.Length == 4 && byte.TryParse(result[3], out byte a))
+                if (result.Length == 4 && byte.TryParse(result[3], out var a))
                 {
                     ec = FromARGB(a, r, g, b);
                     return true;
@@ -1030,7 +1028,7 @@ public struct Color2 : IEquatable<Color2>
 
     public static implicit operator Color(Color2 ec)
     {
-        ec.GetRGB(out byte r, out byte g, out byte b, out byte a);
+        ec.GetRGB(out var r, out var g, out var b, out var a);
         return Color.FromArgb(a, r, g, b);
     }
 
@@ -1112,7 +1110,7 @@ public struct Color2 : IEquatable<Color2>
     /// <returns>RGB <see cref="Color2"/></returns>
     public static Color2 FromRGBf(float r, float g, float b, float a = 1)
     {
-        Color2 newColor = new Color2();
+        var newColor = new Color2();
         newColor._cType = ColorType.RGB;
         newColor._c1 = float.Clamp(r, 0, 1);
         newColor._c2 = float.Clamp(g, 0, 1);
@@ -1128,10 +1126,10 @@ public struct Color2 : IEquatable<Color2>
     /// <returns></returns>
     public static Color2 FromUInt(uint num)
     {
-        byte a = (byte)((num >> 24) & 0xFF);
-        byte r = (byte)((num >> 16) & 0xFF);
-        byte g = (byte)((num >> 8) & 0xFF);
-        byte b = (byte)(num & 0xFF);
+        var a = (byte)((num >> 24) & 0xFF);
+        var r = (byte)((num >> 16) & 0xFF);
+        var g = (byte)((num >> 8) & 0xFF);
+        var b = (byte)(num & 0xFF);
 
         return new Color2(r, g, b, a);
     }
@@ -1159,7 +1157,7 @@ public struct Color2 : IEquatable<Color2>
     /// <returns>HSV <see cref="Color2"/></returns>
     public static Color2 FromHSVf(float hue, float sat, float val, float alpha = 1)
     {
-        Color2 newColor = new Color2();
+        var newColor = new Color2();
         newColor._cType = ColorType.HSV;
         newColor._c1 = hue == -1 ? 0 : float.Clamp(hue % 360, 0, 360);
         newColor._c2 = float.Clamp(sat, 0, 1);
@@ -1191,7 +1189,7 @@ public struct Color2 : IEquatable<Color2>
     /// <returns>HSL <see cref="Color2"/></returns>
     public static Color2 FromHSLf(float hue, float sat, float light, float alpha = 1)
     {
-        Color2 newColor = new Color2();
+        var newColor = new Color2();
         newColor._cType = ColorType.HSL;
         newColor._c1 = hue == -1 ? 0 : float.Clamp(hue % 360, 0, 360);
         newColor._c2 = float.Clamp(sat, 0, 1);
@@ -1225,7 +1223,7 @@ public struct Color2 : IEquatable<Color2>
     /// <returns>CMYK <see cref="Color2"/></returns>
     public static Color2 FromCMYKf(float c, float m, float y, float k, float alpha = 1)
     {
-        Color2 newColor = new Color2();
+        var newColor = new Color2();
         newColor._cType = ColorType.CMYK;
         newColor._c1 = float.Clamp(c, 0, 1);
         newColor._c2 = float.Clamp(m, 0, 1);
@@ -1238,84 +1236,84 @@ public struct Color2 : IEquatable<Color2>
 
     public Color2 WithHue(int h)
     {
-        GetHSV(out _, out int s, out int v, out int a);
+        GetHSV(out _, out var s, out var v, out var a);
 
-        return Color2.FromHSV(h, s, v, a);
+        return FromHSV(h, s, v, a);
     }
 
     public Color2 WithHuef(float h)
     {
-        GetHSVf(out _, out float s, out float v, out float a);
+        GetHSVf(out _, out var s, out var v, out var a);
 
-        return Color2.FromHSVf(h, s, v, a);
+        return FromHSVf(h, s, v, a);
     }
 
     public Color2 WithSat(int s)
     {
-        GetHSV(out int h, out _, out int v, out int a);
+        GetHSV(out var h, out _, out var v, out var a);
 
         return FromHSV(h, s, v, a);
     }
 
     public Color2 WithSatf(float s)
     {
-        GetHSVf(out float h, out _, out float v, out float a);
+        GetHSVf(out var h, out _, out var v, out var a);
 
         return FromHSVf(h, s, v, a);
     }
 
     public Color2 WithVal(int v)
     {
-        GetHSV(out int h, out int s, out _, out int a);
+        GetHSV(out var h, out var s, out _, out var a);
 
         return FromHSV(h, s, v, a);
     }
 
     public Color2 WithValf(float v)
     {
-        GetHSVf(out float h, out float s, out _, out float a);
+        GetHSVf(out var h, out var s, out _, out var a);
 
         return FromHSVf(h, s, v, a);
     }
 
     public Color2 WithRed(int r)
     {
-        GetRGB(out _, out byte g, out byte b, out byte a);
+        GetRGB(out _, out var g, out var b, out var a);
 
         return new Color2((byte)r, g, b, a);
     }
 
     public Color2 WithRedf(float r)
     {
-        GetRGBf(out _, out float g, out float b, out float a);
+        GetRGBf(out _, out var g, out var b, out var a);
 
         return FromRGBf(r, g, b, a);
     }
 
     public Color2 WithGreen(int g)
     {
-        GetRGB(out byte r, out _, out byte b, out byte a);
+        GetRGB(out var r, out _, out var b, out var a);
 
         return new Color2(r, (byte)g, b, a);
     }
 
     public Color2 WithGreenf(float g)
     {
-        GetRGBf(out float r, out _, out float b, out float a);
+        GetRGBf(out var r, out _, out var b, out var a);
 
         return FromRGBf(r, g, b, a);
     }
 
     public Color2 WithBlue(int b)
     {
-        GetRGB(out byte r, out byte g, out _, out byte a);
+        GetRGB(out var r, out var g, out _, out var a);
 
         return new Color2(r, g, (byte)b, a);
     }
 
     public Color2 WithBluef(float b)
     {
-        GetRGBf(out float r, out float g, out _, out float a);
+        GetRGBf(out var r, out var g, out _, out var a);
 
         return FromRGBf(r, g, b, a);
     }
@@ -1580,7 +1578,7 @@ public struct Color2 : IEquatable<Color2>
 
     public static void HSVToUInt(float hue, float sat, float val, out uint num)
     {
-        HSVToRGB(hue, sat, val, out float r, out float g, out float b);
+        HSVToRGB(hue, sat, val, out var r, out var g, out var b);
 
         num = ((uint)0xFF << 24) | ((uint)(r * 255) << 16) | ((uint)(g * 255) << 8) | (uint)(b * 255);
     }
@@ -1603,7 +1601,7 @@ internal static class KnownColorTable
     {
         InitColorTable();
 
-        if (ColorTable.TryGetValue(c, out string value))
+        if (ColorTable.TryGetValue(c, out var value))
         {
             return value;
         }
@@ -1630,7 +1628,7 @@ internal static class KnownColorTable
             var names = Enum.GetNames<KnownColor>();
 
             ColorTable = new Dictionary<Color2, string>(kcs.Length);
-            for (int i = 0; i < kcs.Length; i++)
+            for (var i = 0; i < kcs.Length; i++)
             {
                 var c2 = Color2.FromUInt((uint)kcs[i]);
                 if (!ColorTable.ContainsKey(c2))
@@ -1814,7 +1812,7 @@ public class Color2ToColorConverter : TypeConverter
     {
         if (value is Color2 c)
         {
-            c.GetRGB(out byte r, out byte g, out byte b, out byte a);
+            c.GetRGB(out var r, out var g, out var b, out var a);
             return new Color(a, r, g, b);
         }
         return base.ConvertTo(context, culture, value, destinationType);

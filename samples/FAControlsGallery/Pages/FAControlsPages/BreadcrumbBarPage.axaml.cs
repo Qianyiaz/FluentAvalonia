@@ -29,7 +29,7 @@ public partial class BreadcrumbBarPage : ControlsPageBase
     private void BreadcrumbBar2ItemClicked(FABreadcrumbBar sender, FABreadcrumbBarItemClickedEventArgs args)
     {
         var items = BreadcrumbBar2.ItemsSource as ObservableCollection<BreadcrumbFolder>;
-        for (int i = items.Count - 1; i >= args.Index + 1; i--)
+        for (var i = items.Count - 1; i >= args.Index + 1; i--)
         {
             items.RemoveAt(i);
         }
@@ -38,7 +38,7 @@ public partial class BreadcrumbBarPage : ControlsPageBase
     private void ResetSampleButtonClick(object sender, RoutedEventArgs e)
     {
         var items = BreadcrumbBar2.ItemsSource as ObservableCollection<BreadcrumbFolder>;
-        for (int i = items.Count; i < _folderList.Count; i++)
+        for (var i = items.Count; i < _folderList.Count; i++)
         {
             items.Add(_folderList[i]);
         }

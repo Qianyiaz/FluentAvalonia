@@ -107,9 +107,9 @@ public sealed class ControlExample : HeaderedContentControl
 
         _optionsHost = e.NameScope.Find<Border>("OptionsHost");
 
-        bool hasXaml = XamlSource != null;
-        bool hasCSharp = CSharpSource != null;
-        bool hasNotes = UsageNotes != null;
+        var hasXaml = XamlSource != null;
+        var hasCSharp = CSharpSource != null;
+        var hasNotes = UsageNotes != null;
         PseudoClasses.Set(":codepreview", hasXaml || hasCSharp || hasNotes);
 
         PseudoClasses.Set(":xamlsource", hasXaml);

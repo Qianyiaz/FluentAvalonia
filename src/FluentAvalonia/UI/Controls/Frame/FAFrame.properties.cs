@@ -207,16 +207,16 @@ public partial class FAFrame : ContentControl
     /// Indiates to a page that it has been navigated away from. Takes the place of
     /// Microsoft.UI.Xaml.Controls.Page.OnNavigatedFrom() method
     /// </summary>
-    public static readonly RoutedEvent<FluentAvalonia.UI.Navigation.FANavigationEventArgs> NavigatedFromEvent =
-        RoutedEvent.Register<Control, FluentAvalonia.UI.Navigation.FANavigationEventArgs>("NavigatedFrom",
+    public static readonly RoutedEvent<FANavigationEventArgs> NavigatedFromEvent =
+        RoutedEvent.Register<Control, FANavigationEventArgs>("NavigatedFrom",
             RoutingStrategies.Direct);
 
     /// <summary>
     /// Indiates to a page that it is being navigated to. Takes the place of
     /// Microsoft.UI.Xaml.Controls.Page.OnNavigatedTo() method
     /// </summary>
-    public static readonly RoutedEvent<FluentAvalonia.UI.Navigation.FANavigationEventArgs> NavigatedToEvent =
-        RoutedEvent.Register<Control, FluentAvalonia.UI.Navigation.FANavigationEventArgs>("NavigatedTo",
+    public static readonly RoutedEvent<FANavigationEventArgs> NavigatedToEvent =
+        RoutedEvent.Register<Control, FANavigationEventArgs>("NavigatedTo",
             RoutingStrategies.Direct);
 
     private IList<FAPageStackEntry> _backStack;

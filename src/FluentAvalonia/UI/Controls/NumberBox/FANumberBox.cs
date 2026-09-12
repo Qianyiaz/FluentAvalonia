@@ -29,20 +29,12 @@ public partial class FANumberBox : TemplatedControl
 
         base.OnApplyTemplate(e);
 
-        var spinDownName = FALocalizationHelper.Instance.GetLocalizedStringResource(SR_NumberBoxDownSpinButtonName);
-        var spinUpName = FALocalizationHelper.Instance.GetLocalizedStringResource(SR_NumberBoxUpSpinButtonName);
-
         _spinDown = e.NameScope.Find<RepeatButton>(s_tpDownSpinButton);
         _popupDownButton = e.NameScope.Find<RepeatButton>(s_tpPopupDownSpinButton);
 
         if (_spinDown != null)
         {
             _spinDown.Click += OnSpinDownClick;
-
-            if (AutomationProperties.GetName(_spinDown) == null)
-            {
-                AutomationProperties.SetName(_spinDown, spinDownName);
-            }
         }
         _popupDownButton?.Click += OnSpinDownClick;
       
@@ -53,11 +45,6 @@ public partial class FANumberBox : TemplatedControl
         if (_spinUp != null)
         {
             _spinUp.Click += OnSpinUpClick;
-
-            if (AutomationProperties.GetName(_spinUp) == null)
-            {
-                AutomationProperties.SetName(_spinUp, spinUpName);
-            }
         }
 
         _popupUpButton?.Click += OnSpinUpClick;
@@ -267,26 +254,7 @@ public partial class FANumberBox : TemplatedControl
     {
         if (_textBox == null)
             return;
-
-        var name = AutomationProperties.GetName(this);
-        var minimum = Minimum == -double.MinValue ? string.Empty :
-            $" {FALocalizationHelper.Instance.GetLocalizedStringResource(SR_NumberBoxMinimumValueStatus)} {Minimum}";
-        var maximum = Maximum == double.MaxValue ? string.Empty :
-            $" {FALocalizationHelper.Instance.GetLocalizedStringResource(SR_NumberBoxMaximumValueStatus)} {Maximum}";
-
-        if (!string.IsNullOrEmpty(name))
-        {
-            AutomationProperties.SetName(_textBox, name + minimum + maximum);
-        }
-        else
-        {
-            var header = Header;
-            if (header is string s)
-            {
-                AutomationProperties.SetName(_textBox, s + minimum + maximum);
-            }
-        }
-
+        
         var labeledBy = AutomationProperties.GetLabeledBy(this);
         if (labeledBy != null)
         {
@@ -347,7 +315,7 @@ public partial class FANumberBox : TemplatedControl
     //Replaces INumberParser in winrt
     private double? ParseDouble(string txt)
     {
-        if (double.TryParse(txt, NumberStyles.Any, CultureInfo.CurrentCulture, out double result))
+        if (double.TryParse(txt, NumberStyles.Any, CultureInfo.CurrentCulture, out var result))
         {
             return result;
         }
@@ -441,7 +409,7 @@ public partial class FANumberBox : TemplatedControl
         if (_textBox == null)
             return;
 
-        string newText = "";
+        var newText = "";
         var value = Value;
 
         if (!double.IsNaN(value))
@@ -530,8 +498,8 @@ public partial class FANumberBox : TemplatedControl
 
     private void UpdateSpinButtonEnabled()
     {
-        bool isUpEnabled = false;
-        bool isDownEnabled = false;
+        var isUpEnabled = false;
+        var isDownEnabled = false;
 
         var value = Value;
         if (!double.IsNaN(value))
@@ -558,7 +526,7 @@ public partial class FANumberBox : TemplatedControl
 
     private void UpdateHeaderPresenterState()
     {
-        bool showHeader = false;
+        var showHeader = false;
 
         if (Header != null)
         {

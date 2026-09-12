@@ -116,7 +116,7 @@ public class FARadioMenuFlyoutItem : FAMenuFlyoutItem
         IsChecked = !IsChecked;
     }
 
-    private bool _isSafeUncheck = false;
+    private bool _isSafeUncheck;
 
     internal static readonly SortedDictionary<string, WeakReference<FARadioMenuFlyoutItem>> SelectionMap;
 }

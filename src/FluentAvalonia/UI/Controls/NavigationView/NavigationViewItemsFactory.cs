@@ -34,7 +34,7 @@ internal class NavigationViewItemsFactory : FAElementFactory
     // If the resolved element is not derived from NavigationViewItemBase, wrap in a NavigationViewItem before returning.
     protected override Control GetElementCore(FAElementFactoryGetArgs args)
     {
-        object newContent = args.Data;
+        var newContent = args.Data;
         if (_settingsItem != null && _settingsItem == args.Data)
         {
             //This is the settings item, return it directly
@@ -115,7 +115,7 @@ internal class NavigationViewItemsFactory : FAElementFactory
             }
 
             // Do not recycle SettingsItem
-            bool isSettingsItem = _settingsItem != null && _settingsItem == args.Element;
+            var isSettingsItem = _settingsItem != null && _settingsItem == args.Element;
 
             if (_itemTemplateWrapper != null && !isSettingsItem)
             {

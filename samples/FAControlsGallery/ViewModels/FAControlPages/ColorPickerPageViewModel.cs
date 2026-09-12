@@ -43,10 +43,10 @@ public class ColorPickerPageViewModel : ViewModelBase
         };
 
         // Lighten 80%,60%,40%
-        float amnt = 0.8f;
-        for (int i = 0; i < 3; i++)
+        var amnt = 0.8f;
+        for (var i = 0; i < 3; i++)
         {
-            for (int j = 0; j < 10; j++)
+            for (var j = 0; j < 10; j++)
             {
                 cols.Add(AdjustColor(cols[j], amnt));
             }
@@ -55,9 +55,9 @@ public class ColorPickerPageViewModel : ViewModelBase
 
         //Darken 25%,50%
         amnt = -0.25f;
-        for (int i = 0; i < 2; i++)
+        for (var i = 0; i < 2; i++)
         {
-            for (int j = 0; j < 10; j++)
+            for (var j = 0; j < 10; j++)
             {
                 cols.Add(AdjustColor(cols[j], amnt));
             }

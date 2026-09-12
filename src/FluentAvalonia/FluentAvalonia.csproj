@@ -29,7 +29,6 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <AvaloniaResource Include="Assets\*.*" />
     <AvaloniaResource Include="Fonts\*.*" />
   </ItemGroup>
 

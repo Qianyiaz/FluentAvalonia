@@ -49,8 +49,8 @@ public class FACommandBarFlyoutCommandBar : FACommandBar
                 {
                     if (PrimaryCommands.Count > 0)
                     {
-                        bool handled = false;
-                        for (int i = 0; i < PrimaryCommands.Count; i++)
+                        var handled = false;
+                        for (var i = 0; i < PrimaryCommands.Count; i++)
                         {
                             if (IsControlFocusable(PrimaryCommands[i] as Control, false))
                             {
@@ -127,7 +127,7 @@ public class FACommandBarFlyoutCommandBar : FACommandBar
             _verticallyAccessibleControls.Clear();
         }
 
-        for (int i = 0; i < PrimaryCommands.Count; i++)
+        for (var i = 0; i < PrimaryCommands.Count; i++)
         {
             if (PrimaryCommands[i] is Control c)
             {
@@ -142,7 +142,7 @@ public class FACommandBarFlyoutCommandBar : FACommandBar
             _verticallyAccessibleControls.Add(_moreButton);
         }
 
-        for (int i = 0; i < SecondaryCommands.Count; i++)
+        for (var i = 0; i < SecondaryCommands.Count; i++)
         {
             if (SecondaryCommands[i] is Control c)
             {
@@ -169,7 +169,7 @@ public class FACommandBarFlyoutCommandBar : FACommandBar
                         IsOpen = true;
                     }
 
-                    for (int i = 0; i < SecondaryCommands.Count; i++)
+                    for (var i = 0; i < SecondaryCommands.Count; i++)
                     {
                         if (IsControlFocusable(SecondaryCommands[i] as Control, false))
                         {
@@ -189,7 +189,7 @@ public class FACommandBarFlyoutCommandBar : FACommandBar
                         // and added to the tree, which means the below will fail to move focus and it will take
                         // two tabs to actually move the focus on the first time. So we use this workaround
 
-                        bool neededOpen = !IsOpen;
+                        var neededOpen = !IsOpen;
                         if (SecondaryCommands.Count > 0 && !IsOpen)
                         {
                             // Ensure the secondary commands flyout is open ...
@@ -198,7 +198,7 @@ public class FACommandBarFlyoutCommandBar : FACommandBar
 
                         void FocusFirstSecondary()
                         {
-                            for (int i = 0; i < SecondaryCommands.Count; i++)
+                            for (var i = 0; i < SecondaryCommands.Count; i++)
                             {
                                 if (IsControlFocusable(SecondaryCommands[i] as Control, false))
                                 {
@@ -221,7 +221,7 @@ public class FACommandBarFlyoutCommandBar : FACommandBar
                     }
                     else if (SecondaryCommands.Contains(current as IFACommandBarElement))
                     {
-                        for (int i = 0; i < PrimaryCommands.Count; i++)
+                        for (var i = 0; i < PrimaryCommands.Count; i++)
                         {
                             if (IsControlFocusable(PrimaryCommands[i] as Control, false))
                             {
@@ -257,20 +257,19 @@ public class FACommandBarFlyoutCommandBar : FACommandBar
                 // WinUI behavior, Left/Right only navigate in PrimaryCommands
                 // Up/down will iterate through all commands
 
-                bool isLeft = args.Key == Key.Left;
-                bool isRight = args.Key == Key.Right;
-                bool isUp = args.Key == Key.Up;
-                bool isDown = args.Key == Key.Down;
+                var isLeft = args.Key == Key.Left;
+                var isUp = args.Key == Key.Up;
+                var isDown = args.Key == Key.Down;
 
                 var accessibleCotnrols = (isUp || isDown) ? _verticallyAccessibleControls : _horizontallyAccessibleControls;
-                int startIndex = (isLeft || isUp) ? accessibleCotnrols.Count - 1 : 0;
-                int endIndex = (isLeft || isUp) ? -1 : accessibleCotnrols.Count;
-                int deltaIndex = (isLeft || isUp) ? -1 : 1;
-                bool shouldLoop = (isUp || isDown);
+                var startIndex = (isLeft || isUp) ? accessibleCotnrols.Count - 1 : 0;
+                var endIndex = (isLeft || isUp) ? -1 : accessibleCotnrols.Count;
+                var deltaIndex = (isLeft || isUp) ? -1 : 1;
+                var shouldLoop = (isUp || isDown);
                 Control focused = null;
-                int focusedIndex = -1;
+                var focusedIndex = -1;
 
-                for (int i = startIndex;
+                for (var i = startIndex;
                     (i != endIndex || shouldLoop) ||
                     (focusedIndex > 0 && i == focusedIndex); i += deltaIndex)
                 {

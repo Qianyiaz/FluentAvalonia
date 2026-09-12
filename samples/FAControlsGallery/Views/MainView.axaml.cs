@@ -63,7 +63,7 @@ public partial class MainView : UserControl
     {
         base.OnLoaded(e);
 
-        if (TopLevel.GetTopLevel(this) is FAAppWindow aw)
+        if (TopLevel.GetTopLevel(this) is FAAppWindow)
         {
             // Prior to v3 when AppWindow took care of all the caption button drawing we reported the width
             // of the caption buttons via TitleBar.RightInset. Now we use Avalonia's WindowDrawnDecorations
@@ -122,10 +122,10 @@ public partial class MainView : UserControl
             var menuItems = new List<FANavigationViewItemBase>(4);
             var footerItems = new List<FANavigationViewItemBase>(2);
 
-            bool inDesign = Design.IsDesignMode;
+            var inDesign = Design.IsDesignMode;
 
             var dc = DataContext as MainViewViewModel;
-            for (int i = 0; i < mainPages.Length; i++)
+            for (var i = 0; i < mainPages.Length; i++)
             {
                 var pg = mainPages[i];
                 var nvi = new FANavigationViewItem

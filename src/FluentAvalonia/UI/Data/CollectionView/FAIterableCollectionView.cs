@@ -133,8 +133,7 @@ public sealed class FAIterableCollectionView : IFACollectionView, IFAAdvancedCol
 
             if (_view != null)
                 return _view[pos];
-            else
-                return _sourceView[pos];
+            return _sourceView[pos];
         }
     }
 
@@ -190,10 +189,8 @@ public sealed class FAIterableCollectionView : IFACollectionView, IFAAdvancedCol
         {
             return _view.GetEnumerator();
         }
-        else
-        {
-            return Enumerate(_source);
-        }
+
+        return Enumerate(_source);
     }
 
     public int IndexOf(object item)
@@ -202,10 +199,8 @@ public sealed class FAIterableCollectionView : IFACollectionView, IFAAdvancedCol
         {
             return _view.IndexOf(item);
         }
-        else
-        {
-            return _source.IndexOf(item);
-        }
+
+        return _source.IndexOf(item);
     }
 
     public void Insert(int index, object item)
@@ -533,7 +528,7 @@ public sealed class FAIterableCollectionView : IFACollectionView, IFAAdvancedCol
 
         if (_filter != null)
         {
-            for (int i = 0; i < _view.Count; i++)
+            for (var i = 0; i < _view.Count; i++)
             {
                 var item = _view.ElementAt(i);
                 if (_filter(item))
@@ -545,7 +540,7 @@ public sealed class FAIterableCollectionView : IFACollectionView, IFAAdvancedCol
 
             var viewHash = new HashSet<object>(_view);
             var viewIndex = 0;
-            for (int i = 0; i < _sourceView.Count; i++)
+            for (var i = 0; i < _sourceView.Count; i++)
             {
                 var item = _sourceView[i];
                 if (viewHash.Contains(item))
@@ -691,7 +686,7 @@ public sealed class FAIterableCollectionView : IFACollectionView, IFAAdvancedCol
     {
         if (_sortDescriptions != null)
         {
-            for (int i = 0; i < _sortDescriptions.Count; i++)
+            for (var i = 0; i < _sortDescriptions.Count; i++)
             {
                 var desc = _sortDescriptions[i];
                 object cx, cy;

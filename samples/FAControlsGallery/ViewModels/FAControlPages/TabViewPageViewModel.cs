@@ -10,13 +10,13 @@ public class TabViewPageViewModel : ViewModelBase
     public TabViewPageViewModel()
     {
         Documents = new ObservableCollection<DocumentItem>();
-        for (int i = 0; i < 3; i++)
+        for (var i = 0; i < 3; i++)
         {
             Documents.Add(AddDocument(i));
         }
 
         KeyBindingDocuments = new ObservableCollection<DocumentItem>();
-        for (int i = 0; i < 3; i++)
+        for (var i = 0; i < 3; i++)
         {
             KeyBindingDocuments.Add(AddDocument(i));
         }

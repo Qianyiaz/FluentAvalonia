@@ -24,7 +24,7 @@ internal class ChildrenInTabFocusOrderIterable : IEnumerable<Control>
             var children = repeater.Children;
             _realizedChildren = new List<KeyValuePair<int, Control>>(children.Count);
 
-            for (int i = 0; i < children.Count; i++)
+            for (var i = 0; i < children.Count; i++)
             {
                 var element = children[i];
                 var vInfo = FAItemsRepeater.GetVirtualizationInfo(element);

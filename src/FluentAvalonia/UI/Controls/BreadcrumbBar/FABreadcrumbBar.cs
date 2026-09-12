@@ -240,10 +240,6 @@ public class FABreadcrumbBar : TemplatedControl
                 item.SetPropertiesForEllipsisItem();
                 _ellipsisBreadcrumBarItem = item;
                 UpdateEllipsisBreadcrumbBarItemDropDownItemTemplate();
-
-                var str = FALocalizationHelper.Instance
-                    .GetLocalizedStringResource(SR_AutomationNameEllipsisBreadcrumbBarItem);
-                AutomationProperties.SetName(item, str);
             }
             else
             {
@@ -300,7 +296,7 @@ public class FABreadcrumbBar : TemplatedControl
         var l = new PooledList<object>();
         if (_breadcrumbItemsSourceView != null)
         {
-            for (int i = 0; i < firstShownElement - 1; i++)
+            for (var i = 0; i < firstShownElement - 1; i++)
             {
                 l.Add(_breadcrumbItemsSourceView.GetAt(i));
             }
@@ -324,8 +320,8 @@ public class FABreadcrumbBar : TemplatedControl
         if (_itemsRepeater is FAItemsRepeater repeater)
         {
             var visibleCount = _itemsRepeaterLayout.GetVisibleItemsCount;
-            bool isEllipsisRendered = _itemsRepeaterLayout.EllipsisIsRendered;
-            int firstItemToIndex = 1;
+            var isEllipsisRendered = _itemsRepeaterLayout.EllipsisIsRendered;
+            var firstItemToIndex = 1;
 
             if (isEllipsisRendered)
                 firstItemToIndex = _itemsRepeaterLayout.FirstRenderedItemIndexAfterEllipsis;
@@ -466,7 +462,7 @@ public class FABreadcrumbBar : TemplatedControl
 
     private bool MoveFocusNext()
     {
-        int movementNext = 1;
+        var movementNext = 1;
         
         if (_focusedIndex == 0)
         {
@@ -492,9 +488,9 @@ public class FABreadcrumbBar : TemplatedControl
 
     private void OnChildPreviewKeyDown(object sender, KeyEventArgs args)
     {
-        bool flowDirectionIsLtr = FlowDirection == FlowDirection.LeftToRight;
-        bool keyIsLeft = args.Key == Key.Left;
-        bool keyIsRight = args.Key == Key.Right;
+        var flowDirectionIsLtr = FlowDirection == FlowDirection.LeftToRight;
+        var keyIsLeft = args.Key == Key.Left;
+        var keyIsRight = args.Key == Key.Right;
 
         // Moving to the next element
         if ((flowDirectionIsLtr && keyIsRight) || (!flowDirectionIsLtr && keyIsLeft))

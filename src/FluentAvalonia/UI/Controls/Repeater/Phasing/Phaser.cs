@@ -32,7 +32,7 @@ internal class Phaser
 
         // We need to remove the element from the pending elements list. We cannot just change the phase to -1
         // since it will get updated when the element gets recycled.
-        for (int i = _pendingElements.Count - 1; i >= 0; i--)
+        for (var i = _pendingElements.Count - 1; i >= 0; i--)
         {
             if (_pendingElements[i].Element == element)
             {
@@ -55,7 +55,7 @@ internal class Phaser
         {
             var visibleWindow = _owner.VisibleWindow;
             SortElements(visibleWindow);
-            int currentIndex = _pendingElements.Count - 1;
+            var currentIndex = _pendingElements.Count - 1;
             do
             {
                 var info = _pendingElements[currentIndex];
@@ -72,7 +72,7 @@ internal class Phaser
 
                     info.Callback.Invoke(_owner, args);
 
-                    int nextPhase = VirtualizationInfo.PhaseReachedEnd;
+                    var nextPhase = VirtualizationInfo.PhaseReachedEnd;
                     
                     ValidatePhaseOrdering(currentPhase, nextPhase);
 
@@ -112,11 +112,11 @@ internal class Phaser
                 {
                     // If the next element is oustide the visible window and there are elements in the visible window
                     // go back to the visible window.
-                    bool nextItemIsVisible = visibleWindow.Intersects(
+                    var nextItemIsVisible = visibleWindow.Intersects(
                         _pendingElements[currentIndex].LastArrangeBounds);
                     if (!nextItemIsVisible)
                     {
-                        bool haveVisibleItems = visibleWindow.Intersects(
+                        var haveVisibleItems = visibleWindow.Intersects(
                             _pendingElements[pendingCount - 1].LastArrangeBounds);
                         if (haveVisibleItems)
                         {
@@ -176,15 +176,14 @@ internal class Phaser
                 // Both are in the visible window or both are not
                 return lhs.Phase.CompareTo(rhs.Phase); // ??
             }
-            else if (lhsIntersects)
+
+            if (lhsIntersects)
             {
                 // Left is in the visible window
                 return 0; // C++ returns false
             }
-            else
-            {
-                return 1; // C++ returns true
-            }
+
+            return 1; // C++ returns true
         });
     }
 

@@ -203,7 +203,7 @@ internal class PooledList<T> : IList<T>, IList, IDisposable
         _pool = customPool ?? ArrayPool<T>.Shared;
         _clearOnFree = ShouldClear(clearMode);
 
-        int count = span.Length;
+        var count = span.Length;
         if (count == 0)
         {
             _items = s_emptyArray;
@@ -254,7 +254,7 @@ internal class PooledList<T> : IList<T>, IList, IDisposable
             //    break;
 
             case ICollection<T> c:
-                int count = c.Count;
+                var count = c.Count;
                 if (count == 0)
                 {
                     _items = s_emptyArray;
@@ -404,7 +404,7 @@ internal class PooledList<T> : IList<T>, IList, IDisposable
     public void Add(T item)
     {
         _version++;
-        int size = _size;
+        var size = _size;
         if ((uint)size < (uint)_items.Length)
         {
             _size = size + 1;
@@ -420,7 +420,7 @@ internal class PooledList<T> : IList<T>, IList, IDisposable
     [MethodImpl(MethodImplOptions.NoInlining)]
     private void AddWithResize(T item)
     {
-        int size = _size;
+        var size = _size;
         EnsureCapacity(size + 1);
         _size = size + 1;
         _items[size] = item;
@@ -528,7 +528,7 @@ internal class PooledList<T> : IList<T>, IList, IDisposable
     public void Clear()
     {
         _version++;
-        int size = _size;
+        var size = _size;
         _size = 0;
 
         if (size > 0 && _clearOnFree)
@@ -568,7 +568,7 @@ internal class PooledList<T> : IList<T>, IList, IDisposable
     public PooledList<TOutput> ConvertAll<TOutput>(Func<T, TOutput> converter)
     {
         var list = new PooledList<TOutput>(_size);
-        for (int i = 0; i < _size; i++)
+        for (var i = 0; i < _size; i++)
         {
             list._items[i] = converter(_items[i]);
         }
@@ -618,7 +618,7 @@ internal class PooledList<T> : IList<T>, IList, IDisposable
     {
         if (_items.Length < min)
         {
-            int newCapacity = _items.Length == 0 ? DefaultCapacity : _items.Length * 2;
+            var newCapacity = _items.Length == 0 ? DefaultCapacity : _items.Length * 2;
             // Allow the list to grow to maximum possible capacity (~2G elements) before encountering overflow.
             // Note that this check works even when _items.Length overflowed thanks to the (uint) cast
             if ((uint)newCapacity > MaxArrayLength)
@@ -634,7 +634,7 @@ internal class PooledList<T> : IList<T>, IList, IDisposable
 
     public bool TryFind(Func<T, bool> match, out T result)
     {
-        for (int i = 0; i < _size; i++)
+        for (var i = 0; i < _size; i++)
         {
             if (match(_items[i]))
             {
@@ -650,7 +650,7 @@ internal class PooledList<T> : IList<T>, IList, IDisposable
     public PooledList<T> FindAll(Func<T, bool> match)
     {
         var list = new PooledList<T>();
-        for (int i = 0; i < _size; i++)
+        for (var i = 0; i < _size; i++)
         {
             if (match(_items[i]))
             {
@@ -668,8 +668,8 @@ internal class PooledList<T> : IList<T>, IList, IDisposable
 
     public int FindIndex(int startIndex, int count, Func<T, bool> match)
     {
-        int endIndex = startIndex + count;
-        for (int i = startIndex; i < endIndex; i++)
+        var endIndex = startIndex + count;
+        for (var i = startIndex; i < endIndex; i++)
         {
             if (match(_items[i]))
                 return i;
@@ -679,7 +679,7 @@ internal class PooledList<T> : IList<T>, IList, IDisposable
 
     public bool TryFindLast(Func<T, bool> match, out T result)
     {
-        for (int i = _size - 1; i >= 0; i--)
+        for (var i = _size - 1; i >= 0; i--)
         {
             if (match(_items[i]))
             {
@@ -723,8 +723,8 @@ internal class PooledList<T> : IList<T>, IList, IDisposable
             throw new ArgumentOutOfRangeException(nameof(startIndex));
         }
 
-        int endIndex = startIndex - count;
-        for (int i = startIndex; i > endIndex; i--)
+        var endIndex = startIndex - count;
+        for (var i = startIndex; i > endIndex; i--)
         {
             if (match(_items[i]))
             {
@@ -873,7 +873,7 @@ internal class PooledList<T> : IList<T>, IList, IDisposable
                 break;
 
             case ICollection<T> c:
-                int count = c.Count;
+                var count = c.Count;
                 if (count > 0)
                 {
                     EnsureCapacity(_size + count);
@@ -979,10 +979,8 @@ internal class PooledList<T> : IList<T>, IList, IDisposable
         {  // Special case for empty list
             return -1;
         }
-        else
-        {
-            return LastIndexOf(item, _size - 1, _size);
-        }
+
+        return LastIndexOf(item, _size - 1, _size);
     }
 
     /// <summary>
@@ -1038,7 +1036,7 @@ internal class PooledList<T> : IList<T>, IList, IDisposable
     // decreased by one.
     public bool Remove(T item)
     {
-        int index = IndexOf(item);
+        var index = IndexOf(item);
         if (index >= 0)
         {
             RemoveAt(index);
@@ -1065,7 +1063,7 @@ internal class PooledList<T> : IList<T>, IList, IDisposable
         //if (match == null)
         //    ThrowHelper.ThrowArgumentNullException(ExceptionArgument.match);
 
-        int freeIndex = 0;   // the first free slot in items array
+        var freeIndex = 0;   // the first free slot in items array
 
         // Find the first item which needs to be removed.
         while (freeIndex < _size && !match(_items[freeIndex]))
@@ -1073,7 +1071,7 @@ internal class PooledList<T> : IList<T>, IList, IDisposable
         if (freeIndex >= _size)
             return 0;
 
-        int current = freeIndex + 1;
+        var current = freeIndex + 1;
         while (current < _size)
         {
             // Find the first item which needs to be kept.
@@ -1093,7 +1091,7 @@ internal class PooledList<T> : IList<T>, IList, IDisposable
             Array.Clear(_items, freeIndex, _size - freeIndex);
         }
 
-        int result = _size - freeIndex;
+        var result = _size - freeIndex;
         _size = freeIndex;
         _version++;
         return result;
@@ -1270,7 +1268,7 @@ internal class PooledList<T> : IList<T>, IList, IDisposable
     /// </summary>
     public void TrimExcess()
     {
-        int threshold = (int)(_items.Length * 0.9);
+        var threshold = (int)(_items.Length * 0.9);
         if (_size < threshold)
         {
             Capacity = _size;

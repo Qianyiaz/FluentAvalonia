@@ -3,25 +3,27 @@
                     xmlns:ui="using:FluentAvalonia.UI.Controls">
     <Design.PreviewWith>
         <Border Padding="20" Width="700" Height="350">
-            <!--<ui:FASettingsExpander IconSource="Globe" Header="Test Header"
-                                 Description="This is a description for the SettingsExpander"
-                                 ActionIconSource="Save" IsClickEnabled="True">
-                <ui:FASettingsExpander.Footer>
-                    <Button Content="FooterButton" />
-                </ui:FASettingsExpander.Footer>
-                
-                --><!--<ui:FASettingsExpanderItem Content="Content Here" ActionIconSource="Pin" IsClickEnabled="True"  />
-                <ui:FASettingsExpanderItem Content="Content Here">
-                    <ui:FASettingsExpanderItem.Footer>
+            <StackPanel Spacing="5">
+                <ui:FASettingsExpander IconSource="Globe" Header="Test Header"
+                                       Description="This is a description for the SettingsExpander"
+                                       ActionIconSource="Save">
+                    <ui:FASettingsExpander.Footer>
                         <Button Content="FooterButton" />
-                    </ui:FASettingsExpanderItem.Footer>
-                </ui:FASettingsExpanderItem>--><!--
-            </ui:FASettingsExpander>-->
-            <ui:FASettingsExpander Header="Test">
-                <ui:FASettingsExpanderItem Content="Item1" />
-                <ui:FASettingsExpanderItem Content="Item2" />
-                <ui:FASettingsExpanderItem Content="Item3" />
-            </ui:FASettingsExpander>
+                    </ui:FASettingsExpander.Footer>
+
+                    <ui:FASettingsExpanderItem Content="Content Here" ActionIconSource="Pin" IsClickEnabled="True" />
+                    <ui:FASettingsExpanderItem Content="Content Here">
+                        <ui:FASettingsExpanderItem.Footer>
+                            <Button Content="FooterButton" />
+                        </ui:FASettingsExpanderItem.Footer>
+                    </ui:FASettingsExpanderItem>
+                </ui:FASettingsExpander>
+                <ui:FASettingsExpander Header="Test">
+                    <ui:FASettingsExpanderItem Content="Item1" />
+                    <ui:FASettingsExpanderItem Content="Item2" />
+                    <ui:FASettingsExpanderItem Content="Item3" />
+                </ui:FASettingsExpander>
+            </StackPanel>
         </Border>
     </Design.PreviewWith>
 
@@ -60,13 +62,13 @@
                         <ContentPresenter Content="{TemplateBinding Content}" />
 
                         <ui:FASymbolIcon Name="ExpandCollapseChevron"
-                                       Symbol="ChevronDown"
-                                       FontSize="18"
-                                       Foreground="{DynamicResource ExpanderChevronForeground}"
-                                       RenderTransform="none"
-                                       Margin="{DynamicResource SettingsExpanderExpandCollapseChevronMargin}"
-                                       Grid.Column="1"
-                                       IsVisible="False"/>
+                                         Symbol="ChevronDown"
+                                         FontSize="18"
+                                         Foreground="{DynamicResource ExpanderChevronForeground}"
+                                         RenderTransform="none"
+                                         Margin="{DynamicResource SettingsExpanderExpandCollapseChevronMargin}"
+                                         Grid.Column="1"
+                                         IsVisible="False" />
                     </Grid>
                 </Border>
             </ControlTemplate>
@@ -95,7 +97,8 @@
                 <Setter Property="RenderTransform" Value="rotate(180deg)" />
             </Style>
             <Style Selector="^:not(:empty) /template/ Border#Root">
-                <Setter Property="CornerRadius" Value="{Binding Source={StaticResource ControlCornerRadius}, Converter={StaticResource TopCornerRadiusFilterConverter}}" />
+                <Setter Property="CornerRadius"
+                        Value="{Binding Source={StaticResource ControlCornerRadius}, Converter={StaticResource TopCornerRadiusFilterConverter}}" />
             </Style>
         </Style>
 
@@ -120,7 +123,7 @@
                                   IsEnabled="{TemplateBinding IsEnabled}"
                                   IsChecked="{TemplateBinding IsExpanded, Mode=TwoWay}"
                                   Content="{TemplateBinding Header}"
-                                  Theme="{StaticResource SettingsExpanderToggleButtonStyle}"/>
+                                  Theme="{StaticResource SettingsExpanderToggleButtonStyle}" />
 
                     <Border Name="ExpanderContentClip" ClipToBounds="True">
                         <Border Name="ExpanderContent"
@@ -149,29 +152,29 @@
     </ControlTheme>
 
     <ControlTemplate TargetType="ui:FASettingsExpander"
-                 x:Key="DefaultSettingsExpanderControlTemplate">
+                     x:Key="DefaultSettingsExpanderControlTemplate">
         <Expander Name="Expander"
                   Theme="{StaticResource SettingsExpanderExpanderStyle}"
                   IsExpanded="{TemplateBinding IsExpanded, Mode=TwoWay}">
             <Expander.Header>
                 <ui:FASettingsExpanderItem Content="{TemplateBinding Header}"
-                                         ContentTemplate="{TemplateBinding HeaderTemplate}"
-                                         Description="{TemplateBinding Description}"
-                                         IsClickEnabled="{TemplateBinding IsClickEnabled}"
-                                         IconSource="{TemplateBinding IconSource}"
-                                         ActionIconSource="{TemplateBinding ActionIconSource}"
-                                         Footer="{TemplateBinding Footer}"
-                                         FooterTemplate="{TemplateBinding FooterTemplate}"
-                                         Padding="{DynamicResource SettingsExpanderPadding}"
-                                         Background="Transparent"
-                                         Name="ContentHost" />
+                                           ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                           Description="{TemplateBinding Description}"
+                                           IsClickEnabled="{TemplateBinding IsClickEnabled}"
+                                           IconSource="{TemplateBinding IconSource}"
+                                           ActionIconSource="{TemplateBinding ActionIconSource}"
+                                           Footer="{TemplateBinding Footer}"
+                                           FooterTemplate="{TemplateBinding FooterTemplate}"
+                                           Padding="{DynamicResource SettingsExpanderPadding}"
+                                           Background="Transparent"
+                                           Name="ContentHost" />
             </Expander.Header>
 
             <ItemsPresenter ItemsPanel="{TemplateBinding ItemsPanel}" />
         </Expander>
     </ControlTemplate>
 
-    <ControlTheme x:Key="{x:Type ui:FASettingsExpander}" 
+    <ControlTheme x:Key="{x:Type ui:FASettingsExpander}"
                   TargetType="ui:FASettingsExpander">
         <Setter Property="Background" Value="{DynamicResource ExpanderBackground}" />
         <Setter Property="BorderBrush" Value="{DynamicResource ExpanderHeaderBorderBrush}" />

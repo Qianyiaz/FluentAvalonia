@@ -9,7 +9,7 @@ internal readonly struct IndexRange : IEquatable<IndexRange>
         // Accept out of order begin/end pairs, just swap them.
         if (begin > end)
         {
-            int temp = begin;
+            var temp = begin;
             begin = end;
             end = temp;
         }

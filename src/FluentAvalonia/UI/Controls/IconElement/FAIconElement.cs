@@ -58,21 +58,25 @@ public class IconElementConverter : TypeConverter
         {
             return new FASymbolIcon { Symbol = symbol };
         }
-        else if (value is FAIconSource ico)
+
+        if (value is FAIconSource ico)
         {
             if (ico is FAFontIconSource fis)
             {
                 return FAIconHelpers.CreateFontIconFromFontIconSource(fis);
             }
-            else if (ico is FASymbolIconSource sis)
+
+            if (ico is FASymbolIconSource sis)
             {
                 return FAIconHelpers.CreateSymbolIconFromSymbolIconSource(sis);
             }
-            else if (ico is FAPathIconSource pis)
+
+            if (ico is FAPathIconSource pis)
             {
                 return FAIconHelpers.CreatePathIconFromPathIconSource(pis);
             }
-            else if (ico is FABitmapIconSource bis)
+
+            if (ico is FABitmapIconSource bis)
             {
                 return FAIconHelpers.CreateBitmapIconFromBitmapIconSource(bis);
             }
@@ -84,20 +88,20 @@ public class IconElementConverter : TypeConverter
         else if (value is string val)
         {
             //First we try if the text is a valid Symbol
-            if (Enum.TryParse<FASymbol>(val, out FASymbol sym))
+            if (Enum.TryParse<FASymbol>(val, out var sym))
             {
                 return new FASymbolIcon() { Symbol = sym };
             }
 
             //Try a PathIcon
-            if (FAPathIcon.IsDataValid(val, out Geometry g))
+            if (FAPathIcon.IsDataValid(val, out var g))
             {
                 return new FAPathIcon() { Data = g };
             }
 
             try
             {
-                if (Uri.TryCreate(val, UriKind.RelativeOrAbsolute, out Uri result))
+                if (Uri.TryCreate(val, UriKind.RelativeOrAbsolute, out var result))
                 {
                     return new FABitmapIcon() { UriSource = result };
                 }

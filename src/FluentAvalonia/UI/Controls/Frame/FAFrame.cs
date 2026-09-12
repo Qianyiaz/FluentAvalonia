@@ -292,14 +292,14 @@ public partial class FAFrame : ContentControl
 
         sb.AppendLine(BackStackDepth.ToString());
 
-        for (int i = 0; i < BackStackDepth; i++)
+        for (var i = 0; i < BackStackDepth; i++)
         {
             AppendEntry(sb, BackStack[i]);
         }
 
         sb.AppendLine(ForwardStack.Count.ToString());
 
-        for (int i = 0; i < ForwardStack.Count; i++)
+        for (var i = 0; i < ForwardStack.Count; i++)
         {
             AppendEntry(sb, ForwardStack[i]);
         }
@@ -348,7 +348,7 @@ public partial class FAFrame : ContentControl
         {
             var firstLine = reader.ReadLine(); // Current Page
 
-            bool addCurrentEntryToBackStack = false;
+            var addCurrentEntryToBackStack = false;
             // Current page was null when saved, don't restore null
             // This is the only place we're allowed to have null - since a call to
             // Navigate(null) will fail to navigate & nothing is added to the stack
@@ -366,7 +366,7 @@ public partial class FAFrame : ContentControl
 
                     SetContentAndAnimate(CurrentEntry);
                     // We only raise the NavigatedEvent 
-                    page.RaiseEvent(new FluentAvalonia.UI.Navigation.FANavigationEventArgs(page, FANavigationMode.New, null, param, pageType) { RoutedEvent = NavigatedToEvent });
+                    page.RaiseEvent(new FANavigationEventArgs(page, FANavigationMode.New, null, param, pageType) { RoutedEvent = NavigatedToEvent });
                 }
                 else
                 {
@@ -376,7 +376,7 @@ public partial class FAFrame : ContentControl
 
             var numBackLine = int.Parse(reader.ReadLine());
 
-            for (int i = 0; i < numBackLine; i++)
+            for (var i = 0; i < numBackLine; i++)
             {
                 var line = reader.ReadLine();
                 var indexOfSep = line.IndexOf('|');
@@ -407,7 +407,7 @@ public partial class FAFrame : ContentControl
 
             var numForwardLine = int.Parse(reader.ReadLine());
 
-            for (int i = 0; i < numForwardLine; i++)
+            for (var i = 0; i < numForwardLine; i++)
             {
                 var line = reader.ReadLine();
                 var indexOfSep = line.IndexOf('|');
@@ -462,7 +462,7 @@ public partial class FAFrame : ContentControl
             }
 
             // Navigate to new page
-            bool wasPageSet = entry.Instance != null;
+            var wasPageSet = entry.Instance != null;
 
             if (!wasPageSet)
             {
@@ -498,7 +498,7 @@ public partial class FAFrame : ContentControl
             var oldEntry = CurrentEntry;
             CurrentEntry = entry;
 
-            var navEA = new FluentAvalonia.UI.Navigation.FANavigationEventArgs(
+            var navEA = new FANavigationEventArgs(
                 entry.Instance,
                 mode, entry.NavigationTransitionInfo,
                 entry.Parameter,
@@ -517,7 +517,7 @@ public partial class FAFrame : ContentControl
 
             SetContentAndAnimate(entry);
 
-            bool addToNavStack = options?.IsNavigationStackEnabled ?? IsNavigationStackEnabled;
+            var addToNavStack = options?.IsNavigationStackEnabled ?? IsNavigationStackEnabled;
 
             if (addToNavStack)
             {
@@ -582,25 +582,25 @@ public partial class FAFrame : ContentControl
 
     private void OnNavigationStopped(FAPageStackEntry entry, FANavigationMode mode)
     {
-        NavigationStopped?.Invoke(this, new FluentAvalonia.UI.Navigation.FANavigationEventArgs(entry.Instance,
+        NavigationStopped?.Invoke(this, new FANavigationEventArgs(entry.Instance,
             mode, entry.NavigationTransitionInfo, entry.Parameter, entry.SourcePageType));
     }
 
     private void OnForwardStackChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
-        int oldCount = (_forwardStack.Count - (e.NewItems?.Count ?? 0) + (e.OldItems?.Count ?? 0));
+        var oldCount = (_forwardStack.Count - (e.NewItems?.Count ?? 0) + (e.OldItems?.Count ?? 0));
 
-        bool oldForward = oldCount > 0;
-        bool newForward = _forwardStack.Count > 0;
+        var oldForward = oldCount > 0;
+        var newForward = _forwardStack.Count > 0;
         RaisePropertyChanged(CanGoForwardProperty, oldForward, newForward);
     }
 
     private void OnBackStackChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
-        int oldCount = (_backStack.Count - (e.NewItems?.Count ?? 0) + (e.OldItems?.Count ?? 0));
+        var oldCount = (_backStack.Count - (e.NewItems?.Count ?? 0) + (e.OldItems?.Count ?? 0));
 
-        bool oldBack = oldCount > 0;
-        bool newBack = _backStack.Count > 0;
+        var oldBack = oldCount > 0;
+        var newBack = _backStack.Count > 0;
         RaisePropertyChanged(CanGoBackProperty, oldBack, newBack);
         RaisePropertyChanged(BackStackDepthProperty, oldCount, _backStack.Count);
     }
@@ -616,7 +616,7 @@ public partial class FAFrame : ContentControl
         }
 
         // This is triggered via Navigate(Type) - we only need to check the page type here
-        for (int i = 0; i < _pageCache.Count; i++)
+        for (var i = 0; i < _pageCache.Count; i++)
         {
             if (_pageCache[i].PageSrcType == srcPageType)
             {
@@ -646,7 +646,7 @@ public partial class FAFrame : ContentControl
         // A page cached by Navigate(Type) and NavigateFromObject will be cached 
         // separately and not shared between the two - users should be consistent
         // here. Thus, srcType should be null when context isn't and vice-versa
-        for (int i = _pageCache.Count - 1; i >= 0; i--)
+        for (var i = _pageCache.Count - 1; i >= 0; i--)
         {
             var item = _pageCache[i];
 
@@ -655,7 +655,8 @@ public partial class FAFrame : ContentControl
                 // Call to Navigate(Type)
                 return item.Page;
             }
-            else if (target != null && item.Context == target)
+
+            if (target != null && item.Context == target)
             {
                 // Call to NavigateFromObject()
                 return item.Page;
@@ -673,7 +674,7 @@ public partial class FAFrame : ContentControl
         // A page cached by Navigate(Type) and NavigateFromObject will be cached 
         // separately and not shared between the two - users should be consistent
         // here. Thus, srcType should be null when context isn't and vice-versa
-        for (int i = _pageCache.Count - 1; i >= 0; i--)
+        for (var i = _pageCache.Count - 1; i >= 0; i--)
         {
             var item = _pageCache[i];
             if (context != null && item.Context == context)
@@ -730,7 +731,7 @@ public partial class FAFrame : ContentControl
     private ContentPresenter _presenter;
     //private readonly List<(Type pageSrcType, Control page)> _cache = new List<(Type, Control)>(10);
     private readonly List<NavigationCacheItem> _pageCache = new List<NavigationCacheItem>(10);
-    private bool _isNavigating = false;
+    private bool _isNavigating;
 
     private const string s_tpContentPresenter = "ContentPresenter";
 

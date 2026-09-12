@@ -20,13 +20,13 @@ internal static class BuildTreeScheduler
 
     public static void OnRendering()
     {
-        bool budgetReached = ShouldYield();
+        var budgetReached = ShouldYield();
         if (!budgetReached && _pendingWork.Count > 0)
         {
             // Sort in descending order of priority and work from the end of the list to avoid moving around during erase.
             _pendingWork.Sort((x, y) => x.Priority > y.Priority ? 1 : -1);
 
-            int currentIndex = _pendingWork.Count - 1;
+            var currentIndex = _pendingWork.Count - 1;
             do
             {
                 _pendingWork[currentIndex].InvokeWorkFunc();

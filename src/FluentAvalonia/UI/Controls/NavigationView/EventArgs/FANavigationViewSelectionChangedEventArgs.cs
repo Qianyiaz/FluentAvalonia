@@ -18,11 +18,6 @@ public class FANavigationViewSelectionChangedEventArgs : EventArgs
     public FANavigationViewItemBase SelectedItemContainer { get; internal set; }
 
     /// <summary>
-    /// Gets a value that indicates whether the SelectedItem is the menu item for Settings.
-    /// </summary>
-    public bool IsSettingsSelected { get; internal set; }
-
-    /// <summary>
     /// Gets the navigation transition recommended for the direction of the navigation.
     /// </summary>
     public FANavigationTransitionInfo RecommendedNavigationTransitionInfo { get; internal set; }

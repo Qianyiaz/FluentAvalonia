@@ -22,7 +22,7 @@ public sealed class FAProgressRingAnimatedVisual : Control
 
         var parent = this.FindAncestorOfType<FAProgressRing>();
 
-        bool indeterminate = parent.IsIndeterminate;
+        var indeterminate = parent.IsIndeterminate;
         _handler = new CustomCompHandler(parent.Minimum, parent.Maximum, parent.Value,
             parent.IsActive, parent.Background, parent.Foreground);
 
@@ -170,8 +170,8 @@ public sealed class FAProgressRingAnimatedVisual : Control
             var dc = lease.SkCanvas;
 
             // Ensure opacity is clamped between 0.0 and 1.0
-            double opacity = Math.Clamp(lease.CurrentOpacity, 0d, 1d);
-            bool needsOpacityLayer = opacity < 1d;
+            var opacity = Math.Clamp(lease.CurrentOpacity, 0d, 1d);
+            var needsOpacityLayer = opacity < 1d;
 
             if (needsOpacityLayer)
             {
@@ -330,10 +330,8 @@ public sealed class FAProgressRingAnimatedVisual : Control
                             RegisterForNextAnimationFrameUpdate();
                             return;
                         }
-                        else
-                        {
-                            _lastTime = null;
-                        }
+
+                        _lastTime = null;
                         break;
 
                     case HandlerMessageType.Indeterminate:
@@ -343,10 +341,8 @@ public sealed class FAProgressRingAnimatedVisual : Control
                             RegisterForNextAnimationFrameUpdate();
                             return;
                         }
-                        else
-                        {
-                            _lastTime = null;
-                        }
+
+                        _lastTime = null;
                         break;
 
                     case HandlerMessageType.Background:

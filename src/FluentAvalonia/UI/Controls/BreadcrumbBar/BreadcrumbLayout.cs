@@ -44,7 +44,7 @@ internal class BreadcrumbLayout : FANonVirtualizingLayout
 
         double accumWidth = 0, accumHeight = 0;
 
-        for (int i = 0; i < GetItemCount(context); i++)
+        for (var i = 0; i < GetItemCount(context); i++)
         {
             var item = GetElementAt(context, i);
             item.Measure(availableSize);
@@ -81,8 +81,8 @@ internal class BreadcrumbLayout : FANonVirtualizingLayout
     // towards the first one, if there's not enough space, then the ellipsis button is drawn
     protected internal override Size ArrangeOverride(FANonVirtualizingLayoutContext context, Size finalSize)
     {
-        int itemCount = GetItemCount(context);
-        int firstElementToRender = 0;
+        var itemCount = GetItemCount(context);
+        var firstElementToRender = 0;
         _firstRenderedItemIndexAfterEllipsis = itemCount - 1;
         _visibleItemsCount = 0;
 
@@ -96,7 +96,7 @@ internal class BreadcrumbLayout : FANonVirtualizingLayout
         }
 
         double accumWid = 0;
-        double maxElementHeight = GetBreadcrumbBarItemsHeight(context, firstElementToRender);
+        var maxElementHeight = GetBreadcrumbBarItemsHeight(context, firstElementToRender);
 
         // If there is at least one element, we may render the ellipsis item
         if (itemCount > 0)
@@ -115,7 +115,7 @@ internal class BreadcrumbLayout : FANonVirtualizingLayout
 
         // For each item, if the item has an equal or larger index to the first element to render, then
         // render it, otherwise, hide it and add it to the list of hidden items
-        for (int i = 1; i < itemCount; i++)
+        for (var i = 1; i < itemCount; i++)
         {
             if (i < firstElementToRender)
             {
@@ -164,13 +164,13 @@ internal class BreadcrumbLayout : FANonVirtualizingLayout
 
     private int GetFirstBreadcrumbBarItemToArrange(FANonVirtualizingLayoutContext context)
     {
-        int itemCount = GetItemCount(context);
-        double accumLength = GetElementAt(context, itemCount - 1).DesiredSize.Width +
-            _ellipsisButton.DesiredSize.Width;
+        var itemCount = GetItemCount(context);
+        var accumLength = GetElementAt(context, itemCount - 1).DesiredSize.Width +
+                          _ellipsisButton.DesiredSize.Width;
 
-        for (int i = itemCount - 2; i >= 0; i--)
+        for (var i = itemCount - 2; i >= 0; i--)
         {
-            double newAccumLength = accumLength + GetElementAt(context, i).DesiredSize.Width;
+            var newAccumLength = accumLength + GetElementAt(context, i).DesiredSize.Width;
             if (newAccumLength > _availableSize.Width)
             {
                 return i + 1;
@@ -191,7 +191,7 @@ internal class BreadcrumbLayout : FANonVirtualizingLayout
             maxHeight = _ellipsisButton.DesiredSize.Height;
         }
 
-        for (int i = firstItemToRender; i < GetItemCount(context); i++)
+        for (var i = firstItemToRender; i < GetItemCount(context); i++)
         {
             maxHeight = Math.Max(maxHeight, GetElementAt(context, i).DesiredSize.Height);
         }

@@ -52,7 +52,7 @@ public partial class FATeachingTip : ContentControl
         // All of these components are required, so we use Get instead of Find to throw
         // if not found and avoid null checks below
         _container = e.NameScope.Get<Border>(s_tpContainer);
-        _rootElement = (Control)_container.Child;
+        _rootElement = _container.Child;
         _tailOcclusionGrid = e.NameScope.Get<Grid>(s_tpTailOcclusionGrid);
         _contentRootGrid = e.NameScope.Get<Grid>(s_tpContentRootGrid);
         _nonHeroContentRootGrid = e.NameScope.Get<Grid>(s_tpNonHeroContentRootGrid);
@@ -79,12 +79,6 @@ public partial class FATeachingTip : ContentControl
         _closeButton.Click += OnCloseButtonClicked;
 
         _alternateCloseButton.Click += OnCloseButtonClicked;
-
-        AutomationProperties.SetName(_alternateCloseButton, 
-            FALocalizationHelper.Instance.GetLocalizedStringResource(SR_TeachingTipAlternateCloseButtonName));
-        ToolTip.SetTip(_alternateCloseButton, 
-            FALocalizationHelper.Instance.GetLocalizedStringResource(SR_TeachingTipAlternateCloseButtonTooltip));
-
 
         _actionButton.Click += OnActionButtonClicked;
 
@@ -189,7 +183,7 @@ public partial class FATeachingTip : ContentControl
 
     private bool ToggleVisibilityForEmptyContent(string visibleStatename, string content)
     {
-        bool visible = !string.IsNullOrEmpty(content);
+        var visible = !string.IsNullOrEmpty(content);
         PseudoClasses.Set(visibleStatename, visible);
 
         return visible;
@@ -665,7 +659,7 @@ public partial class FATeachingTip : ContentControl
 
     private void PositionPopup()
     {
-        bool tipDoesNotFit = false;
+        var tipDoesNotFit = false;
         if (_target != null)
         {
             tipDoesNotFit = PositionTargetedPopup();
@@ -683,7 +677,7 @@ public partial class FATeachingTip : ContentControl
 
     private bool PositionTargetedPopup()
     {
-        bool tipDoesNotFit = UpdateTail();
+        var tipDoesNotFit = UpdateTail();
         var offset = PlacementMargin;
 
         var (tipHeight, tipWidth) = _tailOcclusionGrid != null ?
@@ -775,7 +769,7 @@ public partial class FATeachingTip : ContentControl
         var (finalTipHeight, finalTipWidth) = _tailOcclusionGrid != null ?
             (_tailOcclusionGrid.Bounds.Height, _tailOcclusionGrid.Bounds.Width) : (0, 0);
 
-        bool tipDoesNotFit = UpdateTail();
+        var tipDoesNotFit = UpdateTail();
 
         var offset = PlacementMargin;
 
@@ -1074,7 +1068,7 @@ public partial class FATeachingTip : ContentControl
         // If the tip is not going to open because it does not fit we need to make sure that
         // the open, closing, closed life cycle still fires so that we don't cause apps to leak
         // that depend on this sequence.
-        var (ignored, tipDoesNotFit) = DetermineEffectivePlacement();
+        var (_, tipDoesNotFit) = DetermineEffectivePlacement();
         if (tipDoesNotFit)
         {
             RaiseClosingEvent(false);
@@ -1223,7 +1217,7 @@ public partial class FATeachingTip : ContentControl
 
     private void OnIsLightDismissEnabledChanged()
     {
-        bool ld = IsLightDismissEnabled;
+        var ld = IsLightDismissEnabled;
         PseudoClasses.Set(s_pcLightDismiss, ld);
 
         if (ld)
@@ -1299,13 +1293,13 @@ public partial class FATeachingTip : ContentControl
         var height = (float)args.NewSize.Height;
         if (_expandAnimation != null)
         {
-            _expandAnimation.SetScalarParameter("Width", (float)width);
-            _expandAnimation.SetScalarParameter("Height", (float)height);
+            _expandAnimation.SetScalarParameter("Width", width);
+            _expandAnimation.SetScalarParameter("Height", height);
         }
         if (_contractAnimation != null)
         {
-            _contractAnimation.SetScalarParameter("Width", (float)width);
-            _contractAnimation.SetScalarParameter("Height", (float)height);
+            _contractAnimation.SetScalarParameter("Width", width);
+            _contractAnimation.SetScalarParameter("Height", height);
         }
     }
 
@@ -1323,7 +1317,7 @@ public partial class FATeachingTip : ContentControl
         {
             if (_rootElement != null)
             {
-                Visual current = TopLevel.GetTopLevel(this).FocusManager.GetFocusedElement() as Visual;
+                var current = TopLevel.GetTopLevel(this).FocusManager.GetFocusedElement() as Visual;
 
                 while (current != null)
                 {
@@ -1553,43 +1547,41 @@ public partial class FATeachingTip : ContentControl
         {
             return pm;
         }
-        else
+
+        switch (pm)
         {
-            switch (pm)
-            {
-                case FATeachingTipPlacementMode.Left:
-                    return FATeachingTipPlacementMode.Right;
+            case FATeachingTipPlacementMode.Left:
+                return FATeachingTipPlacementMode.Right;
 
-                case FATeachingTipPlacementMode.Right:
-                    return FATeachingTipPlacementMode.Left;
+            case FATeachingTipPlacementMode.Right:
+                return FATeachingTipPlacementMode.Left;
 
-                case FATeachingTipPlacementMode.LeftBottom:
-                    return FATeachingTipPlacementMode.RightBottom;
+            case FATeachingTipPlacementMode.LeftBottom:
+                return FATeachingTipPlacementMode.RightBottom;
 
-                case FATeachingTipPlacementMode.LeftTop:
-                    return FATeachingTipPlacementMode.RightTop;
+            case FATeachingTipPlacementMode.LeftTop:
+                return FATeachingTipPlacementMode.RightTop;
 
-                case FATeachingTipPlacementMode.TopLeft:
-                    return FATeachingTipPlacementMode.TopRight;
+            case FATeachingTipPlacementMode.TopLeft:
+                return FATeachingTipPlacementMode.TopRight;
 
-                case FATeachingTipPlacementMode.TopRight:
-                    return FATeachingTipPlacementMode.TopLeft;
+            case FATeachingTipPlacementMode.TopRight:
+                return FATeachingTipPlacementMode.TopLeft;
 
-                case FATeachingTipPlacementMode.RightTop:
-                    return FATeachingTipPlacementMode.LeftTop;
+            case FATeachingTipPlacementMode.RightTop:
+                return FATeachingTipPlacementMode.LeftTop;
 
-                case FATeachingTipPlacementMode.RightBottom:
-                    return FATeachingTipPlacementMode.LeftBottom;
+            case FATeachingTipPlacementMode.RightBottom:
+                return FATeachingTipPlacementMode.LeftBottom;
 
-                case FATeachingTipPlacementMode.BottomRight:
-                    return FATeachingTipPlacementMode.BottomLeft;
+            case FATeachingTipPlacementMode.BottomRight:
+                return FATeachingTipPlacementMode.BottomLeft;
 
-                case FATeachingTipPlacementMode.BottomLeft:
-                    return FATeachingTipPlacementMode.BottomRight;
+            case FATeachingTipPlacementMode.BottomLeft:
+                return FATeachingTipPlacementMode.BottomRight;
 
-                default:
-                    return pm;
-            }
+            default:
+                return pm;
         }
     }
 
@@ -1603,7 +1595,7 @@ public partial class FATeachingTip : ContentControl
 
         _target = Target;
 
-        bool isTargetLoaded = false;
+        var isTargetLoaded = false;
         if (_target != null)
         {
             // We need to check if the target is loaded before registering for its 
@@ -1912,10 +1904,8 @@ public partial class FATeachingTip : ContentControl
         {
             return DetermineEffectivePlacementTargeted(contentHeight, contentWidth);
         }
-        else
-        {
-            return DetermineEffectivePlacementUntargeted(contentHeight, contentWidth);
-        }
+
+        return DetermineEffectivePlacementUntargeted(contentHeight, contentWidth);
     }
 
     private (FATeachingTipPlacementMode, bool) DetermineEffectivePlacementTargeted(double contentHeight, double contentWidth)
@@ -2273,8 +2263,8 @@ public partial class FATeachingTip : ContentControl
         }
 
         //Switch the preferred placement to first.
-        int pivot = -1;
-        for (int i = 0; i < priorityList.Length; i++)
+        var pivot = -1;
+        for (var i = 0; i < priorityList.Length; i++)
         {
             if (priorityList[i] == (byte)preferredPlacement)
             {
@@ -2283,7 +2273,7 @@ public partial class FATeachingTip : ContentControl
             }
         }
 
-        for (int i = pivot; i > 0; i--)
+        for (var i = pivot; i > 0; i--)
         {
             priorityList[i] = priorityList[i - 1];
         }

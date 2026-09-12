@@ -75,13 +75,13 @@ public sealed class ColorTile : TemplatedControl
         {
             var val = change.NewValue;
 
-            if (val is ILinearGradientBrush lgb)
+            if (val is ILinearGradientBrush)
             {
                 SetValue(ColorValueProperty, "Linear Gradient");
             }
             else if (val is ISolidColorBrush scb)
             {
-                uint rgb = scb.Color.ToUInt32();                
+                var rgb = scb.Color.ToUInt32();                
                 SetValue(ColorValueProperty, FormattableString.Invariant($"#{rgb:x8}").ToUpper());
             }
         }

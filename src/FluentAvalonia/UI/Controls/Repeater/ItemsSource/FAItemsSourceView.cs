@@ -14,10 +14,7 @@ public class FAItemsSourceView
 {
     public FAItemsSourceView(IEnumerable source)
     {
-        if (source == null)
-            throw new ArgumentNullException(nameof(source));
-        
-        _vector = source;
+        _vector = source ?? throw new ArgumentNullException(nameof(source));
         ListenToCollectionChanges();
 
         _uniqueIdMapping = source as IFAKeyIndexMapping;
@@ -97,10 +94,8 @@ public class FAItemsSourceView
         {
             return list.Count;
         }
-        else
-        {
-            return _vector.Count();
-        }
+
+        return _vector.Count();
     }
 
     /// <summary>
@@ -112,10 +107,8 @@ public class FAItemsSourceView
         {
             return list[index];
         }
-        else
-        {
-            return _vector.ElementAt(index);
-        }
+
+        return _vector.ElementAt(index);
     }
 
     /// <summary>
@@ -152,7 +145,7 @@ public class FAItemsSourceView
     /// </summary>
     protected virtual int IndexOfCore(object value)
     {
-        int index = -1;
+        var index = -1;
         if (_vector is IList list)
         {
             index = list.IndexOf(value);

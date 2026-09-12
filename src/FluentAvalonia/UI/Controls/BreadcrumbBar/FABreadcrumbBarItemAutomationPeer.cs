@@ -14,12 +14,6 @@ public class FABreadcrumbBarItemAutomationPeer : ControlAutomationPeer, IInvokeP
     {
     }
 
-    protected override string GetLocalizedControlTypeCore()
-    {
-        return FALocalizationHelper.Instance
-            .GetLocalizedStringResource("BreadcrumbBarItemLocalizedControlType");
-    }
-
     protected override string GetClassNameCore()
     {
         return nameof(FABreadcrumbBarItem);

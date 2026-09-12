@@ -8,12 +8,7 @@ public class CustomContentDialogViewModel : ViewModelBase
 
     public CustomContentDialogViewModel(FAContentDialog dialog)
     {
-        if (dialog is null)
-        {
-            throw new ArgumentNullException(nameof(dialog));
-        }
-
-        this.dialog = dialog;
+        this.dialog = dialog ?? throw new ArgumentNullException(nameof(dialog));
         dialog.Closed += DialogOnClosed;
     }
 

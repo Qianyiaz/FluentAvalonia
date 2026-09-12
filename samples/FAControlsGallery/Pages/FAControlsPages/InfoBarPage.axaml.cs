@@ -85,7 +85,7 @@ public partial class InfoBarPage : ControlsPageBase
         }
     }
 
-    bool hasCustomBG = false;
+    bool hasCustomBG;
     public void SetCustomBackground()
     {
         if (hasCustomBG)

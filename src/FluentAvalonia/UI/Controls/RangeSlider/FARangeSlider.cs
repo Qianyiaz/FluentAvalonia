@@ -505,8 +505,8 @@ public partial class FARangeSlider : TemplatedControl
         }
 
         var normalizedPosition = position * Math.Abs(Maximum - Minimum) / DragWidth;
-        double upperValueDiff = Math.Abs(RangeEnd - normalizedPosition);
-        double lowerValueDiff = Math.Abs(RangeStart - normalizedPosition);
+        var upperValueDiff = Math.Abs(RangeEnd - normalizedPosition);
+        var lowerValueDiff = Math.Abs(RangeStart - normalizedPosition);
 
         if (upperValueDiff < lowerValueDiff)
         {
@@ -594,20 +594,19 @@ public partial class FARangeSlider : TemplatedControl
 
     private double MoveToStepFrequency(double rangeValue)
     {
-        double newValue = Minimum + (((int)Math.Round((rangeValue - Minimum) / StepFrequency)) * StepFrequency);
+        var newValue = Minimum + (((int)Math.Round((rangeValue - Minimum) / StepFrequency)) * StepFrequency);
 
         if (newValue < Minimum)
         {
             return Minimum;
         }
-        else if (newValue > Maximum || Maximum - newValue < StepFrequency)
+
+        if (newValue > Maximum || Maximum - newValue < StepFrequency)
         {
             return Maximum;
         }
-        else
-        {
-            return newValue;
-        }
+
+        return newValue;
     }
 
     private void SyncThumbs(bool fromMinKeyDown = false, bool fromMaxKeyDown = false)
@@ -773,7 +772,7 @@ internal static class DispatcherTimerExtensions
             timer.Tick -= TimerTick;
             timer.Stop();
 
-            if (_debounceInstances.TryRemove(timer, out Action action))
+            if (_debounceInstances.TryRemove(timer, out var action))
             {
                 action?.Invoke();
             }

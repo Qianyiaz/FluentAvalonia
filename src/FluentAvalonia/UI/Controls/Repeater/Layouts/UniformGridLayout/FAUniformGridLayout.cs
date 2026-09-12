@@ -282,23 +282,23 @@ public class FAUniformGridLayout : FAVirtualizingLayout, IOrientationBasedMeasur
     FlowLayoutAnchorInfo IFlowLayoutAlgorithmDelegates.Algorithm_GetAnchorForRealizationRect(Size availableSize, 
         FAVirtualizingLayoutContext context)
     {
-        Rect bounds = new Rect(double.NaN, double.NaN, double.NaN, double.NaN);
-        int anchorIndex = -1;
+        var bounds = new Rect(double.NaN, double.NaN, double.NaN, double.NaN);
+        var anchorIndex = -1;
 
-        int itemsCount = context.ItemCount;
+        var itemsCount = context.ItemCount;
         var realizationRect = context.RealizationRect;
         if (itemsCount > 0 && this.MajorSize(realizationRect) > 0)
         {
             var gridState = GetAsGridState(context.LayoutState);
             var lastExtent = gridState.FlowAlgorithm.LastExtent;
-            int itemsPerLine = GetItemsPerLine(availableSize, context);
-            double majorSize = (itemsCount / itemsPerLine) * GetMajorSizeWithSpacing(context);
-            double realizationWindowWithinExtent = this.MajorStart(realizationRect) - this.MajorStart(lastExtent);
+            var itemsPerLine = GetItemsPerLine(availableSize, context);
+            var majorSize = (itemsCount / itemsPerLine) * GetMajorSizeWithSpacing(context);
+            var realizationWindowWithinExtent = this.MajorStart(realizationRect) - this.MajorStart(lastExtent);
             if ((realizationWindowWithinExtent + this.MajorSize(realizationRect)) >= 0 &&
                 realizationWindowWithinExtent <= majorSize)
             {
-                double offset = Math.Max(0, this.MajorStart(realizationRect) - this.MajorStart(lastExtent));
-                int anchorRowIndex = (int)(offset / GetMajorSizeWithSpacing(context));
+                var offset = Math.Max(0, this.MajorStart(realizationRect) - this.MajorStart(lastExtent));
+                var anchorRowIndex = (int)(offset / GetMajorSizeWithSpacing(context));
 
                 anchorIndex = Math.Max(0, Math.Min(itemsCount - 1, anchorRowIndex * itemsPerLine));
                 bounds = GetLayoutRectForDataIndex(availableSize, anchorIndex, lastExtent, context);
@@ -311,13 +311,13 @@ public class FAUniformGridLayout : FAVirtualizingLayout, IOrientationBasedMeasur
     FlowLayoutAnchorInfo IFlowLayoutAlgorithmDelegates.Algorithm_GetAnchorForTargetElement(int targetIndex,
         Size availableSize, FAVirtualizingLayoutContext context)
     {
-        int index = -1;
-        double offset = double.NaN;
-        int count = context.ItemCount;
+        var index = -1;
+        var offset = double.NaN;
+        var count = context.ItemCount;
         if (targetIndex >= 0 && targetIndex < count)
         {
-            int itemsPerLine = GetItemsPerLine(availableSize, context);
-            int indexOfFirstInLine = (targetIndex / itemsPerLine) * itemsPerLine;
+            var itemsPerLine = GetItemsPerLine(availableSize, context);
+            var indexOfFirstInLine = (targetIndex / itemsPerLine) * itemsPerLine;
             index = indexOfFirstInLine;
             var state = GetAsGridState(context.LayoutState);
             offset = this.MajorStart(GetLayoutRectForDataIndex(availableSize, indexOfFirstInLine,
@@ -334,16 +334,16 @@ public class FAUniformGridLayout : FAVirtualizingLayout, IOrientationBasedMeasur
         var extent = new Rect();
 
         // Constants
-        int itemsCount = context.ItemCount;
-        double availableSizeMinor = this.Minor(availableSize);
+        var itemsCount = context.ItemCount;
+        var availableSizeMinor = this.Minor(availableSize);
         
 
-        int itemsPerLine = (int)Math.Min(// note use of unsigned ints
+        var itemsPerLine = (int)Math.Min(// note use of unsigned ints
             Math.Max(1u, !double.IsInfinity(availableSizeMinor) ?
                 (uint)((availableSizeMinor + MinItemSpacing) / GetMinorSizeWithSpacing(context)) :
                 itemsCount),
             Math.Max(1u, _maximumRowsOrColumns));
-        double lineSize = GetMajorSizeWithSpacing(context);
+        var lineSize = GetMajorSizeWithSpacing(context);
 
         if (itemsCount > 0)
         {
@@ -362,7 +362,7 @@ public class FAUniformGridLayout : FAVirtualizingLayout, IOrientationBasedMeasur
 
                 this.SetMajorStart(ref extent,
                     this.MajorStart(firstRealizedLayoutBounds) - (firstRealizedItemIndex / itemsPerLine) * lineSize);
-                int remainingItems = itemsCount - lastRealizedItemIndex - 1;
+                var remainingItems = itemsCount - lastRealizedItemIndex - 1;
                 this.SetMajorSize(ref extent,
                     this.MajorEnd(lastRealiedLayoutBounds) - this.MajorStart(extent) +
                     (remainingItems / itemsPerLine) * lineSize);
@@ -396,7 +396,7 @@ public class FAUniformGridLayout : FAVirtualizingLayout, IOrientationBasedMeasur
 
     private int GetItemsPerLine(Size availableSize, FAVirtualizingLayoutContext context)
     {
-        int itemsPerLine = (int)Math.Min(// note use of unsigned ints
+        var itemsPerLine = (int)Math.Min(// note use of unsigned ints
             Math.Max(1u, (uint)((this.Minor(availableSize) + MinItemSpacing) / GetMinorSizeWithSpacing(context))),
             Math.Max(1u, _maximumRowsOrColumns));
 
@@ -424,12 +424,12 @@ public class FAUniformGridLayout : FAVirtualizingLayout, IOrientationBasedMeasur
     private Rect GetLayoutRectForDataIndex(Size availableSize, int index,
         Rect lastExtent, FAVirtualizingLayoutContext context)
     {
-        int itemsPerLine = GetItemsPerLine(availableSize, context);
-        int rowIndex = index / itemsPerLine;
-        int indexInRow = index - (rowIndex * itemsPerLine);
+        var itemsPerLine = GetItemsPerLine(availableSize, context);
+        var rowIndex = index / itemsPerLine;
+        var indexInRow = index - (rowIndex * itemsPerLine);
 
         var gridState = GetAsGridState(context.LayoutState);
-        Rect bounds = this.MinorMajorRect(
+        var bounds = this.MinorMajorRect(
             indexInRow * GetMinorSizeWithSpacing(context) + this.MinorStart(lastExtent),
             rowIndex * GetMajorSizeWithSpacing(context) + this.MajorStart(lastExtent),
             ScrollOrientation == ScrollOrientation.Vertical ? gridState.EffectiveItemWidth : gridState.EffectiveItemHeight,
@@ -455,8 +455,8 @@ public class FAUniformGridLayout : FAVirtualizingLayout, IOrientationBasedMeasur
 
     private double _minItemWidth = double.NaN;
     private double _minItemHeight = double.NaN;
-    private double _minRowSpacing = 0;
-    private double _minColumnSpacing = 0;
+    private double _minRowSpacing;
+    private double _minColumnSpacing;
     private FAUniformGridLayoutItemsJustification _itemsJustification = FAUniformGridLayoutItemsJustification.Start;
     private FAUniformGridLayoutItemsStretch _itemsStretch = FAUniformGridLayoutItemsStretch.None;
     private int _maximumRowsOrColumns = int.MaxValue;

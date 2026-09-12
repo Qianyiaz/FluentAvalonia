@@ -10,9 +10,9 @@ internal static class SelectionTreeHelper
     {
         var node = root;
 
-        for (int depth = 0; depth < path.GetSize(); depth++)
+        for (var depth = 0; depth < path.GetSize(); depth++)
         {
-            int childIndex = path.GetAt(depth);
+            var childIndex = path.GetAt(depth);
             nodeAction(node, path, depth, childIndex);
 
             if (depth < path.GetSize() - 1)
@@ -36,8 +36,8 @@ internal static class SelectionTreeHelper
         {
             var nextNode = pendingNodes.Last();
             pendingNodes.RemoveAt(pendingNodes.Count - 1);
-            int count = realizeChildren ? nextNode.Node.DataCount : nextNode.Node.ChildrenNodeCount;
-            for (int i = count - 1; i >= 0; i--)
+            var count = realizeChildren ? nextNode.Node.DataCount : nextNode.Node.ChildrenNodeCount;
+            for (var i = count - 1; i >= 0; i--)
             {
                 var child = nextNode.Node.GetAt(i, realizeChildren);
                 var childPath = nextNode.Path.CloneWithChildIndex(i);
@@ -60,7 +60,6 @@ internal static class SelectionTreeHelper
         Action<TreeWalkNodeInfo> nodeAction)
     {
         var pendingNodes = new List<TreeWalkNodeInfo>();
-        var current = start;
 
         // Build up the stack to account for the depth first walk up to the 
         // start index path.
@@ -71,13 +70,13 @@ internal static class SelectionTreeHelper
             (node, path, depth, childIndex) =>
             {
                 var currentPath = StartPath(path, depth);
-                bool isStartPath = IsSubSet(start, currentPath);
-                bool isEndPath = IsSubSet(end, currentPath);
+                var isStartPath = IsSubSet(start, currentPath);
+                var isEndPath = IsSubSet(end, currentPath);
 
-                int startIndex = depth < start.GetSize() && isStartPath ? Math.Max(0, start.GetAt(depth)) : 0;
-                int endIndex = depth < end.GetSize() && isEndPath ? Math.Min(node.DataCount - 1, end.GetAt(depth)) : node.DataCount - 1;
+                var startIndex = depth < start.GetSize() && isStartPath ? Math.Max(0, start.GetAt(depth)) : 0;
+                var endIndex = depth < end.GetSize() && isEndPath ? Math.Min(node.DataCount - 1, end.GetAt(depth)) : node.DataCount - 1;
 
-                for (int i = endIndex; i >= startIndex; i--)
+                for (var i = endIndex; i >= startIndex; i--)
                 {
                     var child = node.GetAt(i, true);
                     if (child != null)
@@ -94,12 +93,12 @@ internal static class SelectionTreeHelper
         {
             var info = pendingNodes.Last();
             pendingNodes.RemoveAt(pendingNodes.Count - 1);
-            int depth = info.Path.GetSize();
-            bool isStartPath = IsSubSet(start, info.Path);
-            bool isEndPath = IsSubSet(end, info.Path);
-            int startIndex = depth < start.GetSize() && isStartPath ? start.GetAt(depth) : 0;
-            int endIndex = depth < end.GetSize() && isEndPath ? end.GetAt(depth) : info.Node.DataCount - 1;
-            for (int i = endIndex; i >= startIndex; i--)
+            var depth = info.Path.GetSize();
+            var isStartPath = IsSubSet(start, info.Path);
+            var isEndPath = IsSubSet(end, info.Path);
+            var startIndex = depth < start.GetSize() && isStartPath ? start.GetAt(depth) : 0;
+            var endIndex = depth < end.GetSize() && isEndPath ? end.GetAt(depth) : info.Node.DataCount - 1;
+            for (var i = endIndex; i >= startIndex; i--)
             {
                 var child = info.Node.GetAt(i, true);
                 if (child != null)
@@ -127,7 +126,7 @@ internal static class SelectionTreeHelper
             return false;
         }
 
-        for (int i = 0; i < subsetSize; i++)
+        for (var i = 0; i < subsetSize; i++)
         {
             if (path.GetAt(i) != subset.GetAt(i))
             {
@@ -141,7 +140,7 @@ internal static class SelectionTreeHelper
     private static IndexPath StartPath(IndexPath path, int length)
     {
         var subPath = new List<int>();
-        for (int i = 0; i < length; i++)
+        for (var i = 0; i < length; i++)
         {
             subPath.Add(path.GetAt(i));
         }

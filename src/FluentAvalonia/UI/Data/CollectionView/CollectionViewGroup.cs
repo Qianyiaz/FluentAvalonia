@@ -71,7 +71,7 @@ internal class SpecializedCollectionViewGroup : CollectionViewGroup, IComparer<o
     {
         if (filter != null)
         {
-            for (int i = 0; i < _view.Count; i++)
+            for (var i = 0; i < _view.Count; i++)
             {
                 var item = _view.ElementAt(i);
                 if (filter(item))
@@ -83,7 +83,7 @@ internal class SpecializedCollectionViewGroup : CollectionViewGroup, IComparer<o
 
             var viewHash = new HashSet<object>(_view);
             var viewIndex = 0;
-            for (int i = 0; i < _actualItems.Count(); i++)
+            for (var i = 0; i < _actualItems.Count(); i++)
             {
                 var item = _actualItems.ElementAt(i);
                 if (viewHash.Contains(item))
@@ -444,7 +444,7 @@ internal class SpecializedCollectionViewGroup : CollectionViewGroup, IComparer<o
         var sortDesc = _owner.GetSortDescriptions();
         if (sortDesc != null)
         {
-            for (int i = 0; i < sortDesc.Count; i++)
+            for (var i = 0; i < sortDesc.Count; i++)
             {
                 var desc = sortDesc[i];
                 object cx, cy;
@@ -594,7 +594,7 @@ internal class CollectionWrapper : IAvaloniaList<object>, IList // IList for INC
 
         if (_collection is IList list)
         {
-            int idx = index;
+            var idx = index;
             foreach (var item in items)
                 list.Insert(idx++, item);
         }

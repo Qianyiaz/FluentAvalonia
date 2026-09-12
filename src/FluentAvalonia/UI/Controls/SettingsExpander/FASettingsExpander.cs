@@ -123,7 +123,7 @@ public partial class FASettingsExpander : HeaderedItemsControl, ICommandSource
         if (_expanderToggleButton is not null)
         {
             // Disable the interaction states if items collection is cleared
-            bool isInteractable = ItemCount > 0;
+            var isInteractable = ItemCount > 0;
             ((IPseudoClasses)_expanderToggleButton.Classes).Set(FASharedPseudoclasses.s_pcAllowClick, isInteractable);
             ((IPseudoClasses)_expanderToggleButton.Classes).Set(s_pcEmpty, !isInteractable); 
         }
@@ -131,7 +131,7 @@ public partial class FASettingsExpander : HeaderedItemsControl, ICommandSource
 
     protected override bool NeedsContainerOverride(object item, int index, out object recycleKey)
     {
-        bool isItem = item is FASettingsExpanderItem;
+        var isItem = item is FASettingsExpanderItem;
         recycleKey = isItem ? null : nameof(FASettingsExpanderItem);
         return !isItem;
     }
@@ -208,13 +208,9 @@ public partial class FASettingsExpander : HeaderedItemsControl, ICommandSource
             _expanderToggleButton.Click -= ExpanderToggleButtonClick;
 
         var header = _expander.GetTemplateDescendants().OfType<ToggleButton>().FirstOrDefault();
-        if (header == null)
-            throw new InvalidOperationException("Invalid template for SettingsExpander. Unable to find ToggleButton inside Expander");
 
-        _expanderToggleButton = header;
+        _expanderToggleButton = header ?? throw new InvalidOperationException("Invalid template for SettingsExpander. Unable to find ToggleButton inside Expander");
         _expanderToggleButton.Click += ExpanderToggleButtonClick;
-
-        bool allowClick = IsClickEnabled;
 
         // Disable pointerover/pressed styles if we aren't clickable (empty or !IsClickEnabled)
         ((IPseudoClasses)_expanderToggleButton.Classes).Set(FASharedPseudoclasses.s_pcAllowClick, IsClickEnabled || ItemCount > 0);
@@ -268,10 +264,10 @@ public partial class FASettingsExpander : HeaderedItemsControl, ICommandSource
         if (ItemCount == 0)
             return;
 
-        bool usePlaceholder = _iconCount > 0;
+        var usePlaceholder = _iconCount > 0;
         ((IPseudoClasses)_contentHost.Classes).Set(s_pcIconPlaceholder, usePlaceholder);
 
-        var rc = GetRealizedContainers();
+        GetRealizedContainers();
         foreach (var item in GetRealizedContainers())
         {
             ((IPseudoClasses)item.Classes).Set(s_pcIconPlaceholder, usePlaceholder);
@@ -290,6 +286,6 @@ public partial class FASettingsExpander : HeaderedItemsControl, ICommandSource
     private Expander _expander;
     private ToggleButton _expanderToggleButton;
     private FASettingsExpanderItem _contentHost;
-    private int _iconCount = 0;
+    private int _iconCount;
     private bool _hasAppliedTemplate;
 }
