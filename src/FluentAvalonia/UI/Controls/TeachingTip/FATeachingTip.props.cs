@@ -417,8 +417,8 @@ public partial class FATeachingTip : ContentControl
     private const string s_pcRightBottom = ":rightBottom";
     private const string s_pcCenter = ":center";
 
-    private static readonly string SR_TeachingTipAlternateCloseButtonName = "TeachingTipAlternateCloseButtonName";
-    private static readonly string SR_TeachingTipAlternateCloseButtonTooltip = "TeachingTipAlternateCloseButtonTooltip";
-    private const string SR_TeachingTipNotification = "TeachingTipNotification";
-    private const string SR_TeachingTipNotificationWithoutAppName = "TeachingTipNotificationWithoutAppName";
+    // private static readonly string SR_TeachingTipAlternateCloseButtonName = "TeachingTipAlternateCloseButtonName";
+    // private static readonly string SR_TeachingTipAlternateCloseButtonTooltip = "TeachingTipAlternateCloseButtonTooltip";
+    // private const string SR_TeachingTipNotification = "TeachingTipNotification";
+    // private const string SR_TeachingTipNotificationWithoutAppName = "TeachingTipNotificationWithoutAppName";
 }

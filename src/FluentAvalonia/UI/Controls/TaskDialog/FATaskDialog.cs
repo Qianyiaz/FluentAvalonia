@@ -601,7 +601,7 @@ public partial class FATaskDialog : ContentControl
     private TaskCompletionSource<object> _tcs;
     internal bool _hasDeferralActive;
 
-    private IInputElement _previousFocus;
+    private IInputElement _previousFocus; 
     private bool _ignoreWindowClosingEvent;
     private bool _isOpening;
 }
