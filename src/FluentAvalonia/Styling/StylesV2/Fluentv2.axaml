@@ -1912,49 +1912,43 @@
             <StaticResource x:Key="CommandBarFlyoutButtonBackground" ResourceKey="SystemControlTransparentBrush" />
 
 
-            <!-- DATA GRID -->
-            <Thickness x:Key="DataGridTextColumnCellTextBlockMargin">12,0,12,0</Thickness>
-            <x:Double x:Key="ListAccentLowOpacity">0.6</x:Double>
-            <x:Double x:Key="ListAccentMediumOpacity">0.8</x:Double>
-            <StaticResource x:Key="DataGridCellBackgroundBrush" ResourceKey="SubtleFillColorTransparentBrush" />
-            <StaticResource x:Key="DataGridCurrencyVisualPrimaryBrush" ResourceKey="SubtleFillColorTransparentBrush" />
-            <StaticResource x:Key="DataGridCellFocusVisualPrimaryBrush" ResourceKey="FocusStrokeColorOuter" />
-            <StaticResource x:Key="DataGridCellFocusVisualSecondaryBrush" ResourceKey="FocusStrokeColorInner" />
-            <StaticResource x:Key="DataGridCellInvalidBrush" ResourceKey="SystemFillColorCriticalBrush" />
-            <StaticResource x:Key="DataGridFillerColumnGridLinesBrush" ResourceKey="SubtleFillColorTransparentBrush" />
-            <StaticResource x:Key="DataGridGridLinesBrush" ResourceKey="DividerStrokeColorDefaultBrush" />
-            <StaticResource x:Key="DataGridColumnHeaderForegroundBrush" ResourceKey="TextFillColorSecondaryBrush" />
-            <StaticResource x:Key="DataGridColumnHeaderBackgroundBrush" ResourceKey="ControlFillColorDefaultBrush" />
-            <StaticResource x:Key="DataGridColumnHeaderHoveredBackgroundBrush"
-                            ResourceKey="ControlFillColorSecondaryBrush" />
-            <StaticResource x:Key="DataGridColumnHeaderPressedBackgroundBrush"
-                            ResourceKey="ControlFillColorTertiaryBrush" />
-            <StaticResource x:Key="DataGridDetailsPresenterBackgroundBrush" ResourceKey="SolidBackgroundFillColorBase" />
-            <StaticResource x:Key="DataGridRowInvalidBrush" ResourceKey="SystemFillColorCriticalBackgroundBrush" />
-            <StaticResource x:Key="DataGridRowSelectedUnfocusedBackgroundBrush"
-                            ResourceKey="AccentFillColorDefaultBrush" />
-            <StaticResource x:Key="DataGridRowSelectedUnfocusedBackgroundOpacity" ResourceKey="ListAccentLowOpacity" />
-            <StaticResource x:Key="DataGridRowSelectedHoveredUnfocusedBackgroundBrush"
-                            ResourceKey="AccentFillColorDefaultBrush" />
-            <StaticResource x:Key="DataGridRowSelectedHoveredUnfocusedBackgroundOpacity"
-                            ResourceKey="ListAccentMediumOpacity" />
-            <StaticResource x:Key="DataGridRowSelectedBackgroundBrush" ResourceKey="AccentFillColorDefaultBrush" />
-            <StaticResource x:Key="DataGridRowSelectedBackgroundOpacity" ResourceKey="ListAccentLowOpacity" />
-            <StaticResource x:Key="DataGridRowSelectedHoveredBackgroundBrush" ResourceKey="AccentFillColorDefaultBrush" />
-            <StaticResource x:Key="DataGridRowSelectedHoveredBackgroundOpacity" ResourceKey="ListAccentMediumOpacity" />
-            <StaticResource x:Key="DataGridRowHeaderBackgroundBrush" ResourceKey="ControlFillColorDefaultBrush" />
-            <StaticResource x:Key="DataGridRowGroupHeaderForegroundBrush" ResourceKey="TextFillColorSecondaryBrush" />
-            <StaticResource x:Key="DataGridRowGroupHeaderBackgroundBrush"
-                            ResourceKey="SolidBackgroundFillColorBaseBrush" />
-            <StaticResource x:Key="DataGridRowGroupHeaderHoveredBackgroundBrush"
-                            ResourceKey="SubtleFillColorSecondaryBrush" />
-            <StaticResource x:Key="DataGridRowGroupHeaderPressedBackgroundBrush"
-                            ResourceKey="SubtleFillColorTertiaryBrush" />
-            <StaticResource x:Key="DataGridRowHoveredBackgroundColor" ResourceKey="SubtleFillColorSecondaryBrush" />
-            <SolidColorBrush x:Key="DataGridDropLocationIndicatorBackground" Color="#3F4346" />
-            <StaticResource x:Key="DataGridScrollBarsSeparatorBackground" ResourceKey="ControlFillColorTertiaryBrush" />
-            <SolidColorBrush x:Key="DataGridDisabledVisualElementBackground" Color="#8CFFFFFF" />
-            <StaticResource x:Key="DataGridRowBackgroundBrush" ResourceKey="SubtleFillColorTransparentBrush" />
+            <!-- TABLE VIEW -->
+            <StaticResource x:Key="TableViewForeground" ResourceKey="TextFillColorPrimaryBrush" />
+            <StaticResource x:Key="TableViewBackground" ResourceKey="SubtleFillColorTransparentBrush" />
+            <StaticResource x:Key="TableViewBorderBrush" ResourceKey="SurfaceStrokeColorDefaultBrush" />
+            <Thickness x:Key="TableViewBorderThickness">1</Thickness>
+
+            <StaticResource x:Key="TableViewHeaderBackground" ResourceKey="ControlFillColorDefaultBrush" />
+            <StaticResource x:Key="TableViewColumnHeaderSeparatorBackground"
+                            ResourceKey="DividerStrokeColorDefaultBrush" />
+
+            <Thickness x:Key="TableViewCellPadding">12,0</Thickness>
+            <Thickness x:Key="TableViewRowPadding">0</Thickness>
+
+            <x:Double x:Key="TableViewColumnResizerWidth">12</x:Double>
+            <Thickness x:Key="TableViewColumnResizerMargin">0,-9,-6,-12</Thickness>
+
+            <!-- Row backgrounds -->
+            <StaticResource x:Key="TableViewRowBackground" ResourceKey="SubtleFillColorTransparentBrush" />
+            <StaticResource x:Key="TableViewRowBackgroundDisabled" ResourceKey="SubtleFillColorTransparentBrush" />
+            <StaticResource x:Key="TableViewRowBackgroundPointerOver" ResourceKey="SubtleFillColorSecondaryBrush" />
+            <StaticResource x:Key="TableViewRowBackgroundPressed" ResourceKey="SubtleFillColorTertiaryBrush" />
+            <StaticResource x:Key="TableViewRowBackgroundSelected" ResourceKey="AccentFillColorDefaultBrush" />
+            <StaticResource x:Key="TableViewRowBackgroundSelectedPointerOver"
+                            ResourceKey="AccentFillColorSecondaryBrush" />
+            <StaticResource x:Key="TableViewRowBackgroundSelectedPressed" ResourceKey="AccentFillColorTertiaryBrush" />
+            <StaticResource x:Key="TableViewRowBackgroundSelectedDisabled" ResourceKey="AccentFillColorDisabledBrush" />
+
+            <!-- Row foregrounds -->
+            <StaticResource x:Key="TableViewRowForeground" ResourceKey="TextFillColorPrimaryBrush" />
+            <StaticResource x:Key="TableViewRowForegroundDisabled" ResourceKey="TextFillColorDisabledBrush" />
+            <StaticResource x:Key="TableViewRowForegroundPointerOver" ResourceKey="TextFillColorPrimaryBrush" />
+            <StaticResource x:Key="TableViewRowForegroundPressed" ResourceKey="TextFillColorSecondaryBrush" />
+            <StaticResource x:Key="TableViewRowForegroundSelected" ResourceKey="TextOnAccentFillColorPrimaryBrush" />
+            <StaticResource x:Key="TableViewRowForegroundSelectedPointerOver"
+                            ResourceKey="TextOnAccentFillColorPrimaryBrush" />
+            <StaticResource x:Key="TableViewRowForegroundSelectedPressed"
+                            ResourceKey="TextOnAccentFillColorSecondaryBrush" />
 
 
             <!-- SPLIT VIEW -->
@@ -4290,50 +4284,41 @@
             <StaticResource x:Key="CommandBarFlyoutButtonBackground" ResourceKey="SystemControlTransparentBrush" />
 
 
-            <!-- DATA GRID -->
-            <Thickness x:Key="DataGridTextColumnCellTextBlockMargin">12,0,12,0</Thickness>
-            <x:Double x:Key="ListAccentLowOpacity">0.6</x:Double>
-            <x:Double x:Key="ListAccentMediumOpacity">0.8</x:Double>
-            <StaticResource x:Key="DataGridCellBackgroundBrush" ResourceKey="SubtleFillColorTransparentBrush" />
-            <StaticResource x:Key="DataGridCurrencyVisualPrimaryBrush" ResourceKey="SubtleFillColorTransparentBrush" />
-            <StaticResource x:Key="DataGridCellFocusVisualPrimaryBrush" ResourceKey="FocusStrokeColorOuter" />
-            <StaticResource x:Key="DataGridCellFocusVisualSecondaryBrush" ResourceKey="FocusStrokeColorInner" />
-            <StaticResource x:Key="DataGridCellInvalidBrush" ResourceKey="SystemFillColorCriticalBrush" />
-            <StaticResource x:Key="DataGridFillerColumnGridLinesBrush" ResourceKey="SubtleFillColorTransparentBrush" />
-            <StaticResource x:Key="DataGridGridLinesBrush" ResourceKey="DividerStrokeColorDefaultBrush" />
-            <StaticResource x:Key="DataGridColumnHeaderForegroundBrush" ResourceKey="TextFillColorSecondaryBrush" />
-            <StaticResource x:Key="DataGridColumnHeaderBackgroundBrush" ResourceKey="ControlFillColorDefaultBrush" />
-            <StaticResource x:Key="DataGridColumnHeaderHoveredBackgroundBrush"
-                            ResourceKey="ControlFillColorSecondaryBrush" />
-            <StaticResource x:Key="DataGridColumnHeaderPressedBackgroundBrush"
-                            ResourceKey="ControlFillColorTertiaryBrush" />
-            <StaticResource x:Key="DataGridDetailsPresenterBackgroundBrush" ResourceKey="SolidBackgroundFillColorBase" />
-            <StaticResource x:Key="DataGridRowInvalidBrush" ResourceKey="SystemFillColorCriticalBackgroundBrush" />
-            <StaticResource x:Key="DataGridRowSelectedUnfocusedBackgroundBrush"
-                            ResourceKey="AccentFillColorDefaultBrush" />
-            <StaticResource x:Key="DataGridRowSelectedUnfocusedBackgroundOpacity" ResourceKey="ListAccentLowOpacity" />
-            <StaticResource x:Key="DataGridRowSelectedHoveredUnfocusedBackgroundBrush"
-                            ResourceKey="AccentFillColorDefaultBrush" />
-            <StaticResource x:Key="DataGridRowSelectedHoveredUnfocusedBackgroundOpacity"
-                            ResourceKey="ListAccentMediumOpacity" />
-            <StaticResource x:Key="DataGridRowSelectedBackgroundBrush" ResourceKey="AccentFillColorDefaultBrush" />
-            <StaticResource x:Key="DataGridRowSelectedBackgroundOpacity" ResourceKey="ListAccentLowOpacity" />
-            <StaticResource x:Key="DataGridRowSelectedHoveredBackgroundBrush" ResourceKey="AccentFillColorDefaultBrush" />
-            <StaticResource x:Key="DataGridRowSelectedHoveredBackgroundOpacity" ResourceKey="ListAccentMediumOpacity" />
-            <StaticResource x:Key="DataGridRowHeaderBackgroundBrush" ResourceKey="ControlFillColorDefaultBrush" />
-            <StaticResource x:Key="DataGridRowGroupHeaderForegroundBrush" ResourceKey="TextFillColorSecondaryBrush" />
-            <StaticResource x:Key="DataGridRowGroupHeaderBackgroundBrush"
-                            ResourceKey="SolidBackgroundFillColorBaseBrush" />
-            <StaticResource x:Key="DataGridRowGroupHeaderHoveredBackgroundBrush"
-                            ResourceKey="SubtleFillColorSecondaryBrush" />
-            <StaticResource x:Key="DataGridRowGroupHeaderPressedBackgroundBrush"
-                            ResourceKey="SubtleFillColorTertiaryBrush" />
-            <StaticResource x:Key="DataGridRowHoveredBackgroundColor" ResourceKey="SubtleFillColorSecondaryBrush" />
-            <SolidColorBrush x:Key="DataGridDropLocationIndicatorBackground" Color="#3F4346" />
-            <StaticResource x:Key="DataGridScrollBarsSeparatorBackground" ResourceKey="ControlFillColorTertiaryBrush" />
-            <SolidColorBrush x:Key="DataGridDisabledVisualElementBackground" Color="#8C000000" />
-            <StaticResource x:Key="DataGridRowBackgroundBrush" ResourceKey="SubtleFillColorTransparentBrush" />
+            <!-- TABLE VIEW -->
+            <StaticResource x:Key="TableViewForeground" ResourceKey="TextFillColorPrimaryBrush" />
+            <StaticResource x:Key="TableViewBackground" ResourceKey="SubtleFillColorTransparentBrush" />
+            <StaticResource x:Key="TableViewBorderBrush" ResourceKey="SurfaceStrokeColorDefaultBrush" />
+            <Thickness x:Key="TableViewBorderThickness">1</Thickness>
 
+            <StaticResource x:Key="TableViewHeaderBackground" ResourceKey="ControlFillColorDefaultBrush" />
+            <StaticResource x:Key="TableViewColumnHeaderSeparatorBackground"
+                            ResourceKey="DividerStrokeColorDefaultBrush" />
+
+            <Thickness x:Key="TableViewCellPadding">12,0</Thickness>
+            <Thickness x:Key="TableViewRowPadding">0</Thickness>
+
+            <x:Double x:Key="TableViewColumnResizerWidth">12</x:Double>
+            <Thickness x:Key="TableViewColumnResizerMargin">0,-9,-6,-12</Thickness>
+
+            <StaticResource x:Key="TableViewRowBackground" ResourceKey="SubtleFillColorTransparentBrush" />
+            <StaticResource x:Key="TableViewRowBackgroundDisabled" ResourceKey="SubtleFillColorTransparentBrush" />
+            <StaticResource x:Key="TableViewRowBackgroundPointerOver" ResourceKey="SubtleFillColorSecondaryBrush" />
+            <StaticResource x:Key="TableViewRowBackgroundPressed" ResourceKey="SubtleFillColorTertiaryBrush" />
+            <StaticResource x:Key="TableViewRowBackgroundSelected" ResourceKey="AccentFillColorDefaultBrush" />
+            <StaticResource x:Key="TableViewRowBackgroundSelectedPointerOver"
+                            ResourceKey="AccentFillColorSecondaryBrush" />
+            <StaticResource x:Key="TableViewRowBackgroundSelectedPressed" ResourceKey="AccentFillColorTertiaryBrush" />
+            <StaticResource x:Key="TableViewRowBackgroundSelectedDisabled" ResourceKey="AccentFillColorDisabledBrush" />
+
+            <StaticResource x:Key="TableViewRowForeground" ResourceKey="TextFillColorPrimaryBrush" />
+            <StaticResource x:Key="TableViewRowForegroundDisabled" ResourceKey="TextFillColorDisabledBrush" />
+            <StaticResource x:Key="TableViewRowForegroundPointerOver" ResourceKey="TextFillColorPrimaryBrush" />
+            <StaticResource x:Key="TableViewRowForegroundPressed" ResourceKey="TextFillColorSecondaryBrush" />
+            <StaticResource x:Key="TableViewRowForegroundSelected" ResourceKey="TextOnAccentFillColorPrimaryBrush" />
+            <StaticResource x:Key="TableViewRowForegroundSelectedPointerOver"
+                            ResourceKey="TextOnAccentFillColorPrimaryBrush" />
+            <StaticResource x:Key="TableViewRowForegroundSelectedPressed"
+                            ResourceKey="TextOnAccentFillColorSecondaryBrush" />
 
             <!-- SPLIT VIEW -->
             <x:Double x:Key="SplitViewOpenPaneThemeLength">320</x:Double>
@@ -6965,51 +6950,41 @@
             <StaticResource x:Key="CommandBarFlyoutButtonBackground" ResourceKey="SystemColorButtonFaceColor" />
 
 
-            <!-- DATA GRID TODO-->
-            <Thickness x:Key="DataGridTextColumnCellTextBlockMargin">12,0,12,0</Thickness>
-            <x:Double x:Key="ListAccentLowOpacity">0.6</x:Double>
-            <x:Double x:Key="ListAccentMediumOpacity">0.8</x:Double>
-            <StaticResource x:Key="DataGridCellBackgroundBrush" ResourceKey="SubtleFillColorTransparentBrush" />
-            <StaticResource x:Key="DataGridCurrencyVisualPrimaryBrush" ResourceKey="SubtleFillColorTransparentBrush" />
-            <StaticResource x:Key="DataGridCellFocusVisualPrimaryBrush" ResourceKey="FocusStrokeColorOuter" />
-            <StaticResource x:Key="DataGridCellFocusVisualSecondaryBrush" ResourceKey="FocusStrokeColorInner" />
-            <StaticResource x:Key="DataGridCellInvalidBrush" ResourceKey="SystemFillColorCriticalBrush" />
-            <StaticResource x:Key="DataGridFillerColumnGridLinesBrush" ResourceKey="SubtleFillColorTransparentBrush" />
-            <StaticResource x:Key="DataGridGridLinesBrush" ResourceKey="DividerStrokeColorDefaultBrush" />
-            <StaticResource x:Key="DataGridColumnHeaderForegroundBrush" ResourceKey="TextFillColorSecondaryBrush" />
-            <StaticResource x:Key="DataGridColumnHeaderBackgroundBrush" ResourceKey="ControlFillColorDefaultBrush" />
-            <StaticResource x:Key="DataGridColumnHeaderHoveredBackgroundBrush"
-                            ResourceKey="ControlFillColorSecondaryBrush" />
-            <StaticResource x:Key="DataGridColumnHeaderPressedBackgroundBrush"
-                            ResourceKey="ControlFillColorTertiaryBrush" />
-            <StaticResource x:Key="DataGridDetailsPresenterBackgroundBrush" ResourceKey="SolidBackgroundFillColorBase" />
-            <StaticResource x:Key="DataGridRowInvalidBrush" ResourceKey="SystemFillColorCriticalBackgroundBrush" />
-            <StaticResource x:Key="DataGridRowSelectedUnfocusedBackgroundBrush"
-                            ResourceKey="AccentFillColorDefaultBrush" />
-            <StaticResource x:Key="DataGridRowSelectedUnfocusedBackgroundOpacity" ResourceKey="ListAccentLowOpacity" />
-            <StaticResource x:Key="DataGridRowSelectedHoveredUnfocusedBackgroundBrush"
-                            ResourceKey="AccentFillColorDefaultBrush" />
-            <StaticResource x:Key="DataGridRowSelectedHoveredUnfocusedBackgroundOpacity"
-                            ResourceKey="ListAccentMediumOpacity" />
-            <StaticResource x:Key="DataGridRowSelectedBackgroundBrush" ResourceKey="AccentFillColorDefaultBrush" />
-            <StaticResource x:Key="DataGridRowSelectedBackgroundOpacity" ResourceKey="ListAccentLowOpacity" />
-            <StaticResource x:Key="DataGridRowSelectedHoveredBackgroundBrush" ResourceKey="AccentFillColorDefaultBrush" />
-            <StaticResource x:Key="DataGridRowSelectedHoveredBackgroundOpacity" ResourceKey="ListAccentMediumOpacity" />
-            <StaticResource x:Key="DataGridRowHeaderBackgroundBrush" ResourceKey="ControlFillColorDefaultBrush" />
-            <StaticResource x:Key="DataGridRowGroupHeaderForegroundBrush" ResourceKey="TextFillColorSecondaryBrush" />
-            <StaticResource x:Key="DataGridRowGroupHeaderBackgroundBrush"
-                            ResourceKey="SolidBackgroundFillColorBaseBrush" />
-            <StaticResource x:Key="DataGridRowGroupHeaderHoveredBackgroundBrush"
-                            ResourceKey="SubtleFillColorSecondaryBrush" />
-            <StaticResource x:Key="DataGridRowGroupHeaderPressedBackgroundBrush"
-                            ResourceKey="SubtleFillColorTertiaryBrush" />
-            <StaticResource x:Key="DataGridRowHoveredBackgroundColor" ResourceKey="SubtleFillColorSecondaryBrush" />
-            <SolidColorBrush x:Key="DataGridDropLocationIndicatorBackground" Color="#3F4346" />
-            <StaticResource x:Key="DataGridScrollBarsSeparatorBackground" ResourceKey="ControlFillColorTertiaryBrush" />
-            <SolidColorBrush x:Key="DataGridDisabledVisualElementBackground" Color="#8CFFFFFF" />
-            <StaticResource x:Key="DataGridRowBackgroundBrush" ResourceKey="SubtleFillColorTransparentBrush" />
+            <!-- TABLE VIEW -->
+            <StaticResource x:Key="TableViewForeground" ResourceKey="SystemColorWindowTextColorBrush" />
+            <StaticResource x:Key="TableViewBackground" ResourceKey="SystemColorWindowColorBrush" />
+            <StaticResource x:Key="TableViewBorderBrush" ResourceKey="SystemColorWindowTextColorBrush" />
+            <Thickness x:Key="TableViewBorderThickness">1</Thickness>
 
+            <StaticResource x:Key="TableViewHeaderBackground" ResourceKey="SystemColorButtonFaceColorBrush" />
+            <StaticResource x:Key="TableViewColumnHeaderSeparatorBackground"
+                            ResourceKey="SystemColorWindowTextColorBrush" />
 
+            <Thickness x:Key="TableViewCellPadding">12,0</Thickness>
+            <Thickness x:Key="TableViewRowPadding">0</Thickness>
+
+            <x:Double x:Key="TableViewColumnResizerWidth">12</x:Double>
+            <Thickness x:Key="TableViewColumnResizerMargin">0,-9,-6,-12</Thickness>
+
+            <StaticResource x:Key="TableViewRowBackground" ResourceKey="SystemColorWindowColorBrush" />
+            <StaticResource x:Key="TableViewRowBackgroundDisabled" ResourceKey="SystemColorWindowColorBrush" />
+            <StaticResource x:Key="TableViewRowBackgroundPointerOver" ResourceKey="SystemColorHighlightColorBrush" />
+            <StaticResource x:Key="TableViewRowBackgroundPressed" ResourceKey="SystemColorHighlightColorBrush" />
+            <StaticResource x:Key="TableViewRowBackgroundSelected" ResourceKey="SystemColorHighlightColorBrush" />
+            <StaticResource x:Key="TableViewRowBackgroundSelectedPointerOver"
+                            ResourceKey="SystemColorHighlightColorBrush" />
+            <StaticResource x:Key="TableViewRowBackgroundSelectedPressed" ResourceKey="SystemColorHighlightColorBrush" />
+            <StaticResource x:Key="TableViewRowBackgroundSelectedDisabled" ResourceKey="SystemColorGrayTextColorBrush" />
+
+            <StaticResource x:Key="TableViewRowForeground" ResourceKey="SystemColorWindowTextColorBrush" />
+            <StaticResource x:Key="TableViewRowForegroundDisabled" ResourceKey="SystemColorGrayTextColorBrush" />
+            <StaticResource x:Key="TableViewRowForegroundPointerOver" ResourceKey="SystemColorHighlightTextColorBrush" />
+            <StaticResource x:Key="TableViewRowForegroundPressed" ResourceKey="SystemColorHighlightTextColorBrush" />
+            <StaticResource x:Key="TableViewRowForegroundSelected" ResourceKey="SystemColorHighlightTextColorBrush" />
+            <StaticResource x:Key="TableViewRowForegroundSelectedPointerOver"
+                            ResourceKey="SystemColorHighlightTextColorBrush" />
+            <StaticResource x:Key="TableViewRowForegroundSelectedPressed"
+                            ResourceKey="SystemColorHighlightTextColorBrush" />
             <!-- SPLIT VIEW -->
             <StaticResource x:Key="SplitViewLightDismissOverlayBackground"
                             ResourceKey="SystemControlPageBackgroundMediumAltMediumBrush" />
