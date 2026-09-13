@@ -17,7 +17,7 @@ internal class RepeaterLayoutContext : FAVirtualizingLayoutContext
         get => GetOwner()?.LayoutState;
         set
         {
-            if (GetOwner() is FAItemsRepeater ir) ir.LayoutState = value;
+            if (GetOwner() is { } ir) ir.LayoutState = value;
         }
     }
 
@@ -75,7 +75,7 @@ internal class RepeaterLayoutContext : FAVirtualizingLayoutContext
 
     protected override void LayoutOriginCore(Point value)
     {
-        if (GetOwner() is FAItemsRepeater ir)
+        if (GetOwner() is { } ir)
             ir.LayoutOrigin = value;
     }
 

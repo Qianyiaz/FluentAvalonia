@@ -201,7 +201,7 @@ public partial class FAItemsRepeater : Panel
             _isLayoutInProgress = true;
             Size arrangeSize = default;
 
-            if (GetEffectiveLayout() is FALayout layout) arrangeSize = layout.Arrange(GetLayoutContext(), finalSize);
+            if (GetEffectiveLayout() is { } layout) arrangeSize = layout.Arrange(GetLayoutContext(), finalSize);
 
             // The view manager might clear elements during this call.
             // That's why we call it before arranging cleared elements
@@ -483,7 +483,7 @@ public partial class FAItemsRepeater : Panel
         if (newValue != null)
             _itemsSourceView.CollectionChanged += OnItemsSourceViewChanged;
 
-        if (GetEffectiveLayout() is FALayout l)
+        if (GetEffectiveLayout() is { } l)
         {
             var args = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
             try
@@ -527,7 +527,7 @@ public partial class FAItemsRepeater : Panel
         // have already been created and are now in the tree. The easiest way to do that
         // would be to do a reset.. Note that this has to be done before we change the template
         // so that the cleared elements go back into the old template.
-        if (GetEffectiveLayout() is FALayout layout)
+        if (GetEffectiveLayout() is { } layout)
         {
             var args = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
             try
@@ -555,7 +555,7 @@ public partial class FAItemsRepeater : Panel
         {
             // ItemTemplate set does not implement IElementFactoryShim. We also 
             // want to support DataTemplate and DataTemplateSelectors automagically.
-            if (newValue is IDataTemplate template)
+            if (newValue is { } template)
                 _itemTemplateWrapper = new FAItemTemplateWrapper(template);
             //_isItemTemplateEmpty = template.Build(null) == null;
             else if (newValue is FADataTemplateSelector dts) _itemTemplateWrapper = new FAItemTemplateWrapper(dts);
@@ -635,7 +635,7 @@ public partial class FAItemsRepeater : Panel
             _transitionManager.OnItemsSourceChanged(sender, args);
             _viewManager.OnItemsSourceChanged(sender, args);
 
-            if (GetEffectiveLayout() is FALayout layout)
+            if (GetEffectiveLayout() is { } layout)
             {
                 if (layout is FAVirtualizingLayout vl)
                     vl.OnItemsChangedCore(GetLayoutContext(), sender, args);

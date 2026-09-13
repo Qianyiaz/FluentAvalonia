@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using FluentAvalonia.UI.Navigation;
@@ -24,7 +23,7 @@ public partial class FAFrame : ContentControl
     public static readonly StyledProperty<int> CacheSizeProperty =
         AvaloniaProperty.Register<FAFrame, int>(nameof(CacheSize),
             10,
-            coerce: (x, v) => v >= 0 ? v : 0);
+            coerce: (_, v) => v >= 0 ? v : 0);
 
     /// <summary>
     ///     Defines the <see cref="BackStackDepth" /> property
@@ -108,23 +107,18 @@ public partial class FAFrame : ContentControl
 
     private IList<FAPageStackEntry> _backStack;
     private IList<FAPageStackEntry> _forwardStack;
-    private IFANavigationPageFactory _pageFactory;
+
+    /// <summary>
+    ///     Gets a type reference for the content that is currently displayed.
+    /// </summary>
+    public Type CurrentSourcePageType => Content?.GetType();
 
     /// <summary>
     ///     Gets or sets a type reference of the current content, or the content that should be navigated to.
     /// </summary>
-    /// <remarks>
-    ///     Do not use this method with trimming/aot! Use <see cref="Navigate(System.Type)" /> instead
-    /// </remarks>
-    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
     public Type SourcePageType
     {
-        // We are suppressing the IL2073 warning here.
-        // We do that because we don't own getting the value from a SourcePageTypeProperty.
-        // Therefore, this API is unsafe with NativeAOT/Trimming enabled (see the remarks in the xml docs)
-#pragma warning disable IL2073
         get => GetValue(SourcePageTypeProperty);
-#pragma warning restore IL2073
         set => SetValue(SourcePageTypeProperty, value);
     }
 
@@ -154,11 +148,6 @@ public partial class FAFrame : ContentControl
     ///     Gets a value that indicates whether there is at least one entry in forward navigation history.
     /// </summary>
     public bool CanGoForward => _forwardStack.Count > 0;
-
-    /// <summary>
-    ///     Gets a type reference for the content that is currently displayed.
-    /// </summary>
-    public Type CurrentSourcePageType => Content?.GetType();
 
     /// <summary>
     ///     Gets a collection of <see cref="FAPageStackEntry" /> instances representing the
@@ -196,30 +185,30 @@ public partial class FAFrame : ContentControl
     /// </summary>
     public IFANavigationPageFactory NavigationPageFactory
     {
-        get => _pageFactory;
-        set => SetAndRaise(NavigationPageFactoryProperty, ref _pageFactory, value);
+        get;
+        set => SetAndRaise(NavigationPageFactoryProperty, ref field, value);
     }
 
-    internal FAPageStackEntry CurrentEntry { get; set; }
+    public FAPageStackEntry CurrentEntry { get; set; }
 
     /// <summary>
     ///     Occurs when the content that is being navigated to has been found and is available
     ///     from the Content property, although it may not have completed loading.
     /// </summary>
-    public event FANavigatedEventHandler Navigated;
+    public event EventHandler<FANavigationEventArgs> Navigated;
 
     /// <summary>
     ///     Occurs when a new navigation is requested.
     /// </summary>
-    public event FANavigatingCancelEventHandler Navigating;
+    public event EventHandler<FANavigatingCancelEventArgs> Navigating;
 
     /// <summary>
     ///     Occurs when an error is raised while navigating to the requested content.
     /// </summary>
-    public event FANavigationFailedEventHandler NavigationFailed;
+    public event EventHandler<FANavigationFailedEventArgs> NavigationFailed;
 
     /// <summary>
     ///     Occurs when a new navigation is requested while a current navigation is in progress.
     /// </summary>
-    public event FANavigationStoppedEventHandler NavigationStopped;
+    public event EventHandler<FANavigationEventArgs> NavigationStopped;
 }

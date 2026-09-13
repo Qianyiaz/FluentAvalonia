@@ -65,7 +65,7 @@ public partial class FAContentDialog : ContentControl, ICustomKeyboardNavigation
             for (var i = children.Count - 1; i >= 0; i--)
                 if (children[i] == current)
                 {
-                    if (i == 0) return (true, children[children.Count - 1]);
+                    if (i == 0) return (true, children[^1]);
 
                     return (true, children[i - 1]);
                 }

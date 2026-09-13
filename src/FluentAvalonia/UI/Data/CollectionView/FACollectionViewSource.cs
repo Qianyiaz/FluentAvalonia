@@ -213,7 +213,7 @@ public class FACollectionViewSource : AvaloniaObject, ISupportInitialize
             return;
         }
 
-        if (Source is IEnumerable ie)
+        if (Source is { } ie)
         {
             if (_isSourceGrouped)
             {

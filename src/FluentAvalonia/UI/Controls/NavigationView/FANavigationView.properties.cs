@@ -302,8 +302,6 @@ public partial class FANavigationView : HeaderedContentControl
     private IList<object> _footerMenuItems;
     private IList<object> _menuItems;
 
-    private object _selectedItem;
-
     /// <summary>
     ///     Gets or sets a value that indicates whether the header is always visible.
     /// </summary>
@@ -542,8 +540,8 @@ public partial class FANavigationView : HeaderedContentControl
     /// </summary>
     public object SelectedItem
     {
-        get => _selectedItem;
-        set { SetAndRaise(SelectedItemProperty, ref _selectedItem, value); }
+        get;
+        set { SetAndRaise(SelectedItemProperty, ref field, value); }
     }
 
     //WinUI uses an enum here, but only has Disabled/Enabled, so just use bool

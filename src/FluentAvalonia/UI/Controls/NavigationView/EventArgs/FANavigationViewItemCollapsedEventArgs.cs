@@ -5,7 +5,6 @@
 /// </summary>
 public class FANavigationViewItemCollapsedEventArgs : EventArgs
 {
-    private object _collapsedItem;
     private FANavigationView _navigationView;
 
     public FANavigationViewItemCollapsedEventArgs(FANavigationView navigationView)
@@ -20,11 +19,11 @@ public class FANavigationViewItemCollapsedEventArgs : EventArgs
     {
         get
         {
-            if (_collapsedItem != null) return _collapsedItem;
+            if (field != null) return field;
             if (_navigationView != null)
             {
-                _collapsedItem = _navigationView.MenuItemFromContainer(CollapsedItemContainer);
-                return _collapsedItem;
+                field = _navigationView.MenuItemFromContainer(CollapsedItemContainer);
+                return field;
             }
 
             return null;

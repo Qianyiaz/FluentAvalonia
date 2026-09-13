@@ -5,8 +5,6 @@
 /// </summary>
 public class FANavigationViewItemExpandingEventArgs : EventArgs
 {
-    private object _expandingItem;
-
     private FANavigationView _navigationView;
 
     public FANavigationViewItemExpandingEventArgs(FANavigationView navigationView)
@@ -21,13 +19,13 @@ public class FANavigationViewItemExpandingEventArgs : EventArgs
     {
         get
         {
-            if (_expandingItem != null)
-                return _expandingItem;
+            if (field != null)
+                return field;
 
             if (_navigationView != null)
             {
-                _expandingItem = _navigationView.MenuItemFromContainer(ExpandingItemContainer);
-                return _expandingItem;
+                field = _navigationView.MenuItemFromContainer(ExpandingItemContainer);
+                return field;
             }
 
             return null;

@@ -54,7 +54,7 @@ public class FAComboBoxAutomationPeer : SelectingItemsControlAutomationPeer,
         // If the combo box is not open then we won't have an ItemsPresenter so the default
         // GetSelectionCore implementation won't work. For this case we create a separate
         // peer to represent the unrealized item.
-        if (Owner.SelectedItem is object selection)
+        if (Owner.SelectedItem is { } selection)
         {
             _selection ??= new[] { new UnrealizedSelectionPeer(this) };
             _selection[0].Item = selection;

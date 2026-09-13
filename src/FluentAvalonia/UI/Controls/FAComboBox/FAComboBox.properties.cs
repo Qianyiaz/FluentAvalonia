@@ -112,10 +112,6 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
     public static readonly StyledProperty<VerticalAlignment> VerticalContentAlignmentProperty =
         ContentControl.VerticalContentAlignmentProperty.AddOwner<FAComboBox>();
 
-    private bool _isSelectionBoxHighlighted;
-    private object _selectionBoxItem;
-    private IDataTemplate _selectionBoxItemTemplate;
-
     /// <summary>
     ///     Gets or sets the <see cref="HorizontalAlignment" /> of the content in the ComboBox
     /// </summary>
@@ -166,8 +162,8 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
     /// </summary>
     public bool IsSelectionBoxHighlighted
     {
-        get => _isSelectionBoxHighlighted;
-        private set => SetAndRaise(IsSelectionBoxHighlightedProperty, ref _isSelectionBoxHighlighted, value);
+        get;
+        private set => SetAndRaise(IsSelectionBoxHighlightedProperty, ref field, value);
     }
 
     /// <summary>
@@ -175,8 +171,8 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
     /// </summary>
     public object SelectionBoxItem
     {
-        get => _selectionBoxItem;
-        private set => SetAndRaise(SelectionBoxItemProperty, ref _selectionBoxItem, value);
+        get;
+        private set => SetAndRaise(SelectionBoxItemProperty, ref field, value);
     }
 
     /// <summary>
@@ -184,8 +180,8 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
     /// </summary>
     public IDataTemplate SelectionBoxItemTemplate
     {
-        get => _selectionBoxItemTemplate;
-        private set => SetAndRaise(SelectionBoxItemTemplateProperty, ref _selectionBoxItemTemplate, value);
+        get;
+        private set => SetAndRaise(SelectionBoxItemTemplateProperty, ref field, value);
     }
 
     /// <summary>

@@ -1513,9 +1513,7 @@ internal static class KnownColorTable
     {
         InitColorTable();
 
-        if (ColorTable.TryGetValue(c, out var value)) return value;
-
-        return "";
+        return ColorTable.GetValueOrDefault(c, "");
     }
 
     public static Color2 FromColorName(string name)

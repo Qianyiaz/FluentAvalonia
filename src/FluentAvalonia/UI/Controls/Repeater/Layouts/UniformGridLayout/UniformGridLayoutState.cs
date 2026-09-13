@@ -1,5 +1,4 @@
 ﻿using Avalonia;
-using Avalonia.Controls;
 using Avalonia.Layout;
 
 namespace FluentAvalonia.UI.Controls;
@@ -40,7 +39,7 @@ internal class UniformGridLayoutState
         if (context.ItemCount > 0)
         {
             // If the first element is realized we don't need to get it from the context
-            if (_flowAlgorithm.GetElementIfRealized(0) is Control realizedElement)
+            if (_flowAlgorithm.GetElementIfRealized(0) is { } realizedElement)
             {
                 // This is relatively cheap, when item 0 is realized, always use it to find the size. 
                 realizedElement.Measure(CalculateAvailableSize(
@@ -55,7 +54,7 @@ internal class UniformGridLayoutState
                 // has the potential to repeatedly invalidate layout due to recycling causing layout cycles.
                 if (!_isEffectiveSizeValid)
                     if (context.GetOrCreateElementAt(0,
-                            FAElementRealizationOptions.ForceCreate) is Control firstElement)
+                            FAElementRealizationOptions.ForceCreate) is { } firstElement)
                     {
                         firstElement.Measure(CalculateAvailableSize(availableSize, orientation,
                             stretch, maxItemsPerLine, layoutItemWidth, layoutItemHeight,

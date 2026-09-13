@@ -16,7 +16,7 @@ public partial class RangeControlsPage : ControlsPageBase
 
         this.FindControl<ButtonSpinner>("TargetButtonSpinner").Spin += (s, e) =>
         {
-            _currentIndex = _currentIndex + (e.Direction == SpinDirection.Increase ? 1 : -1);
+            _currentIndex += (e.Direction == SpinDirection.Increase ? 1 : -1);
             if(_currentIndex < 0)
             {
                 _currentIndex = values.Length - 1;

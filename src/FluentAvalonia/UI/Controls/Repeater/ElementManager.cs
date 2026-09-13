@@ -127,7 +127,7 @@ internal class ElementManager
             // Clear from the edges so that ItemsRepeater can optimize on maintaining 
             // realized indices without walking through all the children every time.
             var index = realizedIndex == 0 ? realizedIndex + i : realizedIndex + count - 1 - i;
-            if (_realizedElements[index] is Control c) _context.RecycleElement(c);
+            if (_realizedElements[index] is { } c) _context.RecycleElement(c);
         }
 
         var endIndex = realizedIndex + count;
@@ -292,7 +292,7 @@ internal class ElementManager
                     for (var realizedIndex = startRealizedIndex;
                          realizedIndex < startRealizedIndex + oldSize;
                          realizedIndex++)
-                        if (_realizedElements[realizedIndex] is Control c)
+                        if (_realizedElements[realizedIndex] is { } c)
                         {
                             _context.RecycleElement(c);
                             _realizedElements[realizedIndex] = null;

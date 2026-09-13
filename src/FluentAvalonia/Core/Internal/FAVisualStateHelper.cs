@@ -56,7 +56,7 @@ public sealed class FAVisualStateHelper
         {
             var @class = cr.TakeUntil(',');
 
-            if (@class[@class.Length - 1] == '!')
+            if (@class[^1] == '!')
             {
                 @class = @class.Slice(0, @class.Length - 1);
                 ((IPseudoClasses)element.Classes).Set(@class.ToString(), false);

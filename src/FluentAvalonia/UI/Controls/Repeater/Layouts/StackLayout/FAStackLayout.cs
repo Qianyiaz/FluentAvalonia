@@ -274,7 +274,7 @@ public class FAStackLayout : FAVirtualizingLayout, IFlowLayoutAlgorithmDelegates
         Size measureSize, Size desiredSize, Size provisionalArrangeSize,
         FAVirtualizingLayoutContext context)
     {
-        if (context is FAVirtualizingLayoutContext ctx)
+        if (context is { } ctx)
         {
             var stackState = GetAsStackState(ctx.LayoutState);
             stackState.OnElementMeasured(index,

@@ -61,7 +61,7 @@ internal static class SelectionTreeHelper
             root,
             start,
             true,
-            (node, path, depth, childIndex) =>
+            (node, path, depth, _) =>
             {
                 var currentPath = StartPath(path, depth);
                 var isStartPath = IsSubSet(start, currentPath);

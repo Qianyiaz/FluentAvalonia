@@ -30,12 +30,10 @@ internal class SelectionNode : IDisposable
     private readonly SelectionNode _parent;
     private readonly List<IndexRange> _selected = new();
     private readonly List<int> _selectedIndicesCached = new();
-    private int _anchorIndex = -1;
     private ItemsSourceView _dataSource;
     private int _realizedChildrenNodeCount;
     private int _selectedCount;
     private bool _selectedIndicesCacheIsValid;
-    private object _source;
 
     public SelectionNode(SelectionModel manager, SelectionNode parent)
     {
@@ -45,15 +43,15 @@ internal class SelectionNode : IDisposable
 
     public object Source
     {
-        get => _source;
+        get;
         set
         {
-            if (_source != value)
+            if (field != value)
             {
                 ClearSelection();
                 UnhookCollectionChangedHandler();
 
-                _source = value;
+                field = value;
 
                 // Setup ItemsSourceView
                 var newDataSource = value as ItemsSourceView;
@@ -78,9 +76,9 @@ internal class SelectionNode : IDisposable
 
     public int AnchorIndex
     {
-        get => _anchorIndex;
-        set => _anchorIndex = value;
-    }
+        get;
+        set => field = value;
+    } = -1;
 
     public IndexPath IndexPath
     {
@@ -505,7 +503,7 @@ internal class SelectionNode : IDisposable
         }
 
         // Adjust the anchor
-        if (AnchorIndex >= index) AnchorIndex = AnchorIndex + count;
+        if (AnchorIndex >= index) AnchorIndex += count;
 
         // Check if adding a node invalidated an ancestors
         // selection state. For example if parent was selected before
@@ -578,7 +576,7 @@ internal class SelectionNode : IDisposable
             }
 
             // Adjust the anchor
-            if (AnchorIndex >= index) AnchorIndex = AnchorIndex - count;
+            if (AnchorIndex >= index) AnchorIndex -= count;
         }
         else
         {

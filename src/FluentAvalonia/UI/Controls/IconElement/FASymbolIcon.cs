@@ -99,7 +99,7 @@ public class FASymbolIcon : FAIconElement
 
     private void GenerateText()
     {
-        var glyph = char.ConvertFromUtf32((int)Symbol).ToString();
+        var glyph = char.ConvertFromUtf32((int)Symbol);
 
         _textLayout = new TextLayout(glyph,
             new Typeface(_symbolFontFamily),

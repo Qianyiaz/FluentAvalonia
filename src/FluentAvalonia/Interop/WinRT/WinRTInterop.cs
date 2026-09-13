@@ -17,8 +17,7 @@ internal static partial class WinRTInterop
 
     internal static IntPtr WindowsCreateString(string sourceString)
     {
-        if (sourceString is null)
-            throw new ArgumentNullException(nameof(sourceString));
+        ArgumentNullException.ThrowIfNull(sourceString);
 
         IntPtr hstring;
         var hr = WindowsCreateString(sourceString, (uint)sourceString.Length, out hstring);

@@ -78,7 +78,7 @@ public class FARecyclePool
 
                 if (!found)
                 {
-                    elementInfo = elements[elements.Count - 1];
+                    elementInfo = elements[^1];
                     elements.RemoveAt(elements.Count - 1);
                 }
 
@@ -117,10 +117,7 @@ public class FARecyclePool
         if (s_PoolInstance == null)
             s_PoolInstance = new Dictionary<IDataTemplate, FARecyclePool>();
 
-        if (s_PoolInstance.TryGetValue(template, out var rp))
-            return rp;
-
-        return null;
+        return s_PoolInstance.GetValueOrDefault(template);
     }
 
     public static void SetPoolInstance(IDataTemplate template, FARecyclePool pool)

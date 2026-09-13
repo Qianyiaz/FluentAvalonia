@@ -384,7 +384,7 @@ public partial class FATaskDialog : ContentControl
             return;
 
         // TaskDialogCommandHost is a TaskDialogButtonHost, this captures everything
-        if (e.Source is Visual v && v.FindAncestorOfType<FATaskDialogButtonHost>(true) is FATaskDialogButtonHost b)
+        if (e.Source is Visual v && v.FindAncestorOfType<FATaskDialogButtonHost>(true) is { } b)
             // DataContext for the hosts are the user defined buttons/commands, get the dialog from that
             if (b.DataContext is FATaskDialogControl tdb)
             {
@@ -500,7 +500,7 @@ public partial class FATaskDialog : ContentControl
 
                 commands.Add(com);
             }
-            else if (_commands[i] is FATaskDialogCommand tdc)
+            else if (_commands[i] is { } tdc)
             {
                 var com = new FATaskDialogCommandHost
                 {

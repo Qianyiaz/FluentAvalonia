@@ -11,8 +11,6 @@ namespace FluentAvalonia.UI.Data;
 /// </summary>
 public class FASortDescription
 {
-    private string _propertyName;
-
     /// <summary>
     ///     Creates a default sort description, that sorts in Ascending order using the default
     ///     object comparer (which compares the items themselves)
@@ -61,7 +59,7 @@ public class FASortDescription
     public FASortDescription(BindingBase property, string propertyName, FASortDirection direction, IComparer comparer)
     {
         Property = property;
-        _propertyName = propertyName;
+        PropertyName = propertyName;
         Direction = direction;
         Comparer = comparer ?? ObjectComparer.Instance;
     }
@@ -80,16 +78,16 @@ public class FASortDescription
     {
         get
         {
-            if (_propertyName == null)
+            if (field == null)
             {
                 if (Property is Binding b)
-                    _propertyName = b.Path;
-                else if (Property is CompiledBindingExtension cbe) _propertyName = cbe.Path.ToString();
+                    field = b.Path;
+                else if (Property is CompiledBindingExtension cbe) field = cbe.Path.ToString();
             }
 
-            return _propertyName;
+            return field;
         }
-        set => _propertyName = value;
+        set;
     }
 
     /// <summary>

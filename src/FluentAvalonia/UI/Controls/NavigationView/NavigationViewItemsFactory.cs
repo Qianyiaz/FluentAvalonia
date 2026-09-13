@@ -55,7 +55,7 @@ internal class NavigationViewItemsFactory : FAElementFactory
         FANavigationViewItem nvi;
         if (_navViewPool.Count > 0)
         {
-            nvi = _navViewPool[_navViewPool.Count - 1];
+            nvi = _navViewPool[^1];
             _navViewPool.RemoveAt(_navViewPool.Count - 1);
         }
         else

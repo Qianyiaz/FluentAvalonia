@@ -505,13 +505,13 @@ public partial class FACommandBar : ContentControl
                 return l;
             }
 
-            return new[] { _primaryItems[_primaryItems.Count - 1] };
+            return new[] { _primaryItems[^1] };
         }
 
         if (_primaryItems.Count == 0)
             return null;
 
-        return new[] { _primaryItems[_primaryItems.Count - 1] };
+        return new[] { _primaryItems[^1] };
     }
 
     private IList<IFACommandBarElement> GetReturnToPrimaryItems()

@@ -4,20 +4,6 @@ using FluentAvalonia.UI.Media.Animation;
 namespace FluentAvalonia.UI.Navigation;
 
 /// <summary>
-///     Represents the method that will handle the Navigated event.
-/// </summary>
-/// <param name="sender">The object where the handler is attached.</param>
-/// <param name="e">Event data for the event.</param>
-public delegate void FANavigatedEventHandler(object sender, FANavigationEventArgs e);
-
-/// <summary>
-///     Provides event data for the NavigationStopped event.
-/// </summary>
-/// <param name="sender">The object where the handler is attached.</param>
-/// <param name="e">Event data for the event.</param>
-public delegate void FANavigationStoppedEventHandler(object sender, FANavigationEventArgs e);
-
-/// <summary>
 ///     Provides data for navigation methods and event handlers that cannot cancel the navigation request.
 /// </summary>
 public class FANavigationEventArgs : RoutedEventArgs

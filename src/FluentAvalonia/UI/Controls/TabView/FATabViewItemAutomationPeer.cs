@@ -21,7 +21,7 @@ public sealed class FATabViewItemAutomationPeer : ListItemAutomationPeer, ISelec
     {
         get
         {
-            if (GetParentTabView() is FATabView tv) return CreatePeerForElement(tv) as ISelectionProvider;
+            if (GetParentTabView() is { } tv) return CreatePeerForElement(tv) as ISelectionProvider;
 
             return null;
         }

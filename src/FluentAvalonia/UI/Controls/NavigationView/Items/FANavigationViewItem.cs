@@ -570,7 +570,7 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
 
     private void HandleLoaded(object sender, RoutedEventArgs args)
     {
-        if (GetSplitView is SplitView sv) PrepNavigationViewItem(sv);
+        if (GetSplitView is { } sv) PrepNavigationViewItem(sv);
 
         UpdateVisualStateForChevron();
         Loaded -= HandleLoaded;
@@ -583,7 +583,7 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
     private void HandleExpansionStateMemory()
     {
         if (IsTopLevelItem)
-            if (GetSplitView is SplitView sv)
+            if (GetSplitView is { } sv)
             {
                 if (sv.IsPaneOpen)
                     RestoreExpandedState();

@@ -1,7 +1,4 @@
 ﻿using System.Collections.Specialized;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Text;
 using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Controls;
@@ -9,7 +6,6 @@ using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
-using Avalonia.Logging;
 using Avalonia.Threading;
 using FluentAvalonia.UI.Media.Animation;
 using FluentAvalonia.UI.Navigation;
@@ -20,16 +16,25 @@ namespace FluentAvalonia.UI.Controls;
 ///     Displays <see cref="UserControl" /> instances (Pages in WinUI), supports navigation to new pages,
 ///     and maintains a navigation history to support forward and backward navigation.
 /// </summary>
+/// <remarks>
+///     This frame requires <see cref="NavigationPageFactory" /> to be set before navigating.
+///     Pages are created exclusively by <see cref="IFANavigationPageFactory" />; reflection-based
+///     page creation is not supported.
+///     <para>
+///         <see cref="GoBack" /> and <see cref="GoForward" /> require caching to be enabled
+///         (<see cref="CacheSize" /> &gt; 0); otherwise they throw <see cref="InvalidOperationException" />.
+///     </para>
+/// </remarks>
 [TemplatePart(s_tpContentPresenter, typeof(ContentPresenter))]
-public partial class FAFrame : ContentControl
+public partial class FAFrame : ContentControl, IFAFrame
 {
     private const string s_tpContentPresenter = "ContentPresenter";
 
-    //private readonly List<(Type pageSrcType, Control page)> _cache = new List<(Type, Control)>(10);
-    private readonly List<NavigationCacheItem> _pageCache = new(10);
+    // Key: page Type. _cacheOrder maintains FIFO eviction order.
+    private readonly Dictionary<Type, Control> _cache = new(10);
+    private readonly Queue<Type> _cacheOrder = new(10);
 
     private CancellationTokenSource _cts;
-    private bool _isNavigating;
     private ContentPresenter _presenter;
 
     public FAFrame()
@@ -44,6 +49,160 @@ public partial class FAFrame : ContentControl
         ForwardStack = forw;
     }
 
+    /// <summary>
+    ///     Navigates to the most recent item in back navigation history, if a Frame manages its own navigation history.
+    /// </summary>
+    /// <remarks>
+    ///     Requires <see cref="CacheSize" /> &gt; 0, otherwise an <see cref="InvalidOperationException" /> is thrown.
+    /// </remarks>
+    public void GoBack() => GoBack(null);
+
+    /// <summary>
+    ///     Navigates to the most recent item in back navigation history, if a Frame manages its own navigation history,
+    ///     and specifies the animated transition to use.
+    /// </summary>
+    /// <param name="infoOverride">Info about the animated transition to use.</param>
+    /// <remarks>
+    ///     Requires <see cref="CacheSize" /> &gt; 0, otherwise an <see cref="InvalidOperationException" /> is thrown.
+    /// </remarks>
+    public void GoBack(FANavigationTransitionInfo infoOverride)
+    {
+        if (!CanGoBack)
+            return;
+
+        var entry = _backStack[^1];
+        entry.NavigationTransitionInfo = infoOverride ?? CurrentEntry?.NavigationTransitionInfo;
+
+        NavigateCore(entry, FANavigationMode.Back);
+    }
+
+    /// <summary>
+    ///     Navigates to the most recent item in forward navigation history, if a Frame manages its own navigation history.
+    /// </summary>
+    /// <remarks>
+    ///     Requires <see cref="CacheSize" /> &gt; 0, otherwise an <see cref="InvalidOperationException" /> is thrown.
+    /// </remarks>
+    public void GoForward()
+    {
+        if (!CanGoForward)
+            return;
+
+        NavigateCore(_forwardStack[^1], FANavigationMode.Forward);
+    }
+
+    /// <summary>
+    ///     Causes the Frame to load content represented by the specified page type.
+    /// </summary>
+    /// <typeparam name="T">
+    ///     The page control type to navigate to. Must derive from <see cref="Control" />.
+    ///     <see cref="NavigationPageFactory" /> must be set and able to resolve this type.
+    /// </typeparam>
+    /// <returns>
+    ///     <c>false</c> if a <see cref="NavigationFailed" /> event handler has set Handled to true;
+    ///     otherwise, <c>true</c>.
+    /// </returns>
+    public bool Navigate<T>() where T : Control => Navigate<T>(null, null);
+
+    /// <summary>
+    ///     Causes the Frame to load content represented by the specified page type, also passing a parameter
+    ///     to be interpreted by the target of the navigation.
+    /// </summary>
+    /// <typeparam name="T">The page control type to navigate to.</typeparam>
+    /// <param name="parameter">
+    ///     The navigation parameter to pass to the target page; must have a basic type
+    ///     (string, char, numeric, or GUID) to support parameter serialization using GetNavigationState.
+    /// </param>
+    /// <returns>
+    ///     <c>false</c> if a <see cref="NavigationFailed" /> event handler has set Handled to true;
+    ///     otherwise, <c>true</c>.
+    /// </returns>
+    public bool Navigate<T>(object parameter) where T : Control => Navigate<T>(parameter, null);
+
+    /// <summary>
+    ///     Causes the Frame to load content represented by the specified page type, also passing a parameter
+    ///     to be interpreted by the target of the navigation, and a value indicating the animated transition to use.
+    /// </summary>
+    /// <typeparam name="T">The page control type to navigate to.</typeparam>
+    /// <param name="parameter">
+    ///     The navigation parameter to pass to the target page; must have a basic type
+    ///     (string, char, numeric, or GUID) to support parameter serialization using GetNavigationState.
+    /// </param>
+    /// <param name="infoOverride">Info about the animated transition.</param>
+    /// <returns>
+    ///     <c>false</c> if a <see cref="NavigationFailed" /> event handler has set Handled to true;
+    ///     otherwise, <c>true</c>.
+    /// </returns>
+    public bool Navigate<T>(object parameter, FANavigationTransitionInfo infoOverride) where T : Control =>
+        Navigate(typeof(T), parameter, infoOverride);
+
+    /// <summary>
+    ///     Causes the Frame to load content represented by the specified page type, with the specified
+    ///     navigation options.
+    /// </summary>
+    /// <typeparam name="T">The page control type to navigate to.</typeparam>
+    /// <param name="parameter">
+    ///     The navigation parameter to pass to the target page; must have a basic type
+    ///     (string, char, numeric, or GUID) to support parameter serialization using GetNavigationState.
+    /// </param>
+    /// <param name="navOptions">
+    ///     Options for the navigation, including whether it is recorded in the navigation stack
+    ///     and what transition animation is used.
+    /// </param>
+    /// <returns>
+    ///     <c>false</c> if a <see cref="NavigationFailed" /> event handler has set Handled to true;
+    ///     otherwise, <c>true</c>.
+    /// </returns>
+    public bool NavigateToType<T>(object parameter, FAFrameNavigationOptions navOptions) where T : Control =>
+        NavigateToType(typeof(T), parameter, navOptions);
+
+    public bool Navigate(Type sourcePageType)
+        => Navigate(sourcePageType, null, null);
+
+    public bool Navigate(Type sourcePageType, object parameter)
+        => Navigate(sourcePageType, parameter, null);
+
+    public bool Navigate(Type sourcePageType, object parameter, FANavigationTransitionInfo infoOverride)
+    {
+        ArgumentNullException.ThrowIfNull(sourcePageType);
+
+        try
+        {
+            var page = GetOrCreatePage(sourcePageType);
+            var entry = new FAPageStackEntry(sourcePageType, parameter, infoOverride)
+            {
+                Instance = page
+            };
+
+            return NavigateCore(entry, FANavigationMode.New);
+        }
+        catch (Exception ex)
+        {
+            NavigationFailed?.Invoke(this, new FANavigationFailedEventArgs(ex, sourcePageType));
+            return false;
+        }
+    }
+
+    public bool NavigateToType(Type sourcePageType, object parameter, FAFrameNavigationOptions navOptions)
+    {
+        ArgumentNullException.ThrowIfNull(sourcePageType);
+
+        try
+        {
+            var page = GetOrCreatePage(sourcePageType);
+            var entry = new FAPageStackEntry(sourcePageType, parameter, navOptions?.TransitionInfoOverride)
+            {
+                Instance = page
+            };
+
+            return NavigateCore(entry, FANavigationMode.New, navOptions);
+        }
+        catch (Exception ex)
+        {
+            NavigationFailed?.Invoke(this, new FANavigationFailedEventArgs(ex, sourcePageType));
+            return false;
+        }
+    }
+
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
@@ -51,25 +210,13 @@ public partial class FAFrame : ContentControl
         {
             if (change.NewValue == null) CurrentEntry = null;
         }
-        else if (change.Property == SourcePageTypeProperty)
-        {
-            if (!_isNavigating)
-            {
-                var sourcePageType = SourcePageType;
-                if (sourcePageType is null)
-                    throw new InvalidOperationException("SourcePageType cannot be null. Use Content instead.");
-                Debug.Assert(sourcePageType == change.GetNewValue<Type>());
-
-                Navigate(sourcePageType);
-            }
-        }
         else if (change.Property == IsNavigationStackEnabledProperty)
         {
             if (!change.GetNewValue<bool>())
             {
                 _backStack.Clear();
                 _forwardStack.Clear();
-                _pageCache.Clear();
+                ClearCache();
             }
         }
     }
@@ -92,370 +239,42 @@ public partial class FAFrame : ContentControl
     {
         base.OnAttachedToVisualTree(e);
 
-        if (TopLevel.GetTopLevel(this) is TopLevel tl) tl.BackRequested += OnTopLevelBackRequested;
+        if (TopLevel.GetTopLevel(this) is { } tl) tl.BackRequested += OnTopLevelBackRequested;
     }
 
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
     {
         base.OnDetachedFromVisualTree(e);
 
-        if (TopLevel.GetTopLevel(this) is TopLevel tl) tl.BackRequested -= OnTopLevelBackRequested;
+        if (TopLevel.GetTopLevel(this) is { } tl) tl.BackRequested -= OnTopLevelBackRequested;
     }
 
     /// <summary>
-    ///     Navigates to the most recent item in back navigation history, if a Frame manages its own navigation history.
+    ///     Non-generic page resolution. Mirrors <see cref="GetOrCreatePage{T}" /> but
+    ///     dispatches through <see cref="IFANavigationPageFactory.GetPage(Type)" />.
     /// </summary>
-    public void GoBack() => GoBack(null);
-
-    /// <summary>
-    ///     Navigates to the most recent item in back navigation history, if a Frame manages its own navigation history,
-    ///     and specifies the animated transition to use.
-    /// </summary>
-    /// <param name="infoOverride">Info about the animated transition to use.</param>
-    public void GoBack(FANavigationTransitionInfo infoOverride)
+    private Control GetOrCreatePage(Type pageType)
     {
-        if (CanGoBack)
-        {
-            var entry = _backStack[_backStack.Count - 1];
-            if (infoOverride != null)
-                entry.NavigationTransitionInfo = infoOverride;
-            else
-                entry.NavigationTransitionInfo = CurrentEntry?.NavigationTransitionInfo ?? null;
+        if (CacheSize > 0 && _cache.TryGetValue(pageType, out var cached))
+            return cached;
 
-            NavigateCore(entry, FANavigationMode.Back);
-        }
-    }
-
-    /// <summary>
-    ///     Navigates to the most recent item in forward navigation history, if a Frame manages its own navigation history.
-    /// </summary>
-    public void GoForward()
-    {
-        if (CanGoForward) NavigateCore(_forwardStack[_forwardStack.Count - 1], FANavigationMode.Forward);
-    }
-
-    /// <summary>
-    ///     Causes the Frame to load content represented by the specified Page.
-    /// </summary>
-    /// <param name="sourcePageType">
-    ///     The page (IControl) to navigate to, specified as a type reference to its class type, or
-    ///     if a <see cref="NavigationPageFactory" /> this can be any type (e.g., a ViewModel)
-    /// </param>
-    /// <returns>
-    ///     <c>false</c> if a <see cref="NavigationFailed" /> event handler has set Handled to true;
-    ///     otherwise, <c>true</c>.
-    /// </returns>
-    public bool Navigate(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        Type sourcePageType
-    ) => Navigate(sourcePageType, null, null);
-
-
-    /// <summary>
-    ///     Causes the Frame to load content represented by the specified Page, also passing a parameter to be
-    ///     interpreted by the target of the navigation.
-    /// </summary>
-    /// <param name="sourcePageType">
-    ///     The page (IControl) to navigate to, specified as a type reference to its class type, or
-    ///     if a <see cref="NavigationPageFactory" /> this can be any type (e.g., a ViewModel)
-    /// </param>
-    /// <param name="parameter">
-    ///     The navigation parameter to pass to the target page;
-    ///     must have a basic type (string, char, numeric, or GUID) to support parameter serialization
-    ///     using GetNavigationState.
-    /// </param>
-    /// <returns>
-    ///     <c>false</c> if a <see cref="NavigationFailed" /> event handler has set Handled to true;
-    ///     otherwise, <c>true</c>.
-    /// </returns>
-    public bool Navigate(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        Type sourcePageType,
-        object parameter
-    ) => Navigate(sourcePageType, parameter, null);
-
-    /// <summary>
-    ///     Causes the Frame to load content represented by the specified Page -derived data type,
-    ///     also passing a parameter to be interpreted by the target of the navigation, and a value
-    ///     indicating the animated transition to use.
-    /// </summary>
-    /// <param name="sourcePageType">
-    ///     The page (IControl) to navigate to, specified as a type reference to its class type, or
-    ///     if a <see cref="NavigationPageFactory" /> this can be any type (e.g., a ViewModel)
-    /// </param>
-    /// <param name="parameter">
-    ///     The navigation parameter to pass to the target page; must have a
-    ///     basic type (string, char, numeric, or GUID) to support parameter serialization using
-    ///     GetNavigationState.
-    /// </param>
-    /// <param name="infoOverride">Info about the animated transition.</param>
-    /// <returns>
-    ///     <c>false</c> if a <see cref="NavigationFailed" /> event handler has set Handled to true;
-    ///     otherwise, <c>true</c>.
-    /// </returns>
-    public bool Navigate(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        Type sourcePageType,
-        object parameter,
-        FANavigationTransitionInfo infoOverride
-    )
-    {
-        return NavigateCore(new FAPageStackEntry(sourcePageType, parameter, infoOverride), FANavigationMode.New);
-    }
-
-    /// <summary>
-    ///     Causes the Frame to load content represented by the specified Page, also passing a parameter to be
-    ///     interpreted by the target of the navigation.
-    /// </summary>
-    /// <param name="sourcePageType">
-    ///     The page (IControl) to navigate to, specified as a type reference to its class type, or
-    ///     if a <see cref="NavigationPageFactory" /> this can be any type (e.g., a ViewModel)
-    /// </param>
-    /// <param name="parameter">
-    ///     The navigation parameter to pass to the target page; must have a basic type
-    ///     (string, char, numeric, or GUID) to support parameter serialization using GetNavigationState.
-    /// </param>
-    /// <param name="navOptions">
-    ///     Options for the navigation, including whether it is recorded in the navigation stack
-    ///     and what transition animation is used.
-    /// </param>
-    /// <returns>
-    ///     <c>false</c> if a <see cref="NavigationFailed" /> event handler has set Handled to true;
-    ///     otherwise, <c>true</c>.
-    /// </returns>
-    public bool NavigateToType(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        Type sourcePageType,
-        object parameter,
-        FAFrameNavigationOptions navOptions
-    )
-    {
-        return NavigateCore(new FAPageStackEntry(sourcePageType, parameter, navOptions?.TransitionInfoOverride),
-            FANavigationMode.New, navOptions);
-    }
-
-    /// <summary>
-    ///     Causes the frame to load content represented by the specified target property with the
-    ///     specified navigation options
-    /// </summary>
-    /// <remarks>
-    ///     You must specify a <see cref="NavigationPageFactory" /> for this method to succeed
-    /// </remarks>
-    /// <param name="target">An existing object for which page creation should be based (e.g., A ViewModel instance)</param>
-    /// <param name="navOptions">
-    ///     Options for the navigation, including whether it is recorded in the navigation stack
-    ///     and what transition animation is used.
-    /// </param>
-    /// <returns>
-    ///     <c>false</c> if a <see cref="NavigationFailed" /> event handler has set Handled to true or
-    ///     if <see cref="NavigationPageFactory" /> is not specified; otherwise, <c>true</c>.
-    /// </returns>
-    public bool NavigateFromObject(object target, FAFrameNavigationOptions navOptions = null)
-    {
-        // Check the cache first to see if we have an existing page that matches
-        // For this check we check by both type and object reference
-        var existing = CheckCacheAndGetPage(null, target);
-
-        if (existing == null)
-        {
-            // If we don't have a previous reference, try to resolve via Factory
-            existing = NavigationPageFactory.GetPageFromObject(target);
-
-            // Unable to locate page, return false
-            if (existing == null)
-                return false;
-        }
-
-#pragma warning disable IL2072
-        // The page source Type here will be whatever was specified as 'target'
-        // Must use target.GetType here - cannot make method Generic and use typeof(T) because typeof(T) and
-        // target.GetType might not be the same thing (see the sample app, where typeof(T) = object, but 
-        // target.GetType() is an actual page type
-        var entry = new FAPageStackEntry(target.GetType(), null, navOptions?.TransitionInfoOverride)
-        {
-            Instance = existing,
-            Context = target
-        };
-#pragma warning restore IL2072
-
-        return NavigateCore(entry, FANavigationMode.New, navOptions);
-    }
-
-    /// <summary>
-    ///     Serializes the Frame navigation history into a string
-    /// </summary>
-    /// <returns></returns>
-    public string GetNavigationState()
-    {
-        if (!IsNavigationStackEnabled)
+        if (NavigationPageFactory is null)
             throw new InvalidOperationException(
-                "Cannot retreive navigation stack when IsNavigationStackEnabled is false");
+                "FAFrame requires NavigationPageFactory to be set before navigating. " +
+                "Assign an IFANavigationPageFactory instance to the Frame's NavigationPageFactory property.");
 
-        // Format of the Navigation state string - this is not the same as WinUI
-        // Full.Type.Name.Here|Serialized Parameter // First line is the current page
-        // N // Number of pages in BackStack
-        // -- BackStack Entries here, same format as above
-        // N // Number of pages in ForwardStack
-        // -- ForwardStack Entries here, same format as above
+        var page = NavigationPageFactory.GetPage(pageType);
 
-        static void AppendEntry(StringBuilder sb, FAPageStackEntry entry)
-        {
-            sb.Append(entry.SourcePageType.AssemblyQualifiedName);
-            sb.Append('|');
-            if (entry.Parameter != null) sb.Append(entry.Parameter.ToString());
-            sb.AppendLine();
-        }
+        if (CacheSize > 0)
+            CachePage(pageType, page);
 
-        var sb = new StringBuilder();
-
-        if (CurrentEntry != null) AppendEntry(sb, CurrentEntry);
-
-        sb.AppendLine(BackStackDepth.ToString());
-
-        for (var i = 0; i < BackStackDepth; i++) AppendEntry(sb, BackStack[i]);
-
-        sb.AppendLine(ForwardStack.Count.ToString());
-
-        for (var i = 0; i < ForwardStack.Count; i++) AppendEntry(sb, ForwardStack[i]);
-
-        return sb.ToString();
-    }
-
-    /// <summary>
-    ///     Reads and restores the navigation history of a Frame from a provided serialization string.
-    /// </summary>
-    /// <param name="navState">The serialization string that supplies the restore point for navigation history.</param>
-    [RequiresUnreferencedCode("Resolves navigation targets from the navState string.")]
-    public void SetNavigationState(string navState) =>
-        SetNavigationState(navState, false);
-
-    /// <summary>
-    ///     Reads and restores the navigation history of a Frame from a provided serialization string,
-    ///     and optionally supresses navigation to the last page type
-    /// </summary>
-    /// <param name="navState">The serialization string that supplies the restore point for navigation history.</param>
-    /// <param name="suppressNavigate">
-    ///     true to restore navigation history without navigating to the current page; otherwise,
-    ///     false.
-    /// </param>
-    /// <remarks>
-    ///     Calling SetNavigationState with suppressNavigate set to true, OnNavigatedTo is not called and the current page is
-    ///     placed into
-    ///     the BackStack
-    /// </remarks>
-    [RequiresUnreferencedCode("Resolves navigation targets from the navState string.")]
-    public void SetNavigationState(string navState, bool suppressNavigate)
-    {
-        if (!IsNavigationStackEnabled)
-            throw new InvalidOperationException("Cannot set navigation stack when IsNavigationStackEnabled is false");
-
-        BackStack.Clear();
-        ForwardStack.Clear();
-        CurrentEntry = null;
-        Content = null;
-        _pageCache.Clear();
-
-        // Format of the Navigation state string - this is not the same as WinUI
-        // Full.Type.Name.Here|Serialized Parameter // First line is the current page
-        // N // Number of pages in BackStack
-        // -- BackStack Entries here, same format as above
-        // N // Number of pages in ForwardStack
-        // -- ForwardStack Entries here, same format as above
-
-        using (var reader = new StringReader(navState))
-        {
-            var firstLine = reader.ReadLine(); // Current Page
-
-            var addCurrentEntryToBackStack = false;
-            // Current page was null when saved, don't restore null
-            // This is the only place we're allowed to have null - since a call to
-            // Navigate(null) will fail to navigate & nothing is added to the stack
-            if (firstLine[0] != '|')
-            {
-                var indexOfSep = firstLine.IndexOf('|');
-                var pageType = Type.GetType(firstLine.Substring(0, indexOfSep));
-                var param = firstLine.Substring(indexOfSep + 1);
-                CurrentEntry = new FAPageStackEntry(pageType, param, null);
-
-                if (!suppressNavigate)
-                {
-                    var page = CreatePageAndCacheIfNecessary(pageType);
-                    CurrentEntry.Instance = page;
-
-                    SetContentAndAnimate(CurrentEntry);
-                    // We only raise the NavigatedEvent 
-                    page.RaiseEvent(new FANavigationEventArgs(page, FANavigationMode.New, null, param, pageType)
-                        { RoutedEvent = NavigatedToEvent });
-                }
-                else
-                {
-                    addCurrentEntryToBackStack = true;
-                }
-            }
-
-            var numBackLine = int.Parse(reader.ReadLine());
-
-            for (var i = 0; i < numBackLine; i++)
-            {
-                var line = reader.ReadLine();
-                var indexOfSep = line.IndexOf('|');
-                var pageType = Type.GetType(line.Substring(0, indexOfSep));
-
-                if (pageType == null)
-                {
-                    // Don't fail if we get an invalid page, log & continue
-                    Logger.TryGet(LogEventLevel.Error, "Frame")?
-                        .Log("Frame",
-                            $"Attempting to parse the type '{line.Substring(0, indexOfSep)}' failed. Page was skipped");
-
-                    continue;
-                }
-
-                var param = line.Substring(indexOfSep + 1);
-
-                var entry = new FAPageStackEntry(pageType, param, null);
-                BackStack.Add(entry);
-            }
-
-            if (addCurrentEntryToBackStack)
-            {
-                // Set Instance to null to allow GC to collect it
-                CurrentEntry.Instance = null;
-                BackStack.Add(CurrentEntry);
-                CurrentEntry = null;
-            }
-
-            var numForwardLine = int.Parse(reader.ReadLine());
-
-            for (var i = 0; i < numForwardLine; i++)
-            {
-                var line = reader.ReadLine();
-                var indexOfSep = line.IndexOf('|');
-                var pageType = Type.GetType(line.Substring(0, indexOfSep));
-                var param = line.Substring(indexOfSep + 1);
-
-                if (pageType == null)
-                {
-                    // Don't fail if we get an invalid page, log & continue
-                    Logger.TryGet(LogEventLevel.Error, "Frame")?
-                        .Log("Frame",
-                            $"Attempting to parse the type '{line.Substring(0, indexOfSep)}' failed. Page was skipped");
-
-                    continue;
-                }
-
-                var entry = new FAPageStackEntry(pageType, param, null);
-                ForwardStack.Add(entry);
-            }
-        }
+        return page;
     }
 
     private bool NavigateCore(FAPageStackEntry entry, FANavigationMode mode, FAFrameNavigationOptions options = null)
     {
         try
         {
-            _isNavigating = true;
-
             var ea = new FANavigatingCancelEventArgs(mode,
                 entry.NavigationTransitionInfo,
                 entry.Parameter,
@@ -469,8 +288,8 @@ public partial class FAFrame : ContentControl
                 return false;
             }
 
-            // Tell the current page we want to navigate away from it
-            if (CurrentEntry?.Instance is Control oldPage)
+            // Ask the current page if it can navigate away
+            if (CurrentEntry?.Instance is { } oldPage)
             {
                 ea.RoutedEvent = NavigatingFromEvent;
                 oldPage.RaiseEvent(ea);
@@ -482,51 +301,29 @@ public partial class FAFrame : ContentControl
                 }
             }
 
-            // Navigate to new page
-            var wasPageSet = entry.Instance != null;
-
-            if (!wasPageSet)
-            {
-                // Check if we already have an instance of the page in the cache
-                // Context will not be null if NavigateCore is called from GoBack/GoForward and the entry was created from NavigateFromObject
-                if (entry.Context != null)
-                    entry.Instance = CheckCacheAndGetPage(null, entry.Context);
-                else
-                    entry.Instance = CheckCacheAndGetPage(entry.SourcePageType, null);
-            }
-
-            if (entry.Instance == null)
-            {
-                var page = CreatePageAndCacheIfNecessary(entry.SourcePageType);
-                if (page == null)
-                    throw new ArgumentException($"The type {entry.SourcePageType} is not a valid page type.");
-
-                entry.Instance = page;
-            }
-            else if (wasPageSet)
-            {
-                // The page was already create for us when passed in (NavigateFromObject path)
-                // Try adding to the cache now
-                TryAddToCache(entry.Context, entry.Instance);
-            }
+            // entry.Instance is set by the caller for Navigate<T>/NavigateToType<T>.
+            // For GoBack/GoForward, entry.Instance is null - resolve from cache if
+            // available, otherwise recreate via NavigationPageFactory.
+            // With CacheSize == 0, GoBack/GoForward produces a *new* page instance;
+            // previous page state will NOT be restored.
+            entry.Instance ??= GetOrCreatePage(entry.SourcePageType);
 
             var oldEntry = CurrentEntry;
             CurrentEntry = entry;
 
-            var navEA = new FANavigationEventArgs(
+            var navEa = new FANavigationEventArgs(
                 entry.Instance,
                 mode, entry.NavigationTransitionInfo,
                 entry.Parameter,
                 entry.SourcePageType);
 
             // Old page is now unloaded, raise OnNavigatedFrom
-            if (oldEntry != null)
+            if (oldEntry?.Instance is { } leaving)
             {
-                navEA.RoutedEvent = NavigatedFromEvent;
-                oldEntry.Instance.RaiseEvent(navEA);
+                navEa.RoutedEvent = NavigatedFromEvent;
+                leaving.RaiseEvent(navEa);
 
-                // Set Instance to null to allow GC to collect it
-                // The page will still be retained in the cache if caching is enabled
+                // Release reference so GC can collect it (unless caching retains it)
                 oldEntry.Instance = null;
             }
 
@@ -556,26 +353,18 @@ public partial class FAFrame : ContentControl
                         break;
                 }
 
-
             SourcePageType = entry.SourcePageType;
-            //CurrentSourcePageType = entry.SourcePageType;
 
-            Navigated?.Invoke(this, navEA);
+            Navigated?.Invoke(this, navEa);
 
-            // New Page is loaded, let's tell the page
-            // Now posted to dispatcher to ensure page has loaded - enabling composition
-            // animations to work now - CompositionVisuals *should* be ready now
             Dispatcher.UIThread.Post(() =>
             {
-                if (entry.Instance is Control newPage)
+                if (entry.Instance is { } newPage)
                 {
-                    navEA.RoutedEvent = NavigatedToEvent;
-                    newPage.RaiseEvent(navEA);
+                    navEa.RoutedEvent = NavigatedToEvent;
+                    newPage.RaiseEvent(navEa);
                 }
             }, DispatcherPriority.Render);
-
-            //Need to find compatible method for this
-            //VisualTreeHelper.CloseAllPopups();
 
             return true;
         }
@@ -583,10 +372,6 @@ public partial class FAFrame : ContentControl
         {
             NavigationFailed?.Invoke(this, new FANavigationFailedEventArgs(ex, entry.SourcePageType));
             return false;
-        }
-        finally
-        {
-            _isNavigating = false;
         }
     }
 
@@ -615,75 +400,23 @@ public partial class FAFrame : ContentControl
         RaisePropertyChanged(BackStackDepthProperty, oldCount, _backStack.Count);
     }
 
-    private Control CreatePageAndCacheIfNecessary(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-        Type srcPageType
-    )
+    private void CachePage(Type key, Control page)
     {
-        if (CacheSize == 0)
-            return NavigationPageFactory?.GetPage(srcPageType) ??
-                   Activator.CreateInstance(srcPageType) as Control;
+        _cache[key] = page;
+        _cacheOrder.Enqueue(key);
 
-        // This is triggered via Navigate(Type) - we only need to check the page type here
-        for (var i = 0; i < _pageCache.Count; i++)
-            if (_pageCache[i].PageSrcType == srcPageType)
-                throw new Exception($"An object of type {srcPageType} has already been added to the Navigation Stack");
-
-        var newPage = NavigationPageFactory?.GetPage(srcPageType) ??
-                      Activator.CreateInstance(srcPageType) as Control;
-
-        _pageCache.Add(new NavigationCacheItem(srcPageType, null, newPage));
-
-        if (_pageCache.Count > CacheSize) _pageCache.RemoveAt(0);
-
-        return newPage;
+        // FIFO eviction - matches original RemoveAt(0) behavior
+        while (_cache.Count > CacheSize && _cacheOrder.Count > 0)
+        {
+            var oldest = _cacheOrder.Dequeue();
+            _cache.Remove(oldest);
+        }
     }
 
-    private Control CheckCacheAndGetPage(Type srcPageType = null, object target = null)
+    private void ClearCache()
     {
-        if (CacheSize == 0)
-            return null;
-
-        // v2 - Changes for cache
-        // A page cached by Navigate(Type) and NavigateFromObject will be cached 
-        // separately and not shared between the two - users should be consistent
-        // here. Thus, srcType should be null when context isn't and vice-versa
-        for (var i = _pageCache.Count - 1; i >= 0; i--)
-        {
-            var item = _pageCache[i];
-
-            if (srcPageType != null && item.PageSrcType == srcPageType)
-                // Call to Navigate(Type)
-                return item.Page;
-
-            if (target != null && item.Context == target)
-                // Call to NavigateFromObject()
-                return item.Page;
-        }
-
-        return null;
-    }
-
-    private void TryAddToCache(object context, Control page)
-    {
-        // This is trigger by NavigateFromObject()
-
-        // v2 - Changes for cache
-        // A page cached by Navigate(Type) and NavigateFromObject will be cached 
-        // separately and not shared between the two - users should be consistent
-        // here. Thus, srcType should be null when context isn't and vice-versa
-        for (var i = _pageCache.Count - 1; i >= 0; i--)
-        {
-            var item = _pageCache[i];
-            if (context != null && item.Context == context)
-                // Call to NavigateFromObject() - page is already cached
-                return;
-        }
-
-        // Page is not cached - add it
-        _pageCache.Add(new NavigationCacheItem(null, context, page));
-
-        if (_pageCache.Count > CacheSize) _pageCache.RemoveAt(0);
+        _cache.Clear();
+        _cacheOrder.Clear();
     }
 
     private void SetContentAndAnimate(FAPageStackEntry entry)
@@ -696,7 +429,7 @@ public partial class FAFrame : ContentControl
         if (_presenter != null)
         {
             //Default to entrance transition
-            entry.NavigationTransitionInfo = entry.NavigationTransitionInfo ?? new FAEntranceNavigationTransitionInfo();
+            entry.NavigationTransitionInfo ??= new FAEntranceNavigationTransitionInfo();
             _presenter.Opacity = 0;
 
             _cts?.Cancel();
@@ -715,24 +448,6 @@ public partial class FAFrame : ContentControl
         {
             GoBack();
             e.Handled = true;
-        }
-    }
-
-    private class NavigationCacheItem
-    {
-        public object Context;
-        public Control Page;
-
-        public Type PageSrcType;
-
-        public NavigationCacheItem(Type pageType, object context, Control page)
-        {
-            if (pageType != null && context != null)
-                throw new InvalidOperationException("PageType and Context cannot both be set");
-
-            PageSrcType = pageType;
-            Context = context;
-            Page = page;
         }
     }
 }

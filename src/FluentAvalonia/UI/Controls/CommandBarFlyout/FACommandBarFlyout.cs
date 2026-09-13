@@ -33,7 +33,7 @@ public class FACommandBarFlyout : PopupFlyoutBase
         PrimaryCommands = new AvaloniaList<IFACommandBarElement>();
         SecondaryCommands = new AvaloniaList<IFACommandBarElement>();
 
-        PrimaryCommands.CollectionChanged += (s, e) =>
+        PrimaryCommands.CollectionChanged += (_, e) =>
         {
             if (_commandBar == null)
                 return;
@@ -63,7 +63,7 @@ public class FACommandBarFlyout : PopupFlyoutBase
             }
         };
 
-        SecondaryCommands.CollectionChanged += (sender, e) =>
+        SecondaryCommands.CollectionChanged += (_, e) =>
         {
             if (_commandBar == null)
                 return;

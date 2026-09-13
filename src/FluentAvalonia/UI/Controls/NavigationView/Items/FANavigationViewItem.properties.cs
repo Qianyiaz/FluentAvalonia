@@ -89,11 +89,7 @@ public partial class FANavigationViewItem
     public static readonly StyledProperty<FAInfoBadge> InfoBadgeProperty =
         AvaloniaProperty.Register<FANavigationViewItem, FAInfoBadge>(nameof(InfoBadge));
 
-    private bool _hasUnrealizedChildren;
-    private bool _isChildSelected;
-    private bool _isExpanded;
     private IList<object> _menuItems;
-    private bool _selectsOnInvoked = true;
 
     /// <summary>
     ///     Gets the CompactPaneLength of the NavigationView that hosts this item.
@@ -109,10 +105,10 @@ public partial class FANavigationViewItem
     /// </summary>
     public bool HasUnrealizedChildren
     {
-        get => _hasUnrealizedChildren;
+        get;
         set
         {
-            if (SetAndRaise(HasUnrealizedChildrenProperty, ref _hasUnrealizedChildren, value))
+            if (SetAndRaise(HasUnrealizedChildrenProperty, ref field, value))
                 OnHasUnrealizedChildrenPropertyChanged();
         }
     }
@@ -131,8 +127,8 @@ public partial class FANavigationViewItem
     /// </summary>
     public bool IsChildSelected
     {
-        get => _isChildSelected;
-        set => SetAndRaise(IsChildSelectedProperty, ref _isChildSelected, value);
+        get;
+        set => SetAndRaise(IsChildSelectedProperty, ref field, value);
     }
 
     /// <summary>
@@ -140,10 +136,10 @@ public partial class FANavigationViewItem
     /// </summary>
     public bool IsExpanded
     {
-        get => _isExpanded;
+        get;
         set
         {
-            if (SetAndRaise(IsExpandedProperty, ref _isExpanded, value)) OnIsExpandedPropertyChanged();
+            if (SetAndRaise(IsExpandedProperty, ref field, value)) OnIsExpandedPropertyChanged();
         }
     }
 
@@ -170,9 +166,9 @@ public partial class FANavigationViewItem
     /// </summary>
     public bool SelectsOnInvoked
     {
-        get => _selectsOnInvoked;
-        set => SetAndRaise(SelectsOnInvokedProperty, ref _selectsOnInvoked, value);
-    }
+        get;
+        set => SetAndRaise(SelectsOnInvokedProperty, ref field, value);
+    } = true;
 
     /// <summary>
     ///     Gets or sets the <see cref="InfoBadge" /> to display in the NavigationViewItem
@@ -210,7 +206,7 @@ public partial class FANavigationViewItem
         get
         {
             var isPaneDisplayModeTop = true;
-            if (GetNavigationView is FANavigationView nv)
+            if (GetNavigationView is { } nv)
                 // There is a delay between the NavigationViewPaneDisplayMode update and the 
                 // position property of NavigationViewItem being updated. This function gets called
                 // in that delay period, so we need to check the PaneDisplayMode as further verification

@@ -205,7 +205,7 @@ public class FABreadcrumbBar : TemplatedControl
         if (isv != null)
         {
             var itemCount = isv.Count;
-            if (_itemsRepeater is FAItemsRepeater repeater)
+            if (_itemsRepeater is { } repeater)
             {
                 var newLastItem = repeater.TryGetElement(itemCount);
                 UpdateLastElement(newLastItem as FABreadcrumbBarItem);
@@ -255,7 +255,7 @@ public class FABreadcrumbBar : TemplatedControl
             }
             else
             {
-                if (_breadcrumbItemsSourceView is FAItemsSourceView isv)
+                if (_breadcrumbItemsSourceView is { } isv)
                 {
                     var itemCount = isv.Count;
                     if (itemIndex == itemCount)
@@ -317,7 +317,7 @@ public class FABreadcrumbBar : TemplatedControl
 
     internal void ReIndexVisibleElementsForAccessibility()
     {
-        if (_itemsRepeater is FAItemsRepeater repeater)
+        if (_itemsRepeater is { } repeater)
         {
             var visibleCount = _itemsRepeaterLayout.GetVisibleItemsCount;
             var isEllipsisRendered = _itemsRepeaterLayout.EllipsisIsRendered;
@@ -328,7 +328,7 @@ public class FABreadcrumbBar : TemplatedControl
 
             // In order to make the ellipsis inaccessible to accessbility tools when it's hidden,
             // we set the accessibilityView to raw and restore it to content when it becomes visible.
-            if (_ellipsisBreadcrumBarItem is FABreadcrumbBarItem ellipsisItem)
+            if (_ellipsisBreadcrumBarItem is { } ellipsisItem)
             {
                 var accView = isEllipsisRendered ? AccessibilityView.Content : AccessibilityView.Raw;
                 ellipsisItem.SetValue(AutomationProperties.AccessibilityViewProperty, accView);
@@ -338,7 +338,7 @@ public class FABreadcrumbBar : TemplatedControl
             // accessibilityIndex is the index to be assigned to each item
             // itemToIndex is the real index and it may differ from accessibilityIndex as we must only index the visible items
             for (int accIdx = 1, itemToIndex = firstItemToIndex; accIdx <= visibleCount; accIdx++, itemToIndex++)
-                if (repeater.TryGetElement(itemToIndex) is Control c)
+                if (repeater.TryGetElement(itemToIndex) is { } c)
                 {
                     c.SetValue(AutomationProperties.PositionInSetProperty, accIdx);
                     c.SetValue(AutomationProperties.SizeOfSetProperty, visibleCount);
@@ -348,7 +348,7 @@ public class FABreadcrumbBar : TemplatedControl
 
     private void OnGettingFocus(object sender, FocusChangingEventArgs args)
     {
-        if (_itemsRepeater is FAItemsRepeater repeater)
+        if (_itemsRepeater is { } repeater)
             // WinUI checks args InputDevice for Keyboard
             if (args.NavigationMethod == NavigationMethod.Directional || args.NavigationMethod == NavigationMethod.Tab)
             {
@@ -366,7 +366,7 @@ public class FABreadcrumbBar : TemplatedControl
                         FocusElementAt(_focusedIndex);
                     }
 
-                    if (repeater.TryGetElement(_focusedIndex) is Control selectedItem)
+                    if (repeater.TryGetElement(_focusedIndex) is { } selectedItem)
                         if (args.TrySetNewFocusedElement(selectedItem))
                             args.Handled = true;
                 }

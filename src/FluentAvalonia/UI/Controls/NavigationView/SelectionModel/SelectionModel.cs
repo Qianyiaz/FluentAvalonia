@@ -89,7 +89,7 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
         {
             if (value != IndexPath.Unselected)
                 SelectionTreeHelper.TraverseIndexPath(_rootNode, value, true /* realizeChildren */,
-                    (childNode, path, depth, childIndex) => { childNode.AnchorIndex = path.GetAt(depth); });
+                    (childNode, path, depth, _) => { childNode.AnchorIndex = path.GetAt(depth); });
             else
                 _rootNode.AnchorIndex = -1;
 

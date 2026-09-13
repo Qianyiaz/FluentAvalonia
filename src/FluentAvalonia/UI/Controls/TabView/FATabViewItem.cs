@@ -513,7 +513,7 @@ public partial class FATabViewItem : FASelectorItem
 
     private void HideLeftAdjacentTabSeparator()
     {
-        if (ParentTabView is FATabView tv)
+        if (ParentTabView is { } tv)
         {
             var index = tv.IndexFromContainer(this);
             tv.SetTabSeparatorOpacity(index - 1, 0);
@@ -522,7 +522,7 @@ public partial class FATabViewItem : FASelectorItem
 
     private void RestoreLeftAdjacentTabSeparatorVisibility()
     {
-        if (ParentTabView is FATabView tv)
+        if (ParentTabView is { } tv)
         {
             var index = tv.IndexFromContainer(this);
             tv.SetTabSeparatorOpacity(index - 1);
@@ -594,6 +594,6 @@ public partial class FATabViewItem : FASelectorItem
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
-        if (ParentTabView is FATabView tv) tv.SetTabSeparatorOpacity(tv.IndexFromContainer(this));
+        if (ParentTabView is { } tv) tv.SetTabSeparatorOpacity(tv.IndexFromContainer(this));
     }
 }

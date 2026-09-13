@@ -33,8 +33,6 @@ public partial class FluentAvaloniaTheme : Styles, IResourceProvider
 
     private bool _hasLoaded;
     private IPlatformSettings _platformSettings;
-    private bool _preferSystemTheme;
-    private bool _preferUserAccentColor;
 
     /// <summary>
     ///     Create new instance of <see cref="FluentAvaloniaTheme" />.
@@ -67,12 +65,12 @@ public partial class FluentAvaloniaTheme : Styles, IResourceProvider
     /// </remarks>
     public bool PreferSystemTheme
     {
-        get => _preferSystemTheme;
+        get;
         set
         {
-            if (_preferSystemTheme != value)
+            if (field != value)
             {
-                _preferSystemTheme = value;
+                field = value;
 
                 // Only call this if PreferSystemTheme is true to invalidate the current theme.
                 if (value) ResolveThemeAndInitializeSystemResources();
@@ -90,12 +88,12 @@ public partial class FluentAvaloniaTheme : Styles, IResourceProvider
     /// </remarks>
     public bool PreferUserAccentColor
     {
-        get => _preferUserAccentColor;
+        get;
         set
         {
-            if (_preferUserAccentColor != value)
+            if (field != value)
             {
-                _preferUserAccentColor = value;
+                field = value;
 
                 // Unlike PreferSystemTheme, we call this everytime as LoadCustomAccentColor handles
                 // switching between a system and custom color (and back)

@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using FluentAvalonia.UI.Media.Animation;
 
 namespace FluentAvalonia.UI.Navigation;
@@ -16,7 +15,6 @@ public class FAPageStackEntry
     /// <param name="parameter">The navigation parameter associated with the navigation entry.</param>
     /// <param name="navigationTransitionInfo">Info about the animated transition associated with the navigation entry.</param>
     public FAPageStackEntry(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
         Type sourcePageType,
         object parameter,
         FANavigationTransitionInfo navigationTransitionInfo
@@ -28,9 +26,8 @@ public class FAPageStackEntry
     }
 
     /// <summary>
-    ///     Gets the type of page associated with this navigation entry.
+    ///     Gets or sets the type of page associated with this navigation entry.
     /// </summary>
-    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
     public Type SourcePageType { get; set; }
 
     /// <summary>
@@ -44,10 +41,8 @@ public class FAPageStackEntry
     public object Parameter { get; set; }
 
     /// <summary>
-    ///     Gets the navigation context used for this page when called from
-    ///     <see cref="FluentAvalonia.UI.Controls.FAFrame.NavigateFromObject" />
+    ///     The page instance backing this entry. Set internally by <c>FAFrame</c> after the
+    ///     page has been resolved via <c>NavigationPageFactory</c>.
     /// </summary>
-    public object Context { get; internal set; }
-
     internal Control Instance { get; set; }
 }

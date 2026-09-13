@@ -7,17 +7,15 @@ namespace FluentAvalonia.UI.Controls;
 /// </summary>
 public class FANavigationViewPaneClosingEventArgs : EventArgs
 {
-    private bool _cancel;
-
     /// <summary>
     ///     Gets or sets a value that indicates whether the event should be canceled.
     /// </summary>
     public bool Cancel
     {
-        get => _cancel;
+        get;
         set
         {
-            _cancel = value;
+            field = value;
             if (SplitViewClosingArgs != null) SplitViewClosingArgs.Cancel = value;
         }
     }

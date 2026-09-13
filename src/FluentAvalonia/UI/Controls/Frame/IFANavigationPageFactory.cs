@@ -3,22 +3,14 @@
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-///     Specifies factory methods a <see cref="FAFrame" /> can use to resolve pages from
-///     Types that aren't controls or from object/ViewModel instances directly
+///     Specifies factory methods a <see cref="FAFrame" /> uses to resolve pages.
+///     Pages are created exclusively via this factory; reflection-based creation is not supported.
 /// </summary>
 public interface IFANavigationPageFactory
 {
     /// <summary>
-    ///     Returns a user specified page based on the given type passed to <see cref="FAFrame.Navigate(Type)" />
+    ///     Returns a page instance for the given <see cref="Type" />.
+    ///     Must return a non-null instance; returning null will fail the navigation.
     /// </summary>
-    /// <param name="srcType">The type of object used for creating the page</param>
-    /// <returns>An IControl for the new page or <c>null</c> to use the default behavior</returns>
     Control GetPage(Type srcType);
-
-    /// <summary>
-    ///     Returns a user specified page based on an instance of an existing object
-    /// </summary>
-    /// <param name="target">The target object that should be used to create the page</param>
-    /// <returns>An IControl for the new page. Returning null will cancel the navigation operation</returns>
-    Control GetPageFromObject(object target);
 }

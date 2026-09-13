@@ -162,7 +162,7 @@ internal readonly struct IndexRange : IEquatable<IndexRange>
 
         MergeRanges(ranges);
 
-        if (removed is object) MergeRanges(removed);
+        if (removed is not null) MergeRanges(removed);
 
         return result;
     }

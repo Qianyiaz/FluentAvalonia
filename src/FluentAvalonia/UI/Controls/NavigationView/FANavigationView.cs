@@ -149,7 +149,7 @@ public partial class FANavigationView : HeaderedContentControl
                 _closeButton.Click += OnPaneToggleButtonClick;
 
             if (_paneContentGrid != null)
-                _itemsContainerRow = _paneContentGrid.RowDefinitions[_paneContentGrid.RowDefinitions.Count - 1];
+                _itemsContainerRow = _paneContentGrid.RowDefinitions[^1];
 
             _menuItemsScrollViewer = e.NameScope.Get<ScrollViewer>(s_tpMenuItemsScrollViewer);
             _footerItemsScrollViewer = e.NameScope.Get<ScrollViewer>(s_tpFooterItemsScrollViewer);
@@ -868,7 +868,7 @@ public partial class FANavigationView : HeaderedContentControl
     private void UpdateSelectionModelSelectionForSelectedItem(object selectedItem)
     {
         var base_ = NavigationViewItemBaseOrSettingsContentFromData(selectedItem);
-        var indexPath = base_ is FANavigationViewItemBase c
+        var indexPath = base_ is { } c
             ? GetIndexPathForContainer(c)
             : GetIndexPathOfItem(selectedItem);
 
@@ -909,7 +909,7 @@ public partial class FANavigationView : HeaderedContentControl
         {
             nvi.IsChildSelected = isChildSelected;
             cont = null;
-            if (nvi.GetRepeater is FAItemsRepeater ir && index < ip.GetSize() - 1)
+            if (nvi.GetRepeater is { } ir && index < ip.GetSize() - 1)
             {
                 cont = ir.TryGetElement(ip.GetAt(index));
                 index++;
@@ -1311,13 +1311,13 @@ public partial class FANavigationView : HeaderedContentControl
 
     private void KeyboardFocusFirstItemFromItem(FANavigationViewItemBase nvib)
     {
-        if (GetFirstFocusableElement(GetParentRootRepeaterForKeyboardNav(nvib)) is Control c)
+        if (GetFirstFocusableElement(GetParentRootRepeaterForKeyboardNav(nvib)) is { } c)
             c.Focus(NavigationMethod.Directional);
     }
 
     private void KeyboardFocusLastItemFromItem(FANavigationViewItemBase nvib)
     {
-        if (GetLastFocusableElement(GetParentRootRepeaterForKeyboardNav(nvib)) is Control c)
+        if (GetLastFocusableElement(GetParentRootRepeaterForKeyboardNav(nvib)) is { } c)
             c.Focus(NavigationMethod.Directional);
     }
 
@@ -1332,7 +1332,7 @@ public partial class FANavigationView : HeaderedContentControl
 
         if (nextFocusableElement is FANavigationViewItem nextNVI && nextNVI.Depth == nvi.Depth)
             if (DoesNavigationViewItemHaveChildren(nextNVI))
-                if (nextNVI.GetRepeater is FAItemsRepeater ir)
+                if (nextNVI.GetRepeater is { } ir)
                 {
                     if (FocusManager.FindLastFocusableElement(ir) is Control lastFocusableElement)
                         args.Handled = lastFocusableElement.Focus(NavigationMethod.Directional);
@@ -1346,7 +1346,7 @@ public partial class FANavigationView : HeaderedContentControl
         if (args.Source != nvi || !DoesNavigationViewItemHaveChildren(nvi))
             return;
 
-        if (nvi.GetRepeater is FAItemsRepeater ir)
+        if (nvi.GetRepeater is { } ir)
         {
             var first = FocusManager.FindFirstFocusableElement(ir);
             if (first != null)
@@ -1356,11 +1356,11 @@ public partial class FANavigationView : HeaderedContentControl
 
     private static Control GetFirstFocusableElement(FAItemsRepeater ir)
     {
-        if (ir?.ItemsSourceView is not FAItemsSourceView isv)
+        if (ir?.ItemsSourceView is not { } isv)
             return null;
 
         for (var i = 0; i < isv.Count; i++)
-            if (ir.TryGetElement(i) is Control c && c.Focusable)
+            if (ir.TryGetElement(i) is { } c && c.Focusable)
                 return c;
 
         return null;
@@ -1368,11 +1368,11 @@ public partial class FANavigationView : HeaderedContentControl
 
     private static Control GetLastFocusableElement(FAItemsRepeater ir)
     {
-        if (ir?.ItemsSourceView is not FAItemsSourceView isv)
+        if (ir?.ItemsSourceView is not { } isv)
             return null;
 
         for (var i = isv.Count - 1; i >= 0; i--)
-            if (ir.TryGetElement(i) is Control c && c.Focusable)
+            if (ir.TryGetElement(i) is { } c && c.Focusable)
                 return c;
 
         return null;
@@ -1881,7 +1881,7 @@ public partial class FANavigationView : HeaderedContentControl
         var size = _topDataProvider.PrimaryListSize;
         if (_topNavRepeater != null)
             for (var i = 0; i < size; i++)
-                if (_topNavRepeater.TryGetElement(i) is Control c)
+                if (_topNavRepeater.TryGetElement(i) is { } c)
                     _topDataProvider.UpdateWidthForPrimaryItem(i, c.DesiredSize.Width);
                 else
                     break;
@@ -2464,7 +2464,7 @@ public partial class FANavigationView : HeaderedContentControl
             return;
 
         element.Opacity = desiredOpacity;
-        if (ElementComposition.GetElementVisual(element) is CompositionVisual cv)
+        if (ElementComposition.GetElementVisual(element) is { } cv)
         {
             cv.Offset = new Vector3D(0, 0, 0);
             cv.Scale = new Vector3D(1, 1, 1);

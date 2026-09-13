@@ -14,8 +14,6 @@ public class FATaskDialogCommand : FATaskDialogButton
         AvaloniaProperty.RegisterDirect<FATaskDialogCommand, string>(nameof(Description),
             x => x.Description, (x, v) => x.Description = v);
 
-    private string _description;
-
     /// <summary>
     ///     Gets or sets whether invoking this command should also close the dialog
     /// </summary>
@@ -26,7 +24,7 @@ public class FATaskDialogCommand : FATaskDialogButton
     /// </summary>
     public string Description
     {
-        get => _description;
-        set => SetAndRaise(DescriptionProperty, ref _description, value);
+        get;
+        set => SetAndRaise(DescriptionProperty, ref field, value);
     }
 }

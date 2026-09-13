@@ -31,7 +31,7 @@ public class FADialogHost : ContentControl
     {
         _ = base.MeasureOverride(availableSize);
 
-        if (TopLevel.GetTopLevel(this) is TopLevel tl) return tl.ClientSize;
+        if (TopLevel.GetTopLevel(this) is { } tl) return tl.ClientSize;
 
         if (TopLevel.GetTopLevel(this) is Control c) return c.Bounds.Size;
 

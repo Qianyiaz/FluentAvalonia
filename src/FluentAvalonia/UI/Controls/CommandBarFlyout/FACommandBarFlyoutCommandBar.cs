@@ -39,7 +39,7 @@ public class FACommandBarFlyoutCommandBar : FACommandBar
         // Yes, all this is done in the ctor in WinUI
 
         // Treated as Loaded Event
-        AttachedToVisualTree += (_, __) =>
+        AttachedToVisualTree += (_, _) =>
         {
             //UpdateUI(!_commandBarFlyoutIsOpening);
 
@@ -78,7 +78,7 @@ public class FACommandBarFlyoutCommandBar : FACommandBar
                 }, DispatcherPriority.Loaded);
         };
 
-        Closing += (_, __) =>
+        Closing += (_, _) =>
         {
             if (_owningFlyout != null && _owningFlyout.IsOpen)
                 if (_owningFlyout.AlwaysExpanded)
@@ -86,9 +86,9 @@ public class FACommandBarFlyoutCommandBar : FACommandBar
                     IsOpen = true;
         };
 
-        PrimaryCommands.CollectionChanged += (_, __) => { PopulateAccessibleControls(); };
+        PrimaryCommands.CollectionChanged += (_, _) => { PopulateAccessibleControls(); };
 
-        SecondaryCommands.CollectionChanged += (_, __) => { PopulateAccessibleControls(); };
+        SecondaryCommands.CollectionChanged += (_, _) => { PopulateAccessibleControls(); };
     }
 
     protected override Type StyleKeyOverride => typeof(FACommandBarFlyoutCommandBar);

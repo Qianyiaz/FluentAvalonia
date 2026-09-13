@@ -121,7 +121,7 @@ internal class LiveReorderHelper
             if (item.destinationIndex != -1)
             {
                 var cont = _owner.ContainerFromIndex(item.sourceIndex);
-                if (cont is Control c) c.Arrange(item.sourceRect);
+                if (cont is { } c) c.Arrange(item.sourceRect);
             }
 
         _movedItems.Clear();
@@ -343,7 +343,7 @@ internal class LiveReorderHelper
         {
             var container = _owner.ContainerFromIndex(item.sourceIndex);
 
-            if (container is Control c)
+            if (container is { } c)
             {
                 if (areNewItems)
                     rc = item.destinationRect;

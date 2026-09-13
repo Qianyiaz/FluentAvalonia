@@ -17,8 +17,7 @@ internal static class BuildTreeScheduler
     {
         if (priority < 0)
             throw new ArgumentOutOfRangeException(nameof(priority), "Priority must be >= 0");
-        if (workFunc == null)
-            throw new ArgumentNullException(nameof(workFunc));
+        ArgumentNullException.ThrowIfNull(workFunc);
 
         QueueTick();
         _pendingWork.Add(new WorkInfo(priority, workFunc));
@@ -72,14 +71,13 @@ internal struct WorkInfo
 {
     public WorkInfo(int priority, Action workFunc)
     {
-        _priority = priority;
+        Priority = priority;
         _workFunc = workFunc;
     }
 
-    public int Priority => _priority;
+    public int Priority { get; }
 
     public void InvokeWorkFunc() => _workFunc.Invoke();
 
-    private int _priority;
     private Action _workFunc;
 }

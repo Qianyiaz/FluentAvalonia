@@ -224,11 +224,6 @@ public partial class FATabView
             return () => c.TabDragCompleted -= handler;
         });
 
-    private int _selectedIndex;
-    private object _selectedItem;
-
-
-    private IList _tabItems;
 
     /// <summary>
     ///     Gets or sets how the tabs should be sized
@@ -317,8 +312,8 @@ public partial class FATabView
     [Content]
     public IList TabItems
     {
-        get => _tabItems;
-        private set => SetAndRaise(TabItemsProperty, ref _tabItems, value);
+        get;
+        private set => SetAndRaise(TabItemsProperty, ref field, value);
     }
 
     /// <summary>
@@ -373,8 +368,8 @@ public partial class FATabView
     /// </summary>
     public int SelectedIndex
     {
-        get => _selectedIndex;
-        set => SetAndRaise(SelectedIndexProperty, ref _selectedIndex, value);
+        get;
+        set => SetAndRaise(SelectedIndexProperty, ref field, value);
     }
 
     /// <summary>
@@ -382,8 +377,8 @@ public partial class FATabView
     /// </summary>
     public object SelectedItem
     {
-        get => _selectedItem;
-        set => SetAndRaise(SelectedItemProperty, ref _selectedItem, value);
+        get;
+        set => SetAndRaise(SelectedItemProperty, ref field, value);
     }
 
     /// <summary>

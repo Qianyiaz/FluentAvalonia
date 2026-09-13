@@ -29,7 +29,7 @@ public sealed class FANavigationViewAutomationPeer : ControlAutomationPeer, ISel
 
     internal void RaiseSelectionChangedEvent(object oldSelection, object newSelection)
     {
-        if (Owner is FANavigationView nv && nv.GetSelectedContainer() is FANavigationViewItem nvi)
+        if (Owner is FANavigationView nv && nv.GetSelectedContainer() is { } nvi)
         {
             var peer = CreatePeerForElement(nvi);
             peer.RaisePropertyChangedEvent(SelectionPatternIdentifiers.SelectionProperty, oldSelection, newSelection);

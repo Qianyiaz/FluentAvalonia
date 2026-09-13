@@ -19,7 +19,7 @@ internal class VirtualLayoutContextAdapter : FANonVirtualizingLayoutContext
         get => GetContext()?.LayoutStateCore;
         set
         {
-            if (GetContext() is FAVirtualizingLayoutContext vlc)
+            if (GetContext() is { } vlc)
                 vlc.LayoutStateCore = value;
         }
     }

@@ -695,7 +695,7 @@ internal static class DispatcherTimerExtensions
             timer.Tick += TimerTick;
 
             // Store/Update function
-            _debounceInstances.AddOrUpdate(timer, action, (k, v) => action);
+            _debounceInstances.AddOrUpdate(timer, action, (_, _) => action);
         }
 
         // Start the timer to keep track of the last call here.

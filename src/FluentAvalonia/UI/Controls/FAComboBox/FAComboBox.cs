@@ -437,7 +437,7 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
         var toplevel = TopLevel.GetTopLevel(this);
         if (toplevel != null)
             _subscriptionsOnOpen.Add(
-                toplevel.AddDisposableHandler(PointerWheelChangedEvent, (s, ev) =>
+                toplevel.AddDisposableHandler(PointerWheelChangedEvent, (_, ev) =>
                 {
                     if (IsDropDownOpen && TopLevel.GetTopLevel(ev.Source as Visual) == toplevel)
                         ev.Handled = true;
@@ -645,7 +645,7 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
     private void UpdateFlowDirection()
     {
         if (SelectionBoxItem is Rectangle rectangle)
-            if ((rectangle.Fill as VisualBrush)?.Visual is Visual content)
+            if ((rectangle.Fill as VisualBrush)?.Visual is { } content)
             {
                 var flowDirection = (content.GetVisualParent() as Control)?.FlowDirection ?? FlowDirection.LeftToRight;
                 rectangle.FlowDirection = flowDirection;

@@ -12,10 +12,8 @@ public class FANavigationViewItemBase : ListBoxItem
 {
     // (WinUI) TODO: Constant is a temporary measure. Potentially expose using TemplateSettings.
     protected readonly int _itemIndentation = 31;
-    private int _depth;
 
     private WeakReference<FANavigationView> _navView;
-    private NavigationViewRepeaterPosition _position;
 
     public FANavigationViewItemBase()
     {
@@ -24,22 +22,22 @@ public class FANavigationViewItemBase : ListBoxItem
 
     internal NavigationViewRepeaterPosition Position
     {
-        get => _position;
+        get;
         set
         {
-            _position = value;
+            field = value;
             OnNavigationViewItemBasePositionChanged();
         }
     }
 
     internal int Depth
     {
-        get => _depth;
+        get;
         set
         {
-            if (_depth != value)
+            if (field != value)
             {
-                _depth = value;
+                field = value;
                 OnNavigationViewItemBaseDepthChanged();
             }
         }

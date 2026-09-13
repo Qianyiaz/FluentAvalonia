@@ -134,7 +134,7 @@ internal class Phaser
             Debug.Assert(_pendingElements.Count > 0);
             _registeredForCallbacks = true;
             BuildTreeScheduler.RegisterWork(
-                _pendingElements[_pendingElements.Count - 1].Phase, // Use the phase of the last one in the sorted list
+                _pendingElements[^1].Phase, // Use the phase of the last one in the sorted list
                 DoPhasedWorkCallback);
         }
     }

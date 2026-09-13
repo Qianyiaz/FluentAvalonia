@@ -14,9 +14,9 @@ public class FATextCommandBarFlyout : FACommandBarFlyout
 
     public FATextCommandBarFlyout()
     {
-        Opening += (_, __) => { UpdateButtons(); };
+        Opening += (_, _) => { UpdateButtons(); };
 
-        Opened += (_, __) =>
+        Opened += (_, _) =>
         {
             _targetLocal = new WeakReference<Control>(Target);
 
@@ -40,7 +40,7 @@ public class FATextCommandBarFlyout : FACommandBarFlyout
         // WinUI collects the event token for revoking later, but never actually does
         // This should be ok because the button is tied to the TextCommandBarFlyout
         // so it's only created once and we shouldn't leak
-        command.ExecuteRequested += (_, __) => { executeFunc(); };
+        command.ExecuteRequested += (_, _) => { executeFunc(); };
 
         b.Command = command;
     }

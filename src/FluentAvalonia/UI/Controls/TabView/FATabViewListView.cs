@@ -80,9 +80,9 @@ public sealed class FATabViewListView : ListBox
         ItemsView.CollectionChanged += OnItemsChanged;
 
 
-        Tapped += (s, e) =>
+        Tapped += (_, e) =>
         {
-            if (e.Source is Visual v && v.FindAncestorOfType<FATabViewItem>(true) is FATabViewItem tvi)
+            if (e.Source is Visual v && v.FindAncestorOfType<FATabViewItem>(true) is { } tvi)
             {
                 var index = IndexFromContainer(tvi);
                 UpdateSelection(index, true);
@@ -602,7 +602,7 @@ public sealed class FATabViewListView : ListBox
 
         if (isDragItemFocused)
             // If the old drag item was focused, we should refocus it
-            if (ContainerFromIndex(insertIndex) is Control c)
+            if (ContainerFromIndex(insertIndex) is { } c)
                 c.Focus();
 
         if (isDragItemSelected) SelectedIndex = insertIndex;

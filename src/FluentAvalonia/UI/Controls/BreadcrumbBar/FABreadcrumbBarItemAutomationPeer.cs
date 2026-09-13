@@ -16,7 +16,7 @@ public class FABreadcrumbBarItemAutomationPeer : ControlAutomationPeer, IInvokeP
 
     void IInvokeProvider.Invoke()
     {
-        if (GetImpl() is FABreadcrumbBarItem item)
+        if (GetImpl() is { } item)
             item.OnClickEvent(null, null);
     }
 

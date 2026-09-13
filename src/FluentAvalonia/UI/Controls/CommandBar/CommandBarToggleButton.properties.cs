@@ -46,10 +46,6 @@ public partial class FACommandBarToggleButton : ToggleButton, IFACommandBarEleme
         AvaloniaProperty.Register<FACommandBarToggleButton, FACommandBarButtonTemplateSettings>(
             nameof(TemplateSettings));
 
-    private int _dynamicOverflowOrder;
-
-    private bool _isInOverflow;
-
     /// <summary>
     ///     Gets or sets the graphic content of the command bar toggle button.
     /// </summary>
@@ -85,17 +81,17 @@ public partial class FACommandBarToggleButton : ToggleButton, IFACommandBarEleme
 
     public bool IsInOverflow
     {
-        get => _isInOverflow;
+        get;
         internal set
         {
-            if (SetAndRaise(IsInOverflowProperty, ref _isInOverflow, value))
+            if (SetAndRaise(IsInOverflowProperty, ref field, value))
                 PseudoClasses.Set(FASharedPseudoclasses.s_pcOverflow, value);
         }
     }
 
     public int DynamicOverflowOrder
     {
-        get => _dynamicOverflowOrder;
-        set => SetAndRaise(DynamicOverflowOrderProperty, ref _dynamicOverflowOrder, value);
+        get;
+        set => SetAndRaise(DynamicOverflowOrderProperty, ref field, value);
     }
 }

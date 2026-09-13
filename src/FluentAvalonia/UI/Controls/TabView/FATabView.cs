@@ -889,7 +889,7 @@ public partial class FATabView : TemplatedControl
                     Control newFocusedElement = null;
 
                     for (var i = focusedIndex + 1; i < GetItemCount(); i++)
-                        if (ContainerFromIndex(i) is Control element)
+                        if (ContainerFromIndex(i) is { } element)
                             if (IsFocusable(element))
                             {
                                 newFocusedElement = element;
@@ -898,7 +898,7 @@ public partial class FATabView : TemplatedControl
 
                     if (newFocusedElement == null)
                         for (var i = focusedIndex - 1; i >= 0; i--)
-                            if (ContainerFromIndex(i) is Control element)
+                            if (ContainerFromIndex(i) is { } element)
                                 if (IsFocusable(element))
                                 {
                                     newFocusedElement = element;
@@ -1250,7 +1250,7 @@ public partial class FATabView : TemplatedControl
 
     internal bool MoveFocus(bool moveForward)
     {
-        if (TopLevel.GetTopLevel(this) is TopLevel tl)
+        if (TopLevel.GetTopLevel(this) is { } tl)
         {
             var focusedControl = tl.FocusManager.GetFocusedElement() as Control;
 
@@ -1333,7 +1333,7 @@ public partial class FATabView : TemplatedControl
                 currentIndex = itemCount - 1;
             else if (currentIndex >= itemCount) currentIndex = 0;
 
-            if (ContainerFromIndex(currentIndex) is Control c && IsFocusable(c))
+            if (ContainerFromIndex(currentIndex) is { } c && IsFocusable(c))
             {
                 SelectedIndex = currentIndex;
                 return true;

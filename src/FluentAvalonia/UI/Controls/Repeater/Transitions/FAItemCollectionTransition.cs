@@ -7,14 +7,11 @@ namespace FluentAvalonia.UI.Controls;
 
 public class FAItemCollectionTransition
 {
-    private Control _element;
     private Rect _newBounds;
     private Rect _oldBounds;
-    private FAItemCollectionTransitionOperation _operation;
 
     private WeakReference<FAItemCollectionTransitionProvider> _owningProvider;
     private FAItemCollectionTransitionProgress _progress;
-    private FAItemCollectionTransitionTriggers _triggers;
 
     public FAItemCollectionTransition(FAItemCollectionTransitionProvider provider, Control element,
         FAItemCollectionTransitionOperation operation, FAItemCollectionTransitionTriggers triggers)
@@ -36,9 +33,9 @@ public class FAItemCollectionTransition
         Rect oldBounds, Rect newBounds)
     {
         _owningProvider = new WeakReference<FAItemCollectionTransitionProvider>(provider);
-        _element = element;
-        _operation = operation;
-        _triggers = triggers;
+        Element = element;
+        Operation = operation;
+        Triggers = triggers;
         _oldBounds = oldBounds;
         _newBounds = newBounds;
     }
@@ -46,13 +43,13 @@ public class FAItemCollectionTransition
     public FAItemCollectionTransitionProvider OwningProvider =>
         _owningProvider.TryGetTarget(out var target) ? target : null;
 
-    public Control Element => _element;
+    public Control Element { get; }
 
     public bool HasStarted => _progress != null;
 
-    public FAItemCollectionTransitionOperation Operation => _operation;
+    public FAItemCollectionTransitionOperation Operation { get; }
 
-    public FAItemCollectionTransitionTriggers Triggers => _triggers;
+    public FAItemCollectionTransitionTriggers Triggers { get; }
 
     public FAItemCollectionTransitionProgress Start()
     {

@@ -52,7 +52,7 @@ internal class BreadcrumbElementFactory : FAElementFactory
 
     protected override void RecycleElementCore(FAElementFactoryRecycleArgs args)
     {
-        if (args.Element is Control c)
+        if (args.Element is { } c)
         {
             var isEllipsisDropDownItem = false; // Use of isEllipsisDropDownItem is workaround for
             // crashing bug when attempting to show ellipsis dropdown after clicking one of its items.
