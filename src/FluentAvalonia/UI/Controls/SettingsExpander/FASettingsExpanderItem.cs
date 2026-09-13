@@ -13,14 +13,26 @@ using FluentAvalonia.Core;
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// An item displayed within a <see cref="FASettingsExpander"/>
+///     An item displayed within a <see cref="FASettingsExpander" />
 /// </summary>
 public partial class FASettingsExpanderItem : ContentControl, ICommandSource
 {
+    private IDisposable _adaptiveWidthDisposable;
+    private double _adaptiveWidthTrigger = 460;
+    private bool _allowInteraction;
+
+    private bool _commandCanExecute = true;
+    private bool _hasFooter;
+    private bool _isFooterAtBottom;
+    private bool _isPressed;
+
     public FASettingsExpanderItem()
     {
         TemplateSettings = new FASettingsExpanderTemplateSettings();
     }
+
+    void ICommandSource.CanExecuteChanged(object sender, EventArgs e) =>
+        CanExecuteChanged(sender, e);
 
     protected override Size MeasureOverride(Size availableSize)
     {
@@ -93,15 +105,9 @@ public partial class FASettingsExpanderItem : ContentControl, ICommandSource
             if (((ILogical)this).IsAttachedToLogicalTree)
             {
                 var (oldValue, newValue) = change.GetOldAndNewValue<ICommand>();
-                if (oldValue != null)
-                {
-                    oldValue.CanExecuteChanged -= CanExecuteChanged;
-                }
+                if (oldValue != null) oldValue.CanExecuteChanged -= CanExecuteChanged;
 
-                if (newValue != null)
-                {
-                    newValue.CanExecuteChanged += CanExecuteChanged;
-                }
+                if (newValue != null) newValue.CanExecuteChanged += CanExecuteChanged;
             }
 
             CanExecuteChanged(this, EventArgs.Empty);
@@ -139,14 +145,12 @@ public partial class FASettingsExpanderItem : ContentControl, ICommandSource
         base.OnPointerPressed(e);
 
         if (_allowInteraction && !e.Handled)
-        {
             if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
             {
                 _isPressed = true;
                 PseudoClasses.Set(":pressed", true);
                 e.Handled = true;
             }
-        }
     }
 
     protected override void OnPointerMoved(PointerEventArgs e)
@@ -188,7 +192,7 @@ public partial class FASettingsExpanderItem : ContentControl, ICommandSource
 
                 OnClick();
             }
-        }       
+        }
     }
 
     protected override void OnPointerCaptureLost(PointerCaptureLostEventArgs e)
@@ -207,7 +211,7 @@ public partial class FASettingsExpanderItem : ContentControl, ICommandSource
     }
 
     /// <summary>
-    /// Invoked when the SettingsExpanderItem is clicked when IsClickEnabled = true
+    ///     Invoked when the SettingsExpanderItem is clicked when IsClickEnabled = true
     /// </summary>
     protected virtual void OnClick()
     {
@@ -216,10 +220,7 @@ public partial class FASettingsExpanderItem : ContentControl, ICommandSource
 
         var @param = CommandParameter;
         var command = Command;
-        if (!args.Handled && command?.CanExecute(@param) == true)
-        {
-            command.Execute(@param);
-        }
+        if (!args.Handled && command?.CanExecute(@param) == true) command.Execute(@param);
     }
 
     private void OnIconSourceChanged(AvaloniaPropertyChangedEventArgs args)
@@ -230,10 +231,7 @@ public partial class FASettingsExpanderItem : ContentControl, ICommandSource
         TemplateSettings.Icon = FAIconHelpers.CreateFromUnknown(newIcon);
 
         var se = this.FindAncestorOfType<FASettingsExpander>();
-        if (se != null)
-        {
-            se.InvalidateIcons(this);
-        }
+        if (se != null) se.InvalidateIcons(this);
     }
 
     private void OnActionIconSourceChanged(AvaloniaPropertyChangedEventArgs args)
@@ -304,15 +302,4 @@ public partial class FASettingsExpanderItem : ContentControl, ICommandSource
         _adaptiveWidthTrigger = Unsafe.Unbox<double>(value);
         InvalidateMeasure();
     }
-
-    void ICommandSource.CanExecuteChanged(object sender, EventArgs e) =>
-        CanExecuteChanged(sender, e);
-
-    private bool _commandCanExecute = true;
-    private bool _allowInteraction;
-    private bool _isPressed;
-    private bool _hasFooter;
-    private bool _isFooterAtBottom;
-    private IDisposable _adaptiveWidthDisposable;
-    private double _adaptiveWidthTrigger = 460;
 }

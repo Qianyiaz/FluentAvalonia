@@ -7,7 +7,7 @@ using Avalonia.Data.Converters;
 namespace FluentAvalonia.Converters;
 
 /// <summary>
-/// Special converter for the NumericUpDown to pass info from the NumericUpDown to the textbox
+///     Special converter for the NumericUpDown to pass info from the NumericUpDown to the textbox
 /// </summary>
 public sealed class FANUDSpinLocationConverter : IValueConverter
 {

@@ -1,4 +1,5 @@
-﻿using Avalonia;
+﻿using System.Globalization;
+using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Automation.Peers;
 using Avalonia.Controls;
@@ -7,17 +8,28 @@ using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using FluentAvalonia.Core;
-using System.Globalization;
 
 namespace FluentAvalonia.UI.Controls;
 
 // NumberBox source is up to date with WinUI as of 5/9/26
 
 /// <summary>
-/// Represents a control that can be used to display and edit numbers.
+///     Represents a control that can be used to display and edit numbers.
 /// </summary>
 public partial class FANumberBox : TemplatedControl
 {
+    private Popup _popup;
+    private RepeatButton _popupDownButton;
+    private RepeatButton _popupUpButton;
+
+    //Template parts
+    private RepeatButton _spinDown;
+    private RepeatButton _spinUp;
+    private TextBox _textBox;
+
+    private bool _textUpdating;
+    private bool _valueUpdating;
+
     public FANumberBox()
     {
         AddHandler(PointerPressedEvent, OnPointerPressedPreview, RoutingStrategies.Tunnel);
@@ -32,23 +44,17 @@ public partial class FANumberBox : TemplatedControl
         _spinDown = e.NameScope.Find<RepeatButton>(s_tpDownSpinButton);
         _popupDownButton = e.NameScope.Find<RepeatButton>(s_tpPopupDownSpinButton);
 
-        if (_spinDown != null)
-        {
-            _spinDown.Click += OnSpinDownClick;
-        }
+        if (_spinDown != null) _spinDown.Click += OnSpinDownClick;
         _popupDownButton?.Click += OnSpinDownClick;
-      
+
 
         _spinUp = e.NameScope.Find<RepeatButton>(s_tpUpSpinButton);
         _popupUpButton = e.NameScope.Find<RepeatButton>(s_tpPopupUpSpinButton);
 
-        if (_spinUp != null)
-        {
-            _spinUp.Click += OnSpinUpClick;
-        }
+        if (_spinUp != null) _spinUp.Click += OnSpinUpClick;
 
         _popupUpButton?.Click += OnSpinUpClick;
-        
+
         _textBox = e.NameScope.Find<TextBox>(s_tpInputBox);
         if (_textBox != null)
         {
@@ -68,24 +74,17 @@ public partial class FANumberBox : TemplatedControl
 
         if (double.IsNaN(Value) &&
             !string.IsNullOrEmpty(Text))
-        {
             // If Text has been set, but Value hasn't, update Value based on Text.
             UpdateValueToText();
-        }
         else
-        {
             UpdateTextToValue();
-        }
     }
 
     protected override void UpdateDataValidation(AvaloniaProperty property, BindingValueType state, Exception error)
     {
         base.UpdateDataValidation(property, state, error);
 
-        if (property == ValueProperty)
-        {
-            DataValidationErrors.SetError(this, error);
-        }
+        if (property == ValueProperty) DataValidationErrors.SetError(this, error);
     }
 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
@@ -98,10 +97,7 @@ public partial class FANumberBox : TemplatedControl
         }
         else if (change.Property == TextProperty)
         {
-            if (!_textUpdating)
-            {
-                UpdateValueToText();
-            }
+            if (!_textUpdating) UpdateValueToText();
         }
         else if (change.Property == IsWrapEnabledProperty)
         {
@@ -152,10 +148,7 @@ public partial class FANumberBox : TemplatedControl
 
         _textBox?.SelectAll();
 
-        if (SpinButtonPlacementMode == FANumberBoxSpinButtonPlacementMode.Compact)
-        {
-            _popup?.IsOpen = true;
-        }
+        if (SpinButtonPlacementMode == FANumberBoxSpinButtonPlacementMode.Compact) _popup?.IsOpen = true;
     }
 
     protected override void OnLostFocus(FocusChangedEventArgs e)
@@ -175,13 +168,9 @@ public partial class FANumberBox : TemplatedControl
         {
             var delta = e.Delta.Y;
             if (delta > 0)
-            {
                 StepValue(SmallChange);
-            }
             else
-            {
                 StepValue(-SmallChange);
-            }
             e.Handled = true;
         }
     }
@@ -204,16 +193,13 @@ public partial class FANumberBox : TemplatedControl
         // Do this in Preview b/c TextBox will handle pointer event
         if (SpinButtonPlacementMode == FANumberBoxSpinButtonPlacementMode.Compact &&
             _popup != null && !_popup.IsOpen && IsKeyboardFocusWithin)
-        {
             _popup.IsOpen = true;
-        }
     }
 
     private void OnValueChanged(double oldValue, double newValue)
     {
         // This handler may change Value; don't send extra events in that case.
         if (!_valueUpdating)
-        {
             try
             {
                 _valueUpdating = true;
@@ -231,13 +217,11 @@ public partial class FANumberBox : TemplatedControl
 
                 UpdateTextToValue();
                 UpdateSpinButtonEnabled();
-
             }
             finally
             {
                 _valueUpdating = false;
             }
-        }
     }
 
     private void OnAutomationPropertiesNamePropertyChanged()
@@ -254,12 +238,9 @@ public partial class FANumberBox : TemplatedControl
     {
         if (_textBox == null)
             return;
-        
+
         var labeledBy = AutomationProperties.GetLabeledBy(this);
-        if (labeledBy != null)
-        {
-            AutomationProperties.SetLabeledBy(_textBox, labeledBy);
-        }
+        if (labeledBy != null) AutomationProperties.SetLabeledBy(_textBox, labeledBy);
     }
 
     private void UpdateValueToText()
@@ -286,28 +267,21 @@ public partial class FANumberBox : TemplatedControl
         }
         else
         {
-            var value = AcceptsExpression ? NumberBoxParser.Compute(text) :
-                ParseDouble(text);
+            var value = AcceptsExpression ? NumberBoxParser.Compute(text) : ParseDouble(text);
 
             if (value == null)
             {
                 if (ValidationMode == FANumberBoxValidationMode.InvalidInputOverwritten)
-                {
                     // Override text to current value
                     UpdateTextToValue();
-                }
             }
             else
             {
                 if (value.Value == Value)
-                {
                     // Even if the value hasn't changed, we still want to update the text (e.g. Value is 3, user types 1 + 2, we want to replace the text with 3)
                     UpdateTextToValue();
-                }
                 else
-                {
                     Value = value.Value;
-                }
             }
         }
     }
@@ -315,10 +289,7 @@ public partial class FANumberBox : TemplatedControl
     //Replaces INumberParser in winrt
     private double? ParseDouble(string txt)
     {
-        if (double.TryParse(txt, NumberStyles.Any, CultureInfo.CurrentCulture, out var result))
-        {
-            return result;
-        }
+        if (double.TryParse(txt, NumberStyles.Any, CultureInfo.CurrentCulture, out var result)) return result;
 
         return null;
     }
@@ -418,17 +389,11 @@ public partial class FANumberBox : TemplatedControl
             // We do this to prevent weirdness from floating point imprecision
             var newValue = Math.Round(value, 12);
             if (SimpleNumberFormat != null)
-            {
                 newText = newValue.ToString(SimpleNumberFormat);
-            }
             else if (NumberFormatter != null)
-            {
                 newText = NumberFormatter(newValue);
-            }
             else
-            {
                 newText = newValue.ToString();
-            }
         }
 
         _textBox.Text = newText;
@@ -532,10 +497,7 @@ public partial class FANumberBox : TemplatedControl
         {
             if (Header is string str)
             {
-                if (!string.IsNullOrEmpty(str))
-                {
-                    showHeader = true;
-                }
+                if (!string.IsNullOrEmpty(str)) showHeader = true;
             }
             else
             {
@@ -543,10 +505,7 @@ public partial class FANumberBox : TemplatedControl
             }
         }
 
-        if (HeaderTemplate != null)
-        {
-            showHeader = true;
-        }
+        if (HeaderTemplate != null) showHeader = true;
 
         //Changed to Pseudoclass rather than keeping a ref to the ContentPresenter
         PseudoClasses.Set(FASharedPseudoclasses.s_pcHeader, showHeader);
@@ -573,7 +532,8 @@ public partial class FANumberBox : TemplatedControl
     {
         var maximum = Maximum;
         var minimum = Minimum;
-        if (!double.IsNaN(val) && (val > maximum || val < minimum) && ValidationMode == FANumberBoxValidationMode.InvalidInputOverwritten)
+        if (!double.IsNaN(val) && (val > maximum || val < minimum) &&
+            ValidationMode == FANumberBoxValidationMode.InvalidInputOverwritten)
         {
             if (val > maximum)
                 return maximum;
@@ -594,15 +554,4 @@ public partial class FANumberBox : TemplatedControl
         _textBox?.RemoveHandler(KeyDownEvent, OnNumberBoxKeyDown);
         _textBox?.KeyUp -= OnNumberBoxKeyUp;
     }
-
-    //Template parts
-    private RepeatButton _spinDown;
-    private RepeatButton _spinUp;
-    private TextBox _textBox;
-    private Popup _popup;
-    private RepeatButton _popupUpButton;
-    private RepeatButton _popupDownButton;
-
-    private bool _textUpdating;
-    private bool _valueUpdating;
 }

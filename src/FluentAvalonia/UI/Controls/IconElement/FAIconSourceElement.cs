@@ -5,18 +5,20 @@ using Avalonia.Layout;
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Represents an icon that uses an IconSource as its content.
+///     Represents an icon that uses an IconSource as its content.
 /// </summary>
 public class FAIconSourceElement : FAIconElement
 {
     /// <summary>
-    /// Defines the <see cref="IconSource"/> property
+    ///     Defines the <see cref="IconSource" /> property
     /// </summary>
     public static readonly StyledProperty<FAIconSource> IconSourceProperty =
-         AvaloniaProperty.Register<FAIconSourceElement, FAIconSource>(nameof(IconSource));
+        AvaloniaProperty.Register<FAIconSourceElement, FAIconSource>(nameof(IconSource));
+
+    private Control _child;
 
     /// <summary>
-    /// Gets or sets the IconSource used as the icon content.
+    ///     Gets or sets the IconSource used as the icon content.
     /// </summary>
     public FAIconSource IconSource
     {
@@ -67,6 +69,4 @@ public class FAIconSourceElement : FAIconElement
     {
         return LayoutHelper.ArrangeChild(_child, finalSize, new Thickness());
     }
-
-    private Control _child;
 }

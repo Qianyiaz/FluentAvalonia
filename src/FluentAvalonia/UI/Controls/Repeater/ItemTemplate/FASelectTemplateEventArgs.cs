@@ -7,7 +7,9 @@ namespace FluentAvalonia.UI.Controls;
 
 public class FASelectTemplateEventArgs : EventArgs
 {
-    internal FASelectTemplateEventArgs() { }
+    internal FASelectTemplateEventArgs()
+    {
+    }
 
     internal FASelectTemplateEventArgs(object dataContext, Control owner)
     {

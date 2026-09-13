@@ -106,12 +106,12 @@
                         CornerRadius="{DynamicResource ScrollBarCornerRadius}"
                         Padding="-1">
                     <ui:FAFontIcon FontFamily="{StaticResource SymbolThemeFontFamily}"
-                                 Name="ArrowGlyph"
-                                 FontSize="{DynamicResource ScrollBarButtonArrowIconFontSize}"
-                                 Foreground="{DynamicResource ScrollBarButtonArrowForeground}"
-                                 Glyph="{TemplateBinding Content}"
-                                 RenderTransform="none"
-                                 RenderTransformOrigin="50%,50%">
+                                   Name="ArrowGlyph"
+                                   FontSize="{DynamicResource ScrollBarButtonArrowIconFontSize}"
+                                   Foreground="{DynamicResource ScrollBarButtonArrowForeground}"
+                                   Glyph="{TemplateBinding Content}"
+                                   RenderTransform="none"
+                                   RenderTransformOrigin="50%,50%">
                         <ui:FAFontIcon.Transitions>
                             <Transitions>
                                 <TransformOperationsTransition Duration="00:00:00.016"
@@ -158,7 +158,7 @@
                                 BorderBrush="{TemplateBinding BorderBrush}">
                             <Grid RowDefinitions="Auto,*,Auto">
 
-                                <Rectangle Name="TrackRect" 
+                                <Rectangle Name="TrackRect"
                                            Fill="{DynamicResource ScrollBarTrackFill}"
                                            Stroke="{DynamicResource ScrollBarTrackStroke}"
                                            StrokeThickness="{DynamicResource ScrollBarTrackBorderThemeThickness}"
@@ -184,7 +184,7 @@
                                               Height="{DynamicResource ScrollBarSize}"
                                               Content="&#xEDDB;"
                                               Interval="50"
-                                              AutomationProperties.Name="Line up"/>
+                                              AutomationProperties.Name="Line up" />
 
                                 <Track Grid.Row="1"
                                        Minimum="{TemplateBinding Minimum}"
@@ -200,7 +200,7 @@
                                                       Theme="{StaticResource ScrollBarPageButton}"
                                                       Focusable="False"
                                                       Opacity="0"
-                                                      AutomationProperties.Name="Page up"/>
+                                                      AutomationProperties.Name="Page up" />
                                     </Track.DecreaseButton>
                                     <Track.IncreaseButton>
                                         <RepeatButton Name="PART_PageDownButton"
@@ -208,7 +208,7 @@
                                                       Theme="{StaticResource ScrollBarPageButton}"
                                                       Focusable="False"
                                                       Opacity="0"
-                                                      AutomationProperties.Name="Page down"/>
+                                                      AutomationProperties.Name="Page down" />
                                     </Track.IncreaseButton>
                                     <Thumb Theme="{StaticResource ScrollBarThumb}"
                                            Opacity="1"
@@ -218,7 +218,7 @@
                                            MinHeight="{StaticResource ScrollBarVerticalThumbMinHeight}"
                                            CornerRadius="{TemplateBinding CornerRadius}"
                                            RenderTransformOrigin="100%,50%"
-                                           AutomationProperties.Name="Position"/>
+                                           AutomationProperties.Name="Position" />
                                 </Track>
 
                                 <RepeatButton Name="PART_LineDownButton"
@@ -231,7 +231,7 @@
                                               Interval="50"
                                               Opacity="0"
                                               Content="&#xEDDC;"
-                                              AutomationProperties.Name="Line down"/>
+                                              AutomationProperties.Name="Line down" />
 
                             </Grid>
                         </Border>
@@ -280,7 +280,7 @@
                                               Width="{DynamicResource ScrollBarSize}"
                                               Content="&#xEDD9;"
                                               Interval="50"
-                                              AutomationProperties.Name="Column left"/>
+                                              AutomationProperties.Name="Column left" />
 
                                 <Track Grid.Column="1"
                                        Minimum="{TemplateBinding Minimum}"
@@ -295,7 +295,7 @@
                                                       Theme="{StaticResource ScrollBarPageButton}"
                                                       Focusable="False"
                                                       Opacity="0"
-                                                      AutomationProperties.Name="Page left"/>
+                                                      AutomationProperties.Name="Page left" />
                                     </Track.DecreaseButton>
                                     <Track.IncreaseButton>
                                         <RepeatButton Name="PART_PageDownButton"
@@ -303,7 +303,7 @@
                                                       Theme="{StaticResource ScrollBarPageButton}"
                                                       Focusable="False"
                                                       Opacity="0"
-                                                      AutomationProperties.Name="Page right"/>
+                                                      AutomationProperties.Name="Page right" />
                                     </Track.IncreaseButton>
                                     <Thumb Theme="{StaticResource ScrollBarThumb}"
                                            Opacity="1"
@@ -325,7 +325,7 @@
                                               Interval="50"
                                               Opacity="0"
                                               Content="&#xEDDA;"
-                                              AutomationProperties.Name="Column right"/>
+                                              AutomationProperties.Name="Column right" />
 
                             </Grid>
                         </Border>

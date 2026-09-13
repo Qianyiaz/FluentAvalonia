@@ -43,16 +43,16 @@
                                           VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
 
                         <ui:FAFontIcon Name="DropDownGlyph"
-                                     Grid.Column="1"
-                                     UseLayoutRounding="False"
-                                     IsHitTestVisible="False"
-                                     Foreground="{DynamicResource ComboBoxDropDownGlyphForeground}"
-                                     Margin="0,0,10,0"
-                                     FontFamily="{DynamicResource SymbolThemeFontFamily}"
-                                     FontSize="12"
-                                     Glyph="&#xE70D;"
-                                     HorizontalAlignment="Right"
-                                     VerticalAlignment="Center" />
+                                       Grid.Column="1"
+                                       UseLayoutRounding="False"
+                                       IsHitTestVisible="False"
+                                       Foreground="{DynamicResource ComboBoxDropDownGlyphForeground}"
+                                       Margin="0,0,10,0"
+                                       FontFamily="{DynamicResource SymbolThemeFontFamily}"
+                                       FontSize="12"
+                                       Glyph="&#xE70D;"
+                                       HorizontalAlignment="Right"
+                                       VerticalAlignment="Center" />
                     </Grid>
                 </Border>
             </ControlTemplate>

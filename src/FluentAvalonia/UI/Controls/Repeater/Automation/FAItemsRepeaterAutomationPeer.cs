@@ -6,7 +6,7 @@ namespace FluentAvalonia.UI.Controls;
 
 public class FAItemsRepeaterAutomationPeer : ControlAutomationPeer
 {
-    public FAItemsRepeaterAutomationPeer(Control owner) 
+    public FAItemsRepeaterAutomationPeer(Control owner)
         : base(owner)
     {
     }
@@ -25,12 +25,8 @@ public class FAItemsRepeaterAutomationPeer : ControlAutomationPeer
         {
             var childPeer = childrenPeers[i];
             if (GetElement((ControlAutomationPeer)childPeer, repeater) is Control c)
-            {
                 if (FAItemsRepeater.GetVirtualizationInfo(c) is VirtualizationInfo vi && vi.IsRealized)
-                {
                     realizedPeers.Add((vi.Index, childPeer));
-                }
-            }
         }
 
         realizedPeers.Sort((lhs, rhs) => lhs.Item1 < rhs.Item1 ? 1 : -1);
@@ -45,7 +41,7 @@ public class FAItemsRepeaterAutomationPeer : ControlAutomationPeer
     {
         var childElement = childPeer.Owner;
         var parent = childElement.GetVisualParent();
-        while (parent != null && (parent as FAItemsRepeater) != repeater)
+        while (parent != null && parent as FAItemsRepeater != repeater)
         {
             childElement = (Control)parent;
             parent = childElement.GetVisualParent();

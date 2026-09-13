@@ -6,13 +6,13 @@ namespace FluentAvalonia.UI.Media.Animation;
 //NOTE: These are custom implementations of these classes as the source is still closed...TODO v3
 
 /// <summary>
-/// Provides parameter info for the Frame.Navigate method. Controls how the transition animation 
-/// runs during the navigation action.
+///     Provides parameter info for the Frame.Navigate method. Controls how the transition animation
+///     runs during the navigation action.
 /// </summary>
 public abstract class FANavigationTransitionInfo : AvaloniaObject
 {
     /// <summary>
-    /// Executes a predefined animation on the desired object
+    ///     Executes a predefined animation on the desired object
     /// </summary>
     /// <param name="ctrl">The object to animate</param>
     /// <param name="cancellationToken"></param>

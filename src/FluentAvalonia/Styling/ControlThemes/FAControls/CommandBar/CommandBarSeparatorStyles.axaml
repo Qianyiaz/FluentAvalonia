@@ -22,7 +22,7 @@
                             Margin="{TemplateBinding Padding}"
                             CornerRadius="{DynamicResource AppBarSeparatorCornerRadius}"
                             Width="{DynamicResource AppBarSeparatorWidth}"
-                            VerticalAlignment="Stretch"/>
+                            VerticalAlignment="Stretch" />
                 </Panel>
             </ControlTemplate>
         </Setter>

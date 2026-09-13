@@ -5,19 +5,19 @@ namespace FluentAvalonia.UI.Controls;
 public partial class FABitmapIcon : FAIconElement
 {
     /// <summary>
-    /// Defines the <see cref="UriSource"/> property
+    ///     Defines the <see cref="UriSource" /> property
     /// </summary>
     public static readonly StyledProperty<Uri> UriSourceProperty =
         AvaloniaProperty.Register<FABitmapIcon, Uri>(nameof(UriSource));
 
     /// <summary>
-    /// Defines the <see cref="ShowAsMonochrome"/> property
+    ///     Defines the <see cref="ShowAsMonochrome" /> property
     /// </summary>
     public static readonly StyledProperty<bool> ShowAsMonochromeProperty =
         AvaloniaProperty.Register<FABitmapIcon, bool>(nameof(ShowAsMonochrome));
 
     /// <summary>
-    /// Gets or sets the Uniform Resource Identifier (URI) of the bitmap to use as the icon content.
+    ///     Gets or sets the Uniform Resource Identifier (URI) of the bitmap to use as the icon content.
     /// </summary>
     public Uri UriSource
     {
@@ -26,7 +26,7 @@ public partial class FABitmapIcon : FAIconElement
     }
 
     /// <summary>
-    /// Gets or sets a value that indicates whether the bitmap is shown in a single color.
+    ///     Gets or sets a value that indicates whether the bitmap is shown in a single color.
     /// </summary>
     public bool ShowAsMonochrome
     {

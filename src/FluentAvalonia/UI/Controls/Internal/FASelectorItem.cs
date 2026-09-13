@@ -12,21 +12,25 @@ namespace FluentAvalonia.UI.Controls.Internal;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class FASelectorItem : ContentControl, ISelectable
 {
-    static FASelectorItem()
-    {
-        SelectableMixin.Attach<FASelectorItem>(IsSelectedProperty);
-        FocusableProperty.OverrideDefaultValue<FASelectorItem>(true);
-        AutomationProperties.IsOffscreenBehaviorProperty.OverrideDefaultValue<FASelectorItem>(IsOffscreenBehavior.FromClip);
-    }
-
     /// <summary>
-    /// Defines the <see cref="IsSelected"/> property.
+    ///     Defines the <see cref="IsSelected" /> property.
     /// </summary>
     public static readonly StyledProperty<bool> IsSelectedProperty =
         SelectingItemsControl.IsSelectedProperty.AddOwner<FASelectorItem>();
 
+    private bool _isPressed;
+    private int _trackedPointerId;
+
+    static FASelectorItem()
+    {
+        SelectableMixin.Attach<FASelectorItem>(IsSelectedProperty);
+        FocusableProperty.OverrideDefaultValue<FASelectorItem>(true);
+        AutomationProperties.IsOffscreenBehaviorProperty.OverrideDefaultValue<FASelectorItem>(IsOffscreenBehavior
+            .FromClip);
+    }
+
     /// <summary>
-    /// Gets or sets whether the item is selected
+    ///     Gets or sets whether the item is selected
     /// </summary>
     public bool IsSelected
     {
@@ -42,13 +46,9 @@ public abstract class FASelectorItem : ContentControl, ISelectable
             return;
 
         if (e.Pointer.Type == PointerType.Mouse)
-        {
             _isPressed = e.GetCurrentPoint(this).Properties.IsLeftButtonPressed;
-        }
         else
-        {
             _isPressed = true;
-        }
 
         if (_isPressed)
             UpdateVisualState();
@@ -111,13 +111,8 @@ public abstract class FASelectorItem : ContentControl, ISelectable
     private bool IgnorePointerId(int id)
     {
         if (_trackedPointerId == 0)
-        {
             _trackedPointerId = id;
-        }
-        else if (_trackedPointerId != id)
-        {
-            return true;
-        }
+        else if (_trackedPointerId != id) return true;
 
         return false;
     }
@@ -126,7 +121,4 @@ public abstract class FASelectorItem : ContentControl, ISelectable
     {
         PseudoClasses.Set(FASharedPseudoclasses.s_pcPressed, _isPressed);
     }
-
-    private bool _isPressed;
-    private int _trackedPointerId;
 }

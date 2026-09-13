@@ -1,7 +1,7 @@
 ﻿namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Provides data for the <see cref="FATeachingTip.Closed"/> event.
+///     Provides data for the <see cref="FATeachingTip.Closed" /> event.
 /// </summary>
 public class FATeachingTipClosedEventArgs : EventArgs
 {
@@ -11,8 +11,8 @@ public class FATeachingTipClosedEventArgs : EventArgs
     }
 
     /// <summary>
-    /// Gets a constant that specifies whether the cause of the Closed event was due to user 
-    /// interaction (Close button click), light-dismissal, or programmatic closure.
+    ///     Gets a constant that specifies whether the cause of the Closed event was due to user
+    ///     interaction (Close button click), light-dismissal, or programmatic closure.
     /// </summary>
     public FATeachingTipCloseReason Reason { get; }
 }

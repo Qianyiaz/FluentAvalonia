@@ -1,10 +1,10 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Logging;
-using FluentAvalonia.Interop;
-using FluentAvalonia.Interop.WinRT;
 using Avalonia.Media;
 using Avalonia.Platform;
 using Avalonia.Styling;
+using FluentAvalonia.Interop;
+using FluentAvalonia.Interop.WinRT;
 
 namespace FluentAvalonia.Styling;
 
@@ -13,17 +13,11 @@ public partial class FluentAvaloniaTheme
     private ThemeVariant ResolveWindowsSystemSettings(IPlatformSettings platformSettings)
     {
         ThemeVariant theme = null;
-        if (PreferSystemTheme)
-        {
-            theme = GetThemeFromIPlatformSettings(platformSettings);
-        }
+        if (PreferSystemTheme) theme = GetThemeFromIPlatformSettings(platformSettings);
 
         if (CustomAccentColor != null)
-        {
             LoadCustomAccentColor();
-        }
         else if (PreferUserAccentColor)
-        {
             try
             {
                 TryLoadWindowsAccentColor();
@@ -31,27 +25,19 @@ public partial class FluentAvaloniaTheme
             catch
             {
                 Logger.TryGet(LogEventLevel.Information, "FluentAvaloniaTheme")?
-                        .Log("FluentAvaloniaTheme", "Unable to create instance of ComObject IUISettings");
+                    .Log("FluentAvaloniaTheme", "Unable to create instance of ComObject IUISettings");
                 LoadDefaultAccentColor();
-            }            
-        }
+            }
         else
-        {
             LoadDefaultAccentColor();
-        }
 
         if (UseSystemFontOnWindows)
-        {
             try
             {
                 if (OSVersionHelper.IsWindows11())
-                {
                     AddOrUpdateSystemResource("ContentControlThemeFontFamily", new FontFamily("Segoe UI Variable"));
-                }
                 else
-                {
                     AddOrUpdateSystemResource("ContentControlThemeFontFamily", new FontFamily("Segoe UI"));
-                }
             }
             catch
             {
@@ -60,7 +46,6 @@ public partial class FluentAvaloniaTheme
 
                 AddOrUpdateSystemResource("ContentControlThemeFontFamily", FontFamily.Default);
             }
-        }
 
         return theme;
     }
@@ -75,7 +60,8 @@ public partial class FluentAvaloniaTheme
         catch
         {
             Logger.TryGet(LogEventLevel.Information, "FluentAvaloniaTheme")?
-                .Log("FluentAvaloniaTheme", "Loading high contrast theme resources failed. Unable to create ComObject IUISettings");
+                .Log("FluentAvaloniaTheme",
+                    "Loading high contrast theme resources failed. Unable to create ComObject IUISettings");
             return;
         }
 
@@ -90,7 +76,8 @@ public partial class FluentAvaloniaTheme
             catch
             {
                 Logger.TryGet(LogEventLevel.Information, "FluentAvaloniaTheme")?
-                .Log("FluentAvaloniaTheme", $"Loading high contrast theme resources failed. Unable to load {resKey} resource");
+                    .Log("FluentAvaloniaTheme",
+                        $"Loading high contrast theme resources failed. Unable to load {resKey} resource");
             }
         }
 

@@ -3,11 +3,11 @@
 namespace FluentAvalonia.UI.Controls.Primitives;
 
 /// <summary>
-/// Represents a command button in a TaskDialog
+///     Represents a command button in a TaskDialog
 /// </summary>
 /// <remarks>
-/// This type should not be used directly and is generated automatically
-/// by a TaskDialog
+///     This type should not be used directly and is generated automatically
+///     by a TaskDialog
 /// </remarks>
 public class FATaskDialogCommandHost : FATaskDialogButtonHost
 {

@@ -1,16 +1,14 @@
-﻿using Avalonia;
-using System.Windows.Input;
+﻿using System.Windows.Input;
+using Avalonia;
 
 namespace FluentAvalonia.UI.Input;
 
 /// <summary>
-/// Provides a base class for defining the command behavior of an interactive UI element that 
-/// performs an action when invoked (such as sending an email, deleting an item, or submitting a form).
+///     Provides a base class for defining the command behavior of an interactive UI element that
+///     performs an action when invoked (such as sending an email, deleting an item, or submitting a form).
 /// </summary>
 public partial class FAXamlUICommand : AvaloniaObject, ICommand
 {
-    public void NotifyCanExecuteChanged() => CanExecuteChanged?.Invoke(this, null);
-
     public bool CanExecute(object param)
     {
         var canExec = false;
@@ -39,4 +37,6 @@ public partial class FAXamlUICommand : AvaloniaObject, ICommand
 
         Command?.Execute(param);
     }
+
+    public void NotifyCanExecuteChanged() => CanExecuteChanged?.Invoke(this, null);
 }

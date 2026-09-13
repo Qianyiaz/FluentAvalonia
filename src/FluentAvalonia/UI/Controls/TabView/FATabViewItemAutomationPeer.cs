@@ -6,31 +6,13 @@ using Avalonia.VisualTree;
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Represents the <see cref="AutomationPeer"/> for a <see cref="FATabViewItem"/>
+///     Represents the <see cref="AutomationPeer" /> for a <see cref="FATabViewItem" />
 /// </summary>
 public sealed class FATabViewItemAutomationPeer : ListItemAutomationPeer, ISelectionItemProvider
 {
-    public FATabViewItemAutomationPeer(ContentControl owner) 
+    public FATabViewItemAutomationPeer(ContentControl owner)
         : base(owner)
     {
-    }
-
-    protected override AutomationControlType GetAutomationControlTypeCore() =>
-        AutomationControlType.TabItem;
-
-    protected override string GetNameCore()
-    {
-        var name = base.GetNameCore();
-
-        if (string.IsNullOrEmpty(name))
-        {
-            if (Owner is FATabViewItem tvi)
-            {
-                name = tvi.Header?.ToString() ?? "TabViewItem";
-            }
-        }
-
-        return name;
     }
 
     bool ISelectionItemProvider.IsSelected => (Owner as FATabViewItem)?.IsSelected ?? false;
@@ -39,10 +21,7 @@ public sealed class FATabViewItemAutomationPeer : ListItemAutomationPeer, ISelec
     {
         get
         {
-            if (GetParentTabView() is FATabView tv)
-            {
-                return CreatePeerForElement(tv) as ISelectionProvider;
-            }
+            if (GetParentTabView() is FATabView tv) return CreatePeerForElement(tv) as ISelectionProvider;
 
             return null;
         }
@@ -64,14 +43,24 @@ public sealed class FATabViewItemAutomationPeer : ListItemAutomationPeer, ISelec
             tvi.IsSelected = true;
     }
 
+    protected override AutomationControlType GetAutomationControlTypeCore() =>
+        AutomationControlType.TabItem;
+
+    protected override string GetNameCore()
+    {
+        var name = base.GetNameCore();
+
+        if (string.IsNullOrEmpty(name))
+            if (Owner is FATabViewItem tvi)
+                name = tvi.Header?.ToString() ?? "TabViewItem";
+
+        return name;
+    }
+
     private FATabView GetParentTabView()
     {
-        if (Owner is FATabViewItem tvi)
-        {
-            return tvi.ParentTabView ?? tvi.FindAncestorOfType<FATabView>();
-        }
+        if (Owner is FATabViewItem tvi) return tvi.ParentTabView ?? tvi.FindAncestorOfType<FATabView>();
 
         return null;
     }
-
 }

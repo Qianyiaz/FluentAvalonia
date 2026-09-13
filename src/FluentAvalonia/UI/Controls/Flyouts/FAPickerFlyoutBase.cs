@@ -4,17 +4,17 @@ using Avalonia.Controls.Primitives;
 namespace FluentAvalonia.UI.Controls.Primitives;
 
 /// <summary>
-/// The base class for a Flyout that allows confirming or dismissing
+///     The base class for a Flyout that allows confirming or dismissing
 /// </summary>
 public abstract class FAPickerFlyoutBase : PopupFlyoutBase
 {
     /// <summary>
-    /// Provides logic that should performed when the confirmed button is tapped
+    ///     Provides logic that should performed when the confirmed button is tapped
     /// </summary>
     protected abstract void OnConfirmed();
 
     /// <summary>
-    /// Determines if the Accept and Dismiss buttons should be shown
+    ///     Determines if the Accept and Dismiss buttons should be shown
     /// </summary>
     protected virtual bool ShouldShowConfirmationButtons() => true;
 
@@ -22,9 +22,6 @@ public abstract class FAPickerFlyoutBase : PopupFlyoutBase
     {
         base.OnOpening(args);
 
-        if (Popup.Child is FAPickerFlyoutPresenter pfp)
-        {
-            pfp.ShowHideButtons(ShouldShowConfirmationButtons());
-        }
+        if (Popup.Child is FAPickerFlyoutPresenter pfp) pfp.ShowHideButtons(ShouldShowConfirmationButtons());
     }
 }

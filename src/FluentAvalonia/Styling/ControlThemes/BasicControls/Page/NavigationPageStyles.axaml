@@ -88,20 +88,26 @@
                             Height="{TemplateBinding EffectiveBarHeight}">
                         <Grid Margin="12,0,0,0" ColumnDefinitions="Auto, *, Auto">
                             <Grid.Styles>
-                                <Style Selector="Button#PART_BackButton /template/ ContentPresenter#PART_ContentPresenter">
+                                <Style
+                                    Selector="Button#PART_BackButton /template/ ContentPresenter#PART_ContentPresenter">
                                     <Setter Property="Background" Value="Transparent" />
                                     <Setter Property="CornerRadius" Value="4" />
                                 </Style>
-                                <Style Selector="Button#PART_BackButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-                                    <Setter Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}" />
+                                <Style
+                                    Selector="Button#PART_BackButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+                                    <Setter Property="Background"
+                                            Value="{DynamicResource SubtleFillColorSecondaryBrush}" />
                                 </Style>
-                                <Style Selector="Button#PART_BackButton:pressed /template/ ContentPresenter#PART_ContentPresenter">
-                                    <Setter Property="Background" Value="{DynamicResource SubtleFillColorTertiaryBrush}" />
+                                <Style
+                                    Selector="Button#PART_BackButton:pressed /template/ ContentPresenter#PART_ContentPresenter">
+                                    <Setter Property="Background"
+                                            Value="{DynamicResource SubtleFillColorTertiaryBrush}" />
                                 </Style>
                                 <Style Selector="Button#PART_BackButton:disabled">
                                     <Setter Property="Opacity" Value="0.4" />
                                 </Style>
-                                <Style Selector="Button#PART_BackButton:focus-visible /template/ ContentPresenter#PART_ContentPresenter">
+                                <Style
+                                    Selector="Button#PART_BackButton:focus-visible /template/ ContentPresenter#PART_ContentPresenter">
                                     <!--<Setter Property="BorderBrush" Value="{DynamicResource SystemControlForegroundBaseHighBrush}" />-->
                                     <Setter Property="BorderThickness" Value="2" />
                                     <Setter Property="CornerRadius" Value="4" />
@@ -109,18 +115,23 @@
                                 <Style Selector="Button:disabled /template/ ContentPresenter#PART_ContentPresenter">
                                     <Setter Property="Background" Value="Transparent" />
                                 </Style>
-                                <Style Selector="Button#PART_OverflowButton /template/ ContentPresenter#PART_ContentPresenter">
+                                <Style
+                                    Selector="Button#PART_OverflowButton /template/ ContentPresenter#PART_ContentPresenter">
                                     <Setter Property="Background" Value="Transparent" />
                                     <Setter Property="CornerRadius" Value="0" />
                                 </Style>
-                                <Style Selector="Button#PART_OverflowButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-                                    <Setter Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}" />
+                                <Style
+                                    Selector="Button#PART_OverflowButton:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+                                    <Setter Property="Background"
+                                            Value="{DynamicResource SubtleFillColorSecondaryBrush}" />
                                 </Style>
-                                <Style Selector="Button#PART_OverflowButton:pressed /template/ ContentPresenter#PART_ContentPresenter">
-                                    <Setter Property="Background" Value="{DynamicResource SubtleFillColorTertiaryBrush}" />
+                                <Style
+                                    Selector="Button#PART_OverflowButton:pressed /template/ ContentPresenter#PART_ContentPresenter">
+                                    <Setter Property="Background"
+                                            Value="{DynamicResource SubtleFillColorTertiaryBrush}" />
                                 </Style>
                             </Grid.Styles>
-                            
+
                             <Button Name="PART_BackButton"
                                     Grid.Column="0"
                                     Background="Transparent"
@@ -140,7 +151,7 @@
                                                             VerticalAlignment="Center" />
                                     <ContentPresenter Name="PART_BackButtonContentPresenter"
                                                       VerticalAlignment="Center"
-                                                      HorizontalAlignment="Center"/>
+                                                      HorizontalAlignment="Center" />
                                 </Panel>
                             </Button>
 

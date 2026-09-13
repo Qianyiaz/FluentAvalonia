@@ -4,7 +4,7 @@ using Avalonia.Animation;
 namespace FluentAvalonia.UI.Media.Animation;
 
 /// <summary>
-/// Specifies that animations are suppressed during navigation.
+///     Specifies that animations are suppressed during navigation.
 /// </summary>
 public class FASuppressNavigationTransitionInfo : FANavigationTransitionInfo
 {
@@ -14,4 +14,3 @@ public class FASuppressNavigationTransitionInfo : FANavigationTransitionInfo
         (ctrl as Visual).Opacity = 1;
     }
 }
-

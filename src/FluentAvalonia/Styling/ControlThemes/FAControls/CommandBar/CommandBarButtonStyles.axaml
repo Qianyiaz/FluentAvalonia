@@ -7,11 +7,11 @@
         <Border Width="400" Padding="50" Height="400">
             <StackPanel Spacing="5">
                 <Border Background="SteelBlue">
-                    <ui:FACommandBarButton Label="Button1" 
-                                         IconSource="Save" 
-                                         HotKey="Ctrl+S" 
-                                         IsCompact="True"
-                                         core:FAVisualStateHelper.ForcedClassesProperty=":labelRight">
+                    <ui:FACommandBarButton Label="Button1"
+                                           IconSource="Save"
+                                           HotKey="Ctrl+S"
+                                           IsCompact="True"
+                                           core:FAVisualStateHelper.ForcedClassesProperty=":labelRight">
                         <ui:FACommandBarButton.Flyout>
                             <Flyout />
                         </ui:FACommandBarButton.Flyout>
@@ -28,7 +28,7 @@
                 </ui:FACommandBarOverflowPresenter>
 
                 <ui:FACommandBar ClosedDisplayMode="Compact" IsOpen="False"
-                               DefaultLabelPosition="Bottom">
+                                 DefaultLabelPosition="Bottom">
                     <ui:FACommandBar.PrimaryCommands>
                         <ui:FACommandBarButton Label="Test" IconSource="Save" IsCompact="False" />
                     </ui:FACommandBar.PrimaryCommands>
@@ -132,17 +132,17 @@
                                    VerticalAlignment="Center"
                                    Margin="24 0 12 0"
                                    Foreground="{DynamicResource AppBarButtonKeyboardAcceleratorTextForeground}"
-                                   IsVisible="False"/>
+                                   IsVisible="False" />
 
                         <ui:FAFontIcon Name="SubItemChevron"
-                                     Grid.Column="2"
-                                     Glyph="{DynamicResource AppBarButtonOverflowFlyoutGlyph}"
-                                     FontFamily="{StaticResource SymbolThemeFontFamily}"
-                                     FontSize="14"
-                                     Foreground="{DynamicResource AppBarButtonSubItemChevronForeground}"
-                                     VerticalAlignment="Top"
-                                     Margin="-23 20 12 0"
-                                     IsVisible="False"/>
+                                       Grid.Column="2"
+                                       Glyph="{DynamicResource AppBarButtonOverflowFlyoutGlyph}"
+                                       FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                       FontSize="14"
+                                       Foreground="{DynamicResource AppBarButtonSubItemChevronForeground}"
+                                       VerticalAlignment="Top"
+                                       Margin="-23 20 12 0"
+                                       IsVisible="False" />
 
                     </Grid>
 
@@ -166,7 +166,8 @@
                 <Setter Property="Foreground" Value="{DynamicResource AppBarButtonForegroundPointerOver}" />
             </Style>
             <Style Selector="^ /template/ TextBlock#KeyboardAcceleratorTextLabel">
-                <Setter Property="Foreground" Value="{DynamicResource AppBarButtonKeyboardAcceleratorTextForegroundPointerOver}" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource AppBarButtonKeyboardAcceleratorTextForegroundPointerOver}" />
             </Style>
             <Style Selector="^ /template/ ui|FAFontIcon#SubItemChevron">
                 <!-- WinUI #6831 -->
@@ -189,7 +190,8 @@
                 <Setter Property="Foreground" Value="{DynamicResource AppBarButtonForegroundPressed}" />
             </Style>
             <Style Selector="^ /template/ TextBlock#KeyboardAcceleratorTextLabel">
-                <Setter Property="Foreground" Value="{DynamicResource AppBarButtonKeyboardAcceleratorTextForegroundPressed}" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource AppBarButtonKeyboardAcceleratorTextForegroundPressed}" />
             </Style>
             <Style Selector="^ /template/ ui|FAFontIcon#SubItemChevron">
                 <!-- WinUI #6831 -->
@@ -212,7 +214,8 @@
                 <Setter Property="Foreground" Value="{DynamicResource AppBarButtonForegroundDisabled}" />
             </Style>
             <Style Selector="^ /template/ TextBlock#KeyboardAcceleratorTextLabel">
-                <Setter Property="Foreground" Value="{DynamicResource AppBarButtonKeyboardAcceleratorTextForegroundDisabled}" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource AppBarButtonKeyboardAcceleratorTextForegroundDisabled}" />
             </Style>
             <Style Selector="^ /template/ ui|FAFontIcon#SubItemChevron">
                 <!-- WinUI #6831 -->
@@ -230,7 +233,8 @@
             <Style Selector="^ /template/ Border#AppBarButtonInnerBorder">
                 <Setter Property="Margin" Value="{DynamicResource AppBarButtonInnerBorderOverflowMargin}" />
             </Style>
-            <Style Selector="^ /template/ Viewbox#ContentViewbox,
+            <Style
+                Selector="^ /template/ Viewbox#ContentViewbox,
                              ^ /template/ TextBlock#TextLabel">
                 <Setter Property="IsVisible" Value="False" />
             </Style>
@@ -260,10 +264,12 @@
                     <Setter Property="Foreground" Value="{DynamicResource AppBarButtonForegroundPointerOver}" />
                 </Style>
                 <Style Selector="^ /template/ TextBlock#KeyboardAcceleratorTextLabel">
-                    <Setter Property="Foreground" Value="{DynamicResource AppBarButtonKeyboardAcceleratorTextForegroundPointerOver}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource AppBarButtonKeyboardAcceleratorTextForegroundPointerOver}" />
                 </Style>
                 <Style Selector="^ /template/ ui|FAFontIcon#SubItemChevron">
-                    <Setter Property="Foreground" Value="{DynamicResource AppBarButtonSubItemChevronForegroundPointerOver}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource AppBarButtonSubItemChevronForegroundPointerOver}" />
                 </Style>
             </Style>
 
@@ -282,7 +288,8 @@
                     <Setter Property="Foreground" Value="{DynamicResource AppBarButtonForegroundPressed}" />
                 </Style>
                 <Style Selector="^ /template/ TextBlock#KeyboardAcceleratorTextLabel">
-                    <Setter Property="Foreground" Value="{DynamicResource AppBarButtonKeyboardAcceleratorTextForegroundPressed}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource AppBarButtonKeyboardAcceleratorTextForegroundPressed}" />
                 </Style>
                 <Style Selector="^ /template/ ui|FAFontIcon#SubItemChevron">
                     <Setter Property="Foreground" Value="{DynamicResource AppBarButtonSubItemChevronForegroundPressed}" />
@@ -304,13 +311,15 @@
                     <Setter Property="Foreground" Value="{DynamicResource AppBarButtonForegroundSubMenuOpened}" />
                 </Style>
                 <Style Selector="^ /template/ TextBlock#KeyboardAcceleratorTextLabel">
-                    <Setter Property="Foreground" Value="{DynamicResource AppBarButtonKeyboardAcceleratorTextForegroundSubMenuOpened}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource AppBarButtonKeyboardAcceleratorTextForegroundSubMenuOpened}" />
                 </Style>
                 <Style Selector="^ /template/ ui|FAFontIcon#SubItemChevron">
-                    <Setter Property="Foreground" Value="{DynamicResource AppBarButtonSubItemChevronForegroundSubMenuOpened}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource AppBarButtonSubItemChevronForegroundSubMenuOpened}" />
                 </Style>
             </Style>
-            
+
             <!-- Has Hotkey (KeyboardAccelerator) -->
             <Style Selector="^:overflow:hotkey /template/ TextBlock#KeyboardAcceleratorTextLabel">
                 <Setter Property="IsVisible" Value="True" />

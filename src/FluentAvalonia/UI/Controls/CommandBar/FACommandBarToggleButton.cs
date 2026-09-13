@@ -1,15 +1,15 @@
-﻿using Avalonia.Controls;
-using Avalonia;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
 using Avalonia.LogicalTree;
-using FluentAvalonia.UI.Input;
 using FluentAvalonia.Core;
-using Avalonia.Controls.Presenters;
+using FluentAvalonia.UI.Input;
 
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Represents a button control that can switch states and be displayed in a CommandBar.
+///     Represents a button control that can switch states and be displayed in a CommandBar.
 /// </summary>
 public partial class FACommandBarToggleButton : ToggleButton, IFACommandBarElement
 {
@@ -45,40 +45,22 @@ public partial class FACommandBarToggleButton : ToggleButton, IFACommandBarEleme
         {
             if (change.OldValue is FAXamlUICommand xamlComOld)
             {
-                if (Label == xamlComOld.Label)
-                {
-                    Label = null;
-                }
+                if (Label == xamlComOld.Label) Label = null;
 
-                if (HotKey == xamlComOld.HotKey)
-                {
-                    HotKey = null;
-                }
+                if (HotKey == xamlComOld.HotKey) HotKey = null;
 
-                if (ToolTip.GetTip(this).ToString() == xamlComOld.Description)
-                {
-                    ToolTip.SetTip(this, null);
-                }
+                if (ToolTip.GetTip(this).ToString() == xamlComOld.Description) ToolTip.SetTip(this, null);
             }
 
             if (change.NewValue is FAXamlUICommand xamlCom)
             {
-                if (string.IsNullOrEmpty(Label))
-                {
-                    Label = xamlCom.Label;
-                }
+                if (string.IsNullOrEmpty(Label)) Label = xamlCom.Label;
 
                 IconSource = xamlCom.IconSource;
 
-                if (HotKey == null)
-                {
-                    HotKey = xamlCom.HotKey;
-                }
+                if (HotKey == null) HotKey = xamlCom.HotKey;
 
-                if (ToolTip.GetTip(this) == null)
-                {
-                    ToolTip.SetTip(this, xamlCom.Description);
-                }
+                if (ToolTip.GetTip(this) == null) ToolTip.SetTip(this, xamlCom.Description);
             }
         }
     }
@@ -89,10 +71,7 @@ public partial class FACommandBarToggleButton : ToggleButton, IFACommandBarEleme
         if (IsInOverflow)
         {
             var cb = this.FindLogicalAncestorOfType<FACommandBar>();
-            if (cb != null)
-            {
-                cb.IsOpen = false;
-            }
+            if (cb != null) cb.IsOpen = false;
         }
     }
 

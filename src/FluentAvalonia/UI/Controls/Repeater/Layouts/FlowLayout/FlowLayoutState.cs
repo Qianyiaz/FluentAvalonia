@@ -4,6 +4,14 @@ namespace FluentAvalonia.UI.Controls;
 
 internal class FlowLayoutState
 {
+    private const int BufferSize = 100;
+
+    private readonly FlowLayoutAlgorithm _flowAlgorithm = new();
+    private double[] _itemsPerLineEstimationBuffer;
+    private double[] _lineSizeEstimationBuffer;
+    private double _totalItemsPerLine;
+    private double _totalLineSize;
+    private int _totalLinesMeasured;
     internal FlowLayoutAlgorithm FlowAlgorithm => _flowAlgorithm;
 
     internal Size SpecialElementDesiredSize { get; set; }
@@ -43,10 +51,7 @@ internal class FlowLayoutState
             var estimationBufferIndex = startIndex % _lineSizeEstimationBuffer.Length;
             var alreadyMeasured = _lineSizeEstimationBuffer[estimationBufferIndex] != 0;
 
-            if (!alreadyMeasured)
-            {
-                ++_totalLinesMeasured;
-            }
+            if (!alreadyMeasured) ++_totalLinesMeasured;
 
             _totalLineSize -= _lineSizeEstimationBuffer[estimationBufferIndex];
             _totalLineSize += lineSize;
@@ -57,12 +62,4 @@ internal class FlowLayoutState
             _itemsPerLineEstimationBuffer[estimationBufferIndex] = countInLine;
         }
     }
-
-    private readonly FlowLayoutAlgorithm _flowAlgorithm = new FlowLayoutAlgorithm();
-    private double[] _lineSizeEstimationBuffer;
-    private double[] _itemsPerLineEstimationBuffer;
-    private double _totalLineSize;
-    private int _totalLinesMeasured;
-    private double _totalItemsPerLine;
-    private const int BufferSize = 100;
 }

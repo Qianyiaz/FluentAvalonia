@@ -6,10 +6,12 @@ using Avalonia.Media.TextFormatting;
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Represents an icon that uses a glyph from the specified font.
+///     Represents an icon that uses a glyph from the specified font.
 /// </summary>
 public partial class FAFontIcon : FAIconElement
 {
+    private TextLayout _textLayout;
+
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
@@ -32,10 +34,7 @@ public partial class FAFontIcon : FAIconElement
 
     protected override Size MeasureOverride(Size availableSize)
     {
-        if (_textLayout == null)
-        {
-            GenerateText();
-        }
+        if (_textLayout == null) GenerateText();
 
         return new Size(_textLayout.Width, _textLayout.Height);
     }
@@ -49,7 +48,7 @@ public partial class FAFontIcon : FAIconElement
         using (context.PushClip(dstRect))
         {
             var pt = new Point(dstRect.Center.X - _textLayout.Width * 0.5,
-                               dstRect.Center.Y - _textLayout.Height * 0.5);
+                dstRect.Center.Y - _textLayout.Height * 0.5);
             _textLayout.Draw(context, pt);
         }
     }
@@ -57,8 +56,6 @@ public partial class FAFontIcon : FAIconElement
     private void GenerateText()
     {
         _textLayout = new TextLayout(Glyph, new Typeface(FontFamily, FontStyle, FontWeight),
-           FontSize, Foreground, TextAlignment.Left);
+            FontSize, Foreground, TextAlignment.Left);
     }
-
-    private TextLayout _textLayout;
 }

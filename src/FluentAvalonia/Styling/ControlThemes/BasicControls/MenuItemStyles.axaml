@@ -1,14 +1,13 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:ui="using:FluentAvalonia.UI.Controls"
-                    xmlns:sys="clr-namespace:System;assembly=netstandard"
                     x:CompileBindings="True">
 
     <Design.PreviewWith>
         <Border Padding="20" Width="320">
             <StackPanel Spacing="20" HorizontalAlignment="Left">
-                <MenuItem Header="_Standard"/>
-                <MenuItem IsSelected="True" Header="Selected"/>
+                <MenuItem Header="_Standard" />
+                <MenuItem IsSelected="True" Header="Selected" />
                 <MenuItem Header="With Icon">
                     <MenuItem.Icon>
                         <TextBlock>😊</TextBlock>
@@ -16,36 +15,36 @@
                 </MenuItem>
                 <MenuItem Header="With CheckBox">
                     <MenuItem.Icon>
-                        <CheckBox IsChecked="True"/>
+                        <CheckBox IsChecked="True" />
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="Input Gesture" InputGesture="Ctrl+G"/>
-                <MenuItem Header="Disabled" IsEnabled="False"/>
-                <MenuItem Header="-"/>
+                <MenuItem Header="Input Gesture" InputGesture="Ctrl+G" />
+                <MenuItem Header="Disabled" IsEnabled="False" />
+                <MenuItem Header="-" />
                 <MenuItem Header="Parent" IsSubMenuOpen="False">
-                    <MenuItem Header="Child 1"/>
-                    <MenuItem Header="Child 2"/>
-                    <MenuItem Header="Child 3"/>
-                    <Separator/>
-                    <MenuItem Header="Child 4"/>
-                    <MenuItem Header="Child 5"/>
-                    <MenuItem Header="Child 6"/>
-                    <MenuItem Header="Child 7"/>
-                    <MenuItem Header="Child 8"/>
-                    <MenuItem Header="Child 9"/>
-                    <MenuItem Header="Child 10"/>
-                    <MenuItem Header="Child 11"/>
-                    <MenuItem Header="Child 12"/>
-                    <MenuItem Header="Child 13"/>
-                    <MenuItem Header="Child 14"/>
-                    <MenuItem Header="Child 15"/>
-                    <MenuItem Header="Child 16"/>
-                    <MenuItem Header="Child 17"/>
-                    <MenuItem Header="Child 18"/>
-                    <MenuItem Header="Child 19"/>
+                    <MenuItem Header="Child 1" />
+                    <MenuItem Header="Child 2" />
+                    <MenuItem Header="Child 3" />
+                    <Separator />
+                    <MenuItem Header="Child 4" />
+                    <MenuItem Header="Child 5" />
+                    <MenuItem Header="Child 6" />
+                    <MenuItem Header="Child 7" />
+                    <MenuItem Header="Child 8" />
+                    <MenuItem Header="Child 9" />
+                    <MenuItem Header="Child 10" />
+                    <MenuItem Header="Child 11" />
+                    <MenuItem Header="Child 12" />
+                    <MenuItem Header="Child 13" />
+                    <MenuItem Header="Child 14" />
+                    <MenuItem Header="Child 15" />
+                    <MenuItem Header="Child 16" />
+                    <MenuItem Header="Child 17" />
+                    <MenuItem Header="Child 18" />
+                    <MenuItem Header="Child 19" />
                 </MenuItem>
                 <MenuItem Header="Disabled Parent" IsEnabled="False">
-                    <MenuItem Header="Child"/>
+                    <MenuItem Header="Child" />
                 </MenuItem>
             </StackPanel>
         </Border>
@@ -70,9 +69,9 @@
 
 
     <ControlTheme x:Key="{x:Type MenuItem}" TargetType="MenuItem">
-        <Setter Property="Background" Value="{DynamicResource MenuBarItemBackground}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource MenuBarItemBorderBrush}"/>
-        <Setter Property="BorderThickness" Value="{DynamicResource MenuBarItemBorderThickness}"/>
+        <Setter Property="Background" Value="{DynamicResource MenuBarItemBackground}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MenuBarItemBorderBrush}" />
+        <Setter Property="BorderThickness" Value="{DynamicResource MenuBarItemBorderThickness}" />
         <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
         <!-- Narrow padding should be used for mouse input, when non-narrow one should be used for touch input in future.  -->
         <Setter Property="Padding" Value="{DynamicResource MenuFlyoutItemThemePaddingNarrow}" />
@@ -114,7 +113,7 @@
                                      IsVisible="False"
                                      Width="16" Height="16"
                                      Grid.Column="1">
-                                <ContentPresenter Content="{TemplateBinding Icon}"/>
+                                <ContentPresenter Content="{TemplateBinding Icon}" />
                             </Viewbox>
 
                             <ContentPresenter Name="PART_HeaderPresenter"
@@ -124,7 +123,7 @@
                                               HorizontalAlignment="Stretch"
                                               Grid.Column="2"
                                               RecognizesAccessKey="True" />
-                            
+
                             <TextBlock Name="PART_InputGestureText"
                                        Grid.Column="3"
                                        Classes="CaptionTextBlockStyle"
@@ -132,18 +131,18 @@
                                        Text="{TemplateBinding InputGesture, Converter={StaticResource KeyGestureConverter}}"
                                        HorizontalAlignment="Right"
                                        VerticalAlignment="Center" />
-                            
+
                             <ui:FASymbolIcon Name="PART_ChevronPath"
-                                           Height="16"
-                                           Symbol="ChevronRight"
-                                           Margin="{DynamicResource MenuFlyoutItemChevronMargin}"
-                                           VerticalAlignment="Center"
-                                           Grid.Column="4"
-                                           FontSize="18"
-                                           Foreground="{DynamicResource MenuFlyoutSubItemChevron}"/>
+                                             Height="16"
+                                             Symbol="ChevronRight"
+                                             Margin="{DynamicResource MenuFlyoutItemChevronMargin}"
+                                             VerticalAlignment="Center"
+                                             Grid.Column="4"
+                                             FontSize="18"
+                                             Foreground="{DynamicResource MenuFlyoutSubItemChevron}" />
                         </Grid>
                     </Border>
-                    
+
                     <Popup Name="PART_Popup"
                            WindowManagerAddShadowHint="False"
                            Placement="RightEdgeAlignedTop"
@@ -183,7 +182,8 @@
                 <Setter Property="Foreground" Value="{DynamicResource MenuFlyoutItemForegroundPointerOver}" />
             </Style>
             <Style Selector="^ /template/ TextBlock#PART_InputGestureText">
-                <Setter Property="Foreground" Value="{DynamicResource MenuFlyoutItemKeyboardAcceleratorTextForegroundPointerOver}" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource MenuFlyoutItemKeyboardAcceleratorTextForegroundPointerOver}" />
             </Style>
             <Style Selector="^ /template/ ui|FASymbolIcon#PART_ChevronPath">
                 <Setter Property="Foreground" Value="{DynamicResource MenuFlyoutSubItemChevronPointerOver}" />
@@ -197,7 +197,8 @@
                 <Setter Property="Foreground" Value="{DynamicResource MenuFlyoutItemForegroundPressed}" />
             </Style>
             <Style Selector="^ TextBlock#PART_InputGestureText">
-                <Setter Property="Foreground" Value="{DynamicResource MenuFlyoutItemKeyboardAcceleratorTextForegroundPressed}" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource MenuFlyoutItemKeyboardAcceleratorTextForegroundPressed}" />
             </Style>
             <Style Selector="^ ui|FASymbolIcon#PART_ChevronPath">
                 <Setter Property="Foreground" Value="{DynamicResource MenuFlyoutSubItemChevronPressed}" />
@@ -213,13 +214,14 @@
                 <Setter Property="Foreground" Value="{DynamicResource MenuFlyoutItemForegroundDisabled}" />
             </Style>
             <Style Selector="^ /template/ TextBlock#PART_InputGestureText">
-                <Setter Property="Foreground" Value="{DynamicResource MenuFlyoutItemKeyboardAcceleratorTextForegroundDisabled}" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource MenuFlyoutItemKeyboardAcceleratorTextForegroundDisabled}" />
             </Style>
             <Style Selector="^ /template/ ui|FASymbolIcon#PART_ChevronPath">
                 <Setter Property="Foreground" Value="{DynamicResource MenuFlyoutSubItemChevronDisabled}" />
             </Style>
         </Style>
-        
+
         <Style Selector="^:open /template/ ui|FASymbolIcon#PART_ChevronPath">
             <Setter Property="Foreground" Value="{DynamicResource MenuFlyoutSubItemChevronSubMenuOpened}" />
         </Style>
@@ -231,7 +233,7 @@
         <Style Selector="^:separator">
             <Setter Property="Template">
                 <ControlTemplate>
-                    <Separator/>
+                    <Separator />
                 </ControlTemplate>
             </Setter>
         </Style>
@@ -244,7 +246,7 @@
                 </Template>
             </Setter>
         </Style>
-        
+
         <Style Selector="^:checked:radio /template/ ContentControl#PART_ToggleIconPresenter">
             <Setter Property="IsVisible" Value="True" />
             <Setter Property="Content">
@@ -271,9 +273,9 @@
                         VerticalAlignment="{TemplateBinding VerticalAlignment}"
                         BorderBrush="{TemplateBinding BorderBrush}"
                         BorderThickness="{TemplateBinding BorderThickness}"
-                        Background="{TemplateBinding Background}"/>
+                        Background="{TemplateBinding Background}" />
             </ControlTemplate>
         </Setter>
-    </ControlTheme>  
+    </ControlTheme>
 
 </ResourceDictionary>

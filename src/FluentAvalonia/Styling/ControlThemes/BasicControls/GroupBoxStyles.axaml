@@ -1,13 +1,12 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:converters="using:Avalonia.Controls.Converters"
-                    xmlns:sty="using:FluentAvalonia.Styling">
+                    xmlns:converters="using:Avalonia.Controls.Converters">
     <Design.PreviewWith>
         <GroupBox Padding="10" Margin="10" Header="header">
             <TextBlock Text="Hello World" />
         </GroupBox>
     </Design.PreviewWith>
-        
+
     <converters:BorderGapMaskConverter x:Key="BorderGapMaskConverter" />
 
     <ControlTheme x:Key="{x:Type GroupBox}"
@@ -19,7 +18,7 @@
         <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
         <Setter Property="Template">
             <ControlTemplate>
-                <Grid x:Name="RootGrid" UseLayoutRounding="true" 
+                <Grid x:Name="RootGrid" UseLayoutRounding="true"
                       ColumnDefinitions="6,Auto,*,6"
                       RowDefinitions="Auto,Auto,*,6">
                     <!-- Separate Border for the background because if the background is set in the Border with the Header the opacity mask will be applied to the background as well. -->
@@ -30,7 +29,7 @@
                             CornerRadius="{TemplateBinding CornerRadius}"
                             BorderThickness="{TemplateBinding BorderThickness}"
                             BorderBrush="Transparent"
-                            Background="{TemplateBinding Background}"/>
+                            Background="{TemplateBinding Background}" />
 
                     <Border Grid.Row="1"
                             Grid.RowSpan="3"
@@ -42,11 +41,11 @@
                             <MultiBinding Converter="{StaticResource BorderGapMaskConverter}"
                                           ConverterParameter="6">
                                 <Binding ElementName="Header"
-                                         Path="Bounds.Width"/>
+                                         Path="Bounds.Width" />
                                 <Binding RelativeSource="{RelativeSource Self}"
-                                         Path="Bounds.Width"/>
+                                         Path="Bounds.Width" />
                                 <Binding RelativeSource="{RelativeSource Self}"
-                                         Path="Bounds.Height"/>
+                                         Path="Bounds.Height" />
                             </MultiBinding>
                         </Border.OpacityMask>
                     </Border>
@@ -90,5 +89,5 @@
         </Style>
 
     </ControlTheme>
-    
+
 </ResourceDictionary>

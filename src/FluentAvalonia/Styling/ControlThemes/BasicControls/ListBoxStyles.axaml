@@ -40,7 +40,7 @@
                                   BringIntoViewOnFocusChange="{TemplateBinding (ScrollViewer.BringIntoViewOnFocusChange)}">
                         <ItemsPresenter Name="PART_ItemsPresenter"
                                         ItemsPanel="{TemplateBinding ItemsPanel}"
-                                        Margin="{TemplateBinding Padding}"/>
+                                        Margin="{TemplateBinding Padding}" />
                     </ScrollViewer>
                 </Border>
             </ControlTemplate>
@@ -77,7 +77,7 @@
                                       VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
                                       HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
                                       CornerRadius="{TemplateBinding CornerRadius}"
-                                      Margin="2"/>
+                                      Margin="2" />
 
                     <!-- added 1px left margin, otherwise we can get strange artifacts while
                          animating, I'm guessing from bad invalidation rects? -->
@@ -95,7 +95,7 @@
                             <Transitions>
                                 <TransformOperationsTransition Duration="00:00:00.167"
                                                                Property="RenderTransform"
-                                                               Easing="0,0 0,1"/>
+                                                               Easing="0,0 0,1" />
                             </Transitions>
                         </Rectangle.Transitions>
                     </Rectangle>

@@ -1,7 +1,6 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:ui="using:FluentAvalonia.UI.Controls"
-                    xmlns:sty="using:FluentAvalonia.Styling">
+                    xmlns:ui="using:FluentAvalonia.UI.Controls">
     <Design.PreviewWith>
         <Border Padding="20">
             <StackPanel>
@@ -13,7 +12,7 @@
             </StackPanel>
         </Border>
     </Design.PreviewWith>
-    
+
 
     <x:Double x:Key="PipsPagerButtonWidth">20</x:Double>
     <x:Double x:Key="PipsPagerButtonHeight">12</x:Double>
@@ -73,14 +72,16 @@
         <Style Selector="^:pointerover /template/ Border#Root">
             <Setter Property="Background" Value="{DynamicResource PipsPagerNavigationButtonBackgroundPointerOver}" />
             <Setter Property="BorderBrush" Value="{DynamicResource PipsPagerNavigationButtonBorderBrushPointerOver}" />
-            <Setter Property="TextElement.Foreground" Value="{DynamicResource PipsPagerNavigationButtonForegroundPointerOver}" />
+            <Setter Property="TextElement.Foreground"
+                    Value="{DynamicResource PipsPagerNavigationButtonForegroundPointerOver}" />
         </Style>
 
         <Style Selector="^:pressed">
             <Style Selector="^ /template/ Border#Root">
                 <Setter Property="Background" Value="{DynamicResource PipsPagerNavigationButtonBackgroundPressed}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource PipsPagerNavigationButtonBorderBrushPressed}" />
-                <Setter Property="TextElement.Foreground" Value="{DynamicResource PipsPagerNavigationButtonForegroundPressed}" />
+                <Setter Property="TextElement.Foreground"
+                        Value="{DynamicResource PipsPagerNavigationButtonForegroundPressed}" />
             </Style>
 
             <Style Selector="^ /template/ Border#TransformRoot">
@@ -136,7 +137,7 @@
                         CornerRadius="{TemplateBinding CornerRadius}">
                     <ui:FAFontIcon Name="Content"
                                    Glyph="{TemplateBinding Content}"
-                                   HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                   HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                    VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                    AutomationProperties.AccessibilityView="Raw" />
                 </Border>
@@ -145,12 +146,15 @@
 
         <Style Selector="^:pointerover">
             <Style Selector="^ /template/ Border#Root">
-                <Setter Property="Background" Value="{DynamicResource PipsPagerSelectionIndicatorBackgroundPointerOver}" />
-                <Setter Property="BorderBrush" Value="{DynamicResource PipsPagerSelectionIndicatorBorderBrushPointerOver}" />
+                <Setter Property="Background"
+                        Value="{DynamicResource PipsPagerSelectionIndicatorBackgroundPointerOver}" />
+                <Setter Property="BorderBrush"
+                        Value="{DynamicResource PipsPagerSelectionIndicatorBorderBrushPointerOver}" />
             </Style>
 
             <Style Selector="^ /template/ ui|FAFontIcon">
-                <Setter Property="Foreground" Value="{DynamicResource PipsPagerSelectionIndicatorForegroundPointerOver}" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource PipsPagerSelectionIndicatorForegroundPointerOver}" />
                 <Setter Property="FontSize" Value="{DynamicResource PipsPagerSelectedGlyphFontSize}" />
             </Style>
         </Style>
@@ -217,10 +221,11 @@
                         </ListBox.Styles>
                         <ListBox.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <StackPanel Orientation="{Binding Orientation, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=PipsPager}}"
-                                            HorizontalAlignment="Center"
-                                            VerticalAlignment="Center"
-                                            Spacing="0" />
+                                <StackPanel
+                                    Orientation="{Binding Orientation, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=PipsPager}}"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Spacing="0" />
                             </ItemsPanelTemplate>
                         </ListBox.ItemsPanel>
                     </ListBox>
@@ -239,7 +244,7 @@
             <Setter Property="Orientation" Value="Horizontal" />
         </Style>
 
-        <Style Selector="^:horizontal /template/ Button#PART_PreviousButton">            
+        <Style Selector="^:horizontal /template/ Button#PART_PreviousButton">
             <Setter Property="Content" Value="{StaticResource HorizontalPipsPagerPreviousPageButtonGlyph}" />
         </Style>
         <Style Selector="^:horizontal /template/ Button#PART_NextButton">
@@ -266,5 +271,5 @@
             <Setter Property="IsHitTestVisible" Value="False" />
         </Style>
     </ControlTheme>
-    
+
 </ResourceDictionary>

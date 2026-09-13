@@ -1,13 +1,32 @@
 ﻿using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Media;
 
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Represents an icon source that uses a vector path as its content.
+///     Represents an icon source that uses a vector path as its content.
 /// </summary>
 public class FAPathIconSource : FAIconSource
 {
+    /// <summary>
+    ///     Defines the <see cref="Data" /> property
+    /// </summary>
+    public static readonly StyledProperty<Geometry> DataProperty =
+        FAPathIcon.DataProperty.AddOwner<FAPathIconSource>();
+
+    /// <summary>
+    ///     Defines the <see cref="Stretch" /> property.
+    /// </summary>
+    public static readonly StyledProperty<Stretch> StretchProperty =
+        FAPathIcon.StretchProperty.AddOwner<FAPathIcon>();
+
+    /// <summary>
+    ///     Defines the <see cref="StretchDirection" /> property.
+    /// </summary>
+    public static readonly StyledProperty<StretchDirection> StretchDirectionProperty =
+        FAPathIcon.StretchDirectionProperty.AddOwner<PathIcon>();
+
     static FAPathIconSource()
     {
         StretchProperty.OverrideDefaultValue<FAPathIconSource>(Stretch.Uniform);
@@ -15,14 +34,8 @@ public class FAPathIconSource : FAIconSource
     }
 
     /// <summary>
-    /// Defines the <see cref="Data"/> property
-    /// </summary>
-    public static readonly StyledProperty<Geometry> DataProperty =
-        FAPathIcon.DataProperty.AddOwner<FAPathIconSource>();
-
-    /// <summary>
-    /// Gets or sets a Geometry that specifies the shape to be drawn. 
-    /// In XAML. this can also be set using a string that describes Move and draw commands syntax.
+    ///     Gets or sets a Geometry that specifies the shape to be drawn.
+    ///     In XAML. this can also be set using a string that describes Move and draw commands syntax.
     /// </summary>
     public Geometry Data
     {
@@ -31,13 +44,7 @@ public class FAPathIconSource : FAIconSource
     }
 
     /// <summary>
-    /// Defines the <see cref="Stretch"/> property.
-    /// </summary>
-    public static readonly StyledProperty<Stretch> StretchProperty =
-        FAPathIcon.StretchProperty.AddOwner<FAPathIcon>();
-
-    /// <summary>
-    /// Gets or sets a <see cref="Stretch"/> enumeration value that describes how the shape fills its allocated space.
+    ///     Gets or sets a <see cref="Stretch" /> enumeration value that describes how the shape fills its allocated space.
     /// </summary>
     public Stretch Stretch
     {
@@ -46,13 +53,7 @@ public class FAPathIconSource : FAIconSource
     }
 
     /// <summary>
-    /// Defines the <see cref="StretchDirection"/> property.
-    /// </summary>
-    public static readonly StyledProperty<StretchDirection> StretchDirectionProperty =
-        FAPathIcon.StretchDirectionProperty.AddOwner<Avalonia.Controls.PathIcon>();
-
-    /// <summary>
-    /// Gets or sets a value controlling in what direction contents will be stretched.
+    ///     Gets or sets a value controlling in what direction contents will be stretched.
     /// </summary>
     public StretchDirection StretchDirection
     {

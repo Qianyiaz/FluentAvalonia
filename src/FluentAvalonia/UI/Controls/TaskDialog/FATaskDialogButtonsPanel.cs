@@ -4,19 +4,21 @@ using Avalonia.Controls;
 namespace FluentAvalonia.UI.Controls.Primitives;
 
 /// <summary>
-/// Represents a panel that arranges the buttons in a <see cref="FATaskDialog"/>
+///     Represents a panel that arranges the buttons in a <see cref="FATaskDialog" />
 /// </summary>
 public class FATaskDialogButtonsPanel : Panel
 {
     /// <summary>
-    /// Defines the <see cref="Spacing"/> property
+    ///     Defines the <see cref="Spacing" /> property
     /// </summary>
     public static readonly DirectProperty<FATaskDialogButtonsPanel, double> SpacingProperty =
         AvaloniaProperty.RegisterDirect<FATaskDialogButtonsPanel, double>(nameof(Spacing),
             x => x.Spacing, (x, v) => x.Spacing = v);
 
+    private double _spacing;
+
     /// <summary>
-    /// Gets or sets the spacing between the buttons
+    ///     Gets or sets the spacing between the buttons
     /// </summary>
     public double Spacing
     {
@@ -74,6 +76,4 @@ public class FATaskDialogButtonsPanel : Panel
 
         return finalSize;
     }
-
-    private double _spacing;
 }

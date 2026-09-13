@@ -56,15 +56,15 @@
     <Thickness x:Key="TabViewSelectedItemBorderThickness">1,1,1,0</Thickness>
     <Thickness x:Key="TabViewSelectedItemHeaderMargin">-1,0,-1,1</Thickness>
     <Thickness x:Key="TabViewSelectedItemHeaderMarginBottom">-1,1,-1,0</Thickness>
-    
+
     <ControlTheme x:Key="TabViewButtonTheme" TargetType="Button">
-        <Setter Property="Background" Value="{DynamicResource TabViewButtonBackground}"/>
-        <Setter Property="Foreground" Value="{DynamicResource TabViewButtonForeground}"/>
-        <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
-        <Setter Property="FontSize" Value="{DynamicResource TabViewItemAddButtonFontSize}"/>
-        <Setter Property="FontFamily" Value="{DynamicResource SymbolThemeFontFamily}"/>
-        <Setter Property="Width" Value="{DynamicResource TabViewItemAddButtonWidth}"/>
-        <Setter Property="Height" Value="{DynamicResource TabViewItemAddButtonHeight}"/>
+        <Setter Property="Background" Value="{DynamicResource TabViewButtonBackground}" />
+        <Setter Property="Foreground" Value="{DynamicResource TabViewButtonForeground}" />
+        <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+        <Setter Property="FontSize" Value="{DynamicResource TabViewItemAddButtonFontSize}" />
+        <Setter Property="FontFamily" Value="{DynamicResource SymbolThemeFontFamily}" />
+        <Setter Property="Width" Value="{DynamicResource TabViewItemAddButtonWidth}" />
+        <Setter Property="Height" Value="{DynamicResource TabViewItemAddButtonHeight}" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="Template">
@@ -79,21 +79,21 @@
                                   CornerRadius="{TemplateBinding CornerRadius}"
                                   HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
                                   VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
-                                  AutomationProperties.AccessibilityView="Raw"/>
+                                  AutomationProperties.AccessibilityView="Raw" />
             </ControlTemplate>
         </Setter>
 
         <Style Selector="^:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="{DynamicResource TabViewButtonBackgroundPointerOver}"/>
-            <Setter Property="Foreground" Value="{DynamicResource TabViewButtonForegroundPointerOver}"/>
+            <Setter Property="Background" Value="{DynamicResource TabViewButtonBackgroundPointerOver}" />
+            <Setter Property="Foreground" Value="{DynamicResource TabViewButtonForegroundPointerOver}" />
         </Style>
         <Style Selector="^:pressed /template/ ContentPresenter">
-            <Setter Property="Background" Value="{DynamicResource TabViewButtonBackgroundPressed}"/>
-            <Setter Property="Foreground" Value="{DynamicResource TabViewButtonForegroundPressed}"/>
+            <Setter Property="Background" Value="{DynamicResource TabViewButtonBackgroundPressed}" />
+            <Setter Property="Foreground" Value="{DynamicResource TabViewButtonForegroundPressed}" />
         </Style>
         <Style Selector="^:disabled /template/ ContentPresenter">
-            <Setter Property="Background" Value="{DynamicResource TabViewButtonBackgroundDisabled}"/>
-            <Setter Property="Foreground" Value="{DynamicResource TabViewButtonForegroundDisabled}"/>
+            <Setter Property="Background" Value="{DynamicResource TabViewButtonBackgroundDisabled}" />
+            <Setter Property="Foreground" Value="{DynamicResource TabViewButtonForegroundDisabled}" />
         </Style>
     </ControlTheme>
 
@@ -147,7 +147,7 @@
                                           Content="{TemplateBinding TabStripHeader}"
                                           ContentTemplate="{TemplateBinding TabStripHeaderTemplate}" />
 
-                        <uip:FATabViewListView Name="TabListView" Grid.Column="1" HorizontalAlignment="Stretch" 
+                        <uip:FATabViewListView Name="TabListView" Grid.Column="1" HorizontalAlignment="Stretch"
                                                Padding="{TemplateBinding Padding}"
                                                CanReorderItems="{TemplateBinding CanReorderTabs}"
                                                CanDragItems="{TemplateBinding CanDragTabs}"
@@ -155,11 +155,12 @@
                                                ItemsSource="{TemplateBinding TabItemsSource}"
                                                ItemTemplate="{TemplateBinding TabItemTemplate}" />
 
-                        <Border IsVisible="{Binding IsAddTabButtonVisible, RelativeSource={RelativeSource TemplatedParent}}"
-                                Grid.Column="2"
-                                Padding="{DynamicResource TabViewItemAddButtonContainerPadding}"
-                                VerticalAlignment="Bottom"
-                                Name="AddButtonHost">
+                        <Border
+                            IsVisible="{Binding IsAddTabButtonVisible, RelativeSource={RelativeSource TemplatedParent}}"
+                            Grid.Column="2"
+                            Padding="{DynamicResource TabViewItemAddButtonContainerPadding}"
+                            VerticalAlignment="Bottom"
+                            Name="AddButtonHost">
                             <Button Name="AddButton" HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
                                     Content="&#xE710;"
@@ -191,7 +192,7 @@
                     <ContentPresenter Name="TabContentPresenter"
                                       BorderBrush="{TemplateBinding BorderBrush}"
                                       BorderThickness="{TemplateBinding BorderThickness}"
-                                      CornerRadius="{TemplateBinding CornerRadius}"/>
+                                      CornerRadius="{TemplateBinding CornerRadius}" />
                 </Grid>
             </ControlTemplate>
         </Setter>
@@ -226,7 +227,7 @@
 
                                 <Grid.RowDefinitions>
                                     <!--x:Name=LeftContentColumn-->
-                                    <RowDefinition Height="Auto"  />
+                                    <RowDefinition Height="Auto" />
                                     <!-- x:Name=TabColumn-->
                                     <RowDefinition Height="Auto" />
                                     <!-- x:Name=AddButtonColumn-->
@@ -242,17 +243,18 @@
                                 <uip:FATabViewListView Grid.Row="1" HorizontalAlignment="Stretch"
                                                        Name="TabListView" Padding="{TemplateBinding Padding}"
                                                        CanReorderItems="{TemplateBinding CanReorderTabs}"
-                                                      CanDragItems="{TemplateBinding CanDragTabs}"
+                                                       CanDragItems="{TemplateBinding CanDragTabs}"
                                                        DragDrop.AllowDrop="{TemplateBinding AllowDropTabs}"
                                                        ItemsSource="{TemplateBinding TabItemsSource}"
                                                        ItemTemplate="{TemplateBinding TabItemTemplate}" />
-                                
-                                <Border IsVisible="{Binding IsAddTabButtonVisible, RelativeSource={RelativeSource TemplatedParent}}"
-                                        Grid.Row="2"
-                                        Padding="{DynamicResource VerticalTabViewItemAddButtonContainerPadding}"
-                                        VerticalAlignment="Bottom"
-                                        Name="AddButtonHost"
-                                        HorizontalAlignment="Stretch">
+
+                                <Border
+                                    IsVisible="{Binding IsAddTabButtonVisible, RelativeSource={RelativeSource TemplatedParent}}"
+                                    Grid.Row="2"
+                                    Padding="{DynamicResource VerticalTabViewItemAddButtonContainerPadding}"
+                                    VerticalAlignment="Bottom"
+                                    Name="AddButtonHost"
+                                    HorizontalAlignment="Stretch">
                                     <Button Name="AddButton" HorizontalAlignment="Stretch"
                                             Width="NaN"
                                             VerticalAlignment="Center"
@@ -283,7 +285,7 @@
                                 </Border>
                             </Grid>
                         </SplitView.Pane>
-                        
+
                         <ContentPresenter Name="TabContentPresenter" />
                     </SplitView>
                 </ControlTemplate>
@@ -304,10 +306,10 @@
                 <Setter Property="HorizontalAlignment" Value="Left" />
             </Style>
         </Style>
-        
+
         <Style Selector="^:bottom">
             <Setter Property="Padding" Value="{DynamicResource TabViewBottomHeaderPadding}" />
-            
+
             <Style Selector="^ /template/ Border#AddButtonHost">
                 <Setter Property="VerticalAlignment" Value="Top" />
                 <Setter Property="Padding" Value="{DynamicResource TabViewBottomItemAddButtonContainerPadding}" />

@@ -3,26 +3,28 @@
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Represents data for use in a SettingsExpander temlate
+///     Represents data for use in a SettingsExpander temlate
 /// </summary>
 public sealed class FASettingsExpanderTemplateSettings : AvaloniaObject
 {
-    internal FASettingsExpanderTemplateSettings() { }
-
     /// <summary>
-    /// Defines the <see cref="Icon"/> property
+    ///     Defines the <see cref="Icon" /> property
     /// </summary>
     public static readonly StyledProperty<FAIconElement> IconProperty =
         AvaloniaProperty.Register<FASettingsExpanderTemplateSettings, FAIconElement>(nameof(Icon));
 
     /// <summary>
-    /// Defines the <see cref="ActionIcon"/> property
+    ///     Defines the <see cref="ActionIcon" /> property
     /// </summary>
     public static readonly StyledProperty<FAIconElement> ActionIconProperty =
         AvaloniaProperty.Register<FASettingsExpanderTemplateSettings, FAIconElement>(nameof(ActionIcon));
 
+    internal FASettingsExpanderTemplateSettings()
+    {
+    }
+
     /// <summary>
-    /// Defines the FAIconElement to be used for the SettingsExpander
+    ///     Defines the FAIconElement to be used for the SettingsExpander
     /// </summary>
     public FAIconElement Icon
     {
@@ -31,7 +33,7 @@ public sealed class FASettingsExpanderTemplateSettings : AvaloniaObject
     }
 
     /// <summary>
-    /// Defines the FAIconElement to be used for the SettingsExpander ActionIcon
+    ///     Defines the FAIconElement to be used for the SettingsExpander ActionIcon
     /// </summary>
     public FAIconElement ActionIcon
     {

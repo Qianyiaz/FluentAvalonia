@@ -22,8 +22,9 @@
                         BorderThickness="{DynamicResource CommandBarOverflowPresenterBorderThickness}"
                         CornerRadius="{TemplateBinding CornerRadius}"
                         BackgroundSizing="{TemplateBinding BackgroundSizing}">
-                    <ScrollViewer HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
-                                  VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}">
+                    <ScrollViewer
+                        HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
+                        VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}">
                         <ItemsPresenter Name="ItemsPresenter"
                                         Margin="{DynamicResource CommandBarOverflowPresenterMargin}"
                                         KeyboardNavigation.TabNavigation="Cycle" />

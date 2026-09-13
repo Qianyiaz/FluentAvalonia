@@ -1,21 +1,27 @@
-﻿using Avalonia;
+﻿using System.Collections;
+using System.Collections.Specialized;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
-using System.Collections;
-using System.Collections.Specialized;
 
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Displays the overflow content of a CommandBar.
+///     Displays the overflow content of a CommandBar.
 /// </summary>
 /// <remarks>
-/// This class generally should not be used on your own and is meant for
-/// the template of a <see cref="FACommandBar"/>
+///     This class generally should not be used on your own and is meant for
+///     the template of a <see cref="FACommandBar" />
 /// </remarks>
 [PseudoClasses(s_pcIcons, s_pcToggle)]
 public class FACommandBarOverflowPresenter : ItemsControl
 {
+    private const string s_pcIcons = ":icons";
+    private const string s_pcToggle = ":toggle";
+
+    private int _hasIcons;
+    private int _hasToggle;
+
     public FACommandBarOverflowPresenter()
     {
         ItemsView.CollectionChanged += ItemsCollectionChanged;
@@ -27,10 +33,7 @@ public class FACommandBarOverflowPresenter : ItemsControl
     {
         base.OnPropertyChanged(change);
 
-        if (change.Property == ItemsSourceProperty)
-        {
-            ItemsChanged(change);
-        }
+        if (change.Property == ItemsSourceProperty) ItemsChanged(change);
     }
 
     protected override bool NeedsContainerOverride(object item, int index, out object recycleKey)
@@ -62,6 +65,7 @@ public class FACommandBarOverflowPresenter : ItemsControl
                     _hasIcons = 0;
                     _hasToggle = 0;
                 }
+
                 break;
 
             case NotifyCollectionChangedAction.Replace:
@@ -78,10 +82,7 @@ public class FACommandBarOverflowPresenter : ItemsControl
         _hasIcons = 0;
         _hasToggle = 0;
 
-        if (e.NewValue is IList l)
-        {
-            RegisterItems(l);
-        }
+        if (e.NewValue is IList l) RegisterItems(l);
 
         UpdateVisualState();
     }
@@ -89,7 +90,6 @@ public class FACommandBarOverflowPresenter : ItemsControl
     private void RegisterItems(IList l)
     {
         for (var i = 0; i < l.Count; i++)
-        {
             if (l[i] is FACommandBarButton cbb)
             {
                 if (cbb.IconSource != null)
@@ -114,13 +114,11 @@ public class FACommandBarOverflowPresenter : ItemsControl
             {
                 sep.IsInOverflow = true;
             }
-        }
     }
 
     private void UnregisterItems(IList l)
     {
         for (var i = 0; i < l.Count; i++)
-        {
             if (l[i] is FACommandBarButton cbb)
             {
                 if (cbb.IconSource != null)
@@ -151,7 +149,6 @@ public class FACommandBarOverflowPresenter : ItemsControl
             {
                 sep.IsInOverflow = false;
             }
-        }
     }
 
     private void UpdateVisualState()
@@ -161,17 +158,10 @@ public class FACommandBarOverflowPresenter : ItemsControl
         var icon = _hasIcons > 0;
         var toggle = _hasToggle > 0;
         for (var i = 0; i < items.Count; i++)
-        {
             if (items[i] is Control c && c.Classes is IPseudoClasses pc)
             {
                 pc.Set(s_pcIcons, icon);
                 pc.Set(s_pcToggle, toggle);
             }
-        }
     }
-
-    private int _hasIcons;
-    private int _hasToggle;
-    private const string s_pcIcons = ":icons";
-    private const string s_pcToggle = ":toggle";
 }

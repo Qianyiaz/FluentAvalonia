@@ -5,29 +5,27 @@ using SkiaSharp;
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Represents an icon source that uses a bitmap as its content.
+///     Represents an icon source that uses a bitmap as its content.
 /// </summary>
 public class FABitmapIconSource : FAIconSource, IDisposable
 {
-    ~FABitmapIconSource()
-    {
-        Dispose();
-    }
-
     /// <summary>
-    /// Defines the <see cref="UriSource"/> property
+    ///     Defines the <see cref="UriSource" /> property
     /// </summary>
     public static readonly StyledProperty<Uri> UriSourceProperty =
         FABitmapIcon.UriSourceProperty.AddOwner<FABitmapIconSource>();
 
     /// <summary>
-    /// Defines the <see cref="ShowAsMonochrome"/> property
+    ///     Defines the <see cref="ShowAsMonochrome" /> property
     /// </summary>
     public static readonly StyledProperty<bool> ShowAsMonochromeProperty =
         FABitmapIcon.ShowAsMonochromeProperty.AddOwner<FABitmapIconSource>();
 
+    protected internal SKBitmap _bitmap;
+    private Size _originalSize;
+
     /// <summary>
-    /// Gets or sets the Uniform Resource Identifier (URI) of the bitmap to use as the icon content.
+    ///     Gets or sets the Uniform Resource Identifier (URI) of the bitmap to use as the icon content.
     /// </summary>
     public Uri UriSource
     {
@@ -36,7 +34,7 @@ public class FABitmapIconSource : FAIconSource, IDisposable
     }
 
     /// <summary>
-    /// Gets or sets a value that indicates whether the bitmap is shown in a single color.
+    ///     Gets or sets a value that indicates whether the bitmap is shown in a single color.
     /// </summary>
     public bool ShowAsMonochrome
     {
@@ -46,6 +44,18 @@ public class FABitmapIconSource : FAIconSource, IDisposable
 
     public Size Size => _originalSize;
 
+    public void Dispose()
+    {
+        _bitmap?.Dispose();
+        _bitmap = null;
+        _originalSize = default;
+    }
+
+    ~FABitmapIconSource()
+    {
+        Dispose();
+    }
+
     public event EventHandler<object> OnBitmapChanged;
 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
@@ -53,20 +63,8 @@ public class FABitmapIconSource : FAIconSource, IDisposable
         base.OnPropertyChanged(change);
 
         if (change.Property == UriSourceProperty)
-        {
             CreateBitmap(change.GetNewValue<Uri>());
-        }
-        else if (change.Property == ShowAsMonochromeProperty)
-        {
-            OnBitmapChanged?.Invoke(this, null);
-        }
-    }
-
-    public void Dispose()
-    {
-        _bitmap?.Dispose();
-        _bitmap = null;
-        _originalSize = default;
+        else if (change.Property == ShowAsMonochromeProperty) OnBitmapChanged?.Invoke(this, null);
     }
 
     private void CreateBitmap(Uri src)
@@ -80,18 +78,11 @@ public class FABitmapIconSource : FAIconSource, IDisposable
         }
 
         if (src.IsAbsoluteUri && src.IsFile)
-        {
             _bitmap = SKBitmap.Decode(src.LocalPath);
-        }
         else
-        {
             _bitmap = SKBitmap.Decode(AssetLoader.Open(src));
-        }
         _originalSize = new Size(_bitmap.Width, _bitmap.Height);
 
         OnBitmapChanged?.Invoke(this, null);
     }
-
-    protected internal SKBitmap _bitmap;
-    private Size _originalSize;
 }

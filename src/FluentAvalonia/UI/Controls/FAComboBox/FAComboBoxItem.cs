@@ -5,7 +5,7 @@ using FluentAvalonia.UI.Controls.Internal;
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Represents the container for an item in a <see cref="FAComboBox"/> control.
+///     Represents the container for an item in a <see cref="FAComboBox" /> control.
 /// </summary>
 public class FAComboBoxItem : FASelectorItem
 {
@@ -19,9 +19,8 @@ public class FAComboBoxItem : FASelectorItem
         base.OnGotFocus(e);
         if (e.NavigationMethod == NavigationMethod.Directional || e.NavigationMethod == NavigationMethod.Tab)
         {
-            var parent = (Parent as FAComboBox) ?? this.FindAncestorOfType<FAComboBox>();
+            var parent = Parent as FAComboBox ?? this.FindAncestorOfType<FAComboBox>();
             parent?.ItemFocused(this);
         }
-
     }
 }

@@ -9,12 +9,12 @@ using FluentAvalonia.UI.Input;
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Represents a templated button control to be displayed in an <see cref="FACommandBar"/>.
+///     Represents a templated button control to be displayed in an <see cref="FACommandBar" />.
 /// </summary>
 public partial class FACommandBarButton : Button, IFACommandBarElement
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="FACommandBarButton"/> class.
+    ///     Initializes a new instance of the <see cref="FACommandBarButton" /> class.
     /// </summary>
     public FACommandBarButton()
     {
@@ -23,7 +23,7 @@ public partial class FACommandBarButton : Button, IFACommandBarElement
 
     protected override Type StyleKeyOverride => typeof(FACommandBarButton);
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
@@ -71,40 +71,22 @@ public partial class FACommandBarButton : Button, IFACommandBarElement
         {
             if (change.OldValue is FAXamlUICommand xamlComOld)
             {
-                if (Label == xamlComOld.Label)
-                {
-                    Label = null;
-                }
+                if (Label == xamlComOld.Label) Label = null;
 
-                if (HotKey == xamlComOld.HotKey)
-                {
-                    HotKey = null;
-                }
+                if (HotKey == xamlComOld.HotKey) HotKey = null;
 
-                if (ToolTip.GetTip(this).ToString() == xamlComOld.Description)
-                {
-                    ToolTip.SetTip(this, null);
-                }
+                if (ToolTip.GetTip(this).ToString() == xamlComOld.Description) ToolTip.SetTip(this, null);
             }
 
             if (change.NewValue is FAXamlUICommand xamlCom)
             {
-                if (string.IsNullOrEmpty(Label))
-                {
-                    Label = xamlCom.Label;
-                }
+                if (string.IsNullOrEmpty(Label)) Label = xamlCom.Label;
 
                 IconSource = xamlCom.IconSource;
 
-                if (HotKey == null)
-                {
-                    HotKey = xamlCom.HotKey;
-                }
+                if (HotKey == null) HotKey = xamlCom.HotKey;
 
-                if (ToolTip.GetTip(this) == null)
-                {
-                    ToolTip.SetTip(this, xamlCom.Description);
-                }
+                if (ToolTip.GetTip(this) == null) ToolTip.SetTip(this, xamlCom.Description);
             }
         }
     }
@@ -115,10 +97,7 @@ public partial class FACommandBarButton : Button, IFACommandBarElement
         if (IsInOverflow)
         {
             var cb = this.FindLogicalAncestorOfType<FACommandBar>();
-            if (cb != null)
-            {
-                cb.IsOpen = false;
-            }
+            if (cb != null) cb.IsOpen = false;
         }
     }
 

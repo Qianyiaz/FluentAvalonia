@@ -7,26 +7,26 @@ using Avalonia.Styling;
 namespace FluentAvalonia.UI.Media.Animation;
 
 /// <summary>
-/// Provides the parameters for a slide navigation transition.
+///     Provides the parameters for a slide navigation transition.
 /// </summary>
 public class FASlideNavigationTransitionInfo : FANavigationTransitionInfo
 {
     /// <summary>
-    /// Gets or sets the type of animation effect to play during the slide transition.
+    ///     Gets or sets the type of animation effect to play during the slide transition.
     /// </summary>
     public FASlideNavigationTransitionEffect Effect { get; set; } = FASlideNavigationTransitionEffect.FromRight;
 
     /// <summary>
-    /// Gets or sets the HorizontalOffset used when animating from the Left or Right
+    ///     Gets or sets the HorizontalOffset used when animating from the Left or Right
     /// </summary>
     public double FromHorizontalOffset { get; set; } = 56;
 
     /// <summary>
-    /// Gets or sets the VerticalOffset used when animating from the Top or Bottom
+    ///     Gets or sets the VerticalOffset used when animating from the Top or Bottom
     /// </summary>
     public double FromVerticalOffset { get; set; } = 56;
 
-    public async override void RunAnimation(Animatable ctrl, CancellationToken cancellationToken)
+    public override async void RunAnimation(Animatable ctrl, CancellationToken cancellationToken)
     {
         double length = 0;
         var isVertical = false;
@@ -64,7 +64,7 @@ public class FASlideNavigationTransitionInfo : FANavigationTransitionInfo
                 },
                 new KeyFrame
                 {
-                    Setters=
+                    Setters =
                     {
                         new Setter(Visual.OpacityProperty, 1d)
                     },
@@ -89,4 +89,3 @@ public class FASlideNavigationTransitionInfo : FANavigationTransitionInfo
         (ctrl as Visual).Opacity = 1;
     }
 }
-

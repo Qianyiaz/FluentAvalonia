@@ -4,6 +4,24 @@ namespace FluentAvalonia.UI.Controls;
 
 internal class VirtualizationInfo
 {
+    public enum ElementOwner
+    {
+        ElementFactory,
+        Layout,
+        PinnedPool,
+        UniqueIdResetPool,
+        Animator
+    }
+
+    internal const int PhaseReachedEnd = -1;
+
+    private WeakReference<object> _data;
+    private int _index = -1;
+    private ElementOwner _owner;
+
+    private uint _pinCounter;
+    private string _uniqueId;
+
     public VirtualizationInfo()
     {
         ArrangeBounds = FAItemsRepeater.InvalidRect;
@@ -38,7 +56,7 @@ internal class VirtualizationInfo
 
     public object Data => _data == null ? null :
         _data.TryGetTarget(out var target) ? target : null;
- 
+
     internal void UpdatePhasingInfo(object data)
     {
         _data = new WeakReference<object>(data);
@@ -114,23 +132,5 @@ internal class VirtualizationInfo
     internal void UpdateIndex(int newIndex)
     {
         _index = newIndex;
-    }
-
-    private uint _pinCounter;
-    private int _index = -1;
-    private string _uniqueId;
-    private ElementOwner _owner;
-
-    private WeakReference<object> _data;    
-
-    internal const int PhaseReachedEnd = -1;
-
-    public enum ElementOwner
-    {
-        ElementFactory,
-        Layout,
-        PinnedPool,
-        UniqueIdResetPool,
-        Animator
     }
 }

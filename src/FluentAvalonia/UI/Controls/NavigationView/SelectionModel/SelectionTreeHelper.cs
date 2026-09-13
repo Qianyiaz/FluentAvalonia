@@ -15,10 +15,7 @@ internal static class SelectionTreeHelper
             var childIndex = path.GetAt(depth);
             nodeAction(node, path, depth, childIndex);
 
-            if (depth < path.GetSize() - 1)
-            {
-                node = node.GetAt(childIndex, realizeChildren);
-            }
+            if (depth < path.GetSize() - 1) node = node.GetAt(childIndex, realizeChildren);
         }
     }
 
@@ -41,10 +38,7 @@ internal static class SelectionTreeHelper
             {
                 var child = nextNode.Node.GetAt(i, realizeChildren);
                 var childPath = nextNode.Path.CloneWithChildIndex(i);
-                if (child != null)
-                {
-                    pendingNodes.Add(new TreeWalkNodeInfo(child, childPath, nextNode.Node));
-                }
+                if (child != null) pendingNodes.Add(new TreeWalkNodeInfo(child, childPath, nextNode.Node));
             }
 
             // Queue the children first and then perform the action. This way
@@ -74,7 +68,9 @@ internal static class SelectionTreeHelper
                 var isEndPath = IsSubSet(end, currentPath);
 
                 var startIndex = depth < start.GetSize() && isStartPath ? Math.Max(0, start.GetAt(depth)) : 0;
-                var endIndex = depth < end.GetSize() && isEndPath ? Math.Min(node.DataCount - 1, end.GetAt(depth)) : node.DataCount - 1;
+                var endIndex = depth < end.GetSize() && isEndPath
+                    ? Math.Min(node.DataCount - 1, end.GetAt(depth))
+                    : node.DataCount - 1;
 
                 for (var i = endIndex; i >= startIndex; i--)
                 {
@@ -111,28 +107,19 @@ internal static class SelectionTreeHelper
             nodeAction(info);
 
             if (info.Path.CompareTo(end) == 0)
-            {
                 // We reached the end index path. stop iterating.
                 break;
-            }
         }
     }
 
     private static bool IsSubSet(IndexPath path, IndexPath subset)
     {
         var subsetSize = subset.GetSize();
-        if (path.GetSize() < subsetSize)
-        {
-            return false;
-        }
+        if (path.GetSize() < subsetSize) return false;
 
         for (var i = 0; i < subsetSize; i++)
-        {
             if (path.GetAt(i) != subset.GetAt(i))
-            {
                 return false;
-            }
-        }
 
         return true;
     }
@@ -140,10 +127,7 @@ internal static class SelectionTreeHelper
     private static IndexPath StartPath(IndexPath path, int length)
     {
         var subPath = new List<int>();
-        for (var i = 0; i < length; i++)
-        {
-            subPath.Add(path.GetAt(i));
-        }
+        for (var i = 0; i < length; i++) subPath.Add(path.GetAt(i));
 
         return new IndexPath(subPath);
     }
@@ -172,5 +156,4 @@ internal static class SelectionTreeHelper
         public IndexPath Path { get; }
         public SelectionNode ParentNode { get; }
     };
-
 }

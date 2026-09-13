@@ -37,4 +37,3 @@ public class FAMenuFlyoutItemBase : TemplatedControl
         //InternalParent.PointerExitedItem(this);
     }
 }
-

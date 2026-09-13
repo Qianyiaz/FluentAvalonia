@@ -1,7 +1,6 @@
 ﻿using System.Collections.Specialized;
 using System.Windows.Input;
 using Avalonia;
-using Avalonia.Automation;
 using Avalonia.Automation.Peers;
 using Avalonia.Collections;
 using Avalonia.Controls;
@@ -10,6 +9,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Templates;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using FluentAvalonia.Collections;
@@ -19,10 +19,61 @@ using FluentAvalonia.UI.Controls.Primitives;
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// A control used to display a set of tabs and their respective content
+///     A control used to display a set of tabs and their respective content
 /// </summary>
 public partial class FATabView : TemplatedControl
 {
+    //private bool _isInTabTearOutLoop;
+
+    private static double c_tabMinimumWidth = 48d;
+    private static double c_tabMaximumWidth = 200d;
+
+    // (WinUI) TODO: what is the right number and should this be customizable?
+    private static double c_scrollAmount = 50d;
+    private Button _addButton;
+    private ColumnDefinition _addButtonColumn;
+    private double? _expandedWidthForDragOver;
+    private Point? _initDragPanePoint;
+
+    private bool _isDragging = false;
+    //private SplitView _splitView;
+
+    private bool _isDraggingPane;
+
+    //private bool _isItemBeingDragged;
+    private bool _isItemDraggedOver;
+
+    private bool _isSwitchingTabLocation;
+    private ItemsPresenter _itemsPresenter;
+
+
+    private TabViewCommand _keyboardAcceleratorHandler;
+
+    private ColumnDefinition _leftContentColumn;
+
+    private FATabViewListView _listView;
+
+    private IDisposable _listViewAllowDropPropertyChangedRevoker;
+    //private int _selectedIndexBeforeTabSwitch = -1;
+
+    // A bunch of event revokers
+    private IDisposable _listViewCanReorderItemsPropertyChangedRevoker;
+    private bool _pointerInTabstrip;
+    private Size _previousAvailableSize;
+    private ColumnDefinition _rightContentColumn;
+    private ContentPresenter _rightContentPresenter;
+    private RepeatButton _scrollDecreaseButton;
+    private RepeatButton _scrollIncreaseButton;
+    private ScrollViewer _scrollViewer;
+    private double _startingPaneSize;
+    private string _tabCloseButtonTooltipText;
+    private ColumnDefinition _tabColumn;
+    private Grid _tabContainerGrid;
+    private ContentPresenter _tabContentPresenter;
+
+    private bool _updateTabWidthOnPointerLeave;
+    private Border _verticalPaneResizeHandle;
+
     public FATabView()
     {
         TabItems = new AvaloniaList<object>();
@@ -87,7 +138,7 @@ public partial class FATabView : TemplatedControl
         {
             _tabContainerGrid.SizeChanged += HandleTabContainerGridSizeChangedForVerticalTabView;
         }
-        
+
         _tabContainerGrid.PointerEntered += OnTabStripPointerEnter;
         _tabContainerGrid.PointerExited += OnTabStripPointerLeave;
 
@@ -111,10 +162,10 @@ public partial class FATabView : TemplatedControl
 
             _listViewCanReorderItemsPropertyChangedRevoker =
                 _listView.GetPropertyChangedObservable(FATabViewListView.CanReorderItemsProperty)
-                .Subscribe(_ => OnListViewDraggingPropertyChanged());
+                    .Subscribe(_ => OnListViewDraggingPropertyChanged());
             _listViewAllowDropPropertyChangedRevoker =
                 _listView.GetPropertyChangedObservable(DragDrop.AllowDropProperty)
-                .Subscribe(_ => OnListViewDraggingPropertyChanged());
+                    .Subscribe(_ => OnListViewDraggingPropertyChanged());
         }
 
         _addButton = e.NameScope.Find<Button>(s_tpAddButton);
@@ -158,35 +209,21 @@ public partial class FATabView : TemplatedControl
         base.OnPropertyChanged(change);
 
         if (change.Property == CloseButtonOverlayModeProperty)
-        {
             OnCloseButtonOverlayModePropertyChanged(change);
-        }
         else if (change.Property == SelectedIndexProperty)
-        {
             OnSelectedIndexPropertyChanged(change);
-        }
         else if (change.Property == SelectedItemProperty)
-        {
             OnSelectedItemPropertyChanged(change);
-        }
         else if (change.Property == TabItemsSourceProperty)
-        {
             OnTabItemsSourcePropertyChanged(change);
-        }
         else if (change.Property == TabWidthModeProperty)
-        {
             OnTabWidthModePropertyChanged(change);
-        }
-        else if (change.Property == TabStripLocationProperty)
-        {
-            OnTabStripLocationPropertyChanged(change);
-        }
+        else if (change.Property == TabStripLocationProperty) OnTabStripLocationPropertyChanged(change);
     }
 
     internal void SetTabSeparatorOpacity(int index, int opacityValue)
     {
         if (ContainerFromIndex(index) is FATabViewItem tvi)
-        {
             // The reason we set the opacity directly instead of using VisualState
             // is because we want to hide the separator on hover/pressed
             // but the tab adjacent on the left to the selected tab
@@ -194,7 +231,6 @@ public partial class FATabView : TemplatedControl
             // It causes two visual states to modify the same property
             // what leads to undesired behaviour.
             tvi.TabSeparator?.Opacity = opacityValue;
-        }
     }
 
     internal void SetTabSeparatorOpacity(int index)
@@ -204,13 +240,9 @@ public partial class FATabView : TemplatedControl
         // If Tab is adjacent on the left to selected one or
         // it is selected tab - we hide the tabSeparator.
         if (index == selIndex || index + 1 == selIndex)
-        {
             SetTabSeparatorOpacity(index, 0);
-        }
         else
-        {
             SetTabSeparatorOpacity(index, 1);
-        }
     }
 
     protected virtual void OnTabStripLocationPropertyChanged(AvaloniaPropertyChangedEventArgs args)
@@ -241,11 +273,9 @@ public partial class FATabView : TemplatedControl
 
         if ((IsHorizontal(oldValue) && !IsHorizontal(newValue)) ||
             (!IsHorizontal(oldValue) && IsHorizontal(newValue)))
-        {
             // Only set TabContent to null if we're truly switching orientations
             UpdateTabContent();
-        }
-        
+
 
         var oldClass = GetClassForStripLocation(args.GetOldValue<FATabViewTabStripLocation>());
         var newClass = GetClassForStripLocation(args.GetNewValue<FATabViewTabStripLocation>());
@@ -253,7 +283,7 @@ public partial class FATabView : TemplatedControl
         PseudoClasses.Add(newClass);
 
         _listView?.HandleTabStripLocationChanged(args.GetNewValue<FATabViewTabStripLocation>(), oldClass, newClass);
-        
+
         UpdateTabWidths();
 
         static bool IsHorizontal(FATabViewTabStripLocation loc) =>
@@ -311,17 +341,10 @@ public partial class FATabView : TemplatedControl
             else if (selIndex != -1)
             {
                 if (i == selIndex)
-                {
                     state = 0;
-                }
                 else if (i == selIndex - 1)
-                {
                     state = 1;
-                }
-                else if (i == selIndex + 1)
-                {
-                    state = 2;
-                }
+                else if (i == selIndex + 1) state = 2;
             }
 
             if (ContainerFromIndex(i) is FATabViewItem tvi)
@@ -342,15 +365,11 @@ public partial class FATabView : TemplatedControl
 
         // Update border lines in the inner TabViewListView
         if (_listView != null)
-        {
             (_listView.Classes as IPseudoClasses).Set(FASharedPseudoclasses.s_pcNoBorder, _isDragging);
-        }
 
         // Update border lines in the ScrollViewer
         if (_scrollViewer != null)
-        {
             (_scrollViewer.Classes as IPseudoClasses).Set(FASharedPseudoclasses.s_pcNoBorder, _isDragging);
-        }
     }
 
     private void OnSelectedItemPropertyChanged(AvaloniaPropertyChangedEventArgs change)
@@ -363,7 +382,9 @@ public partial class FATabView : TemplatedControl
         UpdateListViewItemContainerTransitions();
     }
 
-    private void UpdateListViewItemContainerTransitions() { }
+    private void UpdateListViewItemContainerTransitions()
+    {
+    }
 
     private void OnCanTearOutTabsPropertyChanged(AvaloniaPropertyChangedEventArgs args)
     {
@@ -380,12 +401,8 @@ public partial class FATabView : TemplatedControl
         // Switch the visual states of all tab items to the correct TabViewWidthMode
         var itemCount = TabItems.Count;
         for (var i = 0; i < itemCount; i++)
-        {
             if (ContainerFromIndex(i) is FATabViewItem tvi)
-            {
                 tvi.OnTabViewWidthModeChanged(newValue);
-            }
-        }
     }
 
     private void OnCloseButtonOverlayModePropertyChanged(AvaloniaPropertyChangedEventArgs change)
@@ -394,12 +411,8 @@ public partial class FATabView : TemplatedControl
         // Switch the visual states of all tab items to the correct TabViewWidthMode
         var itemCount = TabItems.Count;
         for (var i = 0; i < itemCount; i++)
-        {
             if (ContainerFromIndex(i) is FATabViewItem tvi)
-            {
                 tvi.OnCloseButtonOverlayModeChanged(newValue);
-            }
-        }
     }
 
     private void OnAddButtonClick(object sender, RoutedEventArgs args)
@@ -439,10 +452,7 @@ public partial class FATabView : TemplatedControl
 
                     foreach (var item in tabItems)
                     {
-                        if (item is FATabViewItem tvi && tvi.GetVisualParent() is Panel p)
-                        {
-                            p.Children.Remove(tvi);
-                        }
+                        if (item is FATabViewItem tvi && tvi.GetVisualParent() is Panel p) p.Children.Remove(tvi);
 
                         lvItems.Add(item);
                     }
@@ -461,7 +471,7 @@ public partial class FATabView : TemplatedControl
 
                     foreach (var item in l.AsSpan())
                         lvItems.Add(item);
-                }                
+                }
             }
 
             TabItems = lvItems;
@@ -473,14 +483,10 @@ public partial class FATabView : TemplatedControl
         lv.HandleTabStripLocationChanged(stripLocation, null, GetClassForStripLocation(stripLocation));
 
         if (SelectedItem != null)
-        {
             UpdateSelectedItem();
-        }
         else
-        {
             // If SelectedItem wasn't set, default to selecting the first tab
             UpdateSelectedIndex();
-        }
 
         SelectedIndex = lv.SelectedIndex;
         SelectedItem = lv.SelectedItem;
@@ -496,20 +502,16 @@ public partial class FATabView : TemplatedControl
             _itemsPresenter = _listView.Presenter;
             _itemsPresenter.SizeChanged += OnItemsPresenterSizeChanged;
         }
-        
+
         var scrollViewer = _listView.Scroller;
         _scrollViewer = scrollViewer;
         if (scrollViewer != null)
         {
             if (scrollViewer.IsLoaded)
-            {
                 OnScrollViewerLoaded(null, null);
-            }
             else
-            {
                 scrollViewer.Loaded += OnScrollViewerLoaded;
-            }
-        }        
+        }
 
         UpdateBottomBorderLineVisualStates();
         //UpdateNonClientRegion();
@@ -519,7 +521,6 @@ public partial class FATabView : TemplatedControl
     {
         _pointerInTabstrip = false;
         if (_updateTabWidthOnPointerLeave)
-        {
             try
             {
                 UpdateTabWidths();
@@ -528,7 +529,6 @@ public partial class FATabView : TemplatedControl
             {
                 _updateTabWidthOnPointerLeave = false;
             }
-        }
     }
 
     private void OnTabStripPointerEnter(object sender, PointerEventArgs e)
@@ -542,7 +542,6 @@ public partial class FATabView : TemplatedControl
             .Where(x => x is RepeatButton);
 
         foreach (RepeatButton button in buttons)
-        {
             if (button.Name == s_tpScrollDecreaseButton)
             {
                 _scrollDecreaseButton = button;
@@ -553,10 +552,9 @@ public partial class FATabView : TemplatedControl
                 _scrollIncreaseButton = button;
                 _scrollIncreaseButton.Click += OnScrollIncreaseClick;
             }
-        }
 
         _scrollViewer.ScrollChanged += OnScrollViewerViewChanged;
-        
+
         UpdateTabWidths();
     }
 
@@ -576,7 +574,7 @@ public partial class FATabView : TemplatedControl
         {
             const double minThreshold = 0.1d;
             var hOffset = _scrollViewer.Offset.X;
-            var scrollableWidth = (_scrollViewer.Extent.Width - _scrollViewer.Viewport.Width);
+            var scrollableWidth = _scrollViewer.Extent.Width - _scrollViewer.Viewport.Width;
 
             if (double.Abs(hOffset - scrollableWidth) < minThreshold)
             {
@@ -617,7 +615,7 @@ public partial class FATabView : TemplatedControl
     {
         if (SelectedItem != null)
         {
-            var tvi = SelectedItem as FATabViewItem ?? ContainerFromItem(SelectedItem) as FATabViewItem;            
+            var tvi = SelectedItem as FATabViewItem ?? ContainerFromItem(SelectedItem) as FATabViewItem;
             tvi?.StartBringTabIntoView();
         }
     }
@@ -642,16 +640,12 @@ public partial class FATabView : TemplatedControl
             {
                 _updateTabWidthOnPointerLeave = true;
                 if (numItems > 0)
-                {
                     // SelectedIndex might also already be -1
                     if (selectedIndex == -1 || selectedIndex == args.OldStartingIndex)
                     {
                         // Find the closest tab to select instead
                         var startIndex = args.OldStartingIndex;
-                        if (startIndex >= numItems)
-                        {
-                            startIndex = numItems - 1;
-                        }
+                        if (startIndex >= numItems) startIndex = numItems - 1;
                         var index = startIndex;
 
                         do
@@ -659,7 +653,7 @@ public partial class FATabView : TemplatedControl
                             var nextitem = ContainerFromIndex(index) as FATabViewItem;
 
                             if (nextitem != null && nextitem.IsEffectivelyEnabled
-                                && nextitem.IsEffectivelyVisible)
+                                                 && nextitem.IsEffectivelyVisible)
                             {
                                 SelectedItem = ItemFromContainer(nextitem);
                                 break;
@@ -667,22 +661,13 @@ public partial class FATabView : TemplatedControl
 
                             // try the next item
                             index++;
-                            if (index >= numItems)
-                            {
-                                index = 0;
-                            }
-                        }
-                        while (index != startIndex);
+                            if (index >= numItems) index = 0;
+                        } while (index != startIndex);
                     }
-                }
 
                 if (TabWidthMode == FATabViewWidthMode.Equal)
-                {
                     if (!_pointerInTabstrip || args.OldStartingIndex == TabItems.Count)
-                    {
                         UpdateTabWidths(true, false);
-                    }
-                }
             }
             else
             {
@@ -692,7 +677,7 @@ public partial class FATabView : TemplatedControl
                 // Posting to Dispatcher so delay calling this until after next layout pass
                 // when items are all realized and ContainerFromIndex works
                 // TODO: Do we still need to post to dispatcher
-                
+
                 Dispatcher.UIThread.Post(() =>
                 {
                     UpdateTabWidths();
@@ -732,7 +717,7 @@ public partial class FATabView : TemplatedControl
     {
         var tab = ContainerFromItem(item) as FATabViewItem;
         tab ??= tab.FindAncestorOfType<FATabViewItem>();
-        
+
         if (tab == null)
         {
             // This is a fallback scenario for tabs without a data context
@@ -769,10 +754,7 @@ public partial class FATabView : TemplatedControl
 
     private void OnListViewDrop(object sender, DragEventArgs args)
     {
-        if (!args.Handled)
-        {
-            TabStripDrop?.Invoke(this, args);
-        }
+        if (!args.Handled) TabStripDrop?.Invoke(this, args);
 
         UpdateIsItemDraggedOver(false);
     }
@@ -780,13 +762,9 @@ public partial class FATabView : TemplatedControl
     private void OnListViewDragEnter(object sender, DragEventArgs args)
     {
         foreach (var item in TabItems)
-        {
             if (ContainerFromItem(item) is FATabViewItem tvi)
-            {
                 if (tvi.IsBeingDragged)
                     return;
-            }
-        }
 
         UpdateIsItemDraggedOver(true);
     }
@@ -836,7 +814,7 @@ public partial class FATabView : TemplatedControl
         }
         else
         {
-            var tvi = (SelectedItem as FATabViewItem) ?? ContainerFromItem(SelectedItem) as FATabViewItem;
+            var tvi = SelectedItem as FATabViewItem ?? ContainerFromItem(SelectedItem) as FATabViewItem;
 
             if (tvi != null)
             {
@@ -858,12 +836,12 @@ public partial class FATabView : TemplatedControl
 
                 // It is not ideal to call UpdateLayout here, but it is necessary to ensure that the ContentPresenter has expanded its content
                 // into the live visual tree.
-                
+
                 if (shouldMoveFocusToNewTab)
                 {
                     var focusable = TopLevel.GetTopLevel(this)?.FocusManager?.FindNextElement(NavigationDirection.Next,
                         new FindNextElementOptions { SearchRoot = _tabContentPresenter });
-                    
+
                     // If there is nothing focusable in the new tab, just move focus to the TabViewItem itself.
                     focusable ??= tvi;
 
@@ -875,7 +853,7 @@ public partial class FATabView : TemplatedControl
                     _tabContentPresenter.LosingFocus -= TabContentPresenterLostFocus;
                 }
             }
-        }       
+        }
     }
 
     internal void RequestCloseTab(FATabViewItem container, bool updateTabWidths)
@@ -911,39 +889,26 @@ public partial class FATabView : TemplatedControl
                     Control newFocusedElement = null;
 
                     for (var i = focusedIndex + 1; i < GetItemCount(); i++)
-                    {
                         if (ContainerFromIndex(i) is Control element)
-                        {
                             if (IsFocusable(element))
                             {
                                 newFocusedElement = element;
                                 break;
                             }
-                        }
-                    }
 
                     if (newFocusedElement == null)
-                    {
                         for (var i = focusedIndex - 1; i >= 0; i--)
-                        {
                             if (ContainerFromIndex(i) is Control element)
-                            {
                                 if (IsFocusable(element))
                                 {
                                     newFocusedElement = element;
                                     break;
                                 }
-                            }
-                        }
-                    }
 
                     if (newFocusedElement == args.NewFocusedElement)
                         return;
 
-                    if (newFocusedElement == null)
-                    {
-                        newFocusedElement = _addButton;
-                    }
+                    if (newFocusedElement == null) newFocusedElement = _addButton;
 
                     args.Handled = args.TrySetNewFocusedElement(newFocusedElement);
                 }
@@ -989,39 +954,31 @@ public partial class FATabView : TemplatedControl
         //    return;
         //}
 
-        var maxTabWidth = this.TryFindResource(c_tabViewItemMaxWidthName, out var mtw) ? (double)mtw : c_tabMaximumWidth;
+        var maxTabWidth = this.TryFindResource(c_tabViewItemMaxWidthName, out var mtw)
+            ? (double)mtw
+            : c_tabMaximumWidth;
         var tabWidth = double.NaN;
         var tabCount = TabItems.Count;
 
         // If an item is being dragged over this TabView, then we'll want to act like there's an extra item
         // when updating tab widths, which will create a hole into which the item can be dragged.
-        if (_isItemDraggedOver)
-        {
-            tabCount++;
-        }
+        if (_isItemDraggedOver) tabCount++;
         var stripLocation = TabStripLocation;
-        var isHorizontal = (stripLocation == FATabViewTabStripLocation.Top || stripLocation == FATabViewTabStripLocation.Bottom);
+        var isHorizontal = stripLocation == FATabViewTabStripLocation.Top ||
+                           stripLocation == FATabViewTabStripLocation.Bottom;
         if (_tabContainerGrid != null && isHorizontal)
         {
             // Add up width taken by custom content and + button
             var widthTaken = 0.0;
-            if (_leftContentColumn != null)
-            {
-                widthTaken += _leftContentColumn.ActualWidth;
-            }
-            if (_addButtonColumn != null)
-            {
-                widthTaken += _addButtonColumn.ActualWidth;
-            }
+            if (_leftContentColumn != null) widthTaken += _leftContentColumn.ActualWidth;
+            if (_addButtonColumn != null) widthTaken += _addButtonColumn.ActualWidth;
             if (_rightContentColumn != null)
-            {
                 if (_rightContentPresenter != null)
                 {
                     var size = _rightContentPresenter.DesiredSize;
                     _rightContentColumn.MinWidth = size.Width;
                     widthTaken += size.Width;
                 }
-            }
 
             if (_tabColumn != null)
             {
@@ -1033,7 +990,9 @@ public partial class FATabView : TemplatedControl
                 {
                     if (TabWidthMode == FATabViewWidthMode.Equal)
                     {
-                        var minTabWidth = this.TryFindResource(c_tabViewItemMinWidthName, out var value) ? (double)value : c_tabMinimumWidth;
+                        var minTabWidth = this.TryFindResource(c_tabViewItemMinWidthName, out var value)
+                            ? (double)value
+                            : c_tabMinimumWidth;
                         var padding = Padding;
 
                         // We don't have this, so skip what WinUI does, but to avoid messing up the math
@@ -1043,27 +1002,22 @@ public partial class FATabView : TemplatedControl
                         if (fillAllAvailableSpace)
                         {
                             // Calculate the proportional width of each tab given the width of the ScrollViewer.
-                            var tabWidthForScroller = (availableWidth - (padding.Horizontal() + headerWidth + footerWidth)) / TabItems.Count();
+                            var tabWidthForScroller =
+                                (availableWidth - (padding.Horizontal() + headerWidth + footerWidth)) /
+                                TabItems.Count();
                             tabWidth = double.Clamp(tabWidthForScroller, minTabWidth, maxTabWidth);
                         }
                         else
                         {
-                            var availableTabViewSpace = (_tabColumn.ActualWidth - (padding.Horizontal() + headerWidth + footerWidth));
+                            var availableTabViewSpace = _tabColumn.ActualWidth -
+                                                        (padding.Horizontal() + headerWidth + footerWidth);
                             if (_scrollIncreaseButton != null)
-                            {
                                 if (_scrollIncreaseButton.IsVisible)
-                                {
                                     availableTabViewSpace -= _scrollIncreaseButton.Bounds.Width;
-                                }
-                            }
 
                             if (_scrollDecreaseButton != null)
-                            {
                                 if (_scrollDecreaseButton.IsVisible)
-                                {
                                     availableTabViewSpace -= _scrollDecreaseButton.Bounds.Width;
-                                }
-                            }
 
                             // Use current size to update items to fill the currently occupied space
                             var tabWidthUnclamped = availableTabViewSpace / TabItems.Count();
@@ -1077,7 +1031,8 @@ public partial class FATabView : TemplatedControl
                             _tabColumn.Width = new GridLength(availableWidth, GridUnitType.Pixel);
                             if (_listView != null)
                             {
-                                _listView.SetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty, ScrollBarVisibility.Visible);
+                                _listView.SetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty,
+                                    ScrollBarVisibility.Visible);
                                 UpdateScrollViewerDecreaseAndIncreaseButtonsViewState();
                             }
                         }
@@ -1086,15 +1041,16 @@ public partial class FATabView : TemplatedControl
                             // If we're dragging over the TabView, we need to set the width to a specific value,
                             // since we want it to be larger than the items actually in it in order to accommodate
                             // the item being dragged into the TabView.  Otherwise, we can just set its width to Auto.
-                            _tabColumn.Width = _isItemDraggedOver ?
-                                new GridLength(requiredWidth, GridUnitType.Pixel) :
-                                new GridLength(1, GridUnitType.Auto);
+                            _tabColumn.Width = _isItemDraggedOver
+                                ? new GridLength(requiredWidth, GridUnitType.Pixel)
+                                : new GridLength(1, GridUnitType.Auto);
 
                             if (_listView != null)
                             {
                                 if (shouldUpdateWidths && fillAllAvailableSpace)
                                 {
-                                    _listView.SetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty, ScrollBarVisibility.Hidden);
+                                    _listView.SetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty,
+                                        ScrollBarVisibility.Hidden);
                                 }
                                 else
                                 {
@@ -1117,18 +1073,13 @@ public partial class FATabView : TemplatedControl
                             if (_isItemDraggedOver)
                             {
                                 if (!_expandedWidthForDragOver.HasValue)
-                                {
                                     _expandedWidthForDragOver = _listView.Bounds.Width + maxTabWidth;
-                                }
 
                                 _tabColumn.Width = new GridLength(_expandedWidthForDragOver.Value, GridUnitType.Pixel);
                             }
                             else
                             {
-                                if (_expandedWidthForDragOver.HasValue)
-                                {
-                                    _expandedWidthForDragOver = null;
-                                }
+                                if (_expandedWidthForDragOver.HasValue) _expandedWidthForDragOver = null;
 
                                 _tabColumn.Width = new GridLength(1, GridUnitType.Auto);
                             }
@@ -1139,17 +1090,14 @@ public partial class FATabView : TemplatedControl
                             if (ip != null)
                             {
                                 var visible = ip.Bounds.Width > availableWidth;
-                                _listView.SetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty, visible ?
-                                    ScrollBarVisibility.Visible : ScrollBarVisibility.Hidden);
+                                _listView.SetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty,
+                                    visible ? ScrollBarVisibility.Visible : ScrollBarVisibility.Hidden);
 
-                                if (visible)
-                                {
-                                    UpdateScrollViewerDecreaseAndIncreaseButtonsViewState();
-                                }
+                                if (visible) UpdateScrollViewerDecreaseAndIncreaseButtonsViewState();
                             }
                         }
                     }
-                }                
+                }
             }
         }
 
@@ -1161,7 +1109,7 @@ public partial class FATabView : TemplatedControl
                 _listView.SetValue(ScrollViewer.HorizontalScrollBarVisibilityProperty, ScrollBarVisibility.Disabled);
                 _listView.SetValue(ScrollViewer.VerticalScrollBarVisibilityProperty, ScrollBarVisibility.Auto);
             }
-            
+
             if (_tabContainerGrid != null)
             {
                 // Calcuate the height of the rows without the TabView
@@ -1172,14 +1120,13 @@ public partial class FATabView : TemplatedControl
                         continue;
 
                     height += item.DesiredSize.Height;
-                }    
-                var maxSpace = _tabContainerGrid.Bounds.Height;
-                
-                if (_isItemDraggedOver)
-                {
-                    // Add the dragging space in vertical view by using the avg. item height
-                    height += (height / _tabContainerGrid.Children.Count);
                 }
+
+                var maxSpace = _tabContainerGrid.Bounds.Height;
+
+                if (_isItemDraggedOver)
+                    // Add the dragging space in vertical view by using the avg. item height
+                    height += height / _tabContainerGrid.Children.Count;
 
                 _scrollViewer?.MaxHeight = double.Clamp(maxSpace - height, 0, double.PositiveInfinity);
             }
@@ -1190,13 +1137,11 @@ public partial class FATabView : TemplatedControl
         }
 
         if (shouldUpdateWidths || TabWidthMode != FATabViewWidthMode.Equal)
-        {
             foreach (var item in TabItems)
             {
                 var tvi = item as FATabViewItem ?? ContainerFromItem(item) as FATabViewItem;
                 tvi?.Width = tabWidth;
             }
-        }
     }
 
     private void UpdateSelectedItem()
@@ -1210,15 +1155,12 @@ public partial class FATabView : TemplatedControl
         if (_listView != null)
         {
             var index = SelectedIndex;
-            if (index < _listView.ItemCount)
-            {
-                _listView.SelectedIndex = index;
-            }
+            if (index < _listView.ItemCount) _listView.SelectedIndex = index;
         }
     }
 
     public Control ContainerFromItem(object item) =>
-       _listView?.ContainerFromItem(item);
+        _listView?.ContainerFromItem(item);
 
     public Control ContainerFromIndex(int index) =>
         _listView?.ContainerFromIndex(index);
@@ -1254,11 +1196,8 @@ public partial class FATabView : TemplatedControl
             if (!_isDraggingPane)
             {
                 FAUISettings.GetSystemDragSize(TopLevel.GetTopLevel(this).RenderScaling, out var cxDrag, out _);
-                
-                if (double.Abs(delta) < cxDrag)
-                {
-                    return;
-                }
+
+                if (double.Abs(delta) < cxDrag) return;
 
                 _isDraggingPane = true;
             }
@@ -1304,10 +1243,7 @@ public partial class FATabView : TemplatedControl
     private int GetItemCount()
     {
         var src = TabItemsSource;
-        if (src != null)
-        {
-            return src.Count();
-        }
+        if (src != null) return src.Count();
 
         return TabItems.Count;
     }
@@ -1328,42 +1264,27 @@ public partial class FATabView : TemplatedControl
             //
             // Any element that's not focusable is skipped.
             using var focusOrderList = new PooledList<Control>();
-            
+
             for (var i = 0; i < GetItemCount(); i++)
-            {
                 if (ContainerFromIndex(i) is FATabViewItem tab)
-                {
                     if (IsFocusable(tab))
                     {
                         focusOrderList.Add(tab);
 
                         var cb = tab.CloseButton;
                         if (cb != null)
-                        {
                             if (IsFocusable(cb, false))
-                            {
                                 focusOrderList.Add(cb);
-                            }
-                        }
                     }
-                }
-            }
 
             if (_addButton != null)
-            {
                 if (IsFocusable(_addButton))
-                {
                     focusOrderList.Add(_addButton);
-                }
-            }
 
             var index = focusOrderList.IndexOf(focusedControl);
 
             // The focused control is not in the focus order list - nothing for us to do here either.
-            if (index == -1)
-            {
-                return false;
-            }
+            if (index == -1) return false;
 
             // At this point, we know that the focused control is indeed in the focus list, so we'll move focus to the next or previous control in the list.
             var sourceIndex = index;
@@ -1372,13 +1293,8 @@ public partial class FATabView : TemplatedControl
             var nextIndex = sourceIndex + increment;
 
             if (nextIndex < 0)
-            {
                 nextIndex = listSize - 1;
-            }
-            else if (nextIndex >= listSize)
-            {
-                nextIndex = 0;
-            }
+            else if (nextIndex >= listSize) nextIndex = 0;
 
             // We have to do a bit of a dance for the close buttons - we don't want users to be able to give them focus when tabbing through an app,
             // since we only want to tab into the TabView once and then tab out on the next tab press.  However, IsTabStop also controls keyboard
@@ -1414,13 +1330,8 @@ public partial class FATabView : TemplatedControl
         while (currentIndex != originalIndex)
         {
             if (currentIndex < 0)
-            {
                 currentIndex = itemCount - 1;
-            }
-            else if (currentIndex >= itemCount)
-            {
-                currentIndex = 0;
-            }
+            else if (currentIndex >= itemCount) currentIndex = 0;
 
             if (ContainerFromIndex(currentIndex) is Control c && IsFocusable(c))
             {
@@ -1438,13 +1349,11 @@ public partial class FATabView : TemplatedControl
     {
         var handled = false;
         if (SelectedItem is FATabViewItem tvi)
-        {
             if (tvi.IsClosable)
             {
                 RequestCloseTab(tvi, true);
                 handled = true;
             }
-        }
 
         return handled;
     }
@@ -1471,13 +1380,8 @@ public partial class FATabView : TemplatedControl
     {
         var ab = _addButton;
         if (args.Key == Key.Right)
-        {
-            args.Handled = MoveFocus(ab.FlowDirection == Avalonia.Media.FlowDirection.LeftToRight);
-        }
-        else if (args.Key == Key.Left)
-        {
-            args.Handled = MoveFocus(ab.FlowDirection == Avalonia.Media.FlowDirection.RightToLeft);
-        }
+            args.Handled = MoveFocus(ab.FlowDirection == FlowDirection.LeftToRight);
+        else if (args.Key == Key.Left) args.Handled = MoveFocus(ab.FlowDirection == FlowDirection.RightToLeft);
     }
 
     // Note that the parameter is a DependencyObject for convenience to allow us to call this on the return value of ContainerFromIndex.
@@ -1488,11 +1392,9 @@ public partial class FATabView : TemplatedControl
             return false;
 
         if (obj is Control c)
-        {
             return c.IsEffectivelyVisible &&
-                (c.IsEffectivelyEnabled) &&
-                (c.IsTabStop || !checkTabStop);
-        }
+                   c.IsEffectivelyEnabled &&
+                   (c.IsTabStop || !checkTabStop);
 
         return false;
     }
@@ -1622,63 +1524,17 @@ public partial class FATabView : TemplatedControl
     }
 
     internal string GetTabCloseButtonTooltipText() =>
-       _tabCloseButtonTooltipText;
+        _tabCloseButtonTooltipText;
 
 
-    private TabViewCommand _keyboardAcceleratorHandler;
-
-    private bool _updateTabWidthOnPointerLeave;
-    private bool _pointerInTabstrip;
-
-    private ColumnDefinition _leftContentColumn;
-    private ColumnDefinition _tabColumn;
-    private ColumnDefinition _addButtonColumn;
-    private ColumnDefinition _rightContentColumn;
-
-    private FATabViewListView _listView;
-    private ContentPresenter _tabContentPresenter;
-    private ContentPresenter _rightContentPresenter;
-    private Grid _tabContainerGrid;
-    private ScrollViewer _scrollViewer;
-    private RepeatButton _scrollDecreaseButton;
-    private RepeatButton _scrollIncreaseButton;
-    private Button _addButton;
-    private ItemsPresenter _itemsPresenter;
-    private Border _verticalPaneResizeHandle;
-    //private SplitView _splitView;
-
-    private bool _isDraggingPane;
-    private Point? _initDragPanePoint;
-    private double _startingPaneSize;
-
-    private bool _isSwitchingTabLocation;
-    //private int _selectedIndexBeforeTabSwitch = -1;
-
-    // A bunch of event revokers
-    private IDisposable _listViewCanReorderItemsPropertyChangedRevoker;
-    private IDisposable _listViewAllowDropPropertyChangedRevoker;
-    private string _tabCloseButtonTooltipText;
-    private Size _previousAvailableSize;
-
-    private bool _isDragging = false;
-    //private bool _isItemBeingDragged;
-    private bool _isItemDraggedOver;
-    private double? _expandedWidthForDragOver;
-    //private bool _isInTabTearOutLoop;
-
-    private static double c_tabMinimumWidth = 48d;
-    private static double c_tabMaximumWidth = 200d;
-
-    // (WinUI) TODO: what is the right number and should this be customizable?
-    private static double c_scrollAmount = 50d;
-
-
-    class TabViewCommand : ICommand
+    private class TabViewCommand : ICommand
     {
         public TabViewCommand(Action<object> execute)
         {
             ExecuteHandler = execute;
         }
+
+        public Action<object> ExecuteHandler { get; }
 
         event EventHandler ICommand.CanExecuteChanged
         {
@@ -1686,7 +1542,6 @@ public partial class FATabView : TemplatedControl
             remove { }
         }
 
-        public Action<object> ExecuteHandler { get; }
         public bool CanExecute(object parameter) => true;
 
         public void Execute(object parameter)
@@ -1695,7 +1550,7 @@ public partial class FATabView : TemplatedControl
         }
     }
 
-    enum TabViewCommandType
+    private enum TabViewCommandType
     {
         CtrlF4,
         CtrlTab,

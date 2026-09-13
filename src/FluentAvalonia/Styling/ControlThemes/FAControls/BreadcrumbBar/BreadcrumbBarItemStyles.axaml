@@ -16,7 +16,7 @@
     <x:Double x:Key="EllipsisItemPresenterLineHeight">20</x:Double>
     <Thickness x:Key="EllipsisTextBlockPadding">3</Thickness>
     <Thickness x:Key="BreadcrumbButtonPadding">0</Thickness>
-    
+
     <ControlTheme TargetType="Button"
                   x:Key="BreadcrumbButtonStyle">
         <Setter Property="Foreground" Value="{DynamicResource BreadcrumbBarNormalForegroundBrush}" />
@@ -46,7 +46,7 @@
         </Setter>
 
         <Style Selector="^:not(:lastItem)">
-            
+
             <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
                 <Setter Property="Foreground" Value="{DynamicResource BreadcrumbBarHoverForegroundBrush}" />
                 <Setter Property="Background" Value="{DynamicResource BreadcrumbBarBackgroundBrush}" />
@@ -110,9 +110,12 @@
                     <Flyout x:Key="PART_EllipsisFlyout">
                         <Flyout.FlyoutPresenterTheme>
                             <ControlTheme TargetType="FlyoutPresenter">
-                                <Setter Property="Background" Value="{DynamicResource BreadcrumbBarEllipsisFlyoutPresenterBackground}" />
-                                <Setter Property="BorderBrush" Value="{DynamicResource BreadcrumbBarEllipsisFlyoutPresenterBorderBrush}" />
-                                <Setter Property="BorderThickness" Value="{DynamicResource BreadcrumbBarEllipsisFlyoutPresenterBorderThemeThickness}" />
+                                <Setter Property="Background"
+                                        Value="{DynamicResource BreadcrumbBarEllipsisFlyoutPresenterBackground}" />
+                                <Setter Property="BorderBrush"
+                                        Value="{DynamicResource BreadcrumbBarEllipsisFlyoutPresenterBorderBrush}" />
+                                <Setter Property="BorderThickness"
+                                        Value="{DynamicResource BreadcrumbBarEllipsisFlyoutPresenterBorderThemeThickness}" />
                                 <Setter Property="Padding" Value="0,2" />
                                 <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
                                 <Setter Property="MaxWidth" Value="{DynamicResource FlyoutThemeMaxWidth}" />
@@ -183,7 +186,7 @@
                                   ContentTemplate="{TemplateBinding ContentTemplate}"
                                   Foreground="{DynamicResource BreadcrumbBarCurrentNormalForegroundBrush}"
                                   HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                  LineHeight="{DynamicResource EllipsisItemPresenterLineHeight}" 
+                                  LineHeight="{DynamicResource EllipsisItemPresenterLineHeight}"
                                   Padding="{DynamicResource EllipsisItemButtonPadding}"
                                   VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
                                   CornerRadius="{TemplateBinding CornerRadius}" />
@@ -205,7 +208,7 @@
 
     <ControlTemplate x:Key="EllipsisDropDownBreadcrumbBarItemTemplate"
                      TargetType="ui:FABreadcrumbBarItem">
-        <Border Name="LayoutRoot" 
+        <Border Name="LayoutRoot"
                 CornerRadius="{TemplateBinding CornerRadius}"
                 TemplatedControl.IsTemplateFocusTarget="True"
                 Padding="{DynamicResource EllipsisDropDownItemPadding}"
@@ -227,7 +230,7 @@
                                   HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                   HorizontalContentAlignment="Stretch"
                                   VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
-                
+
             </Grid>
         </Border>
     </ControlTemplate>
@@ -251,7 +254,7 @@
 
         <Style Selector="^:inline">
             <Setter Property="Template" Value="{DynamicResource InlineBreadcrumbBarItemTemplate}" />
-            
+
             <Style Selector="^ /template/ TextBlock#PART_ChevronTextBlock">
                 <Setter Property="Text" Value="{DynamicResource BreadcrumbBarChevronLeftToRight}" />
             </Style>
@@ -280,12 +283,12 @@
                 <Style Selector="^ /template/ ContentPresenter#PART_ItemContentPresenter">
                     <Setter Property="IsVisible" Value="False" />
                 </Style>
-            </Style>            
+            </Style>
         </Style>
 
         <Style Selector="^:ellipsisDropDown">
             <Setter Property="Template" Value="{DynamicResource EllipsisDropDownBreadcrumbBarItemTemplate}" />
-            
+
             <Style Selector="^ /template/ Border#LayoutRoot">
                 <Setter Property="Background" Value="Transparent" />
             </Style>
@@ -295,18 +298,24 @@
             </Style>
 
             <Style Selector="^:pointerover /template/ Border#LayoutRoot">
-                <Setter Property="TextElement.Foreground" Value="{DynamicResource BreadcrumbBarEllipsisDropDownItemForegroundPointerOver}" />
-                <Setter Property="Background" Value="{DynamicResource BreadcrumbBarEllipsisDropDownItemBackgroundPointerOver}" />
+                <Setter Property="TextElement.Foreground"
+                        Value="{DynamicResource BreadcrumbBarEllipsisDropDownItemForegroundPointerOver}" />
+                <Setter Property="Background"
+                        Value="{DynamicResource BreadcrumbBarEllipsisDropDownItemBackgroundPointerOver}" />
             </Style>
 
             <Style Selector="^:pressed /template/ Border#LayoutRoot">
-                <Setter Property="TextElement.Foreground" Value="{DynamicResource BreadcrumbBarEllipsisDropDownItemForegroundPressed}" />
-                <Setter Property="Background" Value="{DynamicResource BreadcrumbBarEllipsisDropDownItemBackgroundPressed}" />
+                <Setter Property="TextElement.Foreground"
+                        Value="{DynamicResource BreadcrumbBarEllipsisDropDownItemForegroundPressed}" />
+                <Setter Property="Background"
+                        Value="{DynamicResource BreadcrumbBarEllipsisDropDownItemBackgroundPressed}" />
             </Style>
 
             <Style Selector="^:disabled /template/ Border#LayoutRoot">
-                <Setter Property="TextElement.Foreground" Value="{DynamicResource BreadcrumbBarEllipsisDropDownItemForegroundDisabled}" />
-                <Setter Property="Background" Value="{DynamicResource BreadcrumbBarEllipsisDropDownItemBackgroundDisabled}" />
+                <Setter Property="TextElement.Foreground"
+                        Value="{DynamicResource BreadcrumbBarEllipsisDropDownItemForegroundDisabled}" />
+                <Setter Property="Background"
+                        Value="{DynamicResource BreadcrumbBarEllipsisDropDownItemBackgroundDisabled}" />
             </Style>
         </Style>
     </ControlTheme>

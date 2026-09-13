@@ -13,13 +13,65 @@ using FluentAvalonia.Core;
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Presents a asynchronous dialog to the user.
+///     Presents a asynchronous dialog to the user.
 /// </summary>
 public partial class FAContentDialog : ContentControl, ICustomKeyboardNavigation
 {
+    private Button _closeButton;
+    private bool _hasDeferralActive;
+    private FADialogHost _host;
+    private Visual _hotkeyDownVisual;
+
+    // Store the last element focused before showing the dialog, so we can
+    // restore it when it closes
+    private IInputElement _lastFocus;
+    private Control _originalHost;
+    private int _originalHostIndex;
+    private Button _primaryButton;
+    private FAContentDialogResult _result;
+    private Button _secondaryButton;
+    private TaskCompletionSource<FAContentDialogResult> _tcs;
+
     public FAContentDialog()
     {
         PseudoClasses.Add(FASharedPseudoclasses.s_pcHidden);
+    }
+
+    public (bool handled, IInputElement next) GetNext(IInputElement element, NavigationDirection direction)
+    {
+        var children = this.GetVisualDescendants().OfType<IInputElement>()
+            .Where(x => KeyboardNavigation.GetIsTabStop((InputElement)x) && x.Focusable &&
+                        x.IsEffectivelyVisible && IsEffectivelyEnabled).ToList();
+
+        if (children.Count == 0)
+            return (false, null);
+
+        var current = TopLevel.GetTopLevel(this).FocusManager.GetFocusedElement();
+        if (current == null)
+            return (false, null);
+
+        if (direction == NavigationDirection.Next)
+        {
+            for (var i = 0; i < children.Count; i++)
+                if (children[i] == current)
+                {
+                    if (i == children.Count - 1) return (true, children[0]);
+
+                    return (true, children[i + 1]);
+                }
+        }
+        else if (direction == NavigationDirection.Previous)
+        {
+            for (var i = children.Count - 1; i >= 0; i--)
+                if (children[i] == current)
+                {
+                    if (i == 0) return (true, children[children.Count - 1]);
+
+                    return (true, children[i - 1]);
+                }
+        }
+
+        return (false, null);
     }
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
@@ -45,10 +97,7 @@ public partial class FAContentDialog : ContentControl, ICustomKeyboardNavigation
     {
         base.OnPropertyChanged(change);
 
-        if (change.Property == FullSizeDesiredProperty)
-        {
-            OnFullSizedDesiredChanged(change);
-        }
+        if (change.Property == FullSizeDesiredProperty) OnFullSizedDesiredChanged(change);
     }
 
     protected override bool RegisterContentPresenter(ContentPresenter presenter)
@@ -64,10 +113,7 @@ public partial class FAContentDialog : ContentControl, ICustomKeyboardNavigation
         base.OnKeyDown(e);
 
         // See OnKeyUp for reasoning
-        if (!e.Handled && (e.Key == Key.Enter || e.Key == Key.Escape))
-        {
-            _hotkeyDownVisual = e.Source as Visual;
-        }
+        if (!e.Handled && (e.Key == Key.Enter || e.Key == Key.Escape)) _hotkeyDownVisual = e.Source as Visual;
     }
 
     protected override void OnKeyUp(KeyEventArgs e)
@@ -83,7 +129,8 @@ public partial class FAContentDialog : ContentControl, ICustomKeyboardNavigation
         // (Avalonia related issue #9626) and will immediately close the dialog
         // We store the source of the key down and if it doesn't match, or hasn't been set yet, we ignore
         // this key up event so we don't inadvertantly close the dialog
-        if ((e.Key == Key.Enter || e.Key == Key.Escape) && (_hotkeyDownVisual == null || _hotkeyDownVisual != (Visual)e.Source))
+        if ((e.Key == Key.Enter || e.Key == Key.Escape) &&
+            (_hotkeyDownVisual == null || _hotkeyDownVisual != (Visual)e.Source))
         {
             base.OnKeyUp(e);
             return;
@@ -118,39 +165,42 @@ public partial class FAContentDialog : ContentControl, ICustomKeyboardNavigation
                             OnButtonClick(_closeButton, null);
                             break;
                     }
+
                     e.Handled = true;
                 }
 
                 break;
         }
+
         base.OnKeyUp(e);
     }
 
     /// <summary>
-    /// Begins an asynchronous operation to show the dialog.
+    ///     Begins an asynchronous operation to show the dialog.
     /// </summary>
     public Task<FAContentDialogResult> ShowAsync() => ShowAsyncCoreForTopLevel(null);
 
     /// <summary>
-    /// Begins an asynchronous operation to show the dialog using the specified window
+    ///     Begins an asynchronous operation to show the dialog using the specified window
     /// </summary>
     public Task<FAContentDialogResult> ShowAsync(Window w) => ShowAsyncCoreForTopLevel(w);
 
     /// <summary>
-    /// Begins an asynchronous operation to show the dialog using the specified top level
+    ///     Begins an asynchronous operation to show the dialog using the specified top level
     /// </summary>
     /// <remarks>
-    /// Use this when an ApplicationLifetime is unavailable (such as in headless unit tests)
+    ///     Use this when an ApplicationLifetime is unavailable (such as in headless unit tests)
     /// </remarks>
     public Task<FAContentDialogResult> ShowAsync(TopLevel tl) => ShowAsyncCoreForTopLevel(tl);
 
     /// <summary>
-    /// Shows the content dialog on the specified window asynchronously.
+    ///     Shows the content dialog on the specified window asynchronously.
     /// </summary>
     /// <remarks>
-    /// Note that the placement parameter is not implemented and only accepts <see cref="FAContentDialogPlacement.Popup"/>
+    ///     Note that the placement parameter is not implemented and only accepts <see cref="FAContentDialogPlacement.Popup" />
     /// </remarks>
-    private Task<FAContentDialogResult> ShowAsyncCore(Window window, FAContentDialogPlacement placement = FAContentDialogPlacement.Popup) =>
+    private Task<FAContentDialogResult> ShowAsyncCore(Window window,
+        FAContentDialogPlacement placement = FAContentDialogPlacement.Popup) =>
         ShowAsyncCoreForTopLevel(window);
 
     private async Task<FAContentDialogResult> ShowAsyncCoreForTopLevel(TopLevel topLevel)
@@ -196,18 +246,15 @@ public partial class FAContentDialog : ContentControl, ICustomKeyboardNavigation
             {
                 var windows = al.Windows;
                 for (var i = 0; i < windows.Count; i++)
-                {
                     if (windows[i].IsActive)
                     {
                         topLevel = windows[i];
                         break;
                     }
-                }
 
                 if (topLevel == null)
-                {
-                    topLevel = al.MainWindow ?? throw new NotSupportedException("No TopLevel root found to parent ContentDialog");
-                }
+                    topLevel = al.MainWindow ??
+                               throw new NotSupportedException("No TopLevel root found to parent ContentDialog");
 
                 ol = OverlayLayer.GetOverlayLayer(topLevel);
             }
@@ -218,7 +265,8 @@ public partial class FAContentDialog : ContentControl, ICustomKeyboardNavigation
             }
             else
             {
-                throw new InvalidOperationException("No TopLevel found for ContentDialog and no ApplicationLifetime is set. " +
+                throw new InvalidOperationException(
+                    "No TopLevel found for ContentDialog and no ApplicationLifetime is set. " +
                     "Please either supply a valid ApplicationLifetime or TopLevel to ShowAsync()");
             }
         }
@@ -244,14 +292,16 @@ public partial class FAContentDialog : ContentControl, ICustomKeyboardNavigation
     }
 
     /// <summary>
-    /// Closes the current <see cref="FAContentDialog"/> without a result (<see cref="FAContentDialogResult"/>.<see cref="FAContentDialogResult.None"/>)
+    ///     Closes the current <see cref="FAContentDialog" /> without a result (<see cref="FAContentDialogResult" />.
+    ///     <see cref="FAContentDialogResult.None" />)
     /// </summary>
     public void Hide() => Hide(FAContentDialogResult.None);
 
     /// <summary>
-    /// Closes the current <see cref="FAContentDialog"/> with the given <see cref="FAContentDialogResult"/> <para>ddd</para>
+    ///     Closes the current <see cref="FAContentDialog" /> with the given <see cref="FAContentDialogResult" />
+    ///     <para>ddd</para>
     /// </summary>
-    /// <param name="dialogResult">The <see cref="FAContentDialogResult"/> to return</param>
+    /// <param name="dialogResult">The <see cref="FAContentDialogResult" /> to return</param>
     public void Hide(FAContentDialogResult dialogResult)
     {
         _result = dialogResult;
@@ -259,7 +309,7 @@ public partial class FAContentDialog : ContentControl, ICustomKeyboardNavigation
     }
 
     /// <summary>
-    /// Called when the primary button is invoked
+    ///     Called when the primary button is invoked
     /// </summary>
     protected virtual void OnPrimaryButtonClick(FAContentDialogButtonClickEventArgs args)
     {
@@ -267,7 +317,7 @@ public partial class FAContentDialog : ContentControl, ICustomKeyboardNavigation
     }
 
     /// <summary>
-    /// Called when the secondary button is invoked
+    ///     Called when the secondary button is invoked
     /// </summary>
     protected virtual void OnSecondaryButtonClick(FAContentDialogButtonClickEventArgs args)
     {
@@ -275,7 +325,7 @@ public partial class FAContentDialog : ContentControl, ICustomKeyboardNavigation
     }
 
     /// <summary>
-    /// Called when the close button is invoked
+    ///     Called when the close button is invoked
     /// </summary>
     protected virtual void OnCloseButtonClick(FAContentDialogButtonClickEventArgs args)
     {
@@ -283,7 +333,7 @@ public partial class FAContentDialog : ContentControl, ICustomKeyboardNavigation
     }
 
     /// <summary>
-    /// Called when the ContentDialog is requested to be opened
+    ///     Called when the ContentDialog is requested to be opened
     /// </summary>
     protected virtual void OnOpening()
     {
@@ -291,7 +341,7 @@ public partial class FAContentDialog : ContentControl, ICustomKeyboardNavigation
     }
 
     /// <summary>
-    /// Called after the ContentDialog is initialized but just before its presented on screen
+    ///     Called after the ContentDialog is initialized but just before its presented on screen
     /// </summary>
     protected virtual void OnOpened()
     {
@@ -299,7 +349,7 @@ public partial class FAContentDialog : ContentControl, ICustomKeyboardNavigation
     }
 
     /// <summary>
-    /// Called when the ContentDialog has been requested to close, but before it actually closes
+    ///     Called when the ContentDialog has been requested to close, but before it actually closes
     /// </summary>
     /// <param name="args"></param>
     protected virtual void OnClosing(FAContentDialogClosingEventArgs args)
@@ -308,7 +358,7 @@ public partial class FAContentDialog : ContentControl, ICustomKeyboardNavigation
     }
 
     /// <summary>
-    /// Called when the ContentDialog has been closed and removed from the tree
+    ///     Called when the ContentDialog has been closed and removed from the tree
     /// </summary>
     protected virtual void OnClosed(FAContentDialogClosedEventArgs args)
     {
@@ -331,10 +381,7 @@ public partial class FAContentDialog : ContentControl, ICustomKeyboardNavigation
             Dispatcher.UIThread.VerifyAccess();
             _hasDeferralActive = false;
 
-            if (!args.Cancel)
-            {
-                FinalCloseDialog();
-            }
+            if (!args.Cancel) FinalCloseDialog();
         });
 
         args.SetDeferral(deferral);
@@ -349,7 +396,8 @@ public partial class FAContentDialog : ContentControl, ICustomKeyboardNavigation
     internal void SetupDialog()
     {
         if (_primaryButton == null)
-            throw new InvalidOperationException("Attempted to setup ContentDialog but the template has not been applied yet.");
+            throw new InvalidOperationException(
+                "Attempted to setup ContentDialog but the template has not been applied yet.");
 
         PseudoClasses.Set(s_pcPrimary, !string.IsNullOrEmpty(PrimaryButtonText));
         PseudoClasses.Set(s_pcSecondary, !string.IsNullOrEmpty(SecondaryButtonText));
@@ -361,7 +409,7 @@ public partial class FAContentDialog : ContentControl, ICustomKeyboardNavigation
                 if (!_primaryButton.IsVisible)
                 {
 #if DEBUG
-                    Logger.TryGet(LogEventLevel.Debug, "ContentDialog")?.Log("SetupDialog", 
+                    Logger.TryGet(LogEventLevel.Debug, "ContentDialog")?.Log("SetupDialog",
                         "DefaultButton was set to Primary, but PrimaryButton is not enabled");
 #endif
                     break;
@@ -373,7 +421,8 @@ public partial class FAContentDialog : ContentControl, ICustomKeyboardNavigation
 
                 _primaryButton.Focus();
 #if DEBUG
-                Logger.TryGet(LogEventLevel.Debug, "ContentDialog")?.Log("SetupDialog", "Set initial focus to PrimaryButton");
+                Logger.TryGet(LogEventLevel.Debug, "ContentDialog")
+                    ?.Log("SetupDialog", "Set initial focus to PrimaryButton");
 #endif
 
 
@@ -395,7 +444,8 @@ public partial class FAContentDialog : ContentControl, ICustomKeyboardNavigation
 
                 _secondaryButton.Focus();
 #if DEBUG
-                Logger.TryGet(LogEventLevel.Debug, "ContentDialog")?.Log("SetupDialog", "Set initial focus to SecondaryButton");
+                Logger.TryGet(LogEventLevel.Debug, "ContentDialog")
+                    ?.Log("SetupDialog", "Set initial focus to SecondaryButton");
 #endif
 
                 break;
@@ -416,7 +466,8 @@ public partial class FAContentDialog : ContentControl, ICustomKeyboardNavigation
 
                 _closeButton.Focus();
 #if DEBUG
-                Logger.TryGet(LogEventLevel.Debug, "ContentDialog")?.Log("SetupDialog", "Set initial focus to CloseButton");
+                Logger.TryGet(LogEventLevel.Debug, "ContentDialog")
+                    ?.Log("SetupDialog", "Set initial focus to CloseButton");
 #endif
 
                 break;
@@ -432,11 +483,13 @@ public partial class FAContentDialog : ContentControl, ICustomKeyboardNavigation
                 // to take focus OR there should always be at least one button which can take focus
                 var mgr = TopLevel.GetTopLevel(this).FocusManager;
                 // TODO: v3 - does this work?
-                var next = mgr.FindNextElement(NavigationDirection.Next, new FindNextElementOptions { SearchRoot = this });
+                var next = mgr.FindNextElement(NavigationDirection.Next,
+                    new FindNextElementOptions { SearchRoot = this });
                 next?.Focus();
 
 #if DEBUG
-                Logger.TryGet(LogEventLevel.Debug, "ContentDialog")?.Log("SetupDialog", "Set initial focus to {next}", next);
+                Logger.TryGet(LogEventLevel.Debug, "ContentDialog")
+                    ?.Log("SetupDialog", "Set initial focus to {next}", next);
 #endif
                 break;
         }
@@ -486,21 +539,12 @@ public partial class FAContentDialog : ContentControl, ICustomKeyboardNavigation
         if (_originalHost != null)
         {
             if (_originalHost is Panel p)
-            {
                 p.Children.Insert(_originalHostIndex, this);
-            }
             else if (_originalHost is Decorator d)
-            {
                 d.Child = this;
-            }
             else if (_originalHost is ContentControl cc)
-            {
                 cc.Content = this;
-            }
-            else if (_originalHost is ContentPresenter cp)
-            {
-                cp.Content = this;
-            }
+            else if (_originalHost is ContentPresenter cp) cp.Content = this;
         }
 
         _hotkeyDownVisual = null;
@@ -528,25 +572,20 @@ public partial class FAContentDialog : ContentControl, ICustomKeyboardNavigation
             if (sender == _primaryButton)
             {
                 if (PrimaryButtonCommand != null && PrimaryButtonCommand.CanExecute(PrimaryButtonCommandParameter))
-                {
                     PrimaryButtonCommand.Execute(PrimaryButtonCommandParameter);
-                }
                 _result = FAContentDialogResult.Primary;
             }
             else if (sender == _secondaryButton)
             {
-                if (SecondaryButtonCommand != null && SecondaryButtonCommand.CanExecute(SecondaryButtonCommandParameter))
-                {
+                if (SecondaryButtonCommand != null &&
+                    SecondaryButtonCommand.CanExecute(SecondaryButtonCommandParameter))
                     SecondaryButtonCommand.Execute(SecondaryButtonCommandParameter);
-                }
                 _result = FAContentDialogResult.Secondary;
             }
             else if (sender == _closeButton)
             {
                 if (CloseButtonCommand != null && CloseButtonCommand.CanExecute(CloseButtonCommandParameter))
-                {
                     CloseButtonCommand.Execute(CloseButtonCommandParameter);
-                }
                 _result = FAContentDialogResult.None;
             }
 
@@ -558,17 +597,10 @@ public partial class FAContentDialog : ContentControl, ICustomKeyboardNavigation
 
         args.IncrementDeferralCount();
         if (sender == _primaryButton)
-        {
             OnPrimaryButtonClick(args);
-        }
         else if (sender == _secondaryButton)
-        {
             OnSecondaryButtonClick(args);
-        }
-        else if (sender == _closeButton)
-        {
-            OnCloseButtonClick(args);
-        }
+        else if (sender == _closeButton) OnCloseButtonClick(args);
         args.DecrementDeferralCount();
     }
 
@@ -576,53 +608,6 @@ public partial class FAContentDialog : ContentControl, ICustomKeyboardNavigation
     {
         var newVal = (bool)e.NewValue;
         PseudoClasses.Set(s_pcFullSize, newVal);
-    }
-
-    public (bool handled, IInputElement next) GetNext(IInputElement element, NavigationDirection direction)
-    {
-        var children = this.GetVisualDescendants().OfType<IInputElement>()
-            .Where(x => KeyboardNavigation.GetIsTabStop((InputElement)x) && x.Focusable &&
-            x.IsEffectivelyVisible && IsEffectivelyEnabled).ToList();
-
-        if (children.Count == 0)
-            return (false, null);
-
-        var current = TopLevel.GetTopLevel(this).FocusManager.GetFocusedElement();
-        if (current == null)
-            return (false, null);
-
-        if (direction == NavigationDirection.Next)
-        {
-            for (var i = 0; i < children.Count; i++)
-            {
-                if (children[i] == current)
-                {
-                    if (i == children.Count - 1)
-                    {
-                        return (true, children[0]);
-                    }
-
-                    return (true, children[i + 1]);
-                }
-            }
-        }
-        else if (direction == NavigationDirection.Previous)
-        {
-            for (var i = children.Count - 1; i >= 0; i--)
-            {
-                if (children[i] == current)
-                {
-                    if (i == 0)
-                    {
-                        return (true, children[children.Count - 1]);
-                    }
-
-                    return (true, children[i - 1]);
-                }
-            }
-        }
-
-        return (false, null);
     }
 
     private void DialogLoaded(object sender, RoutedEventArgs args)
@@ -638,18 +623,4 @@ public partial class FAContentDialog : ContentControl, ICustomKeyboardNavigation
         // Now that we've fully initialized here, raise the Opened event
         OnOpened();
     }
-
-    // Store the last element focused before showing the dialog, so we can
-    // restore it when it closes
-    private IInputElement _lastFocus;
-    private Control _originalHost;
-    private int _originalHostIndex;
-    private FADialogHost _host;
-    private FAContentDialogResult _result;
-    private TaskCompletionSource<FAContentDialogResult> _tcs;
-    private Button _primaryButton;
-    private Button _secondaryButton;
-    private Button _closeButton;
-    private bool _hasDeferralActive;
-    private Visual _hotkeyDownVisual;
 }

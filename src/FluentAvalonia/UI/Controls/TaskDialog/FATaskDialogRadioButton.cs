@@ -4,18 +4,18 @@ using Avalonia.Controls.Primitives;
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Represents a RadioButton in a <see cref="FATaskDialog"/>
+///     Represents a RadioButton in a <see cref="FATaskDialog" />
 /// </summary>
 public class FATaskDialogRadioButton : FATaskDialogCommand
 {
     /// <summary>
-    /// Defines the <see cref="IsChecked"/> property
+    ///     Defines the <see cref="IsChecked" /> property
     /// </summary>
     public static readonly StyledProperty<bool?> IsCheckedProperty =
         ToggleButton.IsCheckedProperty.AddOwner<FATaskDialogRadioButton>();
 
     /// <summary>
-    /// Gets or sets whether this RadioButton is checked
+    ///     Gets or sets whether this RadioButton is checked
     /// </summary>
     public bool? IsChecked
     {

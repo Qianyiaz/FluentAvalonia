@@ -18,11 +18,11 @@
 
                 <Rectangle Height="1" Fill="Black" Margin="8" />
                 <ui:FANumberBox Width="150" PlaceholderText="Enter Number"
-                              SpinButtonPlacementMode="Inline"
-                              Theme="{DynamicResource CompactNumberBoxStyle}"/>
+                                SpinButtonPlacementMode="Inline"
+                                Theme="{DynamicResource CompactNumberBoxStyle}" />
                 <ui:FANumberBox Width="150" PlaceholderText="Enter Number"
-                              SpinButtonPlacementMode="Inline"
-                              Theme="{DynamicResource CompactNumberBoxStyle}">
+                                SpinButtonPlacementMode="Inline"
+                                Theme="{DynamicResource CompactNumberBoxStyle}">
                     <ui:FANumberBox.InnerLeftContent>
                         <TextBlock Text="Hi" />
                     </ui:FANumberBox.InnerLeftContent>
@@ -39,14 +39,14 @@
     <Thickness x:Key="NumberBoxPopupIndicatorMargin">0,0,8,0</Thickness>
 
     <ControlTheme x:Key="NumberBoxSpinButtonStyle" TargetType="RepeatButton">
-        <Setter Property="MinWidth" Value="32"/>
+        <Setter Property="MinWidth" Value="32" />
         <Setter Property="Padding" Value="0" />
-        <Setter Property="VerticalAlignment" Value="Stretch"/>
-        <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="VerticalAlignment" Value="Stretch" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
         <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
-        <Setter Property="BorderThickness" Value="{DynamicResource NumberBoxSpinButtonBorderThickness}"/>
-        <Setter Property="FontFamily" Value="{DynamicResource SymbolThemeFontFamily}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource NumberBoxSpinButtonBorderThickness}" />
+        <Setter Property="FontFamily" Value="{DynamicResource SymbolThemeFontFamily}" />
         <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
         <Setter Property="Template">
             <ControlTemplate>
@@ -58,7 +58,7 @@
                                   CornerRadius="{TemplateBinding CornerRadius}"
                                   Content="{TemplateBinding Content}"
                                   HorizontalContentAlignment="Center"
-                                  VerticalContentAlignment="Center"/>
+                                  VerticalContentAlignment="Center" />
             </ControlTemplate>
         </Setter>
 
@@ -79,8 +79,8 @@
 
     <ControlTheme x:Key="NumberBoxPopupButton" BasedOn="{StaticResource NumberBoxSpinButtonStyle}"
                   TargetType="RepeatButton">
-        <Setter Property="Width" Value="36"/>
-        <Setter Property="Height" Value="36"/>
+        <Setter Property="Width" Value="36" />
+        <Setter Property="Height" Value="36" />
     </ControlTheme>
 
     <ControlTheme x:Key="NumberBoxTextBoxStyle" TargetType="TextBox"
@@ -97,28 +97,32 @@
                             CornerRadius="{TemplateBinding CornerRadius}" />
 
                     <Border Margin="{TemplateBinding BorderThickness}">
-                        <Grid ColumnDefinitions="Auto,*,Auto" >
+                        <Grid ColumnDefinitions="Auto,*,Auto">
                             <ContentPresenter Grid.Column="0"
                                               Grid.ColumnSpan="1"
-                                              Content="{TemplateBinding InnerLeftContent}"/>
+                                              Content="{TemplateBinding InnerLeftContent}" />
                             <DockPanel x:Name="PART_InnerDockPanel"
                                        Grid.Column="1"
                                        Grid.ColumnSpan="1"
                                        Margin="{TemplateBinding Padding}">
-                                <ScrollViewer HorizontalScrollBarVisibility="{TemplateBinding (ScrollViewer.HorizontalScrollBarVisibility)}"
-                                              VerticalScrollBarVisibility="{TemplateBinding (ScrollViewer.VerticalScrollBarVisibility)}">
+                                <ScrollViewer
+                                    HorizontalScrollBarVisibility="{TemplateBinding (ScrollViewer.HorizontalScrollBarVisibility)}"
+                                    VerticalScrollBarVisibility="{TemplateBinding (ScrollViewer.VerticalScrollBarVisibility)}">
                                     <Panel>
                                         <TextBlock Name="PART_Placeholder"
-                                                       Foreground="{TemplateBinding PlaceholderForeground}"
-                                                       Text="{TemplateBinding PlaceholderText}"
-                                                       TextAlignment="{TemplateBinding TextAlignment}"
-                                                       TextWrapping="{TemplateBinding TextWrapping}"
-                                                       HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                                       VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+                                                   Foreground="{TemplateBinding PlaceholderForeground}"
+                                                   Text="{TemplateBinding PlaceholderText}"
+                                                   TextAlignment="{TemplateBinding TextAlignment}"
+                                                   TextWrapping="{TemplateBinding TextWrapping}"
+                                                   HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                   VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
                                             <TextBlock.IsVisible>
                                                 <MultiBinding Converter="{x:Static BoolConverters.And}">
-                                                    <Binding ElementName="PART_TextPresenter" Path="PreeditText" Converter="{x:Static StringConverters.IsNullOrEmpty}"/>
-                                                    <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="Text" Converter="{x:Static StringConverters.IsNullOrEmpty}"/>
+                                                    <Binding ElementName="PART_TextPresenter" Path="PreeditText"
+                                                             Converter="{x:Static StringConverters.IsNullOrEmpty}" />
+                                                    <Binding RelativeSource="{RelativeSource TemplatedParent}"
+                                                             Path="Text"
+                                                             Converter="{x:Static StringConverters.IsNullOrEmpty}" />
                                                 </MultiBinding>
                                             </TextBlock.IsVisible>
                                         </TextBlock>
@@ -138,23 +142,23 @@
                                                        SelectionForegroundBrush="{TemplateBinding SelectionForegroundBrush}"
                                                        CaretBrush="{TemplateBinding CaretBrush}"
                                                        HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                                       VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                                       VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
                                     </Panel>
                                 </ScrollViewer>
                             </DockPanel>
                             <StackPanel Orientation="Horizontal" Grid.Column="2" Grid.ColumnSpan="1">
                                 <ContentPresenter Content="{TemplateBinding InnerRightContent}"
-                                                  Name="InnerRightContent"/>
+                                                  Name="InnerRightContent" />
                                 <Viewbox Margin="{DynamicResource NumberBoxPopupIndicatorMargin}"
-                                         VerticalAlignment="Center" 
+                                         VerticalAlignment="Center"
                                          HorizontalAlignment="Center"
                                          Width="18" Height="18"
                                          Name="PopupIndicator"
                                          IsVisible="False">
                                     <ui:FAFontIcon Glyph="&#xEC8F;"
-                                                 FontFamily="{DynamicResource SymbolThemeFontFamily}"
-                                                 FontSize="24"
-                                                 Foreground="{DynamicResource NumberBoxPopupIndicatorForeground}" />
+                                                   FontFamily="{DynamicResource SymbolThemeFontFamily}"
+                                                   FontSize="24"
+                                                   Foreground="{DynamicResource NumberBoxPopupIndicatorForeground}" />
                                 </Viewbox>
                             </StackPanel>
                         </Grid>
@@ -180,7 +184,7 @@
             <ControlTemplate>
                 <DataValidationErrors>
                     <Grid Name="Root" RowDefinitions="Auto,*,Auto"
-                        ColumnDefinitions="*,Auto,Auto">
+                          ColumnDefinitions="*,Auto,Auto">
 
                         <ContentPresenter Name="HeaderContentPresenter"
                                           Grid.ColumnSpan="3"
@@ -191,7 +195,7 @@
                                           FontSize="{TemplateBinding FontSize}"
                                           FontFamily="{TemplateBinding FontFamily}"
                                           VerticalAlignment="Top"
-                                          IsVisible="{TemplateBinding Header, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                                          IsVisible="{TemplateBinding Header, Converter={x:Static ObjectConverters.IsNotNull}}" />
 
                         <TextBox Name="InputBox"
                                  Grid.Row="1"
@@ -208,7 +212,7 @@
                                  Classes="clearButton"
                                  Theme="{StaticResource NumberBoxTextBoxStyle}"
                                  CornerRadius="{TemplateBinding CornerRadius}"
-                                 InnerLeftContent="{TemplateBinding InnerLeftContent}"/>
+                                 InnerLeftContent="{TemplateBinding InnerLeftContent}" />
 
                         <Popup Name="UpDownPopup" Focusable="False"
                                WindowManagerAddShadowHint="False"
@@ -236,10 +240,10 @@
                                                   Content="{StaticResource ChevronUpGlyph}" />
 
                                     <RepeatButton Name="PopupDownSpinButton" Focusable="False"
-                                                FontSize="18"
-                                                Theme="{StaticResource NumberBoxPopupButton}"
-                                                Grid.Row="1"
-                                                Content="{StaticResource ChevronDownGlyph}" />
+                                                  FontSize="18"
+                                                  Theme="{StaticResource NumberBoxPopupButton}"
+                                                  Grid.Row="1"
+                                                  Content="{StaticResource ChevronDownGlyph}" />
                                 </Grid>
                             </Border>
                         </Popup>
@@ -252,7 +256,7 @@
                                 Grid.ColumnSpan="2"
                                 Margin="4 0 0 0"
                                 Name="InputEater"
-                                IsVisible="False"/>
+                                IsVisible="False" />
 
                         <RepeatButton Name="UpSpinButton"
                                       Grid.Row="1"
@@ -261,7 +265,7 @@
                                       Theme="{StaticResource NumberBoxSpinButtonStyle}"
                                       Content="{StaticResource ChevronUpGlyph}"
                                       Margin="4"
-                                      IsVisible="False"/>
+                                      IsVisible="False" />
 
                         <RepeatButton Name="DownSpinButton"
                                       Grid.Row="1"
@@ -270,13 +274,13 @@
                                       Content="{StaticResource ChevronDownGlyph}"
                                       Theme="{StaticResource NumberBoxSpinButtonStyle}"
                                       Margin="0 4 4 4"
-                                      IsVisible="False"/>
+                                      IsVisible="False" />
 
                         <ContentPresenter Name="DescriptionPresenter"
                                           Grid.Row="2"
                                           Grid.ColumnSpan="3"
                                           Content="{TemplateBinding Description}"
-                                          Foreground="{DynamicResource SystemControlDescriptionTextForegroundBrush}"/>
+                                          Foreground="{DynamicResource SystemControlDescriptionTextForegroundBrush}" />
                     </Grid>
                 </DataValidationErrors>
             </ControlTemplate>
@@ -333,16 +337,17 @@
                             CornerRadius="{TemplateBinding CornerRadius}" />
 
                     <Border Margin="{TemplateBinding BorderThickness}">
-                        <Grid ColumnDefinitions="Auto,*,Auto" >
+                        <Grid ColumnDefinitions="Auto,*,Auto">
                             <ContentPresenter Grid.Column="0"
                                               Grid.ColumnSpan="1"
-                                              Content="{TemplateBinding InnerLeftContent}"/>
+                                              Content="{TemplateBinding InnerLeftContent}" />
                             <DockPanel x:Name="PART_InnerDockPanel"
                                        Grid.Column="1"
                                        Grid.ColumnSpan="1"
                                        Margin="{TemplateBinding Padding}">
-                                <ScrollViewer HorizontalScrollBarVisibility="{TemplateBinding (ScrollViewer.HorizontalScrollBarVisibility)}"
-                                              VerticalScrollBarVisibility="{TemplateBinding (ScrollViewer.VerticalScrollBarVisibility)}">
+                                <ScrollViewer
+                                    HorizontalScrollBarVisibility="{TemplateBinding (ScrollViewer.HorizontalScrollBarVisibility)}"
+                                    VerticalScrollBarVisibility="{TemplateBinding (ScrollViewer.VerticalScrollBarVisibility)}">
                                     <Panel>
                                         <TextBlock Name="PART_Placeholder"
                                                    Foreground="{TemplateBinding PlaceholderForeground}"
@@ -353,8 +358,11 @@
                                                    VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
                                             <TextBlock.IsVisible>
                                                 <MultiBinding Converter="{x:Static BoolConverters.And}">
-                                                    <Binding ElementName="PART_TextPresenter" Path="PreeditText" Converter="{x:Static StringConverters.IsNullOrEmpty}"/>
-                                                    <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="Text" Converter="{x:Static StringConverters.IsNullOrEmpty}"/>
+                                                    <Binding ElementName="PART_TextPresenter" Path="PreeditText"
+                                                             Converter="{x:Static StringConverters.IsNullOrEmpty}" />
+                                                    <Binding RelativeSource="{RelativeSource TemplatedParent}"
+                                                             Path="Text"
+                                                             Converter="{x:Static StringConverters.IsNullOrEmpty}" />
                                                 </MultiBinding>
                                             </TextBlock.IsVisible>
                                         </TextBlock>
@@ -371,13 +379,13 @@
                                                        SelectionForegroundBrush="{TemplateBinding SelectionForegroundBrush}"
                                                        CaretBrush="{TemplateBinding CaretBrush}"
                                                        HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                                       VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                                       VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
                                     </Panel>
                                 </ScrollViewer>
                             </DockPanel>
                             <ContentPresenter Content="{TemplateBinding InnerRightContent}"
                                               Name="InnerRightContent"
-                                              Grid.Column="2" Grid.ColumnSpan="1"/>
+                                              Grid.Column="2" Grid.ColumnSpan="1" />
                         </Grid>
                     </Border>
                 </Panel>
@@ -405,8 +413,8 @@
             <Setter Property="Margin" Value="0 0 24 0" />
         </Style>
     </ControlTheme>
-    
-    <ControlTheme x:Key="CompactNumberBoxStyle" 
+
+    <ControlTheme x:Key="CompactNumberBoxStyle"
                   TargetType="ui:FANumberBox">
         <Setter Property="SelectionHighlightColor" Value="{DynamicResource TextControlSelectionHighlightColor}" />
         <Setter Property="HorizontalAlignment" Value="Left" />
@@ -428,7 +436,7 @@
                                           FontSize="{TemplateBinding FontSize}"
                                           FontFamily="{TemplateBinding FontFamily}"
                                           VerticalAlignment="Top"
-                                          IsVisible="{TemplateBinding Header, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                                          IsVisible="{TemplateBinding Header, Converter={x:Static ObjectConverters.IsNotNull}}" />
 
                         <TextBox Name="InputBox"
                                  Grid.Row="1"
@@ -444,7 +452,7 @@
                                  Classes="clearButton"
                                  Theme="{StaticResource CompactNumberBoxTextBoxStyle}"
                                  CornerRadius="{TemplateBinding CornerRadius}"
-                                 InnerLeftContent="{TemplateBinding InnerLeftContent}"/>
+                                 InnerLeftContent="{TemplateBinding InnerLeftContent}" />
 
                         <Popup Name="UpDownPopup" Focusable="False"
                                WindowManagerAddShadowHint="False"
@@ -472,10 +480,10 @@
                                                   Content="{StaticResource ChevronUpGlyph}" />
 
                                     <RepeatButton Name="PopupDownSpinButton" Focusable="False"
-                                                FontSize="18"
-                                                Theme="{StaticResource NumberBoxPopupButton}"
-                                                Grid.Row="1"
-                                                Content="{StaticResource ChevronDownGlyph}" />
+                                                  FontSize="18"
+                                                  Theme="{StaticResource NumberBoxPopupButton}"
+                                                  Grid.Row="1"
+                                                  Content="{StaticResource ChevronDownGlyph}" />
                                 </Grid>
                             </Border>
                         </Popup>
@@ -488,7 +496,7 @@
                                 Grid.ColumnSpan="2"
                                 Margin="4 0 0 0"
                                 Name="InputEater"
-                                IsVisible="False"/>
+                                IsVisible="False" />
 
                         <StackPanel Grid.Column="1"
                                     Grid.Row="1"
@@ -501,7 +509,7 @@
                                           Content="{StaticResource ChevronUpGlyph}"
                                           Margin="0"
                                           IsVisible="False"
-                                          MinWidth="24"/>
+                                          MinWidth="24" />
 
                             <RepeatButton Name="DownSpinButton"
                                           FontSize="12"
@@ -509,14 +517,14 @@
                                           Theme="{StaticResource NumberBoxSpinButtonStyle}"
                                           Margin="0"
                                           IsVisible="False"
-                                          MinWidth="24"/>
+                                          MinWidth="24" />
                         </StackPanel>
 
                         <ContentPresenter Name="DescriptionPresenter"
                                           Grid.Row="2"
                                           Grid.ColumnSpan="3"
                                           Content="{TemplateBinding Description}"
-                                          Foreground="{DynamicResource SystemControlDescriptionTextForegroundBrush}"/>
+                                          Foreground="{DynamicResource SystemControlDescriptionTextForegroundBrush}" />
                     </Grid>
                 </DataValidationErrors>
             </ControlTemplate>

@@ -1,7 +1,7 @@
-﻿using Avalonia;
-using Avalonia.Controls;
-using System.Collections.Specialized;
+﻿using System.Collections.Specialized;
 using System.Diagnostics;
+using Avalonia;
+using Avalonia.Controls;
 
 namespace FluentAvalonia.UI.Controls;
 
@@ -13,6 +13,13 @@ internal enum ScrollOrientation
 
 internal class ElementManager
 {
+    private FAVirtualizingLayoutContext _context;
+    private int _firstRealizedDataIndex = -1;
+    private List<Rect> _realizedElementLayoutBounds = new();
+    private List<Control> _realizedElements = new();
+
+    private bool _useLayoutBounds;
+
     public ElementManager(bool useLayoutBounds = true)
     {
         _useLayoutBounds = useLayoutBounds;
@@ -49,12 +56,10 @@ internal class ElementManager
             // we have enough space to hold the bounds for all the elements.
             var count = _context.ItemCount;
             if (_realizedElementLayoutBounds.Count != count)
-            {
                 // Make sure there is enough space for the bounds.
                 // Note: We could optimize when the count becomes smaller, but keeping
                 // it always up to date is the simplest option for now.
                 _realizedElementLayoutBounds.Capacity = count;
-            }
         }
     }
 
@@ -100,26 +105,17 @@ internal class ElementManager
 
         _realizedElements.Add(element);
 
-        if (_useLayoutBounds)
-        {
-            _realizedElementLayoutBounds.Add(default);
-        }
+        if (_useLayoutBounds) _realizedElementLayoutBounds.Add(default);
     }
 
     public void Insert(int realizedIndex, int dataIndex, Control element)
     {
         Debug.Assert(IsVirtualizingContext());
-        if (realizedIndex == 0)
-        {
-            _firstRealizedDataIndex = dataIndex;
-        }
+        if (realizedIndex == 0) _firstRealizedDataIndex = dataIndex;
 
         _realizedElements.Insert(realizedIndex, element);
 
-        if (_useLayoutBounds)
-        {
-            _realizedElementLayoutBounds.Insert(realizedIndex, new Rect(-1, -1, -1, -1));
-        }
+        if (_useLayoutBounds) _realizedElementLayoutBounds.Insert(realizedIndex, new Rect(-1, -1, -1, -1));
     }
 
     public void ClearRealizedRange(int realizedIndex, int count)
@@ -130,27 +126,18 @@ internal class ElementManager
         {
             // Clear from the edges so that ItemsRepeater can optimize on maintaining 
             // realized indices without walking through all the children every time.
-            var index = realizedIndex == 0 ? realizedIndex + i : (realizedIndex + count - 1) - i;
-            if (_realizedElements[index] is Control c)
-            {
-                _context.RecycleElement(c);
-            }
+            var index = realizedIndex == 0 ? realizedIndex + i : realizedIndex + count - 1 - i;
+            if (_realizedElements[index] is Control c) _context.RecycleElement(c);
         }
 
         var endIndex = realizedIndex + count;
         _realizedElements.RemoveRange(realizedIndex, endIndex - realizedIndex);
 
-        if (_useLayoutBounds)
-        {
-            _realizedElementLayoutBounds.RemoveRange(realizedIndex, endIndex - realizedIndex);
-        }
+        if (_useLayoutBounds) _realizedElementLayoutBounds.RemoveRange(realizedIndex, endIndex - realizedIndex);
 
 
         if (realizedIndex == 0)
-        {
-            _firstRealizedDataIndex = _realizedElements.Count == 0 ? 
-                -1 : _firstRealizedDataIndex + count;
-        }
+            _firstRealizedDataIndex = _realizedElements.Count == 0 ? -1 : _firstRealizedDataIndex + count;
     }
 
     public void DiscardElementsOutsideWindow(bool forward, int startIndex)
@@ -162,13 +149,9 @@ internal class ElementManager
             var rangeIndex = GetRealizedRangeIndexFromDataIndex(startIndex);
 
             if (forward)
-            {
                 ClearRealizedRange(rangeIndex, GetRealizedElementCount() - rangeIndex);
-            }
             else
-            {
                 ClearRealizedRange(0, rangeIndex + 1);
-            }
         }
     }
 
@@ -202,8 +185,8 @@ internal class ElementManager
         {
             var realizedCount = GetRealizedElementCount();
             return realizedCount > 0 &&
-                GetDataIndexFromRealizedRangeIndex(0) <= index &&
-                GetDataIndexFromRealizedRangeIndex(realizedCount - 1) >= index;
+                   GetDataIndexFromRealizedRangeIndex(0) <= index &&
+                   GetDataIndexFromRealizedRangeIndex(realizedCount - 1) >= index;
         }
 
         // Non virtualized - everything is realized
@@ -216,9 +199,9 @@ internal class ElementManager
     public Control GetRealizedElement(int dataIndex)
     {
         Debug.Assert(IsDataIndexRealized(dataIndex));
-        return IsVirtualizingContext() ?
-            GetAt(GetRealizedRangeIndexFromDataIndex(dataIndex)) :
-            _context.GetOrCreateElementAt(dataIndex,
+        return IsVirtualizingContext()
+            ? GetAt(GetRealizedRangeIndexFromDataIndex(dataIndex))
+            : _context.GetOrCreateElementAt(dataIndex,
                 FAElementRealizationOptions.ForceCreate | FAElementRealizationOptions.SuppressAutoRecycle);
     }
 
@@ -230,13 +213,9 @@ internal class ElementManager
                 FAElementRealizationOptions.ForceCreate | FAElementRealizationOptions.SuppressAutoRecycle);
 
             if (forward)
-            {
                 Add(element, dataIndex);
-            }
             else
-            {
                 Insert(0, dataIndex, element);
-            }
 
             Debug.Assert(IsDataIndexRealized(dataIndex));
 #if DEBUG && REPEATER_TRACE
@@ -246,7 +225,7 @@ internal class ElementManager
     }
 
     // Does the given window intersect the range of realized elements
-    public bool IsWindowConnected(Rect window, ScrollOrientation orientation, 
+    public bool IsWindowConnected(Rect window, ScrollOrientation orientation,
         bool scrollOrientationSameAsFlow)
     {
         Debug.Assert(IsVirtualizingContext());
@@ -258,21 +237,23 @@ internal class ElementManager
             var firstElementBounds = GetLayoutBoundsForRealizedIndex(0);
             var lastElementBounds = GetLayoutBoundsForRealizedIndex(GetRealizedElementCount() - 1);
 
-            var effectiveOrientation = scrollOrientationSameAsFlow ?
-                (orientation == ScrollOrientation.Vertical ? ScrollOrientation.Horizontal : ScrollOrientation.Vertical) :
-                orientation;
+            var effectiveOrientation = scrollOrientationSameAsFlow
+                ? orientation == ScrollOrientation.Vertical ? ScrollOrientation.Horizontal : ScrollOrientation.Vertical
+                : orientation;
 
-            var windowStart = effectiveOrientation == ScrollOrientation.Vertical ? 
-                window.Y : window.X;
-            var windowEnd = effectiveOrientation == ScrollOrientation.Vertical ? 
-                window.Y + window.Height : window.X + window.Width;
-            var firstElementStart = effectiveOrientation == ScrollOrientation.Vertical ? 
-                firstElementBounds.Y : firstElementBounds.X;
-            var lastElementEnd = effectiveOrientation == ScrollOrientation.Vertical ? 
-                lastElementBounds.Y + lastElementBounds.Height : lastElementBounds.X + lastElementBounds.Width;
+            var windowStart = effectiveOrientation == ScrollOrientation.Vertical ? window.Y : window.X;
+            var windowEnd = effectiveOrientation == ScrollOrientation.Vertical
+                ? window.Y + window.Height
+                : window.X + window.Width;
+            var firstElementStart = effectiveOrientation == ScrollOrientation.Vertical
+                ? firstElementBounds.Y
+                : firstElementBounds.X;
+            var lastElementEnd = effectiveOrientation == ScrollOrientation.Vertical
+                ? lastElementBounds.Y + lastElementBounds.Height
+                : lastElementBounds.X + lastElementBounds.Width;
 
             intersects = firstElementStart <= windowEnd &&
-                lastElementEnd >= windowStart;
+                         lastElementEnd >= windowStart;
         }
 
         return intersects;
@@ -291,38 +272,38 @@ internal class ElementManager
                 break;
 
             case NotifyCollectionChangedAction.Replace:
-                {
-                    var oldSize = args.OldItems.Count;
-                    var newSize = args.NewItems.Count;
-                    var oldStartIndex = args.OldStartingIndex;
-                    var newStartIndex = args.NewStartingIndex;
+            {
+                var oldSize = args.OldItems.Count;
+                var newSize = args.NewItems.Count;
+                var oldStartIndex = args.OldStartingIndex;
+                var newStartIndex = args.NewStartingIndex;
 
-                    if (oldSize == newSize &&
-                        oldStartIndex == newStartIndex &&
-                        IsDataIndexRealized(oldStartIndex) &&
-                        IsDataIndexRealized(oldStartIndex + oldSize - 1))
-                    {
-                        // Straight up replace of n items within the realization window.
-                        // Removing and adding might causes us to lose the anchor causing us
-                        // to throw away all containers and start from scratch.
-                        // Instead, we can just clear those items and set the element to
-                        // null (sentinel) and let the next measure get new containers for them.
-                        var startRealizedIndex = GetRealizedRangeIndexFromDataIndex(oldStartIndex);
-                        for (var realizedIndex = startRealizedIndex; realizedIndex < startRealizedIndex + oldSize; realizedIndex++)
+                if (oldSize == newSize &&
+                    oldStartIndex == newStartIndex &&
+                    IsDataIndexRealized(oldStartIndex) &&
+                    IsDataIndexRealized(oldStartIndex + oldSize - 1))
+                {
+                    // Straight up replace of n items within the realization window.
+                    // Removing and adding might causes us to lose the anchor causing us
+                    // to throw away all containers and start from scratch.
+                    // Instead, we can just clear those items and set the element to
+                    // null (sentinel) and let the next measure get new containers for them.
+                    var startRealizedIndex = GetRealizedRangeIndexFromDataIndex(oldStartIndex);
+                    for (var realizedIndex = startRealizedIndex;
+                         realizedIndex < startRealizedIndex + oldSize;
+                         realizedIndex++)
+                        if (_realizedElements[realizedIndex] is Control c)
                         {
-                            if (_realizedElements[realizedIndex] is Control c)
-                            {
-                                _context.RecycleElement(c);
-                                _realizedElements[realizedIndex] = null;
-                            }
+                            _context.RecycleElement(c);
+                            _realizedElements[realizedIndex] = null;
                         }
-                    }
-                    else
-                    {
-                        OnItemsRemoved(oldStartIndex, oldSize);
-                        OnItemsAdded(newStartIndex, newSize);
-                    }
                 }
+                else
+                {
+                    OnItemsRemoved(oldStartIndex, oldSize);
+                    OnItemsAdded(newStartIndex, newSize);
+                }
+            }
                 break;
 
             case NotifyCollectionChangedAction.Remove:
@@ -345,9 +326,7 @@ internal class ElementManager
     {
         Debug.Assert(suggestedAnchor != null);
         var idx = _realizedElements.IndexOf(suggestedAnchor);
-        return idx != -1 ?
-            GetDataIndexFromRealizedRangeIndex(idx) :
-            -1;
+        return idx != -1 ? GetDataIndexFromRealizedRangeIndex(idx) : -1;
     }
 
     public int GetDataIndexFromRealizedRangeIndex(int rangeIndex)
@@ -394,29 +373,20 @@ internal class ElementManager
         var frontCutoffIndex = -1;
         var backCutoffIndex = realizedRangeSize;
 
-        for (var i =0; 
-            i < realizedRangeSize && !Intersects(window, _realizedElementLayoutBounds[i], orientation);
-            i++)
-        {
+        for (var i = 0;
+             i < realizedRangeSize && !Intersects(window, _realizedElementLayoutBounds[i], orientation);
+             i++)
             ++frontCutoffIndex;
-        }
 
         for (var i = realizedRangeSize - 1;
-            i >= 0 && !Intersects(window, _realizedElementLayoutBounds[i], orientation);
-            i--)
-        {
+             i >= 0 && !Intersects(window, _realizedElementLayoutBounds[i], orientation);
+             i--)
             --backCutoffIndex;
-        }
 
         if (backCutoffIndex < realizedRangeSize - 1)
-        {
             ClearRealizedRange(backCutoffIndex + 1, realizedRangeSize - backCutoffIndex - 1);
-        }
 
-        if (frontCutoffIndex > 0)
-        {
-            ClearRealizedRange(0, Math.Min(frontCutoffIndex, GetRealizedElementCount()));
-        }
+        if (frontCutoffIndex > 0) ClearRealizedRange(0, Math.Min(frontCutoffIndex, GetRealizedElementCount()));
     }
 
     public static bool Intersects(Rect lhs, Rect rhs, ScrollOrientation orientation)
@@ -467,14 +437,9 @@ internal class ElementManager
         var removeAffectsFirstRealizedDataIndex = index <= _firstRealizedDataIndex;
 
         if (endIndex >= startIndex)
-        {
             ClearRealizedRange(GetRealizedRangeIndexFromDataIndex(startIndex), endIndex - startIndex + 1);
-        }
 
-        if (removeAffectsFirstRealizedDataIndex && _firstRealizedDataIndex != -1)
-        {
-            _firstRealizedDataIndex -= count;
-        }
+        if (removeAffectsFirstRealizedDataIndex && _firstRealizedDataIndex != -1) _firstRealizedDataIndex -= count;
     }
 
     private bool IsVirtualizingContext()
@@ -488,10 +453,4 @@ internal class ElementManager
 
         return false;
     }
-
-    private bool _useLayoutBounds;
-    private List<Control> _realizedElements = new List<Control>();
-    private List<Rect> _realizedElementLayoutBounds = new List<Rect>();
-    private int _firstRealizedDataIndex = -1;
-    private FAVirtualizingLayoutContext _context;
 }

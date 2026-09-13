@@ -1,7 +1,6 @@
 ﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:ui="using:FluentAvalonia.UI.Controls"
-                    xmlns:core="using:FluentAvalonia.Core"
                     xmlns:uip="using:FluentAvalonia.UI.Controls.Primitives"
                     x:CompileBindings="True">
 
@@ -26,11 +25,11 @@
                             <BrushTransition Duration="00:00:00.083" Property="Background" />
                         </Transitions>
                     </Border.Transitions>
-                    <StackPanel Spacing="12" 
+                    <StackPanel Spacing="12"
                                 Orientation="Horizontal"
                                 HorizontalAlignment="Center"
                                 Margin="{TemplateBinding Padding}">
-                        <Viewbox Width="18" 
+                        <Viewbox Width="18"
                                  Height="18"
                                  Name="IconHost"
                                  IsVisible="False">

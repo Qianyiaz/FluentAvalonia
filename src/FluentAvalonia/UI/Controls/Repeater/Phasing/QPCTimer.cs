@@ -4,6 +4,8 @@ namespace FluentAvalonia.UI.Controls;
 
 internal class QPCTimer
 {
+    private readonly Stopwatch _stopwatch = new();
+
     public void Reset()
     {
         _stopwatch.Restart();
@@ -13,6 +15,4 @@ internal class QPCTimer
     {
         return _stopwatch.ElapsedMilliseconds;
     }
-
-    private readonly Stopwatch _stopwatch = new Stopwatch();
 }

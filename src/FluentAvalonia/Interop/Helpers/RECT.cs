@@ -1,8 +1,10 @@
-﻿namespace FluentAvalonia.Interop.Win32;
+﻿using Avalonia;
+
+namespace FluentAvalonia.Interop.Win32;
 
 internal struct RECT
 {
-    public RECT(Avalonia.Rect rect)
+    public RECT(Rect rect)
     {
         left = (int)rect.X;
         top = (int)rect.Y;
@@ -24,5 +26,5 @@ internal struct RECT
     public int bottom;
 
     public int Width => right - left;
-    public int Height => bottom - top;   
+    public int Height => bottom - top;
 }

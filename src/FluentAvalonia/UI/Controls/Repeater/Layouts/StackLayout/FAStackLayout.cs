@@ -1,17 +1,33 @@
-﻿using Avalonia;
+﻿using System.Collections.Specialized;
+using System.Diagnostics;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
-using System.Collections.Specialized;
-using System.Diagnostics;
 
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Represents an <i>attached layout</i> that arranges child elements into a single line that can be
-/// oriented horizontally or vertically
+///     Represents an <i>attached layout</i> that arranges child elements into a single line that can be
+///     oriented horizontally or vertically
 /// </summary>
 public class FAStackLayout : FAVirtualizingLayout, IFlowLayoutAlgorithmDelegates, IOrientationBasedMeasures
 {
+    /// <summary>
+    ///     Defines the <see cref="Spacing" /> property
+    /// </summary>
+    public static readonly StyledProperty<double> SpacingProperty =
+        StackPanel.SpacingProperty.AddOwner<FAStackLayout>();
+
+    /// <summary>
+    ///     Defines the <see cref="Orientation" /> property
+    /// </summary>
+    public static readonly StyledProperty<Orientation> OrientationProperty =
+        StackPanel.OrientationProperty.AddOwner<FAStackLayout>(
+            new StyledPropertyMetadata<Orientation>(
+                Orientation.Vertical));
+
+    private double _itemSpacing;
+
     public FAStackLayout()
     {
         LayoutId = "StackLayout";
@@ -20,22 +36,8 @@ public class FAStackLayout : FAVirtualizingLayout, IFlowLayoutAlgorithmDelegates
     }
 
     /// <summary>
-    /// Defines the <see cref="Spacing"/> property
-    /// </summary>
-    public static readonly StyledProperty<double> SpacingProperty =
-        StackPanel.SpacingProperty.AddOwner<FAStackLayout>();
-
-    /// <summary>
-    /// Defines the <see cref="Orientation"/> property
-    /// </summary>
-    public static readonly StyledProperty<Orientation> OrientationProperty = 
-        StackPanel.OrientationProperty.AddOwner<FAStackLayout>(
-            new StyledPropertyMetadata<Orientation>(
-                defaultValue: Orientation.Vertical));
-
-    /// <summary>
-    /// Gets or sets a uniform distance (in pixels) between stacked items. It is applied
-    /// in the direction of the StackLayout's Orientation
+    ///     Gets or sets a uniform distance (in pixels) between stacked items. It is applied
+    ///     in the direction of the StackLayout's Orientation
     /// </summary>
     public double Spacing
     {
@@ -44,7 +46,7 @@ public class FAStackLayout : FAVirtualizingLayout, IFlowLayoutAlgorithmDelegates
     }
 
     /// <summary>
-    /// Gets or sets the dimension by which child elements are stacked
+    ///     Gets or sets the dimension by which child elements are stacked
     /// </summary>
     public Orientation Orientation
     {
@@ -56,7 +58,70 @@ public class FAStackLayout : FAVirtualizingLayout, IFlowLayoutAlgorithmDelegates
 
     private ScrollOrientation ScrollOrientation { get; set; } = ScrollOrientation.Vertical;
 
-    ScrollOrientation IOrientationBasedMeasures.ScrollOrientation 
+    Size IFlowLayoutAlgorithmDelegates.Algorithm_GetMeasureSize(int index, Size availableSize,
+        FAVirtualizingLayoutContext context)
+    {
+        return availableSize;
+    }
+
+    Size IFlowLayoutAlgorithmDelegates.Algorithm_GetProvisionalArrangeSize(int index, Size measureSize,
+        Size desiredSize, FAVirtualizingLayoutContext context)
+    {
+        var measureSizeMinor = this.Minor(measureSize);
+        return this.MinorMajorSize(
+            !double.IsInfinity(measureSizeMinor)
+                ? Math.Max(measureSizeMinor, this.Minor(desiredSize))
+                : this.Minor(desiredSize),
+            this.Major(desiredSize));
+    }
+
+    bool IFlowLayoutAlgorithmDelegates.Algorithm_ShouldBreakLine(int index, double remainingSpace) =>
+        true;
+
+    FlowLayoutAnchorInfo IFlowLayoutAlgorithmDelegates.Algorithm_GetAnchorForRealizationRect(Size availableSize,
+        FAVirtualizingLayoutContext context) =>
+        GetAnchorForRealizationRect(availableSize, context);
+
+    FlowLayoutAnchorInfo IFlowLayoutAlgorithmDelegates.Algorithm_GetAnchorForTargetElement(int targetIndex,
+        Size availableSize, FAVirtualizingLayoutContext context)
+    {
+        var offset = double.NaN;
+        var index = -1;
+        var itemsCount = context.ItemCount;
+
+        if (targetIndex >= 0 && targetIndex < itemsCount)
+        {
+            index = targetIndex;
+            var state = GetAsStackState(context.LayoutState);
+            var averageElementSize = GetAverageElementSize(availableSize, context, state) + _itemSpacing;
+            offset = index * averageElementSize + this.MajorStart(state.FlowAlgorithm.LastExtent);
+        }
+
+        return new FlowLayoutAnchorInfo { Index = index, Offset = offset };
+    }
+
+    Rect IFlowLayoutAlgorithmDelegates.Algorithm_GetExtent(Size availableSize, FAVirtualizingLayoutContext context,
+        Control firstRealized, int firstRealizedIndex, Rect firstRealizedLayoutBounds, Control lastRealized,
+        int lastRealizedItemIndex, Rect lastRealizedLayoutBounds)
+    {
+        return GetExtent(availableSize, context, firstRealized,
+            firstRealizedIndex, firstRealizedLayoutBounds,
+            lastRealized, lastRealizedItemIndex, lastRealizedLayoutBounds);
+    }
+
+    void IFlowLayoutAlgorithmDelegates.Algorithm_OnElementMeasured(Control element, int index, Size availableSize,
+        Size measureSize, Size desiredSize, Size provisionalArrangeSize, FAVirtualizingLayoutContext context)
+    {
+        OnElementMeasured(element, index, availableSize, measureSize, desiredSize,
+            provisionalArrangeSize, context);
+    }
+
+    void IFlowLayoutAlgorithmDelegates.Algorithm_OnLineArranged(int startIndex, int countInLine,
+        double lineSize, FAVirtualizingLayoutContext context)
+    {
+    }
+
+    ScrollOrientation IOrientationBasedMeasures.ScrollOrientation
     {
         get => ScrollOrientation;
         set => ScrollOrientation = value;
@@ -96,7 +161,7 @@ public class FAStackLayout : FAVirtualizingLayout, IFlowLayoutAlgorithmDelegates
         GetAsStackState(context.LayoutState).OnMeasureStart();
 
         var desiredSize = GetFlowAlgorithm(context).Measure(
-            availableSize, context, false /*isWrapping*/, 0/*minItemsSpacing*/,
+            availableSize, context, false /*isWrapping*/, 0 /*minItemsSpacing*/,
             _itemSpacing, int.MaxValue /*maxItemsPerLine*/,
             ScrollOrientation, DisableVirtualization, LayoutId);
 
@@ -115,7 +180,8 @@ public class FAStackLayout : FAVirtualizingLayout, IFlowLayoutAlgorithmDelegates
         return value;
     }
 
-    protected internal override void OnItemsChangedCore(FAVirtualizingLayoutContext context, object source, NotifyCollectionChangedEventArgs args)
+    protected internal override void OnItemsChangedCore(FAVirtualizingLayoutContext context, object source,
+        NotifyCollectionChangedEventArgs args)
     {
         if (context.LayoutState != null)
         {
@@ -140,8 +206,9 @@ public class FAStackLayout : FAVirtualizingLayout, IFlowLayoutAlgorithmDelegates
 
             var averageElementSize = GetAverageElementSize(availableSize, context, state) + _itemSpacing;
             var realizationWindowOffsetInExtent = this.MajorStart(realizationRect) - this.MajorStart(lastExtent);
-            var majorSize = this.MajorSize(lastExtent) == 0 ?
-                Math.Max(0, averageElementSize * itemsCount - _itemSpacing) : this.MajorSize(lastExtent);
+            var majorSize = this.MajorSize(lastExtent) == 0
+                ? Math.Max(0, averageElementSize * itemsCount - _itemSpacing)
+                : this.MajorSize(lastExtent);
             if (itemsCount > 0 && this.MajorSize(realizationRect) >= 0 &&
                 // MajorSize = 0 will account for when a nested repeater is outside the realization rect but still being measured. Also,
                 // note that if we are measuring this repeater, then we are already realizing an element to figure out the size, so we could
@@ -176,9 +243,12 @@ public class FAStackLayout : FAVirtualizingLayout, IFlowLayoutAlgorithmDelegates
             if (firstRealized != null)
             {
                 Debug.Assert(lastRealized != null);
-                this.SetMajorStart(ref extent, this.MajorStart(firstRealizedLayoutBounds) - firstRealizedItemIndex * averageElementSize);
+                this.SetMajorStart(ref extent,
+                    this.MajorStart(firstRealizedLayoutBounds) - firstRealizedItemIndex * averageElementSize);
                 var remainingItems = itemsCount - lastRealizedItemIndex - 1;
-                this.SetMajorSize(ref extent, this.MajorEnd(lastRealizedLayoutBounds) - this.MajorStart(extent) + (remainingItems * averageElementSize));
+                this.SetMajorSize(ref extent,
+                    this.MajorEnd(lastRealizedLayoutBounds) - this.MajorStart(extent) +
+                    remainingItems * averageElementSize);
             }
             else
             {
@@ -213,76 +283,15 @@ public class FAStackLayout : FAVirtualizingLayout, IFlowLayoutAlgorithmDelegates
         }
     }
 
-    Size IFlowLayoutAlgorithmDelegates.Algorithm_GetMeasureSize(int index, Size availableSize, 
-        FAVirtualizingLayoutContext context)
-    {
-        return availableSize;
-    }
-
-    Size IFlowLayoutAlgorithmDelegates.Algorithm_GetProvisionalArrangeSize(int index, Size measureSize, 
-        Size desiredSize, FAVirtualizingLayoutContext context)
-    {
-        var measureSizeMinor = this.Minor(measureSize);
-        return this.MinorMajorSize(
-            !double.IsInfinity(measureSizeMinor) ?
-                Math.Max(measureSizeMinor, this.Minor(desiredSize)) :
-                this.Minor(desiredSize),
-            this.Major(desiredSize));
-    }
-
-    bool IFlowLayoutAlgorithmDelegates.Algorithm_ShouldBreakLine(int index, double remainingSpace) =>
-        true;
-
-    FlowLayoutAnchorInfo IFlowLayoutAlgorithmDelegates.Algorithm_GetAnchorForRealizationRect(Size availableSize, 
-        FAVirtualizingLayoutContext context) =>
-        GetAnchorForRealizationRect(availableSize, context);
-
-    FlowLayoutAnchorInfo IFlowLayoutAlgorithmDelegates.Algorithm_GetAnchorForTargetElement(int targetIndex, 
-        Size availableSize, FAVirtualizingLayoutContext context)
-    {
-        var offset = double.NaN;
-        var index = -1;
-        var itemsCount = context.ItemCount;
-
-        if (targetIndex >= 0 && targetIndex < itemsCount)
-        {
-            index = targetIndex;
-            var state = GetAsStackState(context.LayoutState);
-            var averageElementSize = GetAverageElementSize(availableSize, context, state) + _itemSpacing;
-            offset = index * averageElementSize + this.MajorStart(state.FlowAlgorithm.LastExtent);
-        }
-
-        return new FlowLayoutAnchorInfo { Index = index, Offset = offset };
-    }
-
-    Rect IFlowLayoutAlgorithmDelegates.Algorithm_GetExtent(Size availableSize, FAVirtualizingLayoutContext context, 
-        Control firstRealized, int firstRealizedIndex, Rect firstRealizedLayoutBounds, Control lastRealized, 
-        int lastRealizedItemIndex, Rect lastRealizedLayoutBounds)
-    {
-        return GetExtent(availableSize, context, firstRealized,
-            firstRealizedIndex, firstRealizedLayoutBounds,
-            lastRealized, lastRealizedItemIndex, lastRealizedLayoutBounds);
-    }
-
-    void IFlowLayoutAlgorithmDelegates.Algorithm_OnElementMeasured(Control element, int index, Size availableSize, 
-        Size measureSize, Size desiredSize, Size provisionalArrangeSize, FAVirtualizingLayoutContext context)
-    {
-        OnElementMeasured(element, index, availableSize, measureSize, desiredSize,
-            provisionalArrangeSize, context);
-    }
-
-    void IFlowLayoutAlgorithmDelegates.Algorithm_OnLineArranged(int startIndex, int countInLine,
-        double lineSize, FAVirtualizingLayoutContext context)
-    { }
-
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
         if (change.Property == OrientationProperty)
         {
             var orientation = change.GetNewValue<Orientation>();
-            ScrollOrientation = orientation == Orientation.Horizontal ? ScrollOrientation.Horizontal :
-                ScrollOrientation.Vertical;
+            ScrollOrientation = orientation == Orientation.Horizontal
+                ? ScrollOrientation.Horizontal
+                : ScrollOrientation.Vertical;
 
             UpdateIndexBasedLayoutOrientation(orientation);
         }
@@ -317,8 +326,9 @@ public class FAStackLayout : FAVirtualizingLayout, IFlowLayoutAlgorithmDelegates
 
     private void UpdateIndexBasedLayoutOrientation(Orientation orientation)
     {
-        IndexBasedLayoutOrientation = orientation == Orientation.Horizontal ?
-            FAIndexBasedLayoutOrientation.LeftToRight : FAIndexBasedLayoutOrientation.TopToBottom;
+        IndexBasedLayoutOrientation = orientation == Orientation.Horizontal
+            ? FAIndexBasedLayoutOrientation.LeftToRight
+            : FAIndexBasedLayoutOrientation.TopToBottom;
     }
 
     private void InvalidateLayout() => InvalidateMeasure();
@@ -328,8 +338,6 @@ public class FAStackLayout : FAVirtualizingLayout, IFlowLayoutAlgorithmDelegates
 
     private StackLayoutState GetAsStackState(object state) =>
         state as StackLayoutState;
-
-    private double _itemSpacing;
 
     // !!! WARNING !!!
     // Any storage here needs to be related to layout configuration. 

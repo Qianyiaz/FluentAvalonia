@@ -1,4 +1,6 @@
-﻿using Avalonia;
+﻿using System.Collections;
+using System.Collections.Specialized;
+using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Automation.Peers;
 using Avalonia.Controls;
@@ -6,13 +8,70 @@ using Avalonia.Controls.Templates;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.VisualTree;
-using System.Collections;
-using System.Collections.Specialized;
 
 namespace FluentAvalonia.UI.Controls;
 
 public partial class FAItemsRepeater : Panel
 {
+    // StackLayout measurements are shortcut when m_stackLayoutMeasureCounter reaches this value
+    // to prevent a layout cycle exception.
+    // The XAML Framework's iteration limit is 250, but that limit has been reached in practice
+    // with this value as small as 61. It was never reached with 60. 
+    internal const short _maxStackLayoutIterations = 60;
+    internal static Point ClearedElementsArrangePosition = new(-10000, -10000);
+    internal static Rect InvalidRect = new(-1, -1, -1, -1);
+
+    private readonly TransitionManager _transitionManager;
+    private readonly ViewManager _viewManager;
+    private readonly ViewportManager _viewportManager;
+    private FAItemsRepeaterElementClearingEventArgs _elementClearingArgs;
+    private FAItemsRepeaterElementIndexChangedEventArgs _elementIndexChangedArgs;
+
+    // Cached Event args to avoid creation cost every time
+    private FAItemsRepeaterElementPreparedEventArgs _elementPreparedArgs;
+
+    // Bug in framework's reference tracking causes crash during
+    // UIAffinityQueue cleanup. To avoid that bug, take a strong ref
+    //private IFAElementFactory _itemTemplate;
+
+    // Bug where DataTemplate with no content causes a crash.
+    // See: https://github.com/microsoft/microsoft-ui-xaml/issues/776
+    // Solution: Have flag that is only true when DataTemplate exists but it is empty.
+    private bool _isItemTemplateEmpty;
+    private bool _isLayoutInProgress;
+    private IFAElementFactory _itemTemplateWrapper;
+
+    private FAItemsSourceView _itemsSourceView;
+
+    private Size _lastAvailableSize;
+
+    private FAVirtualizingLayoutContext _layoutContext;
+
+    // The value of _layoutOrigin is expected to be set by the layout
+    // when it gets measured. It should not be used outside of measure.
+    private Point _layoutOrigin;
+    private object _layoutState;
+
+    // Loaded events fire on the first tick after an element is put into the tree 
+    // while unloaded is posted on the UI tree and may be processed out of sync with subsequent loaded
+    // events. We keep these counters to detect out-of-sync unloaded events and take action to rectify.
+    private int _loadedCounter;
+
+    // If no ItemCollectionTransitionProvider is explicitly provided, we'll retrieve a default one
+    // from the Layout object. In that case, we'll want to know that we own that object and can
+    // overwrite it if the Layout object changes.
+    private bool _ownsTransitionProvider = true;
+    private NotifyCollectionChangedEventArgs _processingItemsSourceChange;
+
+    // Used to avoid layout cycles with StackLayout layouts where variable sized children prevent
+    // the ItemsRepeater's layout to settle.
+    private byte _stackLayoutMeasureCounter;
+    private int _unloadedCounter;
+
+    // Tracks whether OnLayoutChanged has already been called or not so that
+    // EnsureDefaultLayoutState does not trigger a second call after the control's creation.
+    private bool _wasLayoutChangedCalled;
+
     public FAItemsRepeater()
     {
         _viewportManager = new ViewportManager(this);
@@ -63,7 +122,7 @@ public partial class FAItemsRepeater : Panel
                 // This can occur when children have variable sizes that prevent the ItemsPresenter's desired size from settling.
                 var layoutExtent = _viewportManager.LayoutExtent;
                 var desiredSize = new Size(layoutExtent.Width - layoutExtent.X,
-                    layoutExtent.Height - layoutExtent.Y );
+                    layoutExtent.Height - layoutExtent.Y);
                 return desiredSize;
             }
         }
@@ -142,10 +201,7 @@ public partial class FAItemsRepeater : Panel
             _isLayoutInProgress = true;
             Size arrangeSize = default;
 
-            if (GetEffectiveLayout() is FALayout layout)
-            {
-                arrangeSize = layout.Arrange(GetLayoutContext(), finalSize);
-            }
+            if (GetEffectiveLayout() is FALayout layout) arrangeSize = layout.Arrange(GetLayoutContext(), finalSize);
 
             // The view manager might clear elements during this call.
             // That's why we call it before arranging cleared elements
@@ -173,9 +229,7 @@ public partial class FAItemsRepeater : Panel
                     var newBounds = element.Bounds;
                     if (vi.ArrangeBounds != InvalidRect &&
                         newBounds != vi.ArrangeBounds)
-                    {
                         _transitionManager.OnElementBoundsChanged(element, vi.ArrangeBounds, newBounds);
-                    }
 
                     vi.ArrangeBounds = newBounds;
                 }
@@ -204,9 +258,7 @@ public partial class FAItemsRepeater : Panel
                 var newValue = args.NewValue;
                 var newDataSource = newValue as FAItemsSourceView;
                 if (newValue != null && newDataSource == null)
-                {
                     newDataSource = new FAItemsSourceView(newValue as IEnumerable);
-                }
 
                 OnDataSourcePropertyChanged(_itemsSourceView, newDataSource);
             }
@@ -222,7 +274,7 @@ public partial class FAItemsRepeater : Panel
         }
         else if (property == ItemTransitionProviderProperty)
         {
-            OnTransitionProviderChanged(args.GetOldValue<FAItemCollectionTransitionProvider>(), 
+            OnTransitionProviderChanged(args.GetOldValue<FAItemCollectionTransitionProvider>(),
                 args.GetNewValue<FAItemCollectionTransitionProvider>());
         }
         else if (property == HorizontalCacheLengthProperty)
@@ -260,13 +312,9 @@ public partial class FAItemsRepeater : Panel
         if (ElementPrepared != null)
         {
             if (_elementPreparedArgs == null)
-            {
                 _elementPreparedArgs = new FAItemsRepeaterElementPreparedEventArgs(element, index);
-            }
             else
-            {
                 _elementPreparedArgs.Update(element, index);
-            }
 
             ElementPrepared.Invoke(this, _elementPreparedArgs);
         }
@@ -277,13 +325,9 @@ public partial class FAItemsRepeater : Panel
         if (ElementClearing != null)
         {
             if (_elementClearingArgs == null)
-            {
                 _elementClearingArgs = new FAItemsRepeaterElementClearingEventArgs(element);
-            }
             else
-            {
                 _elementClearingArgs.Update(element);
-            }
 
             ElementClearing.Invoke(this, _elementClearingArgs);
         }
@@ -294,13 +338,9 @@ public partial class FAItemsRepeater : Panel
         if (ElementIndexChanged != null)
         {
             if (_elementIndexChangedArgs == null)
-            {
                 _elementIndexChangedArgs = new FAItemsRepeaterElementIndexChangedEventArgs(element, oldIndex, newIndex);
-            }
             else
-            {
                 _elementIndexChangedArgs.Update(element, oldIndex, newIndex);
-            }
 
             ElementIndexChanged.Invoke(this, _elementIndexChangedArgs);
         }
@@ -320,8 +360,8 @@ public partial class FAItemsRepeater : Panel
         var isClearedDueToCollectionChange =
             IsProcessingCollectionChange &&
             (_processingItemsSourceChange.Action == NotifyCollectionChangedAction.Remove ||
-            _processingItemsSourceChange.Action == NotifyCollectionChangedAction.Replace ||
-            _processingItemsSourceChange.Action == NotifyCollectionChangedAction.Reset);
+             _processingItemsSourceChange.Action == NotifyCollectionChangedAction.Replace ||
+             _processingItemsSourceChange.Action == NotifyCollectionChangedAction.Reset);
 
         _viewManager.ClearElement(element, isClearedDueToCollectionChange);
         _viewportManager.OnElementCleared(element);
@@ -336,6 +376,7 @@ public partial class FAItemsRepeater : Panel
             var virtInfo = TryGetVirtualizationInfo(element);
             return _viewManager.GetElementIndex(virtInfo);
         }
+
         return -1;
     }
 
@@ -344,14 +385,11 @@ public partial class FAItemsRepeater : Panel
         Control result = null;
 
         var children = Children;
-        for (var i = 0; i < children.Count && (result == null); ++i)
+        for (var i = 0; i < children.Count && result == null; ++i)
         {
             var element = children[i];
             var virtInfo = TryGetVirtualizationInfo(element);
-            if (virtInfo != null && virtInfo.IsRealized && virtInfo.Index == index)
-            {
-                result = element;
-            }
+            if (virtInfo != null && virtInfo.IsRealized && virtInfo.Index == index) result = element;
         }
 
         return result;
@@ -409,6 +447,7 @@ public partial class FAItemsRepeater : Panel
             InvalidateMeasure();
             _viewportManager.ResetScrollers();
         }
+
         ++_loadedCounter;
     }
 
@@ -418,14 +457,11 @@ public partial class FAItemsRepeater : Panel
         ++_unloadedCounter;
 
         // Only reset the scrollers if this unload event is in-sync.
-        if (_unloadedCounter == _loadedCounter)
-        {
-            _viewportManager.ResetScrollers();
-        }
+        if (_unloadedCounter == _loadedCounter) _viewportManager.ResetScrollers();
     }
 
     private void OnLayoutUpdated(object sender, EventArgs e)
-    { 
+    {
         // Now that the layout has settled, reset the measure counter to detect the next potential StackLayout layout cycle.
         _stackLayoutMeasureCounter = 0;
 
@@ -462,10 +498,8 @@ public partial class FAItemsRepeater : Panel
                     // Walk through all the elements and make sure they are cleared for
                     // non-virtualizing layouts.
                     foreach (var item in Children)
-                    {
                         if (GetVirtualizationInfo(item).IsRealized)
                             ClearElementImpl(item);
-                    }
 
                     Children.Clear();
                 }
@@ -501,21 +535,13 @@ public partial class FAItemsRepeater : Panel
                 _processingItemsSourceChange = args;
 
                 if (layout is FAVirtualizingLayout vl)
-                {
                     vl.OnItemsChangedCore(GetLayoutContext(), newValue, args);
-                }
                 else if (layout is FANonVirtualizingLayout)
-                {
                     // Walk through all the elements and make sure they are cleared for
                     // non-virtualizing layouts.
                     foreach (var child in Children)
-                    {
                         if (GetVirtualizationInfo(child).IsRealized)
-                        {
                             ClearElementImpl(child);
-                        }
-                    }
-                }
             }
             finally
             {
@@ -530,14 +556,9 @@ public partial class FAItemsRepeater : Panel
             // ItemTemplate set does not implement IElementFactoryShim. We also 
             // want to support DataTemplate and DataTemplateSelectors automagically.
             if (newValue is IDataTemplate template)
-            {
                 _itemTemplateWrapper = new FAItemTemplateWrapper(template);
-                //_isItemTemplateEmpty = template.Build(null) == null;
-            }
-            else if (newValue is FADataTemplateSelector dts)
-            {
-                _itemTemplateWrapper = new FAItemTemplateWrapper(dts);
-            }
+            //_isItemTemplateEmpty = template.Build(null) == null;
+            else if (newValue is FADataTemplateSelector dts) _itemTemplateWrapper = new FAItemTemplateWrapper(dts);
         }
 
         InvalidateMeasure();
@@ -554,14 +575,8 @@ public partial class FAItemsRepeater : Panel
         _viewManager.OnLayoutChanging();
         _transitionManager.OnLayoutChanging();
 
-        if (oldValue == null & !isInitialSetup)
-        {
-            oldValue = GetDefaultLayout();
-        }
-        if (newValue == null)
-        {
-            newValue = GetDefaultLayout();
-        }    
+        if ((oldValue == null) & !isInitialSetup) oldValue = GetDefaultLayout();
+        if (newValue == null) newValue = GetDefaultLayout();
 
 
         if (oldValue != null)
@@ -576,10 +591,7 @@ public partial class FAItemsRepeater : Panel
             for (var i = 0; i < children.Count; ++i)
             {
                 var element = children[i];
-                if (GetVirtualizationInfo(element).IsRealized)
-                {
-                    ClearElementImpl(element);
-                }
+                if (GetVirtualizationInfo(element).IsRealized) ClearElementImpl(element);
             }
 
             _layoutState = null;
@@ -592,9 +604,7 @@ public partial class FAItemsRepeater : Panel
             newValue.ArrangeInvalidated += InvalidateArrangeForLayout;
 
             if (_ownsTransitionProvider)
-            {
                 _transitionManager.OnTransitionProviderChanged(newValue.CreateDefaultItemTransitionProvider());
-            }
         }
 
         var isVirtualizingLayout = newValue != null && newValue is FAVirtualizingLayout;
@@ -602,7 +612,8 @@ public partial class FAItemsRepeater : Panel
         InvalidateMeasure();
     }
 
-    private void OnTransitionProviderChanged(FAItemCollectionTransitionProvider _, FAItemCollectionTransitionProvider newValue)
+    private void OnTransitionProviderChanged(FAItemCollectionTransitionProvider _,
+        FAItemCollectionTransitionProvider newValue)
     {
         _ownsTransitionProvider = false;
         _transitionManager.OnTransitionProviderChanged(newValue);
@@ -614,7 +625,8 @@ public partial class FAItemsRepeater : Panel
             throw new InvalidOperationException("Changes in data source are not allowed during layout.");
 
         if (IsProcessingCollectionChange)
-            throw new InvalidOperationException("Changes in the data source are not allowed during another change in the data source.");
+            throw new InvalidOperationException(
+                "Changes in the data source are not allowed during another change in the data source.");
 
         try
         {
@@ -626,13 +638,9 @@ public partial class FAItemsRepeater : Panel
             if (GetEffectiveLayout() is FALayout layout)
             {
                 if (layout is FAVirtualizingLayout vl)
-                {
                     vl.OnItemsChangedCore(GetLayoutContext(), sender, args);
-                }
                 else
-                {
                     InvalidateMeasure();
-                }
             }
         }
         finally
@@ -673,10 +681,7 @@ public partial class FAItemsRepeater : Panel
     private IEnumerable<Control> CreateChildrenInTabFocusOrderIterable()
     {
         var children = Children;
-        if (children.Count == 0)
-        {
-            return new ChildrenInTabFocusOrderIterable(this);
-        }
+        if (children.Count == 0) return new ChildrenInTabFocusOrderIterable(this);
         return null;
     }
 
@@ -699,64 +704,6 @@ public partial class FAItemsRepeater : Panel
 
         return new FAStackLayout();
     }
-
-
-    // StackLayout measurements are shortcut when m_stackLayoutMeasureCounter reaches this value
-    // to prevent a layout cycle exception.
-    // The XAML Framework's iteration limit is 250, but that limit has been reached in practice
-    // with this value as small as 61. It was never reached with 60. 
-    internal const short _maxStackLayoutIterations = 60;
-    internal static Point ClearedElementsArrangePosition = new Point(-10000, -10000);
-    internal static Rect InvalidRect = new Rect(-1,-1,-1,-1);
-
-    private readonly TransitionManager _transitionManager;
-    private readonly ViewManager _viewManager;
-    private readonly ViewportManager _viewportManager;
-
-    private FAItemsSourceView _itemsSourceView;
-    private IFAElementFactory _itemTemplateWrapper;
-    private FAVirtualizingLayoutContext _layoutContext;
-    private object _layoutState;
-    private NotifyCollectionChangedEventArgs _processingItemsSourceChange;
-    
-    private Size _lastAvailableSize;
-    private bool _isLayoutInProgress;
-    // The value of _layoutOrigin is expected to be set by the layout
-    // when it gets measured. It should not be used outside of measure.
-    private Point _layoutOrigin;
-
-    // Cached Event args to avoid creation cost every time
-    private FAItemsRepeaterElementPreparedEventArgs _elementPreparedArgs;
-    private FAItemsRepeaterElementClearingEventArgs _elementClearingArgs;
-    private FAItemsRepeaterElementIndexChangedEventArgs _elementIndexChangedArgs;
-
-    // Loaded events fire on the first tick after an element is put into the tree 
-    // while unloaded is posted on the UI tree and may be processed out of sync with subsequent loaded
-    // events. We keep these counters to detect out-of-sync unloaded events and take action to rectify.
-    private int _loadedCounter;
-    private int _unloadedCounter;
-
-    // Used to avoid layout cycles with StackLayout layouts where variable sized children prevent
-    // the ItemsRepeater's layout to settle.
-    private byte _stackLayoutMeasureCounter;
-
-    // Bug in framework's reference tracking causes crash during
-    // UIAffinityQueue cleanup. To avoid that bug, take a strong ref
-    //private IFAElementFactory _itemTemplate;
-
-    // Bug where DataTemplate with no content causes a crash.
-    // See: https://github.com/microsoft/microsoft-ui-xaml/issues/776
-    // Solution: Have flag that is only true when DataTemplate exists but it is empty.
-    private bool _isItemTemplateEmpty;
-
-    // If no ItemCollectionTransitionProvider is explicitly provided, we'll retrieve a default one
-    // from the Layout object. In that case, we'll want to know that we own that object and can
-    // overwrite it if the Layout object changes.
-    private bool _ownsTransitionProvider = true;
-
-    // Tracks whether OnLayoutChanged has already been called or not so that
-    // EnsureDefaultLayoutState does not trigger a second call after the control's creation.
-    private bool _wasLayoutChangedCalled;
 }
 
 // I think this is something special for WinRT/C++, we'll just use

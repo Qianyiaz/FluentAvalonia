@@ -1,4 +1,6 @@
-﻿using Avalonia;
+﻿using System.Collections.Specialized;
+using System.Runtime.CompilerServices;
+using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Layout;
@@ -7,19 +9,35 @@ using Avalonia.Media;
 using Avalonia.Platform;
 using Avalonia.Styling;
 using FluentAvalonia.UI.Media;
-using System.Collections.Specialized;
-using System.Runtime.CompilerServices;
 
 namespace FluentAvalonia.Styling;
 
 /// <summary>
-/// Theme manager for FluentAvalonia, managing various components of the Fluentv2 theme
-/// like AccentColor, styles, and platform settings
+///     Theme manager for FluentAvalonia, managing various components of the Fluentv2 theme
+///     like AccentColor, styles, and platform settings
 /// </summary>
 public partial class FluentAvaloniaTheme : Styles, IResourceProvider
 {
+    public const string LightModeString = "Light";
+    public const string DarkModeString = "Dark";
+    public const string HighContrastModeString = "HighContrast";
+
     /// <summary>
-    /// Create new instance of <see cref="FluentAvaloniaTheme"/>.
+    ///     High Contrast Theme
+    /// </summary>
+    public static readonly ThemeVariant HighContrastTheme = new(HighContrastModeString,
+        ThemeVariant.Light);
+
+    private ResourceDictionary _accentColorsDictionary;
+    private Color? _customAccentColor;
+
+    private bool _hasLoaded;
+    private IPlatformSettings _platformSettings;
+    private bool _preferSystemTheme;
+    private bool _preferUserAccentColor;
+
+    /// <summary>
+    ///     Create new instance of <see cref="FluentAvaloniaTheme" />.
     /// </summary>
     public FluentAvaloniaTheme()
     {
@@ -29,29 +47,23 @@ public partial class FluentAvaloniaTheme : Styles, IResourceProvider
     }
 
     /// <summary>
-    /// High Contrast Theme
-    /// </summary>
-    public static readonly ThemeVariant HighContrastTheme = new ThemeVariant(HighContrastModeString,
-        ThemeVariant.Light);
-
-    /// <summary>
-    /// Gets or sets whether the system font should be used on Windows. Value only applies at startup
+    ///     Gets or sets whether the system font should be used on Windows. Value only applies at startup
     /// </summary>
     /// <remarks>
-    /// On Windows 10, this is "Segoe UI", and Windows 11, this is "Segoe UI Variable Text".
+    ///     On Windows 10, this is "Segoe UI", and Windows 11, this is "Segoe UI Variable Text".
     /// </remarks>
     public bool UseSystemFontOnWindows { get; set; } = true;
 
     /// <summary>
-    /// Gets or sets whether to use the current system theme (light or dark mode).
+    ///     Gets or sets whether to use the current system theme (light or dark mode).
     /// </summary>
     /// <remarks>
-    /// This property is respected on Windows, MacOS, and Linux. However, on linux,
-    /// the detection is different depending on the user's desktop environment. On KDE,
-    /// Cinnamon, LXDE and LXQt, it requires the user's theme (color scheme in the
-    /// case of KDE) name to contain "dark". On GNOME or Xfce, it requires 'color-scheme'
-    /// to be set to either 'prefer-light', 'prefer-dark', or 'gtk-theme' to contain 'dark'.
-    /// Also note, that high contrast theme will only resolve here on Windows.
+    ///     This property is respected on Windows, MacOS, and Linux. However, on linux,
+    ///     the detection is different depending on the user's desktop environment. On KDE,
+    ///     Cinnamon, LXDE and LXQt, it requires the user's theme (color scheme in the
+    ///     case of KDE) name to contain "dark". On GNOME or Xfce, it requires 'color-scheme'
+    ///     to be set to either 'prefer-light', 'prefer-dark', or 'gtk-theme' to contain 'dark'.
+    ///     Also note, that high contrast theme will only resolve here on Windows.
     /// </remarks>
     public bool PreferSystemTheme
     {
@@ -63,46 +75,46 @@ public partial class FluentAvaloniaTheme : Styles, IResourceProvider
                 _preferSystemTheme = value;
 
                 // Only call this if PreferSystemTheme is true to invalidate the current theme.
-                if (value)
-                {
-                    ResolveThemeAndInitializeSystemResources();
-                }
+                if (value) ResolveThemeAndInitializeSystemResources();
             }
         }
     }
 
     /// <summary>
-    /// Gets or sets whether to use the current user's accent color as the resource SystemAccentColor
+    ///     Gets or sets whether to use the current user's accent color as the resource SystemAccentColor
     /// </summary>
     /// <remarks>
-    /// On Linux, accent color detection is only supported on KDE (from current scheme,
-    /// from wallpaper and custom), LXQt (from selection color) and LXDE (from custom selection
-    /// color).
+    ///     On Linux, accent color detection is only supported on KDE (from current scheme,
+    ///     from wallpaper and custom), LXQt (from selection color) and LXDE (from custom selection
+    ///     color).
     /// </remarks>
     public bool PreferUserAccentColor
     {
         get => _preferUserAccentColor;
         set
-        { 
-            if(_preferUserAccentColor != value)
+        {
+            if (_preferUserAccentColor != value)
             {
                 _preferUserAccentColor = value;
 
                 // Unlike PreferSystemTheme, we call this everytime as LoadCustomAccentColor handles
                 // switching between a system and custom color (and back)
                 LoadCustomAccentColor();
-            }            
+            }
         }
     }
 
     /// <summary>
-    /// Gets or sets a <see cref="Color"/> to use as the SystemAccentColor for the app. Note this takes precedence over the
-    /// <see cref="PreferUserAccentColor"/> property and must be set to null to restore the system color, if desired
+    ///     Gets or sets a <see cref="Color" /> to use as the SystemAccentColor for the app. Note this takes precedence over
+    ///     the
+    ///     <see cref="PreferUserAccentColor" /> property and must be set to null to restore the system color, if desired
     /// </summary>
     /// <remarks>
-    /// The 6 variants (3 light/3 dark) are pregenerated from the given color. FluentAvalonia makes no checks to ensure the legibility and
-    /// accessibility of the chosen color and places that responsibility upon you. For more control over the accent color variants, directly
-    /// override SystemAccentColor or the variants in the Application level resource dictionary.
+    ///     The 6 variants (3 light/3 dark) are pregenerated from the given color. FluentAvalonia makes no checks to ensure the
+    ///     legibility and
+    ///     accessibility of the chosen color and places that responsibility upon you. For more control over the accent color
+    ///     variants, directly
+    ///     override SystemAccentColor or the variants in the Application level resource dictionary.
     /// </remarks>
     public Color? CustomAccentColor
     {
@@ -112,31 +124,31 @@ public partial class FluentAvaloniaTheme : Styles, IResourceProvider
             if (_customAccentColor != value)
             {
                 _customAccentColor = value;
-                if (_hasLoaded)
-                {
-                    LoadCustomAccentColor();
-                }
+                if (_hasLoaded) LoadCustomAccentColor();
             }
         }
     }
 
     /// <summary>
-    /// Gets or sets a value that determines if/when style overrides should be used to alleviate issues
-    /// with text alignment in some controls caused when Segoe UI or Segoe UI Variable font
-    /// families do not exist. The default value is <see cref="TextVerticalAlignmentOverride.EnabledNonWindows"/>
+    ///     Gets or sets a value that determines if/when style overrides should be used to alleviate issues
+    ///     with text alignment in some controls caused when Segoe UI or Segoe UI Variable font
+    ///     families do not exist. The default value is <see cref="TextVerticalAlignmentOverride.EnabledNonWindows" />
     /// </summary>
     /// <remarks>
-    /// These overrides apply to controls like RadioButton, CheckBox, ComboBox where the first line of text
-    /// is explicitly aligned with the control. Adding the overrides modify the styles to use VerticalAlignment=Center
-    /// to get a consistent experience, at the (small) expense of breaking Fluent design principles. If your controls
-    /// never use multi-line text, you'll never see the effect of this property.
+    ///     These overrides apply to controls like RadioButton, CheckBox, ComboBox where the first line of text
+    ///     is explicitly aligned with the control. Adding the overrides modify the styles to use VerticalAlignment=Center
+    ///     to get a consistent experience, at the (small) expense of breaking Fluent design principles. If your controls
+    ///     never use multi-line text, you'll never see the effect of this property.
     /// </remarks>
     public TextVerticalAlignmentOverride TextVerticalAlignmentOverrideBehavior { get; set; } =
         TextVerticalAlignmentOverride.EnabledNonWindows;
 
     public AvaloniaList<IResourceDictionary> MergedDictionaries { get; }
-      
+
     bool IResourceNode.HasResources => true;
+
+    bool IResourceNode.TryGetResource(object key, ThemeVariant theme, out object value) =>
+        TryGetResource(key, theme, out value);
 
     /// <inheritdoc />
     public new bool TryGetResource(object key, ThemeVariant theme, out object value)
@@ -157,9 +169,6 @@ public partial class FluentAvaloniaTheme : Styles, IResourceProvider
         return false;
     }
 
-    bool IResourceNode.TryGetResource(object key, ThemeVariant theme, out object value) =>
-        TryGetResource(key, theme, out value);
-
     private void Init()
     {
         AvaloniaXamlLoader.Load(this);
@@ -171,11 +180,9 @@ public partial class FluentAvaloniaTheme : Styles, IResourceProvider
         ResolveThemeAndInitializeSystemResources();
 
         if (OperatingSystem.IsWindows())
-        {
             // Load this in all cases since with ThemeDictionaries, we always have a ref to the 
             // HighContrast dictionary
             TryLoadHighContrastThemeColors();
-        }
 
         SetTextAlignmentOverrides();
 
@@ -192,7 +199,7 @@ public partial class FluentAvaloniaTheme : Styles, IResourceProvider
             _platformSettings = Application.Current.PlatformSettings;
             _platformSettings.ColorValuesChanged += OnPlatformColorValuesChanged;
         }
-                        
+
         if (OperatingSystem.IsWindows())
         {
             theme = ResolveWindowsSystemSettings(_platformSettings);
@@ -221,31 +228,20 @@ public partial class FluentAvaloniaTheme : Styles, IResourceProvider
         }
 
         // The Resolve...Settings will return null if PreferSystemTheme is false
-        if (theme != null)
-        {
-            Application.Current.RequestedThemeVariant = theme;
-        }     
+        if (theme != null) Application.Current.RequestedThemeVariant = theme;
     }
 
     private void OnPlatformColorValuesChanged(object sender, PlatformColorValues e)
     {
-        if (OperatingSystem.IsWindows())
-        {
-            TryLoadHighContrastThemeColors();
-        }
+        if (OperatingSystem.IsWindows()) TryLoadHighContrastThemeColors();
 
         if (PreferSystemTheme)
         {
             ThemeVariant theme;
             if (e.ContrastPreference == ColorContrastPreference.High)
-            {
                 theme = HighContrastTheme;
-            }
             else
-            {
-                theme = e.ThemeVariant == PlatformThemeVariant.Light ?
-                    ThemeVariant.Light : ThemeVariant.Dark;
-            }
+                theme = e.ThemeVariant == PlatformThemeVariant.Light ? ThemeVariant.Light : ThemeVariant.Dark;
 
             Application.Current.RequestedThemeVariant = theme;
         }
@@ -253,40 +249,24 @@ public partial class FluentAvaloniaTheme : Styles, IResourceProvider
         if (!CustomAccentColor.HasValue && PreferUserAccentColor)
         {
             if (OperatingSystem.IsWindows())
-            {
                 TryLoadWindowsAccentColor();
-            }
             else if (OperatingSystem.IsMacOS())
-            {
                 TryLoadMacOSAccentColor(_platformSettings);
-            }
-            else if (OperatingSystem.IsLinux())
-            {
-                TryLoadLinuxAccentColor();
-            }
+            else if (OperatingSystem.IsLinux()) TryLoadLinuxAccentColor();
         }
     }
 
     private ThemeVariant ResolveMacOSSystemSettings(IPlatformSettings platformSettings)
     {
         ThemeVariant theme = null;
-        if (PreferSystemTheme)
-        {
-            theme = GetThemeFromIPlatformSettings(platformSettings);
-        }
+        if (PreferSystemTheme) theme = GetThemeFromIPlatformSettings(platformSettings);
 
         if (CustomAccentColor != null)
-        {
             LoadCustomAccentColor();
-        }
         else if (PreferUserAccentColor)
-        {
             TryLoadMacOSAccentColor(platformSettings);
-        }
         else
-        {
             LoadDefaultAccentColor();
-        }
 
         AddOrUpdateSystemResource("ContentControlThemeFontFamily", FontFamily.Default);
 
@@ -302,27 +282,17 @@ public partial class FluentAvaloniaTheme : Styles, IResourceProvider
             // on Linux. We'll try the existing logic first before attempting IPlatformSettings
             var resolvedTheme = LinuxThemeResolver.TryLoadSystemTheme();
             if (resolvedTheme != null)
-            {
                 theme = resolvedTheme;
-            }
             else
-            {
                 theme = GetThemeFromIPlatformSettings(platformSettings);
-            }
         }
 
         if (CustomAccentColor != null)
-        {
             LoadCustomAccentColor();
-        }
         else if (PreferUserAccentColor)
-        {
             TryLoadLinuxAccentColor();
-        }
         else
-        {
             LoadDefaultAccentColor();
-        }
 
         AddOrUpdateSystemResource("ContentControlThemeFontFamily", FontFamily.Default);
 
@@ -334,10 +304,7 @@ public partial class FluentAvaloniaTheme : Styles, IResourceProvider
         var platformColors = platformSettings.GetColorValues();
         var isSystemInHighContrast = platformColors.ContrastPreference == ColorContrastPreference.High;
         if (!isSystemInHighContrast)
-        {
-           return platformColors.ThemeVariant == PlatformThemeVariant.Light ?
-                ThemeVariant.Light : ThemeVariant.Dark;
-        }
+            return platformColors.ThemeVariant == PlatformThemeVariant.Light ? ThemeVariant.Light : ThemeVariant.Dark;
 
         return HighContrastTheme;
     }
@@ -347,7 +314,7 @@ public partial class FluentAvaloniaTheme : Styles, IResourceProvider
     {
         if (TextVerticalAlignmentOverrideBehavior == TextVerticalAlignmentOverride.Disabled ||
             (TextVerticalAlignmentOverrideBehavior == TextVerticalAlignmentOverride.EnabledNonWindows &&
-            OperatingSystem.IsWindows()))
+             OperatingSystem.IsWindows()))
             return;
 
         // The following resources are added to remove the larger bottom margin/padding value
@@ -368,18 +335,12 @@ public partial class FluentAvaloniaTheme : Styles, IResourceProvider
         // AvaloniaResource that's not necessary. Plus, not using Xaml is fun =D
 
         // Set VerticalContentAlignment on CheckBox to center the content
-        var s = new Style(x =>
-        {
-            return x.OfType(typeof(CheckBox));
-        });
+        var s = new Style(x => { return x.OfType(typeof(CheckBox)); });
         s.Setters.Add(new Setter(ContentControl.VerticalContentAlignmentProperty, VerticalAlignment.Center));
         Add(s);
 
         // Set Padding & VCA on RadioButton to center the content
-        var s2 = new Style(x =>
-        {
-            return x.OfType(typeof(RadioButton));
-        });
+        var s2 = new Style(x => { return x.OfType(typeof(RadioButton)); });
         s2.Setters.Add(new Setter(ContentControl.VerticalContentAlignmentProperty, VerticalAlignment.Center));
         s2.Setters.Add(new Setter(Decorator.PaddingProperty, new Thickness(8, 6, 0, 6)));
         Add(s2);
@@ -394,7 +355,7 @@ public partial class FluentAvaloniaTheme : Styles, IResourceProvider
         s3.Setters.Add(new Setter(Layoutable.VerticalAlignmentProperty, VerticalAlignment.Center));
         Add(s3);
     }
-       
+
     private void LoadCustomAccentColor()
     {
         if (!_customAccentColor.HasValue)
@@ -402,17 +363,11 @@ public partial class FluentAvaloniaTheme : Styles, IResourceProvider
             if (PreferUserAccentColor)
             {
                 if (OperatingSystem.IsWindows())
-                {
                     TryLoadWindowsAccentColor();
-                }                
                 else if (OperatingSystem.IsLinux())
-                {
                     TryLoadLinuxAccentColor();
-                }
                 else // Mac & WASM/Mobile
-                {
                     TryLoadMacOSAccentColor(_platformSettings);
-                }
             }
             else
             {
@@ -432,7 +387,7 @@ public partial class FluentAvaloniaTheme : Styles, IResourceProvider
             col.LightenPercent(-0.30f),
             col.LightenPercent(-0.45f));
     }
-        
+
     private void TryLoadMacOSAccentColor(IPlatformSettings platformSettings)
     {
         try
@@ -495,13 +450,9 @@ public partial class FluentAvaloniaTheme : Styles, IResourceProvider
     private void AddOrUpdateSystemResource(object key, object value)
     {
         if (Resources.ContainsKey(key))
-        {
             Resources[key] = value;
-        }
         else
-        {
             Resources.Add(key, value);
-        }
     }
 
     private void UpdateAccentColors(Color accent,
@@ -528,30 +479,11 @@ public partial class FluentAvaloniaTheme : Styles, IResourceProvider
     private void MergedDictionariesCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
         if (e.OldItems != null)
-        {
             foreach (IResourceDictionary item in e.OldItems)
-            {
                 Resources.MergedDictionaries.Remove(item);
-            }
-        }
 
         if (e.NewItems != null)
-        {
             foreach (IResourceDictionary item in e.NewItems)
-            {
                 Resources.MergedDictionaries.Add(item);
-            }
-        }
     }
-
-    private bool _hasLoaded;
-    private Color? _customAccentColor;
-    private bool _preferSystemTheme;
-    private bool _preferUserAccentColor;
-    private ResourceDictionary _accentColorsDictionary;
-    private IPlatformSettings _platformSettings;
-
-    public const string LightModeString = "Light";
-    public const string DarkModeString = "Dark";
-    public const string HighContrastModeString = "HighContrast";
 }

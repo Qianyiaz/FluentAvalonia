@@ -2,24 +2,27 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
+using Avalonia.Layout;
 using FluentAvalonia.Core;
 
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Special control to host a <see cref="FAContentDialog"/> or <see cref="FATaskDialog"/>
+///     Special control to host a <see cref="FAContentDialog" /> or <see cref="FATaskDialog" />
 /// </summary>
 /// <remarks>
-/// This class should generally not be used outside of FluentAvalonia, and is
-/// only public for Xaml styling support
+///     This class should generally not be used outside of FluentAvalonia, and is
+///     only public for Xaml styling support
 /// </remarks>
 public class FADialogHost : ContentControl
 {
+    private IDisposable _rootBoundsWatcher;
+
     public FADialogHost()
     {
         Background = null;
-        HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center;
-        VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center;
+        HorizontalAlignment = HorizontalAlignment.Center;
+        VerticalAlignment = VerticalAlignment.Center;
     }
 
     protected override Type StyleKeyOverride => typeof(OverlayPopupHost);
@@ -28,15 +31,9 @@ public class FADialogHost : ContentControl
     {
         _ = base.MeasureOverride(availableSize);
 
-        if (TopLevel.GetTopLevel(this) is TopLevel tl)
-        {
-            return tl.ClientSize;
-        }
+        if (TopLevel.GetTopLevel(this) is TopLevel tl) return tl.ClientSize;
 
-        if (TopLevel.GetTopLevel(this) is Control c)
-        {
-            return c.Bounds.Size;
-        }
+        if (TopLevel.GetTopLevel(this) is Control c) return c.Bounds.Size;
 
         return default;
     }
@@ -45,11 +42,9 @@ public class FADialogHost : ContentControl
     {
         base.OnAttachedToVisualTree(e);
         if (TopLevel.GetTopLevel(this) is Control wb)
-        {
             // OverlayLayer is a Canvas, so we won't get a signal to resize if the window
             // bounds change. Subscribe to force update
             _rootBoundsWatcher = wb.GetObservable(BoundsProperty).Subscribe(_ => OnRootBoundsChanged());
-        }
     }
 
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
@@ -110,6 +105,4 @@ public class FADialogHost : ContentControl
     {
         InvalidateMeasure();
     }
-
-    private IDisposable _rootBoundsWatcher;
 }

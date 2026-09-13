@@ -1,6 +1,5 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:ui="using:FluentAvalonia.UI.Controls"
                     x:CompileBindings="True">
 
     <ControlTheme TargetType="SelectableTextBlock"
@@ -28,30 +27,30 @@
         <Setter Property="TextWrapping" Value="Wrap" />
     </ControlTheme>
 
-    <ControlTheme TargetType="TextBlock" 
+    <ControlTheme TargetType="TextBlock"
                   x:Key="CaptionTextBlockStyle"
                   BasedOn="{StaticResource BaseTextBlockStyle}">
         <Setter Property="FontSize" Value="{StaticResource CaptionTextBlockFontSize}" />
         <Setter Property="FontWeight" Value="Normal" />
     </ControlTheme>
 
-    <ControlTheme TargetType="TextBlock" 
+    <ControlTheme TargetType="TextBlock"
                   x:Key="BodyTextBlockStyle"
                   BasedOn="{StaticResource BaseTextBlockStyle}">
         <Setter Property="FontWeight" Value="Normal" />
     </ControlTheme>
 
-    <ControlTheme TargetType="TextBlock" 
+    <ControlTheme TargetType="TextBlock"
                   x:Key="BodyStrongTextBlockStyle"
                   BasedOn="{StaticResource BaseTextBlockStyle}" />
 
-    <ControlTheme TargetType="TextBlock" 
+    <ControlTheme TargetType="TextBlock"
                   x:Key="SubtitleTextBlockStyle"
                   BasedOn="{StaticResource BaseTextBlockStyle}">
         <Setter Property="FontSize" Value="{StaticResource SubtitleTextBlockFontSize}" />
     </ControlTheme>
 
-    <ControlTheme TargetType="TextBlock" 
+    <ControlTheme TargetType="TextBlock"
                   x:Key="TitleTextBlockStyle"
                   BasedOn="{StaticResource BaseTextBlockStyle}">
         <Setter Property="FontSize" Value="{StaticResource TitleTextBlockFontSize}" />
@@ -63,7 +62,7 @@
         <Setter Property="FontSize" Value="{StaticResource TitleLargeTextBlockFontSize}" />
     </ControlTheme>
 
-    <ControlTheme TargetType="TextBlock" 
+    <ControlTheme TargetType="TextBlock"
                   x:Key="DisplayTextBlockStyle"
                   BasedOn="{StaticResource BaseTextBlockStyle}">
         <Setter Property="FontSize" Value="{StaticResource DisplayTextBlockFontSize}" />

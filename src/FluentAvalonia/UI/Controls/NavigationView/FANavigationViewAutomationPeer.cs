@@ -7,7 +7,7 @@ namespace FluentAvalonia.UI.Controls;
 
 public sealed class FANavigationViewAutomationPeer : ControlAutomationPeer, ISelectionProvider
 {
-    public FANavigationViewAutomationPeer(Control owner) 
+    public FANavigationViewAutomationPeer(Control owner)
         : base(owner)
     {
     }

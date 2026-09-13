@@ -10,7 +10,8 @@
                 <Button Theme="{DynamicResource NavigationViewPaneSearchButtonStyle}" />
                 <Button Theme="{DynamicResource NavigationViewOverflowButtonStyleWhenPaneOnTop}" />
                 <TextBlock Text="Header Style" Theme="{DynamicResource NavigationViewItemHeaderTextStyle}" />
-                <ContentControl Theme="{DynamicResource NavigationViewTitleHeaderContentControlTextStyle}" Content="Title" />
+                <ContentControl Theme="{DynamicResource NavigationViewTitleHeaderContentControlTextStyle}"
+                                Content="Title" />
             </StackPanel>
         </Border>
     </Design.PreviewWith>
@@ -194,8 +195,8 @@
 
     <ControlTheme x:Key="NavigationViewPaneSearchButtonStyle" TargetType="Button"
                   BasedOn="{StaticResource {x:Type Button}}">
-        <Setter Property="MinHeight" Value="36"/>
-        <Setter Property="Content" Value="&#xE11A;"/>
+        <Setter Property="MinHeight" Value="36" />
+        <Setter Property="Content" Value="&#xE11A;" />
         <Setter Property="FontFamily" Value="{DynamicResource SymbolThemeFontFamily}" />
         <Setter Property="BorderThickness" Value="{DynamicResource NavigationViewToggleBorderThickness}" />
         <Setter Property="Background" Value="{DynamicResource NavigationViewItemBackground}" />
@@ -246,16 +247,16 @@
                        Background="{TemplateBinding Background}">
                     <Rectangle Name="PointerRectangle"
                                Fill="Transparent"
-                               IsVisible="False"/>
+                               IsVisible="False" />
 
                     <ui:FAFontIcon Name="Icon"
-                                 VerticalAlignment="Center"
-                                 HorizontalAlignment="Center"
-                                 FontFamily="{DynamicResource SymbolThemeFontFamily}"
-                                 FontSize="20"
-                                 Glyph="&#xE10C;"
-                                 Foreground="{TemplateBinding Foreground}"
-                                 IsHitTestVisible="False" />
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Center"
+                                   FontFamily="{DynamicResource SymbolThemeFontFamily}"
+                                   FontSize="20"
+                                   Glyph="&#xE10C;"
+                                   Foreground="{TemplateBinding Foreground}"
+                                   IsHitTestVisible="False" />
                 </Panel>
             </ControlTemplate>
         </Setter>
@@ -285,7 +286,7 @@
                 <Setter Property="Foreground" Value="{DynamicResource TopNavigationViewItemForegroundPressed}" />
             </Style>
         </Style>
-        
+
         <Style Selector="^:disabled">
             <Style Selector="^ /template/ ui|FAFontIcon#Icon">
                 <Setter Property="Foreground" Value="{DynamicResource TopNavigationViewItemForegroundDisabled}" />
@@ -302,7 +303,7 @@
 
     <ControlTheme x:Key="NavigationViewItemHeaderTextStyle" TargetType="TextBlock">
         <Setter Property="FontWeight" Value="SemiBold" />
-        <Setter Property="TextWrapping" Value="NoWrap"/>
+        <Setter Property="TextWrapping" Value="NoWrap" />
     </ControlTheme>
 
     <ControlTheme x:Key="NavigationViewTitleHeaderContentControlTextStyle"
@@ -310,8 +311,8 @@
                   BasedOn="{StaticResource {x:Type ContentControl}}">
         <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="FontSize" Value="28" />
-        <Setter Property="Margin" Value="{DynamicResource NavigationViewHeaderMargin}"/>
-        <Setter Property="VerticalAlignment" Value="Stretch"/>
+        <Setter Property="Margin" Value="{DynamicResource NavigationViewHeaderMargin}" />
+        <Setter Property="VerticalAlignment" Value="Stretch" />
     </ControlTheme>
 
 

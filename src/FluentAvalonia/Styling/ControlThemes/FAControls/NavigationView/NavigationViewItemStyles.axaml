@@ -14,7 +14,7 @@
 
 
     <ControlTheme x:Key="{x:Type ui:FANavigationViewItem}" TargetType="ui:FANavigationViewItem">
-        <Setter Property="Padding" Value="4,0,0,0"/>
+        <Setter Property="Padding" Value="4,0,0,0" />
         <Setter Property="Foreground" Value="{DynamicResource NavigationViewItemForeground}" />
         <Setter Property="Background" Value="{DynamicResource NavigationViewItemBackground}" />
         <Setter Property="BorderBrush" Value="{DynamicResource NavigationViewItemBorderBrush}" />
@@ -36,25 +36,25 @@
                     </Grid.Styles>
 
                     <uip:FANavigationViewItemPresenter Name="NVIPresenter"
-                                                     IconSource="{TemplateBinding IconSource}"
-                                                     InfoBadge="{TemplateBinding InfoBadge}"
-                                                     ContentTemplate="{TemplateBinding ContentTemplate}"
-                                                     Padding="{TemplateBinding Padding}"
-                                                     Foreground="{TemplateBinding Foreground}"
-                                                     Background="{TemplateBinding Background}"
-                                                     BorderBrush="{TemplateBinding BorderBrush}"
-                                                     BorderThickness="{TemplateBinding BorderThickness}"
-                                                     VerticalAlignment="{TemplateBinding VerticalAlignment}"
-                                                     HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
-                                                     VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
-                                                     HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                                     Content="{TemplateBinding Content}"
-                                                     TemplatedControl.IsTemplateFocusTarget="True" />
+                                                       IconSource="{TemplateBinding IconSource}"
+                                                       InfoBadge="{TemplateBinding InfoBadge}"
+                                                       ContentTemplate="{TemplateBinding ContentTemplate}"
+                                                       Padding="{TemplateBinding Padding}"
+                                                       Foreground="{TemplateBinding Foreground}"
+                                                       Background="{TemplateBinding Background}"
+                                                       BorderBrush="{TemplateBinding BorderBrush}"
+                                                       BorderThickness="{TemplateBinding BorderThickness}"
+                                                       VerticalAlignment="{TemplateBinding VerticalAlignment}"
+                                                       HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+                                                       VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                       HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                       Content="{TemplateBinding Content}"
+                                                       TemplatedControl.IsTemplateFocusTarget="True" />
 
                     <ui:FAItemsRepeater Grid.Row="1"
-                                   IsVisible="False"
-                                   Name="NVIMenuItemsHost"
-                                   KeyboardNavigation.TabNavigation="Continue" />
+                                        IsVisible="False"
+                                        Name="NVIMenuItemsHost"
+                                        KeyboardNavigation.TabNavigation="Continue" />
 
                     <FlyoutBase.AttachedFlyout>
                         <!--Placement handled in code, since Flyout's can't be targeted in Styles-->

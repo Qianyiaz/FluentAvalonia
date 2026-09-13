@@ -1,24 +1,24 @@
-﻿using Avalonia;
-using Avalonia.Media;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Globalization;
+using Avalonia;
+using Avalonia.Media;
 
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Represents the base class for an icon source
+///     Represents the base class for an icon source
 /// </summary>
 [TypeConverter(typeof(IconSourceConverter))]
 public abstract class FAIconSource : AvaloniaObject
 {
     /// <summary>
-    /// Defines the <see cref="Foreground"/> property
+    ///     Defines the <see cref="Foreground" /> property
     /// </summary>
     public static readonly StyledProperty<IBrush> ForegroundProperty =
         AvaloniaProperty.Register<FAIconSource, IBrush>(nameof(Foreground));
 
     /// <summary>
-    /// Gets or sets a brush that describes the foreground color.
+    ///     Gets or sets a brush that describes the foreground color.
     /// </summary>
     public IBrush Foreground
     {
@@ -28,58 +28,44 @@ public abstract class FAIconSource : AvaloniaObject
 }
 
 /// <summary>
-/// Type converter for allowing strings in Xaml to be automatically interpreted as an IconElement
+///     Type converter for allowing strings in Xaml to be automatically interpreted as an IconElement
 /// </summary>
 public class IconSourceConverter : TypeConverter
 {
     public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
     {
-        if (sourceType == typeof(string) || sourceType == typeof(FASymbol))
-        {
-            return true;
-        }
+        if (sourceType == typeof(string) || sourceType == typeof(FASymbol)) return true;
         return base.CanConvertFrom(context, sourceType);
     }
+
     public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
     {
-        if (value is FASymbol symbol)
-        {
-            return new FASymbolIconSource { Symbol = symbol };
-        }
+        if (value is FASymbol symbol) return new FASymbolIconSource { Symbol = symbol };
 
-        if (value is IImage img)
-        {
-            return new FAImageIconSource { Source = img };
-        }
+        if (value is IImage img) return new FAImageIconSource { Source = img };
 
         if (value is string val)
         {
             //First we try if the text is a valid Symbol
-            if (Enum.TryParse<FASymbol>(val, out var sym))
-            {
-                return new FASymbolIconSource() { Symbol = sym };
-            }
+            if (Enum.TryParse<FASymbol>(val, out var sym)) return new FASymbolIconSource { Symbol = sym };
 
             //Try a PathIcon
-            if (FAPathIcon.IsDataValid(val, out var g))
-            {
-                return new FAPathIconSource() { Data = g };
-            }
+            if (FAPathIcon.IsDataValid(val, out var g)) return new FAPathIconSource { Data = g };
 
             try
             {
                 if (Uri.TryCreate(val, UriKind.RelativeOrAbsolute, out var result))
-                {
-                    return new FABitmapIconSource() { UriSource = result };
-                }
+                    return new FABitmapIconSource { UriSource = result };
             }
-            catch { }
+            catch
+            {
+            }
 
             //If we've reached this point, we'll make a FontIcon
             //Glyph can be anything (sort of), so we don't need to Try/Catch
-            return new FAFontIconSource() { Glyph = val };
-
+            return new FAFontIconSource { Glyph = val };
         }
+
         return base.ConvertFrom(context, culture, value);
     }
 }

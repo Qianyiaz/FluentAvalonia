@@ -10,18 +10,12 @@ using FluentAvalonia.Core;
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Special helper class to enable WinUI like animations on the Expander control
+///     Special helper class to enable WinUI like animations on the Expander control
 /// </summary>
 public sealed class FAExpanderExt : AvaloniaObject
 {
-    static FAExpanderExt()
-    {
-        ExpanderAnimationTypeProperty.Changed.Subscribe(
-            new SimpleObserver<AvaloniaPropertyChangedEventArgs>(HandleExpanderAnimationTypeChanged));
-    }
-
     /// <summary>
-    /// Defines the ExpanderAnimationType attached property
+    ///     Defines the ExpanderAnimationType attached property
     /// </summary>
     public static readonly AttachedProperty<string> ExpanderAnimationTypeProperty =
         AvaloniaProperty.RegisterAttached<FAExpanderExt, Expander, string>("ExpanderAnimationType");
@@ -29,14 +23,23 @@ public sealed class FAExpanderExt : AvaloniaObject
     private static readonly AttachedProperty<ExpanderInfo> ExpanderAnimationInfoProperty =
         AvaloniaProperty.RegisterAttached<FAExpanderExt, Expander, ExpanderInfo>("ExpanderAnimationInfo");
 
+
+    private static readonly string s_Fluentv2 = "FluentV2";
+
+    static FAExpanderExt()
+    {
+        ExpanderAnimationTypeProperty.Changed.Subscribe(
+            new SimpleObserver<AvaloniaPropertyChangedEventArgs>(HandleExpanderAnimationTypeChanged));
+    }
+
     /// <summary>
-    /// Gets the current value of the <see cref="ExpanderAnimationTypeProperty"/>
+    ///     Gets the current value of the <see cref="ExpanderAnimationTypeProperty" />
     /// </summary>
     public static string GetExpanderAnimationType(Expander exp) =>
         exp.GetValue(ExpanderAnimationTypeProperty);
 
     /// <summary>
-    /// Sets the current value of the <see cref="ExpanderAnimationTypeProperty"/>
+    ///     Sets the current value of the <see cref="ExpanderAnimationTypeProperty" />
     /// </summary>
     public static void SetExpanderAnimationType(Expander exp, string value) =>
         exp.SetValue(ExpanderAnimationTypeProperty, value);
@@ -60,12 +63,14 @@ public sealed class FAExpanderExt : AvaloniaObject
             expander.ClearValue(ExpanderAnimationInfoProperty);
         }
     }
-        
-
-    private static readonly string s_Fluentv2 = "FluentV2";
 
     private class ExpanderInfo : IDisposable
     {
+        private readonly Expander _expander;
+        private Size _contentSize;
+        private IDisposable _expandedChangedNotice;
+        private Border _expanderContent;
+
         public ExpanderInfo(Expander expander)
         {
             _expander = expander;
@@ -75,12 +80,17 @@ public sealed class FAExpanderExt : AvaloniaObject
                 .Subscribe(new SimpleObserver<AvaloniaPropertyChangedEventArgs>(HandleIsExpandedChanged));
         }
 
+        public void Dispose()
+        {
+            _expandedChangedNotice?.Dispose();
+            _expander.TemplateApplied -= HandleExpanderTemplateApplied;
+
+            if (_expanderContent != null) _expanderContent.SizeChanged -= HandleContentSizeChanged;
+        }
+
         private void HandleExpanderTemplateApplied(object sender, TemplateAppliedEventArgs e)
         {
-            if (_expanderContent != null)
-            {
-                _expanderContent.SizeChanged -= HandleContentSizeChanged;
-            }
+            if (_expanderContent != null) _expanderContent.SizeChanged -= HandleContentSizeChanged;
 
             var expanderContentClip = e.NameScope.Get<Border>("ExpanderContentClip");
             var visual = ElementComposition.GetElementVisual(expanderContentClip);
@@ -126,7 +136,6 @@ public sealed class FAExpanderExt : AvaloniaObject
                 var direction = _expander.ExpandDirection;
 
                 if (expanded)
-                {
                     switch (direction)
                     {
                         case ExpandDirection.Down:
@@ -138,10 +147,8 @@ public sealed class FAExpanderExt : AvaloniaObject
                         case ExpandDirection.Right:
                             RunExpandLeftRightAnimation(direction == ExpandDirection.Right);
                             break;
-                    }                    
-                }
+                    }
                 else
-                {
                     switch (direction)
                     {
                         case ExpandDirection.Down:
@@ -153,8 +160,7 @@ public sealed class FAExpanderExt : AvaloniaObject
                         case ExpandDirection.Right:
                             RunCollapseLeftRightAnimation(direction == ExpandDirection.Right);
                             break;
-                    }                    
-                }
+                    }
             }
         }
 
@@ -174,7 +180,7 @@ public sealed class FAExpanderExt : AvaloniaObject
                 _expanderContent.Measure(Size.Infinity);
                 _contentSize = _expanderContent.DesiredSize;
             }
-                
+
             var startY = down ? -_contentSize.Height : _contentSize.Height;
             var ani = new Animation
             {
@@ -198,7 +204,7 @@ public sealed class FAExpanderExt : AvaloniaObject
                         {
                             new Setter(TranslateTransform.YProperty, 0d)
                         },
-                        KeySpline = new KeySpline(0,0,0,1)
+                        KeySpline = new KeySpline(0, 0, 0, 1)
                     }
                 }
             };
@@ -231,7 +237,7 @@ public sealed class FAExpanderExt : AvaloniaObject
                             new Setter(TranslateTransform.YProperty, endY),
                             new Setter(Visual.IsVisibleProperty, false)
                         },
-                        KeySpline = new KeySpline(1,1,0,1)
+                        KeySpline = new KeySpline(1, 1, 0, 1)
                     }
                 }
             };
@@ -269,7 +275,7 @@ public sealed class FAExpanderExt : AvaloniaObject
                         {
                             new Setter(TranslateTransform.XProperty, 0d)
                         },
-                        KeySpline = new KeySpline(0,0,0,1)
+                        KeySpline = new KeySpline(0, 0, 0, 1)
                     }
                 }
             };
@@ -302,7 +308,7 @@ public sealed class FAExpanderExt : AvaloniaObject
                             new Setter(TranslateTransform.XProperty, endX),
                             new Setter(Visual.IsVisibleProperty, false)
                         },
-                        KeySpline = new KeySpline(1,1,0,1)
+                        KeySpline = new KeySpline(1, 1, 0, 1)
                     }
                 }
             };
@@ -311,21 +317,5 @@ public sealed class FAExpanderExt : AvaloniaObject
 
             _expanderContent.SetValue(Visual.IsVisibleProperty, false);
         }
-
-        public void Dispose()
-        {
-            _expandedChangedNotice?.Dispose();
-            _expander.TemplateApplied -= HandleExpanderTemplateApplied;
-
-            if (_expanderContent != null)
-            {
-                _expanderContent.SizeChanged -= HandleContentSizeChanged;
-            }
-        }
-
-        private readonly Expander _expander;
-        private Border _expanderContent;
-        private Size _contentSize;
-        private IDisposable _expandedChangedNotice;
     }
 }

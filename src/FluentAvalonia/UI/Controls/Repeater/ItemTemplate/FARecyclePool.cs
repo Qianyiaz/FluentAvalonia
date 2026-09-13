@@ -15,6 +15,12 @@ public class FARecyclePool
     public static readonly AttachedProperty<string> ReuseKeyProperty =
         AvaloniaProperty.RegisterAttached<FARecyclePool, Control, string>("ReuseKey");
 
+    // WinUI stores this as a DependencyProperty on DataTemplate (attached), but since
+    // we use IDataTemplate, we need a cache not tied to the property system
+    private static Dictionary<IDataTemplate, FARecyclePool> s_PoolInstance;
+
+    private readonly Dictionary<string, List<ElementInfo>> _elements = new();
+
     public static string GetReuseKey(Control element) =>
         element.GetValue(ReuseKeyProperty);
 
@@ -50,11 +56,10 @@ public class FARecyclePool
             _elements.Add(key, pool);
         }
     }
-    
+
     protected virtual Control TryGetElementCore(string key, Control owner)
     {
         if (_elements.TryGetValue(key, out var elements))
-        {
             if (elements.Count > 0)
             {
                 ElementInfo elementInfo = default;
@@ -92,7 +97,6 @@ public class FARecyclePool
 
                 return elementInfo.Element;
             }
-        }
 
         return null;
     }
@@ -139,11 +143,4 @@ public class FARecyclePool
         public Control Element;
         public Panel Owner;
     }
-
-    private readonly Dictionary<string, List<ElementInfo>> _elements = 
-        new Dictionary<string, List<ElementInfo>>();
-
-    // WinUI stores this as a DependencyProperty on DataTemplate (attached), but since
-    // we use IDataTemplate, we need a cache not tied to the property system
-    private static Dictionary<IDataTemplate, FARecyclePool> s_PoolInstance;
 }

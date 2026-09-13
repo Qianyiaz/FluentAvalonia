@@ -20,7 +20,7 @@
             <GeometryDrawing Geometry="{DynamicResource TextSelectionHandlePath}"
                              Brush="{DynamicResource TextControlSelectionHighlightColor}">
                 <GeometryDrawing.Pen>
-                    <Pen Thickness="0.5" Brush="{DynamicResource TextFillColorPrimaryBrush}" LineJoin="Round"/>
+                    <Pen Thickness="0.5" Brush="{DynamicResource TextFillColorPrimaryBrush}" LineJoin="Round" />
                 </GeometryDrawing.Pen>
             </GeometryDrawing>
         </DrawingImage.Drawing>
@@ -31,7 +31,7 @@
             <GeometryDrawing Geometry="{DynamicResource TextCaretHandlePath}"
                              Brush="{DynamicResource TextControlSelectionHighlightColor}">
                 <GeometryDrawing.Pen>
-                    <Pen Thickness="0.5" Brush="{DynamicResource TextFillColorPrimaryBrush}" LineJoin="Round"/>
+                    <Pen Thickness="0.5" Brush="{DynamicResource TextFillColorPrimaryBrush}" LineJoin="Round" />
                 </GeometryDrawing.Pen>
             </GeometryDrawing>
         </DrawingImage.Drawing>
@@ -40,12 +40,12 @@
     <GeometryGroup x:Key="TextSelectionHandlePath">
         <CombinedGeometry>
             <CombinedGeometry.Geometry1>
-                <RectangleGeometry Rect="0,0,16,16"/>
+                <RectangleGeometry Rect="0,0,16,16" />
             </CombinedGeometry.Geometry1>
             <CombinedGeometry.Geometry2>
                 <EllipseGeometry Center="16,16"
                                  RadiusX="16"
-                                 RadiusY="16"/>
+                                 RadiusY="16" />
             </CombinedGeometry.Geometry2>
         </CombinedGeometry>
     </GeometryGroup>
@@ -55,9 +55,9 @@
             <CombinedGeometry.Geometry1>
                 <RectangleGeometry Rect="0,0,16,16">
                     <RectangleGeometry.Transform>
-                        <TransformGroup >
+                        <TransformGroup>
                             <RotateTransform CenterX="16"
-                                             Angle="-45"/>
+                                             Angle="-45" />
                         </TransformGroup>
                     </RectangleGeometry.Transform>
                 </RectangleGeometry>
@@ -65,7 +65,7 @@
             <CombinedGeometry.Geometry2>
                 <EllipseGeometry Center="16,22.7"
                                  RadiusX="16"
-                                 RadiusY="16"/>
+                                 RadiusY="16" />
             </CombinedGeometry.Geometry2>
         </CombinedGeometry>
     </GeometryGroup>
@@ -84,14 +84,14 @@
                                    Cursor="Arrow"
                                    Name="PART_HandlePathIcon"
                                    Height="{DynamicResource TextSelectHandleSize}"
-                                   Source="{DynamicResource TextSelectionHandleDrawing}"/>
+                                   Source="{DynamicResource TextSelectionHandleDrawing}" />
                         </Border>
                         <Border Background="Transparent"
                                 Name="PART_Indicator"
                                 HorizontalAlignment="Center"
                                 Width="1"
                                 VerticalAlignment="Top"
-                                Height="5"/>
+                                Height="5" />
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>
@@ -101,7 +101,7 @@
         </Style>
         <Style Selector="^:start /template/ Image#PART_HandlePathIcon">
             <Setter Property="RenderTransform">
-                <ScaleTransform ScaleX="-1" ScaleY="1"/>
+                <ScaleTransform ScaleX="-1" ScaleY="1" />
             </Setter>
         </Style>
         <Style Selector="^:caret /template/ Border#PART_Indicator">

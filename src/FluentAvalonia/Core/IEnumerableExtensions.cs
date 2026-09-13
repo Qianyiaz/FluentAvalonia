@@ -5,46 +5,37 @@ namespace FluentAvalonia.Core;
 // TODO v3: Are these still necessary?
 
 /// <summary>
-/// <see cref="IEnumerable"/> extensions methods
+///     <see cref="IEnumerable" /> extensions methods
 /// </summary>
 internal static class IEnumerableExtensions
 {
     /// <summary>
-    /// Gets the item count of the IEnumerable
+    ///     Gets the item count of the IEnumerable
     /// </summary>
     public static int Count(this IEnumerable items)
     {
         if (items == null)
             return 0;
 
-        if (items is ICollection collec)
-        {
-            return collec.Count;
-        }
+        if (items is ICollection collec) return collec.Count;
 
         return Enumerable.Count(items.Cast<object>());
     }
 
     /// <summary>
-    /// Gets the index of an item from an IEnumerable
+    ///     Gets the index of an item from an IEnumerable
     /// </summary>
     public static int IndexOf(this IEnumerable items, object item)
     {
         var list = items as IList;
 
-        if (list != null)
-        {
-            return list.IndexOf(item);
-        }
+        if (list != null) return list.IndexOf(item);
 
         var index = 0;
 
         foreach (var i in items)
         {
-            if (ReferenceEquals(i, item))
-            {
-                return index;
-            }
+            if (ReferenceEquals(i, item)) return index;
 
             ++index;
         }
@@ -53,7 +44,7 @@ internal static class IEnumerableExtensions
     }
 
     /// <summary>
-    /// Retreives the element at the specified index from the IEnumerable
+    ///     Retreives the element at the specified index from the IEnumerable
     /// </summary>
     /// <param name="items"></param>
     /// <param name="reqIndex"></param>
@@ -63,32 +54,21 @@ internal static class IEnumerableExtensions
         if (items.Count() == 0)
             return null;
 
-        if (items is IList list)
-        {
-            return list[reqIndex];
-        }
+        if (items is IList list) return list[reqIndex];
 
         return Enumerable.ElementAt(items.Cast<object>(), reqIndex);
-
     }
 
     /// <summary>
-    /// Checks of the IEnumerable contains the given item
+    ///     Checks of the IEnumerable contains the given item
     /// </summary>
     public static bool Contains(this IEnumerable items, object item)
     {
-        if (items is IList list)
-        {
-            return list.Contains(item);
-        }
+        if (items is IList list) return list.Contains(item);
 
         foreach (var i in items)
-        {
             if (ReferenceEquals(i, item))
-            {
                 return true;
-            }
-        }
 
         return false;
     }

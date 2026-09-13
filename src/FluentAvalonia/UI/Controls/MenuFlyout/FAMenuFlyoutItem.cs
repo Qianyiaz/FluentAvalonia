@@ -1,34 +1,36 @@
-﻿using Avalonia;
+﻿using System.Windows.Input;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
 using FluentAvalonia.Core;
 using FluentAvalonia.UI.Input;
-using System.Windows.Input;
 
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Represents a command in a <see cref="FAMenuFlyout"/> control.
+///     Represents a command in a <see cref="FAMenuFlyout" /> control.
 /// </summary>
 public partial class FAMenuFlyoutItem : FAMenuFlyoutItemBase, ICommandSource
 {
+    private bool _canExecute = true;
+    private KeyGesture _hotkey;
+
     /// <summary>
-    /// Create instance of <see cref="FAMenuFlyoutItem"/>.
+    ///     Create instance of <see cref="FAMenuFlyoutItem" />.
     /// </summary>
     public FAMenuFlyoutItem()
     {
         TemplateSettings = new FAMenuFlyoutItemTemplateSettings();
     }
 
+    void ICommandSource.CanExecuteChanged(object sender, EventArgs e) => CanExecuteChanged(sender, e);
+
     /// <inheritdoc />
     protected override void OnAttachedToLogicalTree(LogicalTreeAttachmentEventArgs e)
     {
-        if (_hotkey != null)
-        {
-            HotKey = _hotkey;
-        }
+        if (_hotkey != null) HotKey = _hotkey;
 
         base.OnAttachedToLogicalTree(e);
 
@@ -50,10 +52,7 @@ public partial class FAMenuFlyoutItem : FAMenuFlyoutItemBase, ICommandSource
 
         base.OnDetachedFromLogicalTree(e);
 
-        if (Command != null)
-        {
-            Command.CanExecuteChanged -= CanExecuteChanged;
-        }
+        if (Command != null) Command.CanExecuteChanged -= CanExecuteChanged;
     }
 
     /// <inheritdoc />
@@ -72,46 +71,25 @@ public partial class FAMenuFlyoutItem : FAMenuFlyoutItemBase, ICommandSource
 
             if (oldCommand is FAXamlUICommand oldXaml)
             {
-                if (Text == oldXaml.Label)
-                {
-                    Text = null;
-                }
+                if (Text == oldXaml.Label) Text = null;
 
-                if (InputGesture == oldXaml.HotKey)
-                {
-                    HotKey = null;
-                }
+                if (InputGesture == oldXaml.HotKey) HotKey = null;
             }
 
             if (newCommand is FAXamlUICommand newXaml)
             {
-                if (string.IsNullOrEmpty(Text))
-                {
-                    Text = newXaml.Label;
-                }
+                if (string.IsNullOrEmpty(Text)) Text = newXaml.Label;
 
-                if (IconSource == null)
-                {
-                    IconSource = newXaml.IconSource;
-                }
+                if (IconSource == null) IconSource = newXaml.IconSource;
 
-                if (InputGesture == null)
-                {
-                    HotKey = newXaml.HotKey;
-                }
+                if (InputGesture == null) HotKey = newXaml.HotKey;
             }
 
             if (((ILogical)this).IsAttachedToLogicalTree)
             {
-                if (oldCommand != null)
-                {
-                    oldCommand.CanExecuteChanged -= CanExecuteChanged;
-                }
+                if (oldCommand != null) oldCommand.CanExecuteChanged -= CanExecuteChanged;
 
-                if (newCommand != null)
-                {
-                    newCommand.CanExecuteChanged += CanExecuteChanged;
-                }
+                if (newCommand != null) newCommand.CanExecuteChanged += CanExecuteChanged;
             }
 
             CanExecuteChanged(this, null);
@@ -140,32 +118,24 @@ public partial class FAMenuFlyoutItem : FAMenuFlyoutItemBase, ICommandSource
     {
         base.OnPointerPressed(e);
         if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
-        {
             PseudoClasses.Set(FASharedPseudoclasses.s_pcPressed, true);
-        }
     }
 
     /// <inheritdoc />
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
     {
         base.OnPointerReleased(e);
-        if (e.InitialPressMouseButton == MouseButton.Left)
-        {
-            PseudoClasses.Set(FASharedPseudoclasses.s_pcPressed, false);
-        }
+        if (e.InitialPressMouseButton == MouseButton.Left) PseudoClasses.Set(FASharedPseudoclasses.s_pcPressed, false);
     }
 
     /// <summary>
-    /// Raise <see cref="MenuItem.ClickEvent"/> and invke <see cref="Command"/> if ti is set.
+    ///     Raise <see cref="MenuItem.ClickEvent" /> and invke <see cref="Command" /> if ti is set.
     /// </summary>
     protected virtual void OnClick()
     {
         RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent, this));
 
-        if (Command?.CanExecute(CommandParameter) == true)
-        {
-            Command.Execute(CommandParameter);
-        }
+        if (Command?.CanExecute(CommandParameter) == true) Command.Execute(CommandParameter);
     }
 
     internal void RaiseClick()
@@ -183,9 +153,4 @@ public partial class FAMenuFlyoutItem : FAMenuFlyoutItemBase, ICommandSource
             UpdateIsEffectivelyEnabled();
         }
     }
-
-    void ICommandSource.CanExecuteChanged(object sender, EventArgs e) => CanExecuteChanged(sender, e);
-
-    private bool _canExecute = true;
-    private KeyGesture _hotkey;
 }

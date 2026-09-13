@@ -1,9 +1,9 @@
-﻿using Avalonia;
-using System.Windows.Input;
+﻿using System.Windows.Input;
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Templates;
 using Avalonia.Interactivity;
-using Avalonia.Controls.Metadata;
 using FluentAvalonia.Core;
 
 namespace FluentAvalonia.UI.Controls;
@@ -14,68 +14,75 @@ namespace FluentAvalonia.UI.Controls;
 [PseudoClasses(FASharedPseudoclasses.s_pcIcon, s_pcActionIcon)]
 public partial class FASettingsExpanderItem : ContentControl
 {
+    private const string s_pcDescription = ":description";
+    private const string s_pcContent = ":content";
+    private const string s_pcActionIcon = ":actionIcon";
+    private const string s_pcFooterBottom = ":footerBottom";
+
+    private const string s_resAdaptiveWidthTrigger = "SettingsExpanderItemAdaptiveWidthTrigger";
+
     /// <summary>
-    /// Defines the <see cref="Description"/> property
+    ///     Defines the <see cref="Description" /> property
     /// </summary>
-    public static readonly StyledProperty<string> DescriptionProperty = 
+    public static readonly StyledProperty<string> DescriptionProperty =
         FASettingsExpander.DescriptionProperty.AddOwner<FASettingsExpanderItem>();
 
     /// <summary>
-    /// Defines the <see cref="IconSource"/> property
+    ///     Defines the <see cref="IconSource" /> property
     /// </summary>
-    public static readonly StyledProperty<FAIconSource> IconSourceProperty = 
+    public static readonly StyledProperty<FAIconSource> IconSourceProperty =
         FASettingsExpander.IconSourceProperty.AddOwner<FASettingsExpanderItem>();
 
     /// <summary>
-    /// Defines the <see cref="Footer"/> property
+    ///     Defines the <see cref="Footer" /> property
     /// </summary>
-    public static readonly StyledProperty<object> FooterProperty = 
+    public static readonly StyledProperty<object> FooterProperty =
         FASettingsExpander.FooterProperty.AddOwner<FASettingsExpanderItem>();
 
     /// <summary>
-    /// Defines the <see cref="FooterTemplate"/> property
+    ///     Defines the <see cref="FooterTemplate" /> property
     /// </summary>
-    public static readonly StyledProperty<IDataTemplate> FooterTemplateProperty = 
+    public static readonly StyledProperty<IDataTemplate> FooterTemplateProperty =
         FASettingsExpander.FooterTemplateProperty.AddOwner<FASettingsExpanderItem>();
 
     /// <summary>
-    /// Defines the <see cref="ActionIconSource"/> property
+    ///     Defines the <see cref="ActionIconSource" /> property
     /// </summary>
-    public static readonly StyledProperty<FAIconSource> ActionIconSourceProperty = 
+    public static readonly StyledProperty<FAIconSource> ActionIconSourceProperty =
         FASettingsExpander.ActionIconSourceProperty.AddOwner<FASettingsExpanderItem>();
 
     /// <summary>
-    /// Defines the <see cref="IsClickEnabled"/> property
+    ///     Defines the <see cref="IsClickEnabled" /> property
     /// </summary>
-    public static readonly StyledProperty<bool> IsClickEnabledProperty = 
+    public static readonly StyledProperty<bool> IsClickEnabledProperty =
         FASettingsExpander.IsClickEnabledProperty.AddOwner<FASettingsExpanderItem>();
-        
+
     /// <summary>
-    /// Defines the <see cref="Command"/> property
+    ///     Defines the <see cref="Command" /> property
     /// </summary>
-    public static readonly StyledProperty<ICommand> CommandProperty = 
+    public static readonly StyledProperty<ICommand> CommandProperty =
         Button.CommandProperty.AddOwner<FASettingsExpanderItem>();
 
     /// <summary>
-    /// Defines the <see cref="CommandParameter"/> property
+    ///     Defines the <see cref="CommandParameter" /> property
     /// </summary>
-    public static readonly StyledProperty<object> CommandParameterProperty = 
+    public static readonly StyledProperty<object> CommandParameterProperty =
         Button.CommandParameterProperty.AddOwner<FASettingsExpanderItem>();
 
     /// <summary>
-    /// Defines the <see cref="TemplateSettings"/> property
+    ///     Defines the <see cref="TemplateSettings" /> property
     /// </summary>
     public static readonly StyledProperty<FASettingsExpanderTemplateSettings> TemplateSettingsProperty =
         AvaloniaProperty.Register<FASettingsExpanderItem, FASettingsExpanderTemplateSettings>(nameof(TemplateSettings));
 
     /// <summary>
-    /// Defines the <see cref="Click"/> event
+    ///     Defines the <see cref="Click" /> event
     /// </summary>
     public static readonly RoutedEvent<RoutedEventArgs> ClickEvent =
         FASettingsExpander.ClickEvent;
 
     /// <summary>
-    /// Gets or sets the description text
+    ///     Gets or sets the description text
     /// </summary>
     public string Description
     {
@@ -84,7 +91,7 @@ public partial class FASettingsExpanderItem : ContentControl
     }
 
     /// <summary>
-    /// Gets or sets the IconSource for the SettingsExpander
+    ///     Gets or sets the IconSource for the SettingsExpander
     /// </summary>
     public FAIconSource IconSource
     {
@@ -93,7 +100,7 @@ public partial class FASettingsExpanderItem : ContentControl
     }
 
     /// <summary>
-    /// Gets or sets the Footer content for the SettingsExpander
+    ///     Gets or sets the Footer content for the SettingsExpander
     /// </summary>
     public object Footer
     {
@@ -102,7 +109,7 @@ public partial class FASettingsExpanderItem : ContentControl
     }
 
     /// <summary>
-    /// Gets or sets the Footer template for the SettingsExpander
+    ///     Gets or sets the Footer template for the SettingsExpander
     /// </summary>
     public IDataTemplate FooterTemplate
     {
@@ -111,7 +118,7 @@ public partial class FASettingsExpanderItem : ContentControl
     }
 
     /// <summary>
-    /// Gets or sets the Action IconSource when <see cref="IsClickEnabled"/> is true
+    ///     Gets or sets the Action IconSource when <see cref="IsClickEnabled" /> is true
     /// </summary>
     public FAIconSource ActionIconSource
     {
@@ -120,11 +127,11 @@ public partial class FASettingsExpanderItem : ContentControl
     }
 
     /// <summary>
-    /// Gets or sets whether the item is clickable which can be used for navigation within an app
+    ///     Gets or sets whether the item is clickable which can be used for navigation within an app
     /// </summary>
     /// <remarks>
-    /// This property can only be set if no items are added to the SettingsExpander. Attempting to mark
-    /// a settings expander clickable and adding child items will throw an exception
+    ///     This property can only be set if no items are added to the SettingsExpander. Attempting to mark
+    ///     a settings expander clickable and adding child items will throw an exception
     /// </remarks>
     public bool IsClickEnabled
     {
@@ -133,26 +140,8 @@ public partial class FASettingsExpanderItem : ContentControl
     }
 
     /// <summary>
-    /// Gets or sets the Command that is invoked upon clicking the item
-    /// </summary>
-    public ICommand Command
-    {
-        get => GetValue(CommandProperty);
-        set => SetValue(CommandProperty, value);
-    }
-
-    /// <summary>
-    /// Gets or sets the command parameter
-    /// </summary>
-    public object CommandParameter
-    {
-        get => GetValue(CommandParameterProperty);
-        set => SetValue(CommandParameterProperty, value);
-    }
-
-    /// <summary>
-    /// Provides calculated values that can be referenced as TemplatedParent sources when defining 
-    /// templates for a SettingsExpander. Not intended for general use.
+    ///     Provides calculated values that can be referenced as TemplatedParent sources when defining
+    ///     templates for a SettingsExpander. Not intended for general use.
     /// </summary>
     public FASettingsExpanderTemplateSettings TemplateSettings
     {
@@ -162,21 +151,32 @@ public partial class FASettingsExpanderItem : ContentControl
 
     protected override bool IsEnabledCore => base.IsEnabledCore && _commandCanExecute;
 
+    internal bool IsContainerFromTemplate { get; set; }
+
     /// <summary>
-    /// Event raised when the SettingsExpander is clicked and IsClickEnabled = true
+    ///     Gets or sets the Command that is invoked upon clicking the item
+    /// </summary>
+    public ICommand Command
+    {
+        get => GetValue(CommandProperty);
+        set => SetValue(CommandProperty, value);
+    }
+
+    /// <summary>
+    ///     Gets or sets the command parameter
+    /// </summary>
+    public object CommandParameter
+    {
+        get => GetValue(CommandParameterProperty);
+        set => SetValue(CommandParameterProperty, value);
+    }
+
+    /// <summary>
+    ///     Event raised when the SettingsExpander is clicked and IsClickEnabled = true
     /// </summary>
     public event EventHandler<RoutedEventArgs> Click
     {
         add => AddHandler(ClickEvent, value);
         remove => RemoveHandler(ClickEvent, value);
     }
-
-    internal bool IsContainerFromTemplate { get; set; }
-
-    private const string s_pcDescription = ":description";
-    private const string s_pcContent = ":content";
-    private const string s_pcActionIcon = ":actionIcon";
-    private const string s_pcFooterBottom = ":footerBottom";
-
-    private const string s_resAdaptiveWidthTrigger = "SettingsExpanderItemAdaptiveWidthTrigger";
 }

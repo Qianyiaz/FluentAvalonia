@@ -2,6 +2,9 @@
 
 internal class StackLayoutState
 {
+    private const int BufferSize = 100;
+
+    private double[] _estimationBuffer;
     public FlowLayoutAlgorithm FlowAlgorithm { get; private set; }
 
     public double TotalElementSize { get; private set; }
@@ -26,13 +29,9 @@ internal class StackLayoutState
 
     public void OnElementMeasured(int elementIndex, double majorSize, double minorSize)
     {
-        var estimationBufferIndex = elementIndex < BufferSize ? elementIndex :
-            elementIndex % BufferSize;
+        var estimationBufferIndex = elementIndex < BufferSize ? elementIndex : elementIndex % BufferSize;
         var alreadyMeasured = _estimationBuffer[estimationBufferIndex] != 0;
-        if (!alreadyMeasured)
-        {
-            TotalElementsMeasured++;
-        }
+        if (!alreadyMeasured) TotalElementsMeasured++;
 
         TotalElementSize -= _estimationBuffer[estimationBufferIndex];
         TotalElementSize += majorSize;
@@ -45,7 +44,4 @@ internal class StackLayoutState
     {
         MaxArrangeBounds = 0;
     }
-
-    private double[] _estimationBuffer;
-    private const int BufferSize = 100;
 }

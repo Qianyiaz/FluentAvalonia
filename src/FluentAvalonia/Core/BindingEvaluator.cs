@@ -5,7 +5,7 @@ using Avalonia.Data;
 namespace FluentAvalonia.Core;
 
 /// <summary>
-/// Helper class for evaluating a binding from an Item and BindingBase instance
+///     Helper class for evaluating a binding from an Item and BindingBase instance
 /// </summary>
 internal sealed class BindingEvaluator<T> : StyledElement, IDisposable
 {
@@ -16,13 +16,24 @@ internal sealed class BindingEvaluator<T> : StyledElement, IDisposable
     public static readonly StyledProperty<T> ValueProperty =
         AvaloniaProperty.Register<BindingEvaluator<T>, T>("Value");
 
+    private BindingExpressionBase _expression;
+    private BindingBase _lastBinding;
+
     /// <summary>
-    /// Gets or sets the data item value.
+    ///     Gets or sets the data item value.
     /// </summary>
     public T Value
     {
         get => GetValue(ValueProperty);
         set => SetValue(ValueProperty, value);
+    }
+
+    public void Dispose()
+    {
+        _expression?.Dispose();
+        _expression = null;
+        _lastBinding = null;
+        DataContext = null;
     }
 
     public T Evaluate(object dataContext)
@@ -47,14 +58,6 @@ internal sealed class BindingEvaluator<T> : StyledElement, IDisposable
     public void ClearDataContext()
         => DataContext = null;
 
-    public void Dispose()
-    {
-        _expression?.Dispose();
-        _expression = null;
-        _lastBinding = null;
-        DataContext = null;
-    }
-
     [return: NotNullIfNotNull(nameof(binding))]
     public static BindingEvaluator<T> TryCreate(BindingBase binding)
     {
@@ -65,7 +68,4 @@ internal sealed class BindingEvaluator<T> : StyledElement, IDisposable
         evaluator.UpdateBinding(binding);
         return evaluator;
     }
-
-    private BindingExpressionBase _expression;
-    private BindingBase _lastBinding;
 }

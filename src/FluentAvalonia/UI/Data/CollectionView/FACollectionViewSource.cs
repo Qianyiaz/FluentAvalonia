@@ -1,45 +1,45 @@
-﻿using Avalonia;
+﻿using System.Collections;
+using System.Collections.Specialized;
+using System.ComponentModel;
+using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Data;
 using Avalonia.Metadata;
-using System.Collections;
-using System.Collections.Specialized;
-using System.ComponentModel;
 
 namespace FluentAvalonia.UI.Data;
 
 /// <summary>
-/// Provides a data source that adds grouping and current-item support to collection classes.
+///     Provides a data source that adds grouping and current-item support to collection classes.
 /// </summary>
 public class FACollectionViewSource : AvaloniaObject, ISupportInitialize
 {
     /// <summary>
-    /// Defines the <see cref="IsSourceGrouped"/> property
+    ///     Defines the <see cref="IsSourceGrouped" /> property
     /// </summary>
     public static readonly DirectProperty<FACollectionViewSource, bool> IsSourceGroupedProperty =
         AvaloniaProperty.RegisterDirect<FACollectionViewSource, bool>(nameof(IsSourceGrouped),
             x => x.IsSourceGrouped, (x, v) => x.IsSourceGrouped = v);
 
     /// <summary>
-    /// Defines the <see cref="ItemsBinding"/> property
+    ///     Defines the <see cref="ItemsBinding" /> property
     /// </summary>
     public static readonly DirectProperty<FACollectionViewSource, BindingBase> ItemsBindingProperty =
-     AvaloniaProperty.RegisterDirect<FACollectionViewSource, BindingBase>(nameof(ItemsBinding),
-         x => x.ItemsBinding, (x, v) => x.ItemsBinding = v);
+        AvaloniaProperty.RegisterDirect<FACollectionViewSource, BindingBase>(nameof(ItemsBinding),
+            x => x.ItemsBinding, (x, v) => x.ItemsBinding = v);
 
     /// <summary>
-    /// Defines the <see cref="Source"/> property
+    ///     Defines the <see cref="Source" /> property
     /// </summary>
     public static readonly DirectProperty<FACollectionViewSource, IEnumerable> SourceProperty =
-     AvaloniaProperty.RegisterDirect<FACollectionViewSource, IEnumerable>(nameof(Source),
-         x => x.Source, (x, v) => x.Source = v);
+        AvaloniaProperty.RegisterDirect<FACollectionViewSource, IEnumerable>(nameof(Source),
+            x => x.Source, (x, v) => x.Source = v);
 
     /// <summary>
-    /// Defines the <see cref="View"/> property
+    ///     Defines the <see cref="View" /> property
     /// </summary>
     public static readonly DirectProperty<FACollectionViewSource, IFACollectionView> ViewProperty =
-     AvaloniaProperty.RegisterDirect<FACollectionViewSource, IFACollectionView>(nameof(View),
-         x => x.View);
+        AvaloniaProperty.RegisterDirect<FACollectionViewSource, IFACollectionView>(nameof(View),
+            x => x.View);
 
     public static readonly DirectProperty<FACollectionViewSource, Predicate<object>> FilterProperty =
         AvaloniaProperty.RegisterDirect<FACollectionViewSource, Predicate<object>>(nameof(Filter),
@@ -51,14 +51,26 @@ public class FACollectionViewSource : AvaloniaObject, ISupportInitialize
 
     public static readonly DirectProperty<FACollectionViewSource, IList<FASortDescription>> SortDescriptionsProperty =
         AvaloniaProperty.RegisterDirect<FACollectionViewSource, IList<FASortDescription>>(nameof(SortDescriptions),
-             x => x.SortDescriptions);
+            x => x.SortDescriptions);
 
     public static readonly DirectProperty<FACollectionViewSource, bool> IsLiveShapingEnabledProperty =
         AvaloniaProperty.RegisterDirect<FACollectionViewSource, bool>(nameof(IsLiveShapingEnabled),
             x => x.IsLiveShapingEnabled, (x, v) => x.IsLiveShapingEnabled = v);
 
+    private Predicate<object> _filter;
+
+
+    private bool _isInitializing;
+    private bool _isLiveShapingEnabled;
+    private bool _isSourceGrouped;
+    private BindingBase _itemsBinding;
+    private AvaloniaList<string> _liveFilterProperties;
+    private AvaloniaList<FASortDescription> _sortDescriptions;
+    private IEnumerable _source;
+    private IFACollectionView _view;
+
     /// <summary>
-    /// Gets or sets a value that indicates whether source data is grouped.
+    ///     Gets or sets a value that indicates whether source data is grouped.
     /// </summary>
     public bool IsSourceGrouped
     {
@@ -67,7 +79,7 @@ public class FACollectionViewSource : AvaloniaObject, ISupportInitialize
     }
 
     /// <summary>
-    /// Gets or sets the property path to follow from the top level item to find groups within the CollectionViewSource.
+    ///     Gets or sets the property path to follow from the top level item to find groups within the CollectionViewSource.
     /// </summary>
     [AssignBinding]
     [InheritDataTypeFromItems(nameof(Source))]
@@ -78,7 +90,7 @@ public class FACollectionViewSource : AvaloniaObject, ISupportInitialize
     }
 
     /// <summary>
-    /// Gets or sets the collection object from which to create this view.
+    ///     Gets or sets the collection object from which to create this view.
     /// </summary>
     public IEnumerable Source
     {
@@ -87,7 +99,7 @@ public class FACollectionViewSource : AvaloniaObject, ISupportInitialize
     }
 
     /// <summary>
-    /// Gets the view object that is currently associated with this instance of CollectionViewSource.
+    ///     Gets the view object that is currently associated with this instance of CollectionViewSource.
     /// </summary>
     public IFACollectionView View
     {
@@ -115,12 +127,12 @@ public class FACollectionViewSource : AvaloniaObject, ISupportInitialize
     }
 
     /// <summary>
-    /// Gets a list (comma separated) of properties that should be used for live filtering
-    /// of the CollectionView
+    ///     Gets a list (comma separated) of properties that should be used for live filtering
+    ///     of the CollectionView
     /// </summary>
     /// <remarks>
-    /// In order to use this property, <see cref="IsLiveShapingEnabled"/> must be set to true
-    /// or an error will be thrown when creating the ICollectionView
+    ///     In order to use this property, <see cref="IsLiveShapingEnabled" /> must be set to true
+    ///     or an error will be thrown when creating the ICollectionView
     /// </remarks>
     public AvaloniaList<string> LiveFilterProperties
     {
@@ -137,7 +149,7 @@ public class FACollectionViewSource : AvaloniaObject, ISupportInitialize
     }
 
     /// <summary>
-    /// Gets a list of <see cref="FASortDescription"/> that is used for sorting the ICollectionView
+    ///     Gets a list of <see cref="FASortDescription" /> that is used for sorting the ICollectionView
     /// </summary>
     public AvaloniaList<FASortDescription> SortDescriptions
     {
@@ -154,8 +166,8 @@ public class FACollectionViewSource : AvaloniaObject, ISupportInitialize
     }
 
     /// <summary>
-    /// Gets or sets whether the ICollectionView should respond to changes of the properties 
-    /// specified in <see cref="LiveFilterProperties"/> or <see cref="FASortDescription"/>
+    ///     Gets or sets whether the ICollectionView should respond to changes of the properties
+    ///     specified in <see cref="LiveFilterProperties" /> or <see cref="FASortDescription" />
     /// </summary>
     public bool IsLiveShapingEnabled
     {
@@ -182,9 +194,7 @@ public class FACollectionViewSource : AvaloniaObject, ISupportInitialize
             change.Property == ItemsBindingProperty ||
             change.Property == IsSourceGroupedProperty ||
             change.Property == IsLiveShapingEnabledProperty)
-        {
             UpdateView();
-        }
     }
 
     private void SortOrFilterListChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -211,8 +221,8 @@ public class FACollectionViewSource : AvaloniaObject, ISupportInitialize
                 // live shaping changes, or the itemsbinding changes
                 // The other properties can be updated without a full recreation
                 if (_view is FAGroupedDataCollectionView gdcv &&
-                    (gdcv.Source == _source && gdcv.IsLiveShapingEnabled == _isLiveShapingEnabled &&
-                    gdcv.ItemsBinding == _itemsBinding))
+                    gdcv.Source == _source && gdcv.IsLiveShapingEnabled == _isLiveShapingEnabled &&
+                    gdcv.ItemsBinding == _itemsBinding)
                 {
                     gdcv.UpdateViewFromCollectionViewSource(_filter, _liveFilterProperties, _sortDescriptions);
                     return;
@@ -225,15 +235,11 @@ public class FACollectionViewSource : AvaloniaObject, ISupportInitialize
             {
                 // Same as above
                 if (_view is FAIterableCollectionView icv &&
-                    (icv.Source == _source && icv.IsLiveShapingEnabled == _isLiveShapingEnabled))
-                {
+                    icv.Source == _source && icv.IsLiveShapingEnabled == _isLiveShapingEnabled)
                     icv.UpdateViewFromCollectionViewSource(_filter, _liveFilterProperties, _sortDescriptions);
-                }
                 else
-                {
                     View = new FAIterableCollectionView(ie, _isLiveShapingEnabled,
                         _filter, _liveFilterProperties, _sortDescriptions);
-                }
             }
         }
         else
@@ -241,16 +247,4 @@ public class FACollectionViewSource : AvaloniaObject, ISupportInitialize
             View = null;
         }
     }
-
-
-
-    private bool _isInitializing;
-    private bool _isSourceGrouped;
-    private BindingBase _itemsBinding;
-    private IEnumerable _source;
-    private IFACollectionView _view;
-    private AvaloniaList<string> _liveFilterProperties;
-    private AvaloniaList<FASortDescription> _sortDescriptions;
-    private bool _isLiveShapingEnabled;
-    private Predicate<object> _filter;
 }

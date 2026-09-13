@@ -1,15 +1,43 @@
-﻿using Avalonia;
-using Avalonia.Controls;
-using System.Collections.Specialized;
+﻿using System.Collections.Specialized;
 using System.Diagnostics;
+using Avalonia;
+using Avalonia.Controls;
 
 namespace FluentAvalonia.UI.Controls;
 
 internal class FlowLayoutAlgorithm : IOrientationBasedMeasures
 {
-    public ScrollOrientation ScrollOrientation { get; set; }
+    public enum LineAlignment
+    {
+        Start,
+        Center,
+        End,
+        SpaceAround,
+        SpaceBetween,
+        SpaceEvenly
+    }
+
+
+    private readonly ElementManager _elementManager = new();
+    private IFlowLayoutAlgorithmDelegates _algorithmCallbacks;
+    private bool _collectionChangePending;
+    private FAVirtualizingLayoutContext _context;
+    private int _firstRealizedDataIndexInsideRealizationWindow = -1;
+    private Size _lastAvailableSize;
+    private Rect _lastExtent;
+    private double _lastItemSpacing;
+    private int _lastRealizedDataIndexInsideRealizationWindow = -1;
+
+    // If the scroll orientation is the same as the folow orientation
+    // we will only have one line since we will never wrap. In that case
+    // we do not want to align the line. We could potentially switch the
+    // meaning of line alignment in this case, but I'll hold off on that
+    // feature until someone asks for it - This is not a common scenario
+    // anyway.
+    private bool _scrollOrientationSameAsFlow;
 
     public Rect LastExtent => _lastExtent;
+    public ScrollOrientation ScrollOrientation { get; set; }
 
     public void InitializeForContext(FAVirtualizingLayoutContext context,
         IFlowLayoutAlgorithmDelegates callbacks)
@@ -22,11 +50,9 @@ internal class FlowLayoutAlgorithm : IOrientationBasedMeasures
     public void UninitializeForContext(FAVirtualizingLayoutContext context)
     {
         if (IsVirtualizingContext())
-        {
             // This layout is about to be detached. Let go of all elements
             // being held and remove the layout state from the context.
             _elementManager.ClearRealizedRange();
-        }
         context.LayoutStateCore = null;
     }
 
@@ -47,16 +73,10 @@ internal class FlowLayoutAlgorithm : IOrientationBasedMeasures
         if (_elementManager.IsIndexValidInData(suggestedAnchorIndex))
         {
             var anchorRealized = _elementManager.IsDataIndexRealized(suggestedAnchorIndex);
-            if (!anchorRealized)
-            {
-                MakeAnchor(_context, suggestedAnchorIndex, availableSize);
-            }
+            if (!anchorRealized) MakeAnchor(_context, suggestedAnchorIndex, availableSize);
         }
 
-        if (!disableVirtualization)
-        {
-            _elementManager.OnBeginMeasure(orientation);
-        }
+        if (!disableVirtualization) _elementManager.OnBeginMeasure(orientation);
 
         var anchorIndex = GetAnchorIndex(availableSize, isWrapping,
             minItemSpacing, disableVirtualization, layoutId);
@@ -136,7 +156,7 @@ internal class FlowLayoutAlgorithm : IOrientationBasedMeasures
         var provisionalArrangeSize = _algorithmCallbacks
             .Algorithm_GetProvisionalArrangeSize(index, measureSize, element.DesiredSize, context);
         _algorithmCallbacks.Algorithm_OnElementMeasured(
-            element, index, availableSize, measureSize, element.DesiredSize, 
+            element, index, availableSize, measureSize, element.DesiredSize,
             provisionalArrangeSize, context);
 
         return provisionalArrangeSize;
@@ -157,8 +177,8 @@ internal class FlowLayoutAlgorithm : IOrientationBasedMeasures
         else
         {
             var isRealizationWindowConnected = _elementManager
-                .IsWindowConnected(RealizationRect(), ScrollOrientation, 
-                _scrollOrientationSameAsFlow);
+                .IsWindowConnected(RealizationRect(), ScrollOrientation,
+                    _scrollOrientationSameAsFlow);
             // Item spacing and size in non-virtualizing direction change can cause elements to reflow
             // and get a new column position. In that case we need the anchor to be positioned in the
             // correct column.
@@ -184,16 +204,12 @@ internal class FlowLayoutAlgorithm : IOrientationBasedMeasures
                 {
                     var anchorBounds = _elementManager.GetLayoutBoundsForDataIndex(anchorIndex);
                     if (needAnchorColumnRevaluation)
-                    {
                         // We were provided a valid anchor, but its position might be incorrect because for example it is in
                         // the wrong column. We do know that the anchor is the first element in the row, so we can force the minor position
                         // to start at 0.
                         anchorPosition = this.MinorMajorPoint(0, this.MajorStart(anchorBounds));
-                    }
                     else
-                    {
                         anchorPosition = new Point(anchorBounds.X, anchorBounds.Y);
-                    }
                 }
                 else
                 {
@@ -204,9 +220,7 @@ internal class FlowLayoutAlgorithm : IOrientationBasedMeasures
                     var firstRealizedDataIndex = _elementManager.GetDataIndexFromRealizedRangeIndex(0);
                     Debug.Assert(anchorIndex < firstRealizedDataIndex);
                     for (var i = firstRealizedDataIndex - 1; i >= anchorIndex; i--)
-                    {
                         _elementManager.EnsureElementRealized(false /*forward*/, i, layoutId);
-                    }
 
                     var anchorBounds = _elementManager.GetLayoutBoundsForDataIndex(suggestedAnchorIndex);
                     anchorPosition = this.MinorMajorPoint(0, this.MajorStart(anchorBounds));
@@ -307,7 +321,7 @@ internal class FlowLayoutAlgorithm : IOrientationBasedMeasures
         var lineNeedsReposition = false;
 
         while (_elementManager.IsIndexValidInData(currentIndex) &&
-            (disableVirtualization || ShouldContinueFillingUpSpace(previousIndex, direction)))
+               (disableVirtualization || ShouldContinueFillingUpSpace(previousIndex, direction)))
         {
             // Ensure layout element.
             _elementManager.EnsureElementRealized(direction == GenerateDirection.Forward, currentIndex, layoutId);
@@ -322,9 +336,11 @@ internal class FlowLayoutAlgorithm : IOrientationBasedMeasures
             if (direction == GenerateDirection.Forward)
             {
                 var remainingSpace = this.Minor(availableSize) -
-                                     (this.MinorStart(previousElementBounds) + this.MinorSize(previousElementBounds) + minItemSpacing + this.Minor(desiredSize));
+                                     (this.MinorStart(previousElementBounds) + this.MinorSize(previousElementBounds) +
+                                      minItemSpacing + this.Minor(desiredSize));
 
-                if (countInLine >= maxItemsPerLine || _algorithmCallbacks.Algorithm_ShouldBreakLine(currentIndex, remainingSpace))
+                if (countInLine >= maxItemsPerLine ||
+                    _algorithmCallbacks.Algorithm_ShouldBreakLine(currentIndex, remainingSpace))
                 {
                     // No more space in this row. wrap to next row.
                     this.SetMinorStart(ref currentBounds, 0);
@@ -332,7 +348,6 @@ internal class FlowLayoutAlgorithm : IOrientationBasedMeasures
                         this.MajorStart(previousElementBounds) + lineMajorSize + lineSpacing);
 
                     if (lineNeedsReposition)
-                    {
                         // reposition the previous line (countInLine items)
                         for (var i = 0; i < countInLine; i++)
                         {
@@ -341,7 +356,6 @@ internal class FlowLayoutAlgorithm : IOrientationBasedMeasures
                             this.SetMajorSize(ref bounds, lineMajorSize);
                             _elementManager.SetLayoutBoundsForDataIndex(dataIndex, bounds);
                         }
-                    }
 
                     // Setup for next line.
                     lineMajorSize = this.MajorSize(currentBounds);
@@ -353,7 +367,8 @@ internal class FlowLayoutAlgorithm : IOrientationBasedMeasures
                 {
                     // More space is available in this row.
                     this.SetMinorStart(ref currentBounds,
-                        this.MinorStart(previousElementBounds) + this.MinorSize(previousElementBounds) + minItemSpacing);
+                        this.MinorStart(previousElementBounds) + this.MinorSize(previousElementBounds) +
+                        minItemSpacing);
                     this.SetMajorStart(ref currentBounds, lineOffset);
                     lineMajorSize = Math.Max(lineMajorSize, this.MajorSize(currentBounds));
                     lineNeedsReposition = this.MajorSize(previousElementBounds) != this.MajorSize(currentBounds);
@@ -366,16 +381,17 @@ internal class FlowLayoutAlgorithm : IOrientationBasedMeasures
                 var remainingSpace = this.MinorStart(previousElementBounds) -
                                      (this.Minor(desiredSize) + minItemSpacing);
 
-                if (countInLine >= maxItemsPerLine || _algorithmCallbacks.Algorithm_ShouldBreakLine(currentIndex, remainingSpace))
+                if (countInLine >= maxItemsPerLine ||
+                    _algorithmCallbacks.Algorithm_ShouldBreakLine(currentIndex, remainingSpace))
                 {
                     // Does not fit, wrap to the previous row
                     var availableSizeMinor = this.Minor(availableSize);
                     // If the last available size is finite, start from end and subtract our desired size.
                     // Otherwise, look at the last extent and use that for positioning.
                     this.SetMinorStart(ref currentBounds,
-                        !double.IsInfinity(availableSizeMinor) ?
-                            availableSizeMinor - this.Minor(desiredSize) :
-                            this.MinorSize(LastExtent) - this.Minor(desiredSize));
+                        !double.IsInfinity(availableSizeMinor)
+                            ? availableSizeMinor - this.Minor(desiredSize)
+                            : this.MinorSize(LastExtent) - this.Minor(desiredSize));
                     this.SetMajorStart(ref currentBounds,
                         lineOffset - this.Major(desiredSize) - lineSpacing);
 
@@ -423,7 +439,7 @@ internal class FlowLayoutAlgorithm : IOrientationBasedMeasures
             _elementManager.SetLayoutBoundsForDataIndex(currentIndex, currentBounds);
 #if DEBUG && REPEATER_TRACE
             Log.Debug("{Layout} Layout bounds of element {Index} are {X} {Y} {Width} {Height}",
-                layoutId, currentIndex, 
+                layoutId, currentIndex,
                 currentBounds.X, currentBounds.Y, currentBounds.Width, currentBounds.Height);
 #endif
             previousIndex = currentIndex;
@@ -436,14 +452,16 @@ internal class FlowLayoutAlgorithm : IOrientationBasedMeasures
         if (direction == GenerateDirection.Forward)
         {
             var dataCount = _context.ItemCount;
-            _lastRealizedDataIndexInsideRealizationWindow = previousIndex == dataCount - 1 ? dataCount - 1 : previousIndex - 1;
+            _lastRealizedDataIndexInsideRealizationWindow =
+                previousIndex == dataCount - 1 ? dataCount - 1 : previousIndex - 1;
             _lastRealizedDataIndexInsideRealizationWindow = Math.Max(0, _lastRealizedDataIndexInsideRealizationWindow);
         }
         else
         {
             var dataCount = _context.ItemCount;
             _firstRealizedDataIndexInsideRealizationWindow = previousIndex == 0 ? 0 : previousIndex + 1;
-            _firstRealizedDataIndexInsideRealizationWindow = Math.Min(dataCount - 1, _firstRealizedDataIndexInsideRealizationWindow);
+            _firstRealizedDataIndexInsideRealizationWindow =
+                Math.Min(dataCount - 1, _firstRealizedDataIndexInsideRealizationWindow);
         }
 
         _elementManager.DiscardElementsOutsideWindow(direction == GenerateDirection.Forward, currentIndex);
@@ -453,10 +471,10 @@ internal class FlowLayoutAlgorithm : IOrientationBasedMeasures
     {
         // If first element is realized and is not at the very beginning we need to reflow.
         return _elementManager.GetRealizedElementCount() > 0 &&
-            _elementManager.GetDataIndexFromRealizedRangeIndex(0) == 0 &&
-            (ScrollOrientation == ScrollOrientation.Vertical ?
-            _elementManager.GetLayoutBoundsForRealizedIndex(0).X != 0 :
-            _elementManager.GetLayoutBoundsForRealizedIndex(0).Y != 0);
+               _elementManager.GetDataIndexFromRealizedRangeIndex(0) == 0 &&
+               (ScrollOrientation == ScrollOrientation.Vertical
+                   ? _elementManager.GetLayoutBoundsForRealizedIndex(0).X != 0
+                   : _elementManager.GetLayoutBoundsForRealizedIndex(0).Y != 0);
     }
 
     private bool ShouldContinueFillingUpSpace(int index, GenerateDirection direction)
@@ -483,9 +501,9 @@ internal class FlowLayoutAlgorithm : IOrientationBasedMeasures
 
             // Ensure that both minor and major directions are taken into consideration so that if the scrolling direction
             // is the same as the flow direction we still stop at the end of the viewport rectangle.
-            shouldContinue = direction == GenerateDirection.Forward ?
-                elementMajorStart < rectMajorEnd && elementMinorStart < rectMinorEnd :
-                elementMajorEnd > rectMajorStart && elementMinorEnd > rectMinorStart;
+            shouldContinue = direction == GenerateDirection.Forward
+                ? elementMajorStart < rectMajorEnd && elementMinorStart < rectMinorEnd
+                : elementMajorEnd > rectMajorStart && elementMinorEnd > rectMinorStart;
         }
 
         return shouldContinue;
@@ -529,19 +547,23 @@ internal class FlowLayoutAlgorithm : IOrientationBasedMeasures
             var realizedElementCount = _elementManager.GetRealizedElementCount();
             if (realizedElementCount > 0)
             {
-                Debug.Assert(_firstRealizedDataIndexInsideRealizationWindow != -1 && _lastRealizedDataIndexInsideRealizationWindow != -1);
+                Debug.Assert(_firstRealizedDataIndexInsideRealizationWindow != -1 &&
+                             _lastRealizedDataIndexInsideRealizationWindow != -1);
                 var countInLine = 0;
-                var previousElementBounds = _elementManager.GetLayoutBoundsForDataIndex(_firstRealizedDataIndexInsideRealizationWindow);
+                var previousElementBounds =
+                    _elementManager.GetLayoutBoundsForDataIndex(_firstRealizedDataIndexInsideRealizationWindow);
                 var currentLineOffset = this.MajorStart(previousElementBounds);
                 var currentLineSize = this.MajorSize(previousElementBounds);
                 for (var currentDataIndex = _firstRealizedDataIndexInsideRealizationWindow;
-                    currentDataIndex <= _lastRealizedDataIndexInsideRealizationWindow; currentDataIndex++)
+                     currentDataIndex <= _lastRealizedDataIndexInsideRealizationWindow;
+                     currentDataIndex++)
                 {
                     var currentBounds = _elementManager.GetLayoutBoundsForDataIndex(currentDataIndex);
                     if (this.MajorStart(currentBounds) != currentLineOffset)
                     {
                         // Staring a new line
-                        _algorithmCallbacks.Algorithm_OnLineArranged(currentDataIndex - countInLine, countInLine, currentLineSize, _context);
+                        _algorithmCallbacks.Algorithm_OnLineArranged(currentDataIndex - countInLine, countInLine,
+                            currentLineSize, _context);
                         countInLine = 0;
                         currentLineOffset = this.MajorStart(currentBounds);
                         currentLineSize = 0;
@@ -559,7 +581,8 @@ internal class FlowLayoutAlgorithm : IOrientationBasedMeasures
         }
     }
 
-    private void ArrangeVirtualizingLayout(Size finalSize, LineAlignment lineAlignment, bool isWrapping, string layoutId)
+    private void ArrangeVirtualizingLayout(Size finalSize, LineAlignment lineAlignment, bool isWrapping,
+        string layoutId)
     {
         // Walk through the realized elements one line at a time and
         // align them, Then call element.Arrange with the arranged bounds.
@@ -577,8 +600,9 @@ internal class FlowLayoutAlgorithm : IOrientationBasedMeasures
                 var currentBounds = _elementManager.GetLayoutBoundsForRealizedIndex(i);
                 if (this.MajorStart(currentBounds) != currentLineOffset)
                 {
-                    spaceAtLineEnd = this.Minor(finalSize) - this.MinorStart(previousElementBounds) - this.MinorSize(previousElementBounds);
-                    PerformLineAlignment(i - countInLine, countInLine, spaceAtLineStart, spaceAtLineEnd, 
+                    spaceAtLineEnd = this.Minor(finalSize) - this.MinorStart(previousElementBounds) -
+                                     this.MinorSize(previousElementBounds);
+                    PerformLineAlignment(i - countInLine, countInLine, spaceAtLineStart, spaceAtLineEnd,
                         currentLineSize, lineAlignment, isWrapping, finalSize, layoutId);
                     spaceAtLineStart = this.MinorStart(currentBounds);
                     countInLine = 0;
@@ -595,9 +619,10 @@ internal class FlowLayoutAlgorithm : IOrientationBasedMeasures
             // aligning the last line or not.
             if (countInLine > 0)
             {
-                var spaceAtEnd = this.Minor(finalSize) - this.MinorStart(previousElementBounds) - this.MinorSize(previousElementBounds);
-                PerformLineAlignment(realizedElementCount - countInLine, countInLine, 
-                    spaceAtLineStart, spaceAtEnd, currentLineSize, lineAlignment, 
+                var spaceAtEnd = this.Minor(finalSize) - this.MinorStart(previousElementBounds) -
+                                 this.MinorSize(previousElementBounds);
+                PerformLineAlignment(realizedElementCount - countInLine, countInLine,
+                    spaceAtLineStart, spaceAtEnd, currentLineSize, lineAlignment,
                     isWrapping, finalSize, layoutId);
             }
         }
@@ -615,7 +640,6 @@ internal class FlowLayoutAlgorithm : IOrientationBasedMeasures
             this.SetMajorSize(ref bounds, lineSize);
 
             if (!_scrollOrientationSameAsFlow)
-            {
                 // Note: Space at start could potentially be negative
                 if (spaceAtLineStart != 0 || spaceAtLineEnd != 0)
                 {
@@ -623,62 +647,59 @@ internal class FlowLayoutAlgorithm : IOrientationBasedMeasures
                     switch (lineAlignment)
                     {
                         case LineAlignment.Start:
-                            {
-                                this.SetMinorStart(ref bounds, this.MinorStart(bounds) - spaceAtLineStart);
-                                break;
-                            }
+                        {
+                            this.SetMinorStart(ref bounds, this.MinorStart(bounds) - spaceAtLineStart);
+                            break;
+                        }
 
                         case LineAlignment.End:
-                            {
-                                this.SetMinorStart(ref bounds, this.MinorStart(bounds) + spaceAtLineEnd);
-                                break;
-                            }
+                        {
+                            this.SetMinorStart(ref bounds, this.MinorStart(bounds) + spaceAtLineEnd);
+                            break;
+                        }
 
                         case LineAlignment.Center:
-                            {
-                                var minor = this.MinorStart(bounds);
-                                this.SetMinorStart(ref bounds, minor - spaceAtLineStart);
-                                this.SetMinorStart(ref bounds, minor + totalSpace / 2);
-                                break;
-                            }
+                        {
+                            var minor = this.MinorStart(bounds);
+                            this.SetMinorStart(ref bounds, minor - spaceAtLineStart);
+                            this.SetMinorStart(ref bounds, minor + totalSpace / 2);
+                            break;
+                        }
 
                         case LineAlignment.SpaceAround:
-                            {
-                                var interItemSpace = countInLine >= 1 ? totalSpace / (countInLine * 2) : 0;
-                                var minor = this.MinorStart(bounds);
-                                this.SetMinorStart(ref bounds, minor - spaceAtLineStart);
-                                this.SetMinorStart(ref bounds, minor + interItemSpace * ((rangeIndex - lineStartIndex + 1) * 2 - 1));
-                                break;
-                            }
+                        {
+                            var interItemSpace = countInLine >= 1 ? totalSpace / (countInLine * 2) : 0;
+                            var minor = this.MinorStart(bounds);
+                            this.SetMinorStart(ref bounds, minor - spaceAtLineStart);
+                            this.SetMinorStart(ref bounds,
+                                minor + interItemSpace * ((rangeIndex - lineStartIndex + 1) * 2 - 1));
+                            break;
+                        }
 
                         case LineAlignment.SpaceBetween:
-                            {
-                                var interItemSpace = countInLine > 1 ? totalSpace / (countInLine - 1) : 0;
-                                var minor = this.MinorStart(bounds);
-                                this.SetMinorStart(ref bounds, minor - spaceAtLineStart) ;
-                                this.SetMinorStart(ref bounds, minor + interItemSpace * (rangeIndex - lineStartIndex));
-                                break;
-                            }
+                        {
+                            var interItemSpace = countInLine > 1 ? totalSpace / (countInLine - 1) : 0;
+                            var minor = this.MinorStart(bounds);
+                            this.SetMinorStart(ref bounds, minor - spaceAtLineStart);
+                            this.SetMinorStart(ref bounds, minor + interItemSpace * (rangeIndex - lineStartIndex));
+                            break;
+                        }
 
                         case LineAlignment.SpaceEvenly:
-                            {
-                                var interItemSpace = countInLine >= 1 ? totalSpace / (countInLine + 1) : 0;
-                                var minor = this.MinorStart(bounds);
-                                this.SetMinorStart(ref bounds, minor - spaceAtLineStart);
-                                this.SetMinorStart(ref bounds, minor + interItemSpace * (rangeIndex - lineStartIndex + 1));
-                                break;
-                            }
+                        {
+                            var interItemSpace = countInLine >= 1 ? totalSpace / (countInLine + 1) : 0;
+                            var minor = this.MinorStart(bounds);
+                            this.SetMinorStart(ref bounds, minor - spaceAtLineStart);
+                            this.SetMinorStart(ref bounds, minor + interItemSpace * (rangeIndex - lineStartIndex + 1));
+                            break;
+                        }
                     }
                 }
-            }
 
             bounds = new Rect(bounds.X - _lastExtent.X, bounds.Y - _lastExtent.Y,
                 bounds.Width, bounds.Height);
 
-            if (!isWrapping)
-            {
-                this.SetMinorSize(ref bounds, Math.Max(this.MinorSize(bounds), this.Minor(finalSize)));
-            }
+            if (!isWrapping) this.SetMinorSize(ref bounds, Math.Max(this.MinorSize(bounds), this.Minor(finalSize)));
 
             var element = _elementManager.GetAt(rangeIndex);
 
@@ -693,21 +714,18 @@ internal class FlowLayoutAlgorithm : IOrientationBasedMeasures
     }
 
     private Rect RealizationRect() =>
-        IsVirtualizingContext() ? _context.RealizationRect :
-        new Rect(0, 0, double.PositiveInfinity, double.PositiveInfinity);
+        IsVirtualizingContext()
+            ? _context.RealizationRect
+            : new Rect(0, 0, double.PositiveInfinity, double.PositiveInfinity);
 
     private void SetLayoutOrigin()
     {
         if (IsVirtualizingContext())
-        {
             _context.LayoutOrigin = _lastExtent.Position;
-        }
         else
-        {
             // Should have 0 origin for non-virtualizing layout since we always start from
             // the first item
             Debug.Assert(_lastExtent.X == 0 && _lastExtent.Y == 0);
-        }
     }
 
     internal Control GetElementIfRealized(int dataIndex)
@@ -740,36 +758,8 @@ internal class FlowLayoutAlgorithm : IOrientationBasedMeasures
 
         return false;
     }
-
-
-    private readonly ElementManager _elementManager = new ElementManager();
-    private Size _lastAvailableSize;
-    private double _lastItemSpacing;
-    private bool _collectionChangePending;
-    private FAVirtualizingLayoutContext _context;
-    private IFlowLayoutAlgorithmDelegates _algorithmCallbacks;
-    private Rect _lastExtent;
-    private int _firstRealizedDataIndexInsideRealizationWindow = -1;
-    private int _lastRealizedDataIndexInsideRealizationWindow = -1;
-
-    // If the scroll orientation is the same as the folow orientation
-    // we will only have one line since we will never wrap. In that case
-    // we do not want to align the line. We could potentially switch the
-    // meaning of line alignment in this case, but I'll hold off on that
-    // feature until someone asks for it - This is not a common scenario
-    // anyway.
-    private bool _scrollOrientationSameAsFlow;
-
-    public enum LineAlignment
-    {
-        Start,
-        Center,
-        End,
-        SpaceAround,
-        SpaceBetween,
-        SpaceEvenly
-    }
 }
+
 internal enum GenerateDirection
 {
     Forward,

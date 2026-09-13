@@ -13,6 +13,7 @@ internal ref struct CharacterReader
     public bool End => _s.IsEmpty;
     public char Peek => _s[0];
     public int Position { get; private set; }
+
     public char Take()
     {
         Position++;
@@ -60,6 +61,7 @@ internal ref struct CharacterReader
             Take();
             return true;
         }
+
         return false;
     }
 
@@ -69,6 +71,7 @@ internal ref struct CharacterReader
         for (len = 0; len < _s.Length && _s[len] != c; len++)
         {
         }
+
         var span = _s.Slice(0, len);
         _s = _s.Slice(len);
         Position += len;
@@ -81,6 +84,7 @@ internal ref struct CharacterReader
         for (len = 0; len < _s.Length && condition(_s[len]); len++)
         {
         }
+
         var span = _s.Slice(0, len);
         _s = _s.Slice(len);
         Position += len;

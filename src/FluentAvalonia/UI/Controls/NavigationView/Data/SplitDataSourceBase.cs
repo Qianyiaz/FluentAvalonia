@@ -1,14 +1,26 @@
-﻿using Avalonia.Collections;
-using System.Diagnostics;
+﻿using System.Diagnostics;
+using Avalonia.Collections;
 
 namespace FluentAvalonia.UI.Controls;
 
 internal abstract class SplitDataSourceBase<T, TVectorID, AttachedDataType>
 {
+    private List<AttachedDataType> _attachedData = new();
+
+    // length is the same as data source, and used to identify which SplitVector it belongs to.
+    private List<TVectorID> flags = new();
+    private SplitVector<T, TVectorID>[] splitVectors;
+
     public SplitDataSourceBase(int vectorIdSize)
     {
         splitVectors = new SplitVector<T, TVectorID>[vectorIdSize];
     }
+
+    public abstract int Size { get; }
+    protected abstract TVectorID DefaultVectorIDOnInsert { get; }
+    protected abstract AttachedDataType DefaultAttachedData { get; }
+
+    protected int RawDataSize => flags.Count;
 
     public TVectorID GetVectorIDForItem(int index)
     {
@@ -30,18 +42,12 @@ internal abstract class SplitDataSourceBase<T, TVectorID, AttachedDataType>
 
     public void ResetAttachedData(AttachedDataType attachedData)
     {
-        for (var i = 0; i < RawDataSize; i++)
-        {
-            _attachedData[i] = attachedData;
-        }
+        for (var i = 0; i < RawDataSize; i++) _attachedData[i] = attachedData;
     }
 
     public SplitVector<T, TVectorID> GetVectorForItem(int index)
     {
-        if (index >= 0 && index < RawDataSize)
-        {
-            return splitVectors[(int)(object)flags[index]];
-        }
+        if (index >= 0 && index < RawDataSize) return splitVectors[(int)(object)flags[index]];
         return null;
     }
 
@@ -53,10 +59,7 @@ internal abstract class SplitDataSourceBase<T, TVectorID, AttachedDataType>
     public void MoveItemsToVector(int start, int end, TVectorID newVectorID)
     {
         Debug.Assert(start >= 0 && end <= RawDataSize);
-        for (var i = start; i < end; i++)
-        {
-            MoveItemToVector(i, newVectorID);
-        }
+        for (var i = start; i < end; i++) MoveItemToVector(i, newVectorID);
     }
 
     public void MoveItemToVector(int index, TVectorID newVectorID)
@@ -85,9 +88,6 @@ internal abstract class SplitDataSourceBase<T, TVectorID, AttachedDataType>
 
     public abstract int IndexOf(T value);
     public abstract T GetAt(int index);
-    public abstract int Size { get; }
-    protected abstract TVectorID DefaultVectorIDOnInsert { get; }
-    protected abstract AttachedDataType DefaultAttachedData { get; }
 
     protected int IndexOfImpl(T value, TVectorID vectorID)
     {
@@ -97,19 +97,15 @@ internal abstract class SplitDataSourceBase<T, TVectorID, AttachedDataType>
         {
             var vector = GetVectorForItem(indexInOriginalVector);
             if (vector != null && vector.GetVectorIDForItem().Equals(vectorID))
-            {
                 index = vector.IndexFromIndexInOriginalVector(indexInOriginalVector);
-            }
         }
+
         return index;
     }
 
     protected void InitializeSplitVectors(params SplitVector<T, TVectorID>[] vectors)
     {
-        foreach (var vector in vectors)
-        {
-            splitVectors[(int)(object)vector.GetVectorIDForItem()] = vector;
-        }
+        foreach (var vector in vectors) splitVectors[(int)(object)vector.GetVectorIDForItem()] = vector;
     }
 
     protected SplitVector<T, TVectorID> GetVector(TVectorID vectorID)
@@ -121,33 +117,22 @@ internal abstract class SplitDataSourceBase<T, TVectorID, AttachedDataType>
     {
         // Clear all vectors
         foreach (var vector in splitVectors)
-        {
             if (vector != null)
-            {
                 vector.Clear();
-            }
-        }
+
         flags.Clear();
         _attachedData.Clear();
     }
 
     protected void OnRemoveAt(int startIndex, int count)
     {
-        for (var i = startIndex + count - 1; i >= startIndex; i--)
-        {
-            OnRemoveAt(i);
-        }
+        for (var i = startIndex + count - 1; i >= startIndex; i--) OnRemoveAt(i);
     }
 
     protected void OnInsertAt(int startIndex, int count)
     {
-        for (var i = startIndex; i < startIndex + count; i++)
-        {
-            OnInsertAt(i);
-        }
+        for (var i = startIndex; i < startIndex + count; i++) OnInsertAt(i);
     }
-
-    protected int RawDataSize => flags.Count;
 
     protected void SyncAndInitVectorFlagsWithID(TVectorID defaultID, AttachedDataType defaultAttachedData)
     {
@@ -170,12 +155,9 @@ internal abstract class SplitDataSourceBase<T, TVectorID, AttachedDataType>
 
         // Update mapping on all Vectors and Remove Item on vectorID vector;
         foreach (var vector in splitVectors)
-        {
             if (vector != null)
-            {
                 vector.OnRawDataRemove(index, vectorID);
-            }
-        }
+
         flags.RemoveAt(index);
         _attachedData.RemoveAt(index);
     }
@@ -199,12 +181,8 @@ internal abstract class SplitDataSourceBase<T, TVectorID, AttachedDataType>
 
         // Update mapping on all Vectors and Insert Item on vectorID vector;
         foreach (var vector in splitVectors)
-        {
             if (vector != null)
-            {
                 vector.OnRawDataInsert(preferIndex, index, data, vectorID);
-            }
-        }
 
         flags.Insert(index, vectorID);
         _attachedData.Insert(index, defaultAttachedData);
@@ -219,23 +197,20 @@ internal abstract class SplitDataSourceBase<T, TVectorID, AttachedDataType>
     {
         var count = 0;
         for (var i = start; i < end; i++)
-        {
             if (flags[i].Equals(vectorID))
-            {
                 count++;
-            }
-        }
+
         return count;
     }
-
-    // length is the same as data source, and used to identify which SplitVector it belongs to.
-    List<TVectorID> flags = new List<TVectorID>();
-    List<AttachedDataType> _attachedData = new List<AttachedDataType>();
-    SplitVector<T, TVectorID>[] splitVectors;
 }
 
 internal class SplitVector<T, TVectorId>
 {
+    private TVectorId _vectorID;
+    private Func<T, int> indexFunctionFromDataSource;
+    private List<int> indicesInOriginalVector = new();
+    private IList<T> vector;
+
     public SplitVector(TVectorId id, Func<T, int> indexOfFunction)
     {
         _vectorID = id;
@@ -244,42 +219,31 @@ internal class SplitVector<T, TVectorId>
         vector = new AvaloniaList<T>();
     }
 
+    public IList<T> Vector => vector;
+
+    public int Size => indicesInOriginalVector.Count;
+
     public TVectorId GetVectorIDForItem()
     {
         return _vectorID;
     }
 
-    public IList<T> Vector => vector;
-
     public void OnRawDataRemove(int indexInOriginalVector, TVectorId vectorID)
     {
-        if (_vectorID.Equals(vectorID))
-        {
-            RemoveAt(indexInOriginalVector);
-        }
+        if (_vectorID.Equals(vectorID)) RemoveAt(indexInOriginalVector);
 
         for (var i = 0; i < indicesInOriginalVector.Count; i++)
-        {
             if (indicesInOriginalVector[i] > indexInOriginalVector)
-            {
                 indicesInOriginalVector[i]--;
-            }
-        }
     }
 
     public void OnRawDataInsert(int preferIndex, int indexInOriginalVector, T value, TVectorId vectorID)
     {
         for (var i = 0; i < indicesInOriginalVector.Count; i++)
-        {
             if (indicesInOriginalVector[i] >= indexInOriginalVector) // WinUI #5558
-            {
                 indicesInOriginalVector[i]++;
-            }
-        }
-        if (_vectorID.Equals(vectorID))
-        {
-            InsertAt(preferIndex, indexInOriginalVector, value);
-        }
+
+        if (_vectorID.Equals(vectorID)) InsertAt(preferIndex, indexInOriginalVector, value);
     }
 
     public void InsertAt(int preferIndex, int indexInOriginalVector, T value)
@@ -330,17 +294,7 @@ internal class SplitVector<T, TVectorId>
     public int IndexFromIndexInOriginalVector(int indexInOriginalVector)
     {
         var pos = indicesInOriginalVector.IndexOf(indexInOriginalVector);
-        if (pos != -1)
-        {
-            return pos;
-        }
+        if (pos != -1) return pos;
         return pos;
     }
-
-    public int Size => indicesInOriginalVector.Count;
-
-    TVectorId _vectorID;
-    IList<T> vector;
-    List<int> indicesInOriginalVector = new List<int>();
-    Func<T, int> indexFunctionFromDataSource;
 }

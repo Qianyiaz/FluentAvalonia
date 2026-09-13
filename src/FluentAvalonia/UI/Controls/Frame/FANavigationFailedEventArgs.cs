@@ -1,14 +1,14 @@
 ﻿namespace FluentAvalonia.UI.Navigation;
 
 /// <summary>
-/// Represents a method that will handle the Frame.NavigationFailed event.
+///     Represents a method that will handle the Frame.NavigationFailed event.
 /// </summary>
 /// <param name="sender">The object where the handler is attached.</param>
 /// <param name="e">Event data for the event.</param>
 public delegate void FANavigationFailedEventHandler(object sender, FANavigationFailedEventArgs e);
 
 /// <summary>
-/// Provides event data for the Frame.NavigationFailed event.
+///     Provides event data for the Frame.NavigationFailed event.
 /// </summary>
 public class FANavigationFailedEventArgs : EventArgs
 {
@@ -19,17 +19,17 @@ public class FANavigationFailedEventArgs : EventArgs
     }
 
     /// <summary>
-    /// Gets or sets a value that indicates whether the failure event has been handled.
+    ///     Gets or sets a value that indicates whether the failure event has been handled.
     /// </summary>
     public bool Handled { get; set; }
 
     /// <summary>
-    /// Gets the result code for the exception that is associated with the failed navigation.
+    ///     Gets the result code for the exception that is associated with the failed navigation.
     /// </summary>
     public Exception Exception { get; }
 
     /// <summary>
-    /// Gets the data type of the target page.
+    ///     Gets the data type of the target page.
     /// </summary>
     public Type SourcePageType { get; }
 }

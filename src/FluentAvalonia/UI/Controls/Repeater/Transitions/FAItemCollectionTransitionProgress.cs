@@ -5,6 +5,8 @@ namespace FluentAvalonia.UI.Controls;
 
 public class FAItemCollectionTransitionProgress
 {
+    private WeakReference<FAItemCollectionTransition> _transition;
+
     public FAItemCollectionTransitionProgress(FAItemCollectionTransition transition)
     {
         _transition = new WeakReference<FAItemCollectionTransition>(transition);
@@ -15,11 +17,6 @@ public class FAItemCollectionTransitionProgress
 
     public void Complete()
     {
-        if (_transition.TryGetTarget(out var target))
-        {
-            target.OwningProvider.NotifyTransitionComplete(target);
-        }
+        if (_transition.TryGetTarget(out var target)) target.OwningProvider.NotifyTransitionComplete(target);
     }
-
-    private WeakReference<FAItemCollectionTransition> _transition;
 }

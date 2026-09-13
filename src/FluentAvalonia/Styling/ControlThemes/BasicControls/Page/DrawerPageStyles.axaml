@@ -5,8 +5,8 @@
     <Design.PreviewWith>
         <Border Width="400" Height="400" Padding="20" Background="DarkGray">
             <DrawerPage Header="Sample Drawer Page"
-                    DrawerLength="200"
-                    IsOpen="False">
+                        DrawerLength="200"
+                        IsOpen="False">
                 <ContentPage Header="Drawer Content">
                     <TextBlock Text="Drawer menu" />
                 </ContentPage>
@@ -15,11 +15,11 @@
     </Design.PreviewWith>
 
     <ui:FASymbolIconSource x:Key="DrawerPageNavIcon" Symbol="Navigation" FontSize="20" />
-    
+
     <x:Double x:Key="NavigationControlNavBarHeight">48</x:Double>
     <SolidColorBrush x:Key="NavigationControlNavBarBackground" Color="{DynamicResource LayerFillColorDefault}" />
 
-    
+
     <ControlTheme x:Key="{x:Type DrawerPage}" TargetType="DrawerPage">
         <Setter Property="Background" Value="{DynamicResource SolidBackgroundFillColorBaseBrush}" />
         <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
@@ -46,16 +46,17 @@
                                           ToolTip.Tip="Toggle navigation drawer"
                                           Theme="{StaticResource TransparentToggleButton}">
                                 <Panel>
-                                    <ui:FAIconSourceElement IsVisible="{Binding DrawerIcon, RelativeSource={RelativeSource TemplatedParent}, Converter={x:Static ObjectConverters.IsNull}}"
-                                                            IconSource="{DynamicResource DrawerPageNavIcon}"
-                                                            HorizontalAlignment="Center"
-                                                            VerticalAlignment="Center"/>
+                                    <ui:FAIconSourceElement
+                                        IsVisible="{Binding DrawerIcon, RelativeSource={RelativeSource TemplatedParent}, Converter={x:Static ObjectConverters.IsNull}}"
+                                        IconSource="{DynamicResource DrawerPageNavIcon}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center" />
                                     <ContentPresenter Name="PART_CompactPaneIconPresenter"
                                                       Content="{TemplateBinding DrawerIcon}"
                                                       ContentTemplate="{TemplateBinding DrawerIconTemplate}"
                                                       IsVisible="{Binding DrawerIcon, RelativeSource={RelativeSource TemplatedParent}, Converter={x:Static ObjectConverters.IsNotNull}}"
                                                       HorizontalAlignment="Center"
-                                                      VerticalAlignment="Center"/>
+                                                      VerticalAlignment="Center" />
                                 </Panel>
                             </ToggleButton>
                             <ContentPresenter Name="PART_DrawerHeader"
@@ -77,7 +78,7 @@
                                               ContentTemplate="{TemplateBinding DrawerTemplate}" />
                         </DockPanel>
                     </SplitView.Pane>
-                    
+
                     <Grid HorizontalAlignment="Stretch"
                           VerticalAlignment="Stretch">
                         <DockPanel Name="PART_ContentDock">
@@ -89,7 +90,8 @@
                                 <DockPanel HorizontalAlignment="Stretch">
                                     <DockPanel.Styles>
                                         <Styles>
-                                            <Style Selector="Button:disabled /template/ ContentPresenter#PART_ContentPresenter">
+                                            <Style
+                                                Selector="Button:disabled /template/ ContentPresenter#PART_ContentPresenter">
                                                 <Setter Property="Background"
                                                         Value="Transparent" />
                                             </Style>
@@ -103,16 +105,17 @@
                                                   ToolTip.Tip="Toggle navigation drawer"
                                                   Theme="{StaticResource TransparentToggleButton}">
                                         <Panel>
-                                            <ui:FAIconSourceElement IsVisible="{Binding DrawerIcon, RelativeSource={RelativeSource TemplatedParent}, Converter={x:Static ObjectConverters.IsNull}}"
-                                                                    IconSource="{DynamicResource DrawerPageNavIcon}"
-                                                                    HorizontalAlignment="Center"
-                                                                    VerticalAlignment="Center"/>
+                                            <ui:FAIconSourceElement
+                                                IsVisible="{Binding DrawerIcon, RelativeSource={RelativeSource TemplatedParent}, Converter={x:Static ObjectConverters.IsNull}}"
+                                                IconSource="{DynamicResource DrawerPageNavIcon}"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center" />
                                             <ContentPresenter Name="PART_PaneIconPresenter"
                                                               Content="{TemplateBinding DrawerIcon}"
                                                               ContentTemplate="{TemplateBinding DrawerIconTemplate}"
                                                               IsVisible="{Binding DrawerIcon, RelativeSource={RelativeSource TemplatedParent}, Converter={x:Static ObjectConverters.IsNotNull}}"
                                                               HorizontalAlignment="Center"
-                                                              VerticalAlignment="Center"/>
+                                                              VerticalAlignment="Center" />
                                         </Panel>
                                     </ToggleButton>
                                     <ContentControl Name="PART_TitlePresenter"
@@ -134,7 +137,8 @@
                                 <DockPanel HorizontalAlignment="Stretch">
                                     <DockPanel.Styles>
                                         <Styles>
-                                            <Style Selector="Button:disabled /template/ ContentPresenter#PART_ContentPresenter">
+                                            <Style
+                                                Selector="Button:disabled /template/ ContentPresenter#PART_ContentPresenter">
                                                 <Setter Property="Background"
                                                         Value="Transparent" />
                                             </Style>
@@ -148,16 +152,17 @@
                                                   ToolTip.Tip="Toggle navigation drawer"
                                                   Theme="{StaticResource TransparentToggleButton}">
                                         <Panel>
-                                            <ui:FAIconSourceElement IsVisible="{Binding DrawerIcon, RelativeSource={RelativeSource TemplatedParent}, Converter={x:Static ObjectConverters.IsNull}}"
-                                                                    IconSource="{DynamicResource DrawerPageNavIcon}"
-                                                                    HorizontalAlignment="Center"
-                                                                    VerticalAlignment="Center"/>
+                                            <ui:FAIconSourceElement
+                                                IsVisible="{Binding DrawerIcon, RelativeSource={RelativeSource TemplatedParent}, Converter={x:Static ObjectConverters.IsNull}}"
+                                                IconSource="{DynamicResource DrawerPageNavIcon}"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center" />
                                             <ContentPresenter Name="PART_BottomPaneIconPresenter"
                                                               Content="{TemplateBinding DrawerIcon}"
                                                               ContentTemplate="{TemplateBinding DrawerIconTemplate}"
                                                               IsVisible="{Binding DrawerIcon, RelativeSource={RelativeSource TemplatedParent}, Converter={x:Static ObjectConverters.IsNotNull}}"
                                                               HorizontalAlignment="Center"
-                                                              VerticalAlignment="Center"/>
+                                                              VerticalAlignment="Center" />
                                         </Panel>
                                     </ToggleButton>
                                     <ContentControl Name="PART_BottomTitlePresenter"
@@ -255,5 +260,5 @@
         </Style>
 
     </ControlTheme>
-    
+
 </ResourceDictionary>

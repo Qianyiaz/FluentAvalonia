@@ -3,10 +3,12 @@
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Provides data for the <see cref="FATabView.TabDragCompleted"/> event
+///     Provides data for the <see cref="FATabView.TabDragCompleted" /> event
 /// </summary>
 public class FATabViewTabDragCompletedEventArgs : EventArgs
 {
+    private DragItemsCompletedEventArgs _innerArgs;
+
     internal FATabViewTabDragCompletedEventArgs(DragItemsCompletedEventArgs args, object item, FATabViewItem tab)
     {
         _innerArgs = args;
@@ -15,20 +17,18 @@ public class FATabViewTabDragCompletedEventArgs : EventArgs
     }
 
     /// <summary>
-    /// Gets a value that indicates what operation was performed on the dragged data,
-    /// and whether it was successful
+    ///     Gets a value that indicates what operation was performed on the dragged data,
+    ///     and whether it was successful
     /// </summary>
     public DragDropEffects DropResult => _innerArgs.DropResult;
 
     /// <summary>
-    /// Gets the item that was selected for the drag action
+    ///     Gets the item that was selected for the drag action
     /// </summary>
     public object Item { get; }
 
     /// <summary>
-    /// Gets the TabViewItem that was selected for the drag action
+    ///     Gets the TabViewItem that was selected for the drag action
     /// </summary>
     public FATabViewItem Tab { get; }
-
-    private DragItemsCompletedEventArgs _innerArgs;
 }

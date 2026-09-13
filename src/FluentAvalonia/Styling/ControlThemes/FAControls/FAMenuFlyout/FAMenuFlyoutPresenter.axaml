@@ -2,7 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:ui="using:FluentAvalonia.UI.Controls">
 
-    <ControlTheme x:Key="{x:Type ui:FAMenuFlyoutPresenter}" 
+    <ControlTheme x:Key="{x:Type ui:FAMenuFlyoutPresenter}"
                   TargetType="ui:FAMenuFlyoutPresenter">
         <Setter Property="Background" Value="{DynamicResource MenuFlyoutPresenterBackground}" />
         <Setter Property="BorderBrush" Value="{DynamicResource MenuFlyoutPresenterBorderBrush}" />
@@ -22,9 +22,10 @@
                         BackgroundSizing="InnerBorderEdge"
                         Padding="{DynamicResource FlyoutBorderThemePadding}"
                         CornerRadius="{TemplateBinding CornerRadius}">
-                    <ScrollViewer HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
-                                  VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}"
-                                  Margin="{TemplateBinding Padding}">
+                    <ScrollViewer
+                        HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
+                        VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}"
+                        Margin="{TemplateBinding Padding}">
                         <ItemsPresenter Name="PART_ItemsPresenter"
                                         ItemsPanel="{TemplateBinding ItemsPanel}"
                                         KeyboardNavigation.TabNavigation="Continue"

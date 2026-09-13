@@ -6,6 +6,11 @@ namespace FluentAvalonia.UI.Controls;
 
 internal class UniformGridLayoutState
 {
+    private double _effectiveItemHeight;
+    private double _effectiveItemWidth;
+
+    private FlowLayoutAlgorithm _flowAlgorithm;
+    private bool _isEffectiveSizeValid;
     public FlowLayoutAlgorithm FlowAlgorithm => _flowAlgorithm;
 
     public double EffectiveItemWidth => _effectiveItemWidth;
@@ -30,10 +35,7 @@ internal class UniformGridLayoutState
         FAUniformGridLayoutItemsStretch stretch, Orientation orientation,
         double minRowSpacing, double minColumnSpacing, int maxItemsPerLine)
     {
-        if (maxItemsPerLine == 0)
-        {
-            maxItemsPerLine = 1;
-        }
+        if (maxItemsPerLine == 0) maxItemsPerLine = 1;
 
         if (context.ItemCount > 0)
         {
@@ -52,8 +54,8 @@ internal class UniformGridLayoutState
                 // Not realized by flowlayout, so do this now but just once per layout pass since this is expensive and
                 // has the potential to repeatedly invalidate layout due to recycling causing layout cycles.
                 if (!_isEffectiveSizeValid)
-                {
-                    if (context.GetOrCreateElementAt(0, FAElementRealizationOptions.ForceCreate) is Control firstElement)
+                    if (context.GetOrCreateElementAt(0,
+                            FAElementRealizationOptions.ForceCreate) is Control firstElement)
                     {
                         firstElement.Measure(CalculateAvailableSize(availableSize, orientation,
                             stretch, maxItemsPerLine, layoutItemWidth, layoutItemHeight,
@@ -62,7 +64,6 @@ internal class UniformGridLayoutState
                             availableSize, stretch, orientation, minRowSpacing, minColumnSpacing,
                             maxItemsPerLine);
                         context.RecycleElement(firstElement);
-
                         // BUG: WinUI recycles the element here, but that is causing a hang when the Repeater is loaded
                         // What seems to be happening is recycle element is called which unrealizes the first item in the
                         // viewport that is used here to estimate size
@@ -71,7 +72,6 @@ internal class UniformGridLayoutState
                         // unrealized here, this path is always called and we never progress past the first item
                         // Take out the recycling here and all seems to work ok
                         //context.RecycleElement(firstElement);
-
                         // HACK: Add SuppressAutoRecycle above in GetOrCreateElementAt, and force add the item which
                         // moves ownership to the ElementManager, and this works. This path still gets called twice
                         // as the first time an invalid anchor index (-1) is found which clears the realized range
@@ -82,7 +82,6 @@ internal class UniformGridLayoutState
                         // | ElementRealizationOptions.SuppressAutoRecycle
                         //_flowAlgorithm.TryAddElement0(firstElement);
                     }
-                }
             }
 
             _isEffectiveSizeValid = true;
@@ -103,10 +102,8 @@ internal class UniformGridLayoutState
             {
                 var allowedColumnWidth = itemWidth;
                 if (stretch != FAUniformGridLayoutItemsStretch.None)
-                {
                     allowedColumnWidth += CalculateExtraPixelsInLine(maxItemsPerLine,
                         availableSize.Width, itemWidth, minColumnSpacing);
-                }
 
                 return new Size(allowedColumnWidth, availableSize.Height);
             }
@@ -117,10 +114,8 @@ internal class UniformGridLayoutState
             {
                 var allowedRowHeight = itemHeight;
                 if (stretch != FAUniformGridLayoutItemsStretch.None)
-                {
                     allowedRowHeight += CalculateExtraPixelsInLine(maxItemsPerLine,
                         availableSize.Height, itemHeight, minRowSpacing);
-                }
 
                 // Fixed typo in WinUI - Size.height is itemHeight in WinUI, corrected to allowedRowHeight
                 return new Size(availableSize.Width, allowedRowHeight);
@@ -136,15 +131,11 @@ internal class UniformGridLayoutState
         int numItemsPerColumn;
         var numItemsBasedOnSize = (int)Math.Max(1, availableSizeMinor / (itemSizeMinor + minorItemSpacing));
         if (numItemsBasedOnSize == 0)
-        {
             numItemsPerColumn = maxItemsPerLine;
-        }
         else
-        {
             numItemsPerColumn = Math.Min(maxItemsPerLine, numItemsBasedOnSize);
-        }
 
-        var usedSpace = (numItemsPerColumn * (itemSizeMinor + minorItemSpacing)) - minorItemSpacing;
+        var usedSpace = numItemsPerColumn * (itemSizeMinor + minorItemSpacing) - minorItemSpacing;
         var remainingSpace = (int)(availableSizeMinor - usedSpace);
         return remainingSpace / numItemsPerColumn;
     }
@@ -165,21 +156,15 @@ internal class UniformGridLayoutState
 
         double extraMinorPixelsForEachItem = 0;
         if (!double.IsInfinity(availableSizeMinor))
-        {
             extraMinorPixelsForEachItem = CalculateExtraPixelsInLine(maxItemsPerLine,
                 availableSizeMinor, itemSizeMinor, minorItemSpacing);
-        }
 
         if (stretch == FAUniformGridLayoutItemsStretch.Fill)
         {
             if (orientation == Orientation.Horizontal)
-            {
                 _effectiveItemWidth += extraMinorPixelsForEachItem;
-            }
             else
-            {
                 _effectiveItemHeight += extraMinorPixelsForEachItem;
-            }
         }
         else if (stretch == FAUniformGridLayoutItemsStretch.Uniform)
         {
@@ -202,9 +187,4 @@ internal class UniformGridLayoutState
     {
         _isEffectiveSizeValid = false;
     }
-
-    private FlowLayoutAlgorithm _flowAlgorithm;
-    private double _effectiveItemWidth;
-    private double _effectiveItemHeight;
-    private bool _isEffectiveSizeValid;
 }

@@ -5,9 +5,20 @@ namespace FluentAvalonia.UI.Controls;
 
 internal class RepeaterLayoutContext : FAVirtualizingLayoutContext
 {
+    private WeakReference<FAItemsRepeater> _owner;
+
     public RepeaterLayoutContext(FAItemsRepeater owner)
     {
         _owner = new WeakReference<FAItemsRepeater>(owner);
+    }
+
+    protected internal override object LayoutStateCore
+    {
+        get => GetOwner()?.LayoutState;
+        set
+        {
+            if (GetOwner() is FAItemsRepeater ir) ir.LayoutState = value;
+        }
     }
 
     protected internal override int ItemCountCore()
@@ -20,19 +31,8 @@ internal class RepeaterLayoutContext : FAVirtualizingLayoutContext
     {
         return GetOwner()?.GetElementImpl(index,
             (options & FAElementRealizationOptions.ForceCreate) == FAElementRealizationOptions.ForceCreate,
-            (options & FAElementRealizationOptions.SuppressAutoRecycle) == FAElementRealizationOptions.SuppressAutoRecycle);
-    }
-
-    protected internal override object LayoutStateCore
-    {
-        get => GetOwner()?.LayoutState;
-        set
-        {
-            if (GetOwner() is FAItemsRepeater ir)
-            {
-                ir.LayoutState = value;
-            }
-        }
+            (options & FAElementRealizationOptions.SuppressAutoRecycle) ==
+            FAElementRealizationOptions.SuppressAutoRecycle);
     }
 
     protected override object GetItemAtCore(int index)
@@ -65,10 +65,7 @@ internal class RepeaterLayoutContext : FAVirtualizingLayoutContext
         var anchorIndex = -1;
         var repeater = GetOwner();
         var anchor = repeater?.SuggestedAnchor;
-        if (anchor != null)
-        {
-            anchorIndex = repeater.GetElementIndex(anchor);
-        }
+        if (anchor != null) anchorIndex = repeater.GetElementIndex(anchor);
 
         return anchorIndex;
     }
@@ -89,6 +86,4 @@ internal class RepeaterLayoutContext : FAVirtualizingLayoutContext
 
         return null;
     }
-
-    private WeakReference<FAItemsRepeater> _owner;
 }

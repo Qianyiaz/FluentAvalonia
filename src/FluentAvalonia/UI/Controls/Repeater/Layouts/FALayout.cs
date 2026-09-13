@@ -4,54 +4,50 @@ using FluentAvalonia.Core;
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Gets the orientation, if any, in which items are laid out based on their index in the source collection.
+///     Gets the orientation, if any, in which items are laid out based on their index in the source collection.
 /// </summary>
 public enum FAIndexBasedLayoutOrientation
 {
     /// <summary>
-    /// There is no correlation between the items' layout and their index number.
+    ///     There is no correlation between the items' layout and their index number.
     /// </summary>
     None = 0,
 
     /// <summary>
-    /// Items are laid out vertically with increasing indices.
+    ///     Items are laid out vertically with increasing indices.
     /// </summary>
     TopToBottom = 1,
 
     /// <summary>
-    /// Items are laid out horizontally with increasing indices.
+    ///     Items are laid out horizontally with increasing indices.
     /// </summary>
     LeftToRight = 2
 }
 
 /// <summary>
-/// Represents the base class for an object that sizes and arranges child elements for a host.
+///     Represents the base class for an object that sizes and arranges child elements for a host.
 /// </summary>
 public abstract class FALayout : AvaloniaObject
-{    
+{
     internal string LayoutId { get; set; }
 
     /// <summary>
-    /// 
     /// </summary>
     public FAIndexBasedLayoutOrientation IndexBasedLayoutOrientation { get; protected internal set; }
 
     /// <summary>
-    /// Occurs when the measurement state (layout) has been invalidated.
+    ///     Occurs when the measurement state (layout) has been invalidated.
     /// </summary>
     public event TypedEventHandler<FALayout, EventArgs> MeasureInvalidated;
 
     /// <summary>
-    /// Occurs when the arrange state(layout) has been invalidated.
+    ///     Occurs when the arrange state(layout) has been invalidated.
     /// </summary>
     public event TypedEventHandler<FALayout, EventArgs> ArrangeInvalidated;
 
     private static FAVirtualizingLayoutContext GetVirtualizingLayoutContext(FALayoutContext context)
     {
-        if (context is FAVirtualizingLayoutContext vlc)
-        {
-            return vlc;
-        }
+        if (context is FAVirtualizingLayoutContext vlc) return vlc;
 
         if (context is FANonVirtualizingLayoutContext nvlc)
         {
@@ -64,10 +60,7 @@ public abstract class FALayout : AvaloniaObject
 
     private static FANonVirtualizingLayoutContext GetNonVirtualizingLayoutContext(FALayoutContext context)
     {
-        if (context is FANonVirtualizingLayoutContext nvlc)
-        {
-            return nvlc;
-        }
+        if (context is FANonVirtualizingLayoutContext nvlc) return nvlc;
 
         if (context is FAVirtualizingLayoutContext vlc)
         {
@@ -79,7 +72,7 @@ public abstract class FALayout : AvaloniaObject
     }
 
     /// <summary>
-    /// Initializes any per-container state the layout requires when it is attached to a UIElement container.
+    ///     Initializes any per-container state the layout requires when it is attached to a UIElement container.
     /// </summary>
     public void InitializeForContext(FALayoutContext context)
     {
@@ -100,7 +93,7 @@ public abstract class FALayout : AvaloniaObject
     }
 
     /// <summary>
-    /// Removes any state the layout previously stored on the UIElement container.
+    ///     Removes any state the layout previously stored on the UIElement container.
     /// </summary>
     public void UninitializeForContext(FALayoutContext context)
     {
@@ -121,9 +114,9 @@ public abstract class FALayout : AvaloniaObject
     }
 
     /// <summary>
-    /// Suggests a DesiredSize for a container element. A container element that supports attached layouts 
-    /// should call this method from their own MeasureOverride implementations to form a recursive layout update. 
-    /// The attached layout is expected to call the Measure for each of the container’s UIElement children.
+    ///     Suggests a DesiredSize for a container element. A container element that supports attached layouts
+    ///     should call this method from their own MeasureOverride implementations to form a recursive layout update.
+    ///     The attached layout is expected to call the Measure for each of the container’s UIElement children.
     /// </summary>
     public Size Measure(FALayoutContext context, Size availableSize)
     {
@@ -143,9 +136,9 @@ public abstract class FALayout : AvaloniaObject
     }
 
     /// <summary>
-    /// Positions child elements and determines a size for a container UIElement. Container elements that 
-    /// support attached layouts should call this method from their layout override implementations to 
-    /// form a recursive layout update.
+    ///     Positions child elements and determines a size for a container UIElement. Container elements that
+    ///     support attached layouts should call this method from their layout override implementations to
+    ///     form a recursive layout update.
     /// </summary>
     public Size Arrange(FALayoutContext context, Size finalSize)
     {
@@ -165,20 +158,19 @@ public abstract class FALayout : AvaloniaObject
     }
 
     /// <summary>
-    /// Invalidates the measurement state (layout) for all UIElement containers that reference this layout.
+    ///     Invalidates the measurement state (layout) for all UIElement containers that reference this layout.
     /// </summary>
     protected void InvalidateMeasure() =>
         MeasureInvalidated?.Invoke(this, EventArgs.Empty);
 
     /// <summary>
-    /// Invalidates the arrange state (layout) for all UIElement containers that reference this layout. 
-    /// After the invalidation, the UIElement will have its layout updated, which occurs asynchronously.
+    ///     Invalidates the arrange state (layout) for all UIElement containers that reference this layout.
+    ///     After the invalidation, the UIElement will have its layout updated, which occurs asynchronously.
     /// </summary>
     protected void InvalidateArrange() =>
         ArrangeInvalidated?.Invoke(this, EventArgs.Empty);
 
     /// <summary>
-    /// 
     /// </summary>
     protected internal virtual FAItemCollectionTransitionProvider CreateDefaultItemTransitionProvider() => null;
 }

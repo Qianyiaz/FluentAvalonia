@@ -7,49 +7,53 @@ using FluentAvalonia.Core;
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Represents a data-driven collection control that incorporates a flexible layout system,
-/// custom views, and virtualization, with no default UI or interaction policies.
+///     Represents a data-driven collection control that incorporates a flexible layout system,
+///     custom views, and virtualization, with no default UI or interaction policies.
 /// </summary>
 public partial class FAItemsRepeater : Panel
 {
     /// <summary>
-    /// Defines the <see cref="VerticalCacheLength"/> property
+    ///     Defines the <see cref="VerticalCacheLength" /> property
     /// </summary>
     public static readonly StyledProperty<double> VerticalCacheLengthProperty =
-        AvaloniaProperty.Register<FAItemsRepeater, double>(nameof(VerticalCacheLength), defaultValue: 2.0);
+        AvaloniaProperty.Register<FAItemsRepeater, double>(nameof(VerticalCacheLength), 2.0);
 
     /// <summary>
-    /// Defines the <see cref="HorizontalCacheLength"/> property
+    ///     Defines the <see cref="HorizontalCacheLength" /> property
     /// </summary>
     public static readonly StyledProperty<double> HorizontalCacheLengthProperty =
-        AvaloniaProperty.Register<FAItemsRepeater, double>(nameof(HorizontalCacheLength), defaultValue: 2.0);
+        AvaloniaProperty.Register<FAItemsRepeater, double>(nameof(HorizontalCacheLength), 2.0);
 
     /// <summary>
-    /// Defines the <see cref="Layout"/> property
+    ///     Defines the <see cref="Layout" /> property
     /// </summary>
     public static readonly StyledProperty<FALayout> LayoutProperty =
         AvaloniaProperty.Register<FAItemsRepeater, FALayout>(nameof(Layout));
 
     /// <summary>
-    /// Defines the <see cref="ItemsSource"/> property
+    ///     Defines the <see cref="ItemsSource" /> property
     /// </summary>
     public static readonly StyledProperty<object> ItemsSourceProperty =
         AvaloniaProperty.Register<FAItemsRepeater, object>(nameof(ItemsSource));
 
     /// <summary>
-    /// Defines the <see cref="VerticalCacheLength"/> property
+    ///     Defines the <see cref="VerticalCacheLength" /> property
     /// </summary>
     public static readonly StyledProperty<IDataTemplate> ItemTemplateProperty =
         ItemsControl.ItemTemplateProperty.AddOwner<FAItemsRepeater>();
 
     /// <summary>
-    /// Defines the <see cref="ItemTransitionProvider"/> property
+    ///     Defines the <see cref="ItemTransitionProvider" /> property
     /// </summary>
     public static readonly StyledProperty<FAItemCollectionTransitionProvider> ItemTransitionProviderProperty =
         AvaloniaProperty.Register<FAItemsRepeater, FAItemCollectionTransitionProvider>(nameof(ItemTransitionProvider));
 
+    internal static readonly AttachedProperty<VirtualizationInfo> VirtualizationInfoProperty =
+        AvaloniaProperty.RegisterAttached<FAItemsRepeater, Control, VirtualizationInfo>("VirtualizationInfo");
+
     /// <summary>
-    /// Gets or sets a value that indicates the size of the buffer used to realize items when panning or scrolling vertically.
+    ///     Gets or sets a value that indicates the size of the buffer used to realize items when panning or scrolling
+    ///     vertically.
     /// </summary>
     public double VerticalCacheLength
     {
@@ -58,7 +62,8 @@ public partial class FAItemsRepeater : Panel
     }
 
     /// <summary>
-    /// Gets or sets a value that indicates the size of the buffer used to realize items when panning or scrolling vertically.
+    ///     Gets or sets a value that indicates the size of the buffer used to realize items when panning or scrolling
+    ///     vertically.
     /// </summary>
     public double HorizontalCacheLength
     {
@@ -67,7 +72,7 @@ public partial class FAItemsRepeater : Panel
     }
 
     /// <summary>
-    /// Gets or sets the layout used to size and position elements in the ItemsRepeater.
+    ///     Gets or sets the layout used to size and position elements in the ItemsRepeater.
     /// </summary>
     public FALayout Layout
     {
@@ -76,7 +81,7 @@ public partial class FAItemsRepeater : Panel
     }
 
     /// <summary>
-    /// Gets or sets an object source used to generate the content of the ItemsRepeater.
+    ///     Gets or sets an object source used to generate the content of the ItemsRepeater.
     /// </summary>
     public object ItemsSource
     {
@@ -85,7 +90,7 @@ public partial class FAItemsRepeater : Panel
     }
 
     /// <summary>
-    /// Gets or sets the template used to display each item.
+    ///     Gets or sets the template used to display each item.
     /// </summary>
     [InheritDataTypeFromItems(nameof(ItemsSource))]
     public IDataTemplate ItemTemplate
@@ -95,7 +100,7 @@ public partial class FAItemsRepeater : Panel
     }
 
     /// <summary>
-    /// Gets or sets the <see cref="FAItemCollectionTransitionProvider"/> for the ItemsRepeater
+    ///     Gets or sets the <see cref="FAItemCollectionTransitionProvider" /> for the ItemsRepeater
     /// </summary>
     public FAItemCollectionTransitionProvider ItemTransitionProvider
     {
@@ -104,10 +109,11 @@ public partial class FAItemsRepeater : Panel
     }
 
     /// <summary>
-    /// Gets a standardized view of the supported interactions between a given ItemsSource object and the ItemsRepeater control and its associated components.
+    ///     Gets a standardized view of the supported interactions between a given ItemsSource object and the ItemsRepeater
+    ///     control and its associated components.
     /// </summary>
     /// <remarks>
-    /// Note the return type is <see cref="FAItemsSourceView"/> and not the ItemsSourceView in Avalonia
+    ///     Note the return type is <see cref="FAItemsSourceView" /> and not the ItemsSourceView in Avalonia
     /// </remarks>
     public FAItemsSourceView ItemsSourceView => _itemsSourceView;
 
@@ -142,36 +148,30 @@ public partial class FAItemsRepeater : Panel
     internal bool ShouldPhase => ContainerContentChanging != null;
 
     /// <summary>
-    /// Occurs each time an element is prepared for use.
+    ///     Occurs each time an element is prepared for use.
     /// </summary>
     public event TypedEventHandler<FAItemsRepeater, FAItemsRepeaterElementPreparedEventArgs> ElementPrepared;
 
     /// <summary>
-    /// Occurs each time an element is cleared and made available to be re-used.
+    ///     Occurs each time an element is cleared and made available to be re-used.
     /// </summary>
     public event TypedEventHandler<FAItemsRepeater, FAItemsRepeaterElementClearingEventArgs> ElementClearing;
 
     /// <summary>
-    /// Occurs for each realized UIElement when the index for the item it represents has changed.
+    ///     Occurs for each realized UIElement when the index for the item it represents has changed.
     /// </summary>
     public event TypedEventHandler<FAItemsRepeater, FAItemsRepeaterElementIndexChangedEventArgs> ElementIndexChanged;
 
     /// <summary>
-    /// Occurs when container content is changing, used for Phased rendering
+    ///     Occurs when container content is changing, used for Phased rendering
     /// </summary>
     public event TypedEventHandler<FAItemsRepeater, FAContainerContentChangingEventArgs> ContainerContentChanging;
-
-    internal static readonly AttachedProperty<VirtualizationInfo> VirtualizationInfoProperty =
-        AvaloniaProperty.RegisterAttached<FAItemsRepeater, Control, VirtualizationInfo>("VirtualizationInfo");
 
     internal static VirtualizationInfo GetVirtualizationInfo(Control c)
     {
         var result = c.GetValue(VirtualizationInfoProperty);
 
-        if (result == null)
-        {
-            result = CreateAndInitializeVirtualizationInfo(c);
-        }
+        if (result == null) result = CreateAndInitializeVirtualizationInfo(c);
 
         return result;
     }

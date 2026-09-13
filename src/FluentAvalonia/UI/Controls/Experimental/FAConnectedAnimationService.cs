@@ -9,6 +9,14 @@ namespace FluentAvalonia.UI.Controls.Experimental;
 
 public class FAConnectedAnimationService
 {
+    internal static readonly AttachedProperty<FAConnectedAnimationService> ConnectedAnimationServiceProperty =
+        AvaloniaProperty.RegisterAttached<FAConnectedAnimationService, TopLevel, FAConnectedAnimationService>(
+            nameof(FAConnectedAnimationService));
+
+    private Dictionary<string, FAConnectedAnimation> _animations;
+
+    private WeakReference<TopLevel> _topLevel;
+
     internal FAConnectedAnimationService(TopLevel topLevel)
     {
         _topLevel = new WeakReference<TopLevel>(topLevel);
@@ -17,13 +25,9 @@ public class FAConnectedAnimationService
         DefaultEasingFunction = new SplineEasing(0.8, 0, 0.2, 1);
     }
 
-    internal static readonly AttachedProperty<FAConnectedAnimationService> ConnectedAnimationServiceProperty =
-        AvaloniaProperty.RegisterAttached<FAConnectedAnimationService, TopLevel, FAConnectedAnimationService>(
-            nameof(FAConnectedAnimationService));
-
     public TimeSpan DefaultDuration { get; set; } = TimeSpan.FromMilliseconds(3000);
 
-    public Easing DefaultEasingFunction { get; set; } = new SplineEasing(0.8,0,0.2,1);
+    public Easing DefaultEasingFunction { get; set; } = new SplineEasing(0.8, 0, 0.2, 1);
 
     public static FAConnectedAnimationService GetForView(TopLevel topLevel)
     {
@@ -62,17 +66,10 @@ public class FAConnectedAnimationService
         // If the specified key already exists, just replace the ConnectedAnimation as its
         // likely the animation never got called for some reason and is now invalid. 
         if (_animations.ContainsKey(key))
-        {
             _animations[key] = animation;
-        }
         else
-        {
             _animations.Add(key, animation);
-        }
 
         return animation;
     }
-
-    private WeakReference<TopLevel> _topLevel;
-    private Dictionary<string, FAConnectedAnimation> _animations;
 }

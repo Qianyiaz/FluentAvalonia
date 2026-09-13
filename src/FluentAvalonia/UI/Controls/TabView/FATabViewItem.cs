@@ -19,6 +19,37 @@ namespace FluentAvalonia.UI.Controls;
 
 public partial class FATabViewItem : FASelectorItem
 {
+    private const string c_overlayCornerRadiusKey = "OverlayCornerRadius";
+    private const int c_targetRectWidthIncrement = 2;
+
+    private Button _closeButton;
+    private FATabViewCloseButtonOverlayMode _closeButtonOverlayMode = FATabViewCloseButtonOverlayMode.Auto;
+    private TargetWeakEventSubscriber<FATabView, FATabViewTabDragCompletedEventArgs> _completedDragSub;
+    private int _dragPointerId;
+
+    private bool _hasPointerCapture;
+    private ContentPresenter _headerContentPresenter;
+    private bool _isCheckingForDrag;
+
+    private bool _isMiddlePointerButtonPressed;
+
+    //private bool _isBeingDragged = false;
+    private bool _isPointerOver;
+    private Point _lastPointerPressedPosition;
+    private FATabViewTabStripLocation _location;
+
+    private WeakReference<FATabView> _parentTabView;
+    private Path _selectedBackgroundPath;
+
+    private TargetWeakEventSubscriber<FATabView, FATabViewTabDragStartingEventArgs> _startingDragSub;
+    private FACompositeDisposable _tabDragRevoker;
+    private FATabViewWidthMode _tabViewWidthMode = FATabViewWidthMode.Equal;
+
+    static FATabViewItem()
+    {
+        FocusableProperty.OverrideDefaultValue<FATabViewItem>(true);
+    }
+
     public FATabViewItem()
     {
         TabViewTemplateSettings = new FATabViewItemTemplateSettings();
@@ -27,11 +58,6 @@ public partial class FATabViewItem : FASelectorItem
         SizeChanged += OnSizeChanged;
     }
 
-    static FATabViewItem()
-    {
-        FocusableProperty.OverrideDefaultValue<FATabViewItem>(true);
-    }
-    
     protected internal FATabView ParentTabView
     {
         get
@@ -53,21 +79,12 @@ public partial class FATabViewItem : FASelectorItem
         base.OnPropertyChanged(change);
 
         if (change.Property == IsSelectedProperty)
-        {
             OnIsSelectedPropertyChanged(change);
-        }
         else if (change.Property == HeaderProperty)
-        {
             OnHeaderPropertyChanged(change);
-        }
         else if (change.Property == IconSourceProperty)
-        {
             OnIconSourcePropertyChanged(change);
-        }
-        else if (change.Property == IsClosableProperty)
-        {
-            OnIsClosablePropertyChanged(change);
-        }
+        else if (change.Property == IsClosableProperty) OnIsClosablePropertyChanged(change);
     }
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
@@ -113,18 +130,12 @@ public partial class FATabViewItem : FASelectorItem
             //           meant to be an Avalonia internal specific thing), but at least according to VS's memory
             //           snapshot, no TVIs remained after removing & forcing a GC.Collect()
             _startingDragSub = new TargetWeakEventSubscriber<FATabView, FATabViewTabDragStartingEventArgs>(
-                tabView, static (target, _, _, e) =>
-                {
-                    e.Tab?.OnTabDragStarting(target, e);
-                });
+                tabView, static (target, _, _, e) => { e.Tab?.OnTabDragStarting(target, e); });
 
             FATabView.TabDragStartingWeakEvent.Subscribe(tabView, _startingDragSub);
 
             _completedDragSub = new TargetWeakEventSubscriber<FATabView, FATabViewTabDragCompletedEventArgs>(
-                tabView, static (target, _, _, e) =>
-                {
-                    e.Tab?.OnTabDragCompleted(target, e);
-                });
+                tabView, static (target, _, _, e) => { e.Tab?.OnTabDragCompleted(target, e); });
 
             FATabView.TabDragCompletedWeakEvent.Subscribe(tabView, _completedDragSub);
 
@@ -189,10 +200,7 @@ public partial class FATabViewItem : FASelectorItem
     {
         base.OnPointerMoved(e);
 
-        if (ShouldStartDrag(e))
-        {
-            UpdateDragDropVisualState(true);
-        }
+        if (ShouldStartDrag(e)) UpdateDragDropVisualState(true);
     }
 
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
@@ -203,22 +211,16 @@ public partial class FATabViewItem : FASelectorItem
         UpdateDragDropVisualState(false);
 
         if (_hasPointerCapture)
-        {
             if (e.GetCurrentPoint(null).Properties.PointerUpdateKind == PointerUpdateKind.MiddleButtonReleased)
             {
                 var wasPressed = _isMiddlePointerButtonPressed;
                 _isMiddlePointerButtonPressed = false;
-                // Pointer capture release is implicit
 
+                // Pointer capture release is implicit
                 if (wasPressed)
-                {
                     if (IsClosable)
-                    {
                         RequestClose();
-                    }
-                }
             }
-        }
     }
 
     protected override void OnPointerEntered(PointerEventArgs e)
@@ -227,10 +229,7 @@ public partial class FATabViewItem : FASelectorItem
 
         _isPointerOver = true;
 
-        if (_hasPointerCapture)
-        {
-            _isMiddlePointerButtonPressed = true;
-        }
+        if (_hasPointerCapture) _isMiddlePointerButtonPressed = true;
 
         UpdateCloseButton();
         HideLeftAdjacentTabSeparator();
@@ -258,7 +257,7 @@ public partial class FATabViewItem : FASelectorItem
             _hasPointerCapture = false;
             _isMiddlePointerButtonPressed = false;
         }
-                
+
         RestoreLeftAdjacentTabSeparatorVisibility();
     }
 
@@ -280,8 +279,8 @@ public partial class FATabViewItem : FASelectorItem
 
             if (!isAltDown || !isShiftDown)
             {
-                var moveForward = FlowDirection == FlowDirection.LeftToRight && e.Key == Key.Right ||
-                                  FlowDirection == FlowDirection.RightToLeft && e.Key == Key.Left;
+                var moveForward = (FlowDirection == FlowDirection.LeftToRight && e.Key == Key.Right) ||
+                                  (FlowDirection == FlowDirection.RightToLeft && e.Key == Key.Left);
 
                 e.Handled = ParentTabView?.MoveFocus(moveForward) ?? false;
             }
@@ -301,14 +300,14 @@ public partial class FATabViewItem : FASelectorItem
         maxDx *= 2; //c_tabViewItemMouseDragThresholdMultiplier;
         maxDy *= 2; //c_tabViewItemMouseDragThresholdMultiplier;
 
-        return (dx > maxDx || dy > maxDy);
+        return dx > maxDx || dy > maxDy;
     }
 
     private bool ShouldStartDrag(PointerEventArgs args)
     {
         return _isCheckingForDrag &&
-            IsOutsideDragRectangle(args.GetCurrentPoint(this).Position, _lastPointerPressedPosition) &&
-            _dragPointerId == args.Pointer.Id;
+               IsOutsideDragRectangle(args.GetCurrentPoint(this).Position, _lastPointerPressedPosition) &&
+               _dragPointerId == args.Pointer.Id;
     }
 
     private void BeginCheckingForDrag(int pointerId)
@@ -337,7 +336,8 @@ public partial class FATabViewItem : FASelectorItem
         var leftCorner = popupRadius.TopLeft;
         var rightCorner = popupRadius.TopRight;
 
-        const string data = "F1 M0,{0}  a 4,4 0 0 0 4,-4  L 4,{1}  a {2},{3} 0 0 1 {4},-{5}  l {6},0  a {7},{8} 0 0 1 {9},{10}  l 0,{11}  a 4,4 0 0 0 4,4 Z";
+        const string data =
+            "F1 M0,{0}  a 4,4 0 0 0 4,-4  L 4,{1}  a {2},{3} 0 0 1 {4},-{5}  l {6},0  a {7},{8} 0 0 1 {9},{10}  l 0,{11}  a 4,4 0 0 0 4,4 Z";
 
         var builder = StringBuilderCache.Acquire(data.Length * 2);
         // WinUI 6644
@@ -351,10 +351,7 @@ public partial class FATabViewItem : FASelectorItem
 
         var geom = StreamGeometry.Parse(StringBuilderCache.GetStringAndRelease(builder));
 
-        if (!isTop)
-        {
-            geom.Transform = new RotateTransform(180, geom.Bounds.Width * 0.5, geom.Bounds.Height * 0.5);
-        }
+        if (!isTop) geom.Transform = new RotateTransform(180, geom.Bounds.Width * 0.5, geom.Bounds.Height * 0.5);
 
         TabViewTemplateSettings.TabGeometry = geom;
     }
@@ -429,33 +426,26 @@ public partial class FATabViewItem : FASelectorItem
 
         bool isCollapsed;
         if (!IsClosable)
-        {
             isCollapsed = true;
-        }
         else
-        {
             switch (_closeButtonOverlayMode)
             {
                 case FATabViewCloseButtonOverlayMode.OnPointerOver:
-                    {    // If we only want to show the button on hover, we also show it when we are selected, otherwise hide it
-                        if (IsSelected || _isPointerOver)
-                        {
-                            isCollapsed = false;
-                        }
-                        else
-                        {
-                            isCollapsed = true;
-                        }
-                        break;
-                    }
-                default:
-                    {
-                        // Default, use "Auto"
+                {
+                    // If we only want to show the button on hover, we also show it when we are selected, otherwise hide it
+                    if (IsSelected || _isPointerOver)
                         isCollapsed = false;
-                        break;
-                    }
+                    else
+                        isCollapsed = true;
+                    break;
+                }
+                default:
+                {
+                    // Default, use "Auto"
+                    isCollapsed = false;
+                    break;
+                }
             }
-        }
 
         PseudoClasses.Set(s_pcCloseCollapsed, isCollapsed);
     }
@@ -468,7 +458,8 @@ public partial class FATabViewItem : FASelectorItem
         // => :compact
 
         // Handling compact/non compact width mode
-        PseudoClasses.Set(FASharedPseudoclasses.s_pcCompact, !IsSelected && _tabViewWidthMode == FATabViewWidthMode.Compact);
+        PseudoClasses.Set(FASharedPseudoclasses.s_pcCompact,
+            !IsSelected && _tabViewWidthMode == FATabViewWidthMode.Compact);
     }
 
     private void UpdateDragDropVisualState(bool isVisible)
@@ -477,8 +468,8 @@ public partial class FATabViewItem : FASelectorItem
     }
 
     /// <summary>
-    /// Let's the TabView know this Tab would like to close, causing the TabView's
-    /// TabCloseRequested event to fire
+    ///     Let's the TabView know this Tab would like to close, causing the TabView's
+    ///     TabCloseRequested event to fire
     /// </summary>
     public void RequestClose()
     {
@@ -603,33 +594,6 @@ public partial class FATabViewItem : FASelectorItem
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
-        if (ParentTabView is FATabView tv)
-        {
-            tv.SetTabSeparatorOpacity(tv.IndexFromContainer(this));
-        }
+        if (ParentTabView is FATabView tv) tv.SetTabSeparatorOpacity(tv.IndexFromContainer(this));
     }
-
-    private Button _closeButton;
-    private ContentPresenter _headerContentPresenter;
-    private FATabViewWidthMode _tabViewWidthMode = FATabViewWidthMode.Equal;
-    private FATabViewCloseButtonOverlayMode _closeButtonOverlayMode = FATabViewCloseButtonOverlayMode.Auto;
-    private FACompositeDisposable _tabDragRevoker;
-    private Path _selectedBackgroundPath;
-    private FATabViewTabStripLocation _location;
-
-    private bool _hasPointerCapture;
-    private bool _isMiddlePointerButtonPressed;
-    //private bool _isBeingDragged = false;
-    private bool _isPointerOver;
-    private Point _lastPointerPressedPosition;
-    private int _dragPointerId;
-    private bool _isCheckingForDrag;
-
-    private WeakReference<FATabView> _parentTabView;
-
-    private const string c_overlayCornerRadiusKey = "OverlayCornerRadius";
-    private const int c_targetRectWidthIncrement = 2;
-
-    private TargetWeakEventSubscriber<FATabView, FATabViewTabDragStartingEventArgs> _startingDragSub;
-    private TargetWeakEventSubscriber<FATabView, FATabViewTabDragCompletedEventArgs> _completedDragSub;
 }

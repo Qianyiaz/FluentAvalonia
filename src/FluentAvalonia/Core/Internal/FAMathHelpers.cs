@@ -1,18 +1,20 @@
 ﻿namespace FluentAvalonia.Core;
 
 /// <summary>
-/// Maths Helpers
+///     Maths Helpers
 /// </summary>
 public static class FAMathHelpers
 {
     /// <summary>
-    /// Returns <paramref name="value"/> clamped to the inclusive range of min and max.
+    ///     Returns <paramref name="value" /> clamped to the inclusive range of min and max.
     /// </summary>
     /// <param name="value">The value to be clamped.</param>
     /// <param name="min">The lower bound of the result.</param>
     /// <param name="max">The upper bound of the result.</param>
-    /// <returns><see cref="float"/></returns>
-    /// <exception cref="ArgumentException">Thrown when <paramref name="min"/> is greatest of <paramref name="max"/>.</exception>
+    /// <returns>
+    ///     <see cref="float" />
+    /// </returns>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="min" /> is greatest of <paramref name="max" />.</exception>
     [Obsolete("Use float.Clamp methods instead")]
     public static float Clamp(float value, float min, float max)
     {
@@ -33,13 +35,15 @@ public static class FAMathHelpers
     }
 
     /// <summary>
-    /// Returns <paramref name="value"/> clamped to the inclusive range of min and max.
+    ///     Returns <paramref name="value" /> clamped to the inclusive range of min and max.
     /// </summary>
     /// <param name="value">The value to be clamped.</param>
     /// <param name="min">The lower bound of the result.</param>
     /// <param name="max">The upper bound of the result.</param>
-    /// <returns><see cref="double"/></returns>
-    /// <exception cref="ArgumentException">Thrown when <paramref name="min"/> is greatest of <paramref name="max"/>.</exception>
+    /// <returns>
+    ///     <see cref="double" />
+    /// </returns>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="min" /> is greatest of <paramref name="max" />.</exception>
     [Obsolete("Use double clamp methods instead")]
     public static double Clamp(double value, double min, double max)
     {
@@ -60,13 +64,15 @@ public static class FAMathHelpers
     }
 
     /// <summary>
-    /// Returns <paramref name="value"/> clamped to the inclusive range of min and max.
+    ///     Returns <paramref name="value" /> clamped to the inclusive range of min and max.
     /// </summary>
     /// <param name="value">The value to be clamped.</param>
     /// <param name="min">The lower bound of the result.</param>
     /// <param name="max">The upper bound of the result.</param>
-    /// <returns><see cref="int"/></returns>
-    /// <exception cref="ArgumentException">Thrown when <paramref name="min"/> is greatest of <paramref name="max"/>.</exception>
+    /// <returns>
+    ///     <see cref="int" />
+    /// </returns>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="min" /> is greatest of <paramref name="max" />.</exception>
     [Obsolete("Use int.Clamp methods instead")]
     public static int Clamp(int value, int min, int max)
     {
@@ -91,5 +97,4 @@ public static class FAMathHelpers
 
     public static bool IsClose(double value1, double value2, double eps = 1e-5) =>
         double.Abs(value1 - value2) < eps;
-
 }

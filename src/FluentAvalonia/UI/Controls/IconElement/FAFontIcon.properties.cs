@@ -7,38 +7,38 @@ namespace FluentAvalonia.UI.Controls;
 public partial class FAFontIcon : FAIconElement
 {
     /// <summary>
-    /// Defines the <see cref="FontFamily"/> property
+    ///     Defines the <see cref="FontFamily" /> property
     /// </summary>
     public static readonly StyledProperty<FontFamily> FontFamilyProperty =
         TextElement.FontFamilyProperty.AddOwner<FAFontIcon>();
 
     /// <summary>
-    /// Defines the <see cref="FontSize"/> property
+    ///     Defines the <see cref="FontSize" /> property
     /// </summary>
     public static readonly StyledProperty<double> FontSizeProperty =
         TextElement.FontSizeProperty.AddOwner<FAFontIcon>();
 
     /// <summary>
-    /// Defines the <see cref="FontWeight"/> property
+    ///     Defines the <see cref="FontWeight" /> property
     /// </summary>
     public static readonly StyledProperty<FontWeight> FontWeightProperty =
         TextElement.FontWeightProperty.AddOwner<FAFontIcon>();
 
     /// <summary>
-    /// Defines the <see cref="FontStyle"/> property
+    ///     Defines the <see cref="FontStyle" /> property
     /// </summary>
     public static readonly StyledProperty<FontStyle> FontStyleProperty =
         TextElement.FontStyleProperty.AddOwner<FAFontIcon>();
 
     /// <summary>
-    /// Defines the <see cref="Glyph"/> property
+    ///     Defines the <see cref="Glyph" /> property
     /// </summary>
     public static readonly StyledProperty<string> GlyphProperty =
         AvaloniaProperty.Register<FAFontIcon, string>(nameof(Glyph));
 
     /// <summary>
-    /// Gets or sets the <see cref="Avalonia.Media.FontFamily"/> to use when rendering
-    /// the glyph
+    ///     Gets or sets the <see cref="Avalonia.Media.FontFamily" /> to use when rendering
+    ///     the glyph
     /// </summary>
     public FontFamily FontFamily
     {
@@ -47,7 +47,7 @@ public partial class FAFontIcon : FAIconElement
     }
 
     /// <summary>
-    /// Gets or sets the font size to use when rendering the glyph
+    ///     Gets or sets the font size to use when rendering the glyph
     /// </summary>
     public double FontSize
     {
@@ -56,8 +56,8 @@ public partial class FAFontIcon : FAIconElement
     }
 
     /// <summary>
-    /// Gets or sets the <see cref="Avalonia.Media.FontWeight"/> to use 
-    /// when rendering the glyph
+    ///     Gets or sets the <see cref="Avalonia.Media.FontWeight" /> to use
+    ///     when rendering the glyph
     /// </summary>
     public FontWeight FontWeight
     {
@@ -66,8 +66,8 @@ public partial class FAFontIcon : FAIconElement
     }
 
     /// <summary>
-    /// Gets or sets the <see cref="Avalonia.Media.FontStyle"/> to use 
-    /// when rendering the glyph
+    ///     Gets or sets the <see cref="Avalonia.Media.FontStyle" /> to use
+    ///     when rendering the glyph
     /// </summary>
     public FontStyle FontStyle
     {
@@ -76,7 +76,7 @@ public partial class FAFontIcon : FAIconElement
     }
 
     /// <summary>
-    /// Gets or sets the glyph this FontIcon renders
+    ///     Gets or sets the glyph this FontIcon renders
     /// </summary>
     public string Glyph
     {

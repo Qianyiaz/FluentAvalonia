@@ -17,15 +17,64 @@ using FluentAvalonia.UI.Data;
 namespace FluentAvalonia.UI.Controls.Primitives;
 
 /// <summary>
-/// Represents the ListView used in the TabStrip of a <see cref="FATabView"/>
+///     Represents the ListView used in the TabStrip of a <see cref="FATabView" />
 /// </summary>
 /// <remarks>
-/// This control should not be used outside of a TabView
+///     This control should not be used outside of a TabView
 /// </remarks>
 [PseudoClasses(s_pcReorder)]
 [TemplatePart(s_tpScrollViewer, typeof(ScrollViewer))]
 public sealed class FATabViewListView : ListBox
 {
+    private const string s_tpScrollViewer = "ScrollViewer";
+
+    private const string s_pcReorder = ":reorder";
+    private const string s_pcLeftShort = ":leftShort";
+    private const string s_pcRightShort = ":rightShort";
+
+    /// <summary>
+    ///     Defines the <see cref="CanReorderItems" /> property
+    /// </summary>
+    public static readonly StyledProperty<bool> CanReorderItemsProperty =
+        AvaloniaProperty.Register<FATabViewListView, bool>(nameof(CanReorderItems));
+
+    /// <summary>
+    ///     Defines the <see cref="CanDragItems" /> property
+    /// </summary>
+    public static readonly StyledProperty<bool> CanDragItemsProperty =
+        AvaloniaProperty.Register<FATabViewListView, bool>(nameof(CanDragItems));
+
+    private Vector _currentAutoPanVelocity;
+    private double _cxDrag = double.NaN;
+    private double _cyDrag = double.NaN;
+    private int _dragIndex = -1;
+
+    private FATabViewItem _dragItem;
+    private IDisposable _dragItemOpacitySub;
+
+    // For 12.0/v3 - Avalonia has decided to make the decision that the lowest common denominator
+    // in the platform backends decides the entire public API. As part of this, DoDragDrop now
+    // requires the initial pressed args, so we have to store them away so we can start DragDrop.
+    // I tried to object, and failed (https://github.com/AvaloniaUI/Avalonia/pull/20988)
+    // And you guessed it, freakin' Wayland
+    private PointerPressedEventArgs _initArgs;
+    private Point? _initialPoint;
+    private bool _isDragItemFocused;
+    private bool _isDragItemSelected;
+
+    private bool _isDragWithinTabStrip;
+
+    // True if there is a drag drop operation started by this listview
+    private bool _isDraggingOverSelf;
+    private bool _isInDrag;
+    private bool _isInReorder;
+    private Point? _lastDragOverPoint;
+
+    private LiveReorderHelper _liveReorderHelper;
+    private Control _parent;
+
+    private DispatcherTimer _scrollTimer;
+
     public FATabViewListView()
     {
         ItemsView.CollectionChanged += OnItemsChanged;
@@ -49,19 +98,7 @@ public sealed class FATabViewListView : ListBox
     }
 
     /// <summary>
-    /// Defines the <see cref="CanReorderItems"/> property
-    /// </summary>
-    public static readonly StyledProperty<bool> CanReorderItemsProperty =
-        AvaloniaProperty.Register<FATabViewListView, bool>(nameof(CanReorderItems));
-
-    /// <summary>
-    /// Defines the <see cref="CanDragItems"/> property
-    /// </summary>
-    public static readonly StyledProperty<bool> CanDragItemsProperty =
-        AvaloniaProperty.Register<FATabViewListView, bool>(nameof(CanDragItems));
-
-    /// <summary>
-    /// Gets or sets whether this ListView can reorder items
+    ///     Gets or sets whether this ListView can reorder items
     /// </summary>
     public bool CanReorderItems
     {
@@ -70,7 +107,7 @@ public sealed class FATabViewListView : ListBox
     }
 
     /// <summary>
-    /// Gets or sets whether dragging items is supported on this ListView
+    ///     Gets or sets whether dragging items is supported on this ListView
     /// </summary>
     public bool CanDragItems
     {
@@ -86,12 +123,12 @@ public sealed class FATabViewListView : ListBox
     internal event EventHandler<DragEventArgs> Drop;
 
     /// <summary>
-    /// Occurs when a drag operation that involves one of the items in the view is initiated.
+    ///     Occurs when a drag operation that involves one of the items in the view is initiated.
     /// </summary>
     public event DragItemsStartingEventHandler DragItemsStarting;
 
     /// <summary>
-    /// Occurs when a drag operation that involves one of the items in the view is ended.
+    ///     Occurs when a drag operation that involves one of the items in the view is ended.
     /// </summary>
     public event TypedEventHandler<FATabViewListView, DragItemsCompletedEventArgs> DragItemsCompleted;
 
@@ -116,10 +153,7 @@ public sealed class FATabViewListView : ListBox
     {
         base.OnPropertyChanged(change);
 
-        if (change.Property == SelectedIndexProperty)
-        {
-            UpdateBottomBorderVisualState();
-        }
+        if (change.Property == SelectedIndexProperty) UpdateBottomBorderVisualState();
     }
 
     protected override bool NeedsContainerOverride(object item, int index, out object recycleKey)
@@ -132,7 +166,7 @@ public sealed class FATabViewListView : ListBox
     protected override Control CreateContainerForItemOverride(object item, int index, object recycleKey)
     {
         var cont = this.FindDataTemplate(item, ItemTemplate)?.Build(item);
-        
+
         if (cont is FATabViewItem tvi)
         {
             tvi.IsContainerFromTemplate = true;
@@ -182,10 +216,7 @@ public sealed class FATabViewListView : ListBox
             // undo that and search elsewhere for an appropriate template without defaulting to the
             // ItemTemplate passed down from the TabView - fixes GH 739
             var template = ItemTemplate;
-            if (tvi.ContentTemplate == template)
-            {
-                tvi.ContentTemplate = this.FindDataTemplate(item);
-            }
+            if (tvi.ContentTemplate == template) tvi.ContentTemplate = this.FindDataTemplate(item);
 
             base.ContainerForItemPreparedOverride(container, item, index);
             return;
@@ -223,17 +254,10 @@ public sealed class FATabViewListView : ListBox
             if (selIndex != -1)
             {
                 if (index == selIndex)
-                {
                     state = 0;
-                }
                 else if (index == selIndex - 1)
-                {
                     state = 1;
-                }
-                else if (index == selIndex + 1)
-                {
-                    state = 2;
-                }
+                else if (index == selIndex + 1) state = 2;
             }
 
             ((IPseudoClasses)tvi.Classes).Set(FASharedPseudoclasses.s_pcNoBorder, state == 0);
@@ -277,19 +301,14 @@ public sealed class FATabViewListView : ListBox
             return;
 
         if (_initialPoint.HasValue)
-        {
             if (!_isInDrag || !_isInReorder)
             {
                 var currentPoint = args.GetPosition(this);
                 var delta = currentPoint - _initialPoint.Value;
 
-                if (double.Abs(delta.X) > _cxDrag || double.Abs(delta.Y) > _cyDrag)
-                {
-                    BeginDragReorder();
-                    //args.Handled = true;
-                }
+                if (double.Abs(delta.X) > _cxDrag || double.Abs(delta.Y) > _cyDrag) BeginDragReorder();
+                //args.Handled = true;
             }
-        }
 
         base.OnPointerMoved(args);
     }
@@ -308,7 +327,7 @@ public sealed class FATabViewListView : ListBox
         // 1- Mouse Button Release
         // 2- Start of DragDrop
     }
-    
+
 
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
     {
@@ -413,14 +432,12 @@ public sealed class FATabViewListView : ListBox
             var pt = e.GetPosition(this);
             if (double.Abs(pt.X - _lastDragOverPoint.Value.X) < 1e-5 &&
                 double.Abs(pt.Y - _lastDragOverPoint.Value.Y) < 1e-5)
-            {
                 return;
-            }
             _lastDragOverPoint = pt;
         }
 
         var canReorder = CanReorderItems;
-        var isInReorderFromExternalSource = (!_isDraggingOverSelf && canReorder);
+        var isInReorderFromExternalSource = !_isDraggingOverSelf && canReorder;
 
         if (!_isDragWithinTabStrip)
         {
@@ -435,19 +452,17 @@ public sealed class FATabViewListView : ListBox
                 DragOver?.Invoke(this, e);
 
             // If this ListView initiated drag drop, _dragItem will be set
-            _isDraggingOverSelf = _dragItem != null;            
+            _isDraggingOverSelf = _dragItem != null;
         }
-                
+
         Process(_isInReorder, canReorder, e);
 
         if (_scrollTimer == null)
-        {
             if (_isInReorder || isInReorderFromExternalSource)
             {
                 _liveReorderHelper ??= new LiveReorderHelper(this);
                 _liveReorderHelper.ProcessLiveReorder(e, _dragIndex);
             }
-        }
 
         ComputeEdgeScrollVelocity(e.GetPosition(this), out var pVelocity);
         SetPendingAutoPanVelocity(pVelocity);
@@ -462,7 +477,7 @@ public sealed class FATabViewListView : ListBox
                 // Reorder operations have this
                 var effects = isInReorder || canReorder ? DragDropEffects.Move : DragDropEffects.None;
                 args.DragEffects &= effects;
-            }            
+            }
         }
     }
 
@@ -482,7 +497,7 @@ public sealed class FATabViewListView : ListBox
                 _liveReorderHelper?.ResetAllItemsForLiveReorder();
                 DragLeave?.Invoke(this, e);
             }
-        }        
+        }
     }
 
     private void OnListViewDrop(object sender, DragEventArgs e)
@@ -522,10 +537,7 @@ public sealed class FATabViewListView : ListBox
 
     private bool DropCausesReorder()
     {
-        if (_isDraggingOverSelf)
-        {
-            return CanReorderItems && DragDrop.GetAllowDrop(this);
-        }
+        if (_isDraggingOverSelf) return CanReorderItems && DragDrop.GetAllowDrop(this);
 
         return false;
     }
@@ -544,18 +556,12 @@ public sealed class FATabViewListView : ListBox
         if (dragIndex == insertIndex)
             return;
 
-        if (insertIndex == -1)
-        {
-            insertIndex = _liveReorderHelper.GetClosestElement(dropPoint, true);
-        }
+        if (insertIndex == -1) insertIndex = _liveReorderHelper.GetClosestElement(dropPoint, true);
 
         // dragItem is the container, we need the actual data item here
-        var data = ItemsView.GetAt(_dragIndex);// ItemFromContainer(dragItem);
+        var data = ItemsView.GetAt(_dragIndex); // ItemFromContainer(dragItem);
 
-        if (dragIndex < insertIndex)
-        {
-            insertIndex--;
-        }
+        if (dragIndex < insertIndex) insertIndex--;
 
         var itemsSource = ItemsSource;
         // Avalonia enforces the constraint that INCC must be IList, so this is safe
@@ -570,7 +576,9 @@ public sealed class FATabViewListView : ListBox
                 l.RemoveAt(dragIndex);
                 l.Insert(insertIndex, data);
             }
-            catch { }
+            catch
+            {
+            }
         }
         else if (itemsSource == null)
         {
@@ -580,29 +588,24 @@ public sealed class FATabViewListView : ListBox
                 items.RemoveAt(dragIndex);
                 items.Insert(insertIndex, data);
             }
-            catch { }
+            catch
+            {
+            }
         }
 
         // Note that _dragItem is no longer valid since the container
         // may have changed, grab the new container from insertIndex
-        
+
         UpdateLayout(); // Force an update so ScrollIntoView works
 
         ScrollIntoView(insertIndex);
 
         if (isDragItemFocused)
-        {
             // If the old drag item was focused, we should refocus it
             if (ContainerFromIndex(insertIndex) is Control c)
-            {
                 c.Focus();
-            }
-        }
 
-        if (isDragItemSelected)
-        {
-            SelectedIndex = insertIndex;
-        }
+        if (isDragItemSelected) SelectedIndex = insertIndex;
     }
 
     private void ComputeEdgeScrollVelocity(Point dragPoint, out Vector pVelocity)
@@ -645,10 +648,7 @@ public sealed class FATabViewListView : ListBox
             }
 
             // Disable if we're right up on the edge
-            if (FAMathHelpers.IsClose(bound, offset.X, 0.05))
-            {
-                hVelocity = 0;
-            }
+            if (FAMathHelpers.IsClose(bound, offset.X, 0.05)) hVelocity = 0;
         }
 
         if (isVerticalEnabled && hVelocity == 0)
@@ -665,10 +665,7 @@ public sealed class FATabViewListView : ListBox
             }
 
             // Disable if we're right up on the edge
-            if (FAMathHelpers.IsClose(bound, offset.Y, 0.05))
-            {
-                vVelocity = 0;
-            }
+            if (FAMathHelpers.IsClose(bound, offset.Y, 0.05)) vVelocity = 0;
         }
 
         pVelocity = new Vector(hVelocity, vVelocity);
@@ -677,10 +674,7 @@ public sealed class FATabViewListView : ListBox
     private static double ComputeEdgeScrollVelocityFromEdgeDistance(in double distFromEdge,
         double edgeDistanceThreshold = 100)
     {
-        if (distFromEdge <= edgeDistanceThreshold)
-        {
-            return 200 - (distFromEdge / edgeDistanceThreshold) * (200 - 25);
-        }
+        if (distFromEdge <= edgeDistanceThreshold) return 200 - distFromEdge / edgeDistanceThreshold * (200 - 25);
 
         return 0;
     }
@@ -715,10 +709,7 @@ public sealed class FATabViewListView : ListBox
 
             _dragItemOpacitySub?.Dispose();
             var cont = ContainerFromIndex(_dragIndex);
-            if (cont != null)
-            {
-                _dragItemOpacitySub = _dragItem.SetValue(OpacityProperty, 0, BindingPriority.Animation);
-            }
+            if (cont != null) _dragItemOpacitySub = _dragItem.SetValue(OpacityProperty, 0, BindingPriority.Animation);
         }
     }
 
@@ -784,12 +775,8 @@ public sealed class FATabViewListView : ListBox
         if (panel != null)
         {
             foreach (var item in panel.Children)
-            {
                 if (item is FATabViewItem tvi)
-                {
                     tvi.HandleTabStripLocationChanged(newLocation);
-                }
-            }
 
             // If we have a Stacking Panel, adjust its orientation
             // If user uses any other type of panel, do nothing & log warning
@@ -798,27 +785,21 @@ public sealed class FATabViewListView : ListBox
             {
                 if (vsp.Orientation == Orientation.Vertical &&
                     (newLocation == FATabViewTabStripLocation.Top || newLocation == FATabViewTabStripLocation.Bottom))
-                {
                     vsp.Orientation = Orientation.Horizontal;
-                }
                 else if (vsp.Orientation == Orientation.Horizontal &&
-                    (newLocation == FATabViewTabStripLocation.Left || newLocation == FATabViewTabStripLocation.Right))
-                {
+                         (newLocation == FATabViewTabStripLocation.Left ||
+                          newLocation == FATabViewTabStripLocation.Right))
                     vsp.Orientation = Orientation.Vertical;
-                }
             }
             else if (panel is StackPanel sp)
             {
                 if (sp.Orientation == Orientation.Vertical &&
                     (newLocation == FATabViewTabStripLocation.Top || newLocation == FATabViewTabStripLocation.Bottom))
-                {
                     sp.Orientation = Orientation.Horizontal;
-                }
                 else if (sp.Orientation == Orientation.Horizontal &&
-                    (newLocation == FATabViewTabStripLocation.Left || newLocation == FATabViewTabStripLocation.Right))
-                {
+                         (newLocation == FATabViewTabStripLocation.Left ||
+                          newLocation == FATabViewTabStripLocation.Right))
                     sp.Orientation = Orientation.Vertical;
-                }
             }
             else
             {
@@ -845,38 +826,4 @@ public sealed class FATabViewListView : ListBox
         var scaling = TopLevel.GetTopLevel(this)?.RenderScaling ?? 1;
         FAUISettings.GetSystemDragSize(scaling, out _cxDrag, out _cyDrag);
     }
-
-    private FATabViewItem _dragItem;
-    private int _dragIndex = -1;
-    private bool _isDragItemFocused;
-    private bool _isDragItemSelected;
-    private bool _isInDrag;
-    private bool _isInReorder;
-    private IDisposable _dragItemOpacitySub;
-    private Point? _initialPoint;
-    private double _cxDrag = double.NaN;
-    private double _cyDrag = double.NaN;
-    private Control _parent;
-    private bool _isDragWithinTabStrip;
-    // True if there is a drag drop operation started by this listview
-    private bool _isDraggingOverSelf;
-
-    private LiveReorderHelper _liveReorderHelper;    
-    private Point? _lastDragOverPoint;
-
-    // For 12.0/v3 - Avalonia has decided to make the decision that the lowest common denominator
-    // in the platform backends decides the entire public API. As part of this, DoDragDrop now
-    // requires the initial pressed args, so we have to store them away so we can start DragDrop.
-    // I tried to object, and failed (https://github.com/AvaloniaUI/Avalonia/pull/20988)
-    // And you guessed it, freakin' Wayland
-    private PointerPressedEventArgs _initArgs;
-    
-    private DispatcherTimer _scrollTimer;
-    private Vector _currentAutoPanVelocity;
-
-    private const string s_tpScrollViewer = "ScrollViewer";
-
-    private const string s_pcReorder = ":reorder";
-    private const string s_pcLeftShort = ":leftShort";
-    private const string s_pcRightShort = ":rightShort";
 }

@@ -14,21 +14,42 @@ namespace FluentAvalonia.UI.Data;
 
 public sealed class FAIterableCollectionView : IFACollectionView, IFAAdvancedCollectionView, IList, IComparer<object>
 {
+    private static BindingEvaluator<object> _bindingHelper;
+    private int _deferCounter;
+    private Predicate<object> _filter;
+    private HashSet<string> _filterProperties;
+    private bool _hasFilterOrSort;
+
+    private IList<FASortDescription> _sortDescriptions;
+    private IEnumerable _source;
+    private ItemsSourceView _sourceView;
+    private List<object> _view;
+
     public FAIterableCollectionView(IEnumerable collection)
-        : this(collection, false, null, null, null) { }
+        : this(collection, false, null, null, null)
+    {
+    }
 
     public FAIterableCollectionView(IEnumerable collection, bool isLiveShaping)
-        : this(collection, isLiveShaping, null, null, null) { }
+        : this(collection, isLiveShaping, null, null, null)
+    {
+    }
 
     public FAIterableCollectionView(IEnumerable collection, Predicate<object> filter)
-        : this(collection, false, filter, null, null) { }
+        : this(collection, false, filter, null, null)
+    {
+    }
 
     public FAIterableCollectionView(IEnumerable collection, Predicate<object> filter,
         IList<string> filterProperties)
-        : this(collection, true, filter, filterProperties, null) { }
+        : this(collection, true, filter, filterProperties, null)
+    {
+    }
 
     public FAIterableCollectionView(IEnumerable collection, IList<FASortDescription> sortDescriptions)
-        : this(collection, false, null, null, sortDescriptions) { }
+        : this(collection, false, null, null, sortDescriptions)
+    {
+    }
 
     public FAIterableCollectionView(IEnumerable collection, bool isLiveShaping,
         Predicate<object> filter, IList<string> filterProperties,
@@ -50,10 +71,9 @@ public sealed class FAIterableCollectionView : IFACollectionView, IFAAdvancedCol
             _hasFilterOrSort = true;
             _filter = filter;
             if (isLiveShaping)
-            {
-                _filterProperties = filterProperties != null ? new HashSet<string>(filterProperties) :
-                    new HashSet<string>();
-            }
+                _filterProperties = filterProperties != null
+                    ? new HashSet<string>(filterProperties)
+                    : new HashSet<string>();
 
             if (sortDescriptions != null)
             {
@@ -71,6 +91,36 @@ public sealed class FAIterableCollectionView : IFACollectionView, IFAAdvancedCol
     }
 
     public bool IsLiveShapingEnabled { get; }
+
+    internal IEnumerable Source => _source;
+
+
+    int IComparer<object>.Compare(object x, object y)
+    {
+        if (_sortDescriptions != null)
+            for (var i = 0; i < _sortDescriptions.Count; i++)
+            {
+                var desc = _sortDescriptions[i];
+                object cx, cy;
+
+                if (desc.Property == null)
+                {
+                    cx = x;
+                    cy = y;
+                }
+                else
+                {
+                    cx = EvaluateBinding(desc.Property, x);
+                    cy = EvaluateBinding(desc.Property, y);
+                }
+
+                var cmp = desc.Comparer.Compare(cx, cy);
+                if (cmp != 0)
+                    return desc.Direction == FASortDirection.Ascending ? cmp : -cmp;
+            }
+
+        return 0;
+    }
 
     public Predicate<object> Filter
     {
@@ -98,6 +148,48 @@ public sealed class FAIterableCollectionView : IFACollectionView, IFAAdvancedCol
 
             return _sortDescriptions;
         }
+    }
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    /// <inheritdoc />
+    public void Refresh()
+    {
+        HandleSourceChanged();
+    }
+
+    public void RefreshFilter()
+    {
+        HandleFilterChanged();
+    }
+
+    public void RefreshSorting()
+    {
+        HandleSortChanged();
+    }
+
+    public void AddFilterProperty(string propertyName)
+    {
+        if (!IsLiveShapingEnabled)
+            return;
+
+        _filterProperties.Add(propertyName);
+    }
+
+    public void RemoveFilterProperty(string propertyName)
+    {
+        if (!IsLiveShapingEnabled)
+            return;
+
+        _filterProperties.Remove(propertyName);
+    }
+
+    public void ClearFilterProperties()
+    {
+        if (!IsLiveShapingEnabled)
+            return;
+
+        _filterProperties.Clear();
     }
 
     public object this[int index]
@@ -139,12 +231,9 @@ public sealed class FAIterableCollectionView : IFACollectionView, IFAAdvancedCol
 
     public bool IsReadOnly => _source is IList l ? l.IsReadOnly : false;
 
-    internal IEnumerable Source => _source;
-
     public event EventHandler<object> CurrentChanged;
     public event FACurrentChangingEventHandler CurrentChanging;
     public event NotifyCollectionChangedEventHandler CollectionChanged;
-    public event PropertyChangedEventHandler PropertyChanged;
     public void Add(object item) => Insert(Count, item);
 
     public void Clear()
@@ -167,10 +256,7 @@ public sealed class FAIterableCollectionView : IFACollectionView, IFAAdvancedCol
         else
         {
             var en = _source.GetEnumerator();
-            while (en.MoveNext())
-            {
-                array[arrayIndex++] = en.Current;
-            }
+            while (en.MoveNext()) array[arrayIndex++] = en.Current;
         }
     }
 
@@ -185,20 +271,14 @@ public sealed class FAIterableCollectionView : IFACollectionView, IFAAdvancedCol
                 yield return item;
         }
 
-        if (_view != null)
-        {
-            return _view.GetEnumerator();
-        }
+        if (_view != null) return _view.GetEnumerator();
 
         return Enumerate(_source);
     }
 
     public int IndexOf(object item)
     {
-        if (_view != null)
-        {
-            return _view.IndexOf(item);
-        }
+        if (_view != null) return _view.IndexOf(item);
 
         return _source.IndexOf(item);
     }
@@ -263,45 +343,38 @@ public sealed class FAIterableCollectionView : IFACollectionView, IFAAdvancedCol
         ((IList)_source).RemoveAt(index);
     }
 
-    /// <inheritdoc/>
-    public void Refresh()
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    IAvaloniaList<IFACollectionViewGroup> IFACollectionView.CollectionGroups => null;
+
+    Task<FALoadMoreItemsResult> IFACollectionView.LoadMoreItemsAsync(uint count) =>
+        throw new NotImplementedException();
+
+    bool IList.IsFixedSize => _source is IList l && l.IsFixedSize;
+
+    bool ICollection.IsSynchronized => false;
+
+    object ICollection.SyncRoot => null;
+
+    int ICollection.Count => Count;
+
+    void IList.Insert(int index, object item) => Insert(index, item);
+
+    int IList.Add(object item)
     {
-        HandleSourceChanged();
+        Add(item);
+        return Count - 1;
     }
 
-    public void RefreshFilter()
-    {
-        HandleFilterChanged();
-    }
+    void IList.Clear() => Clear();
 
-    public void RefreshSorting()
-    {
-        HandleSortChanged();
-    }
+    bool IList.Contains(object value) => Contains(value);
 
-    public void AddFilterProperty(string propertyName)
-    {
-        if (!IsLiveShapingEnabled)
-            return;
+    void IList.Remove(object item) => Remove(item);
 
-        _filterProperties.Add(propertyName);
-    }
-
-    public void RemoveFilterProperty(string propertyName)
-    {
-        if (!IsLiveShapingEnabled)
-            return;
-
-        _filterProperties.Remove(propertyName);
-    }
-
-    public void ClearFilterProperties()
-    {
-        if (!IsLiveShapingEnabled)
-            return;
-
-        _filterProperties.Clear();
-    }
+    void ICollection.CopyTo(Array array, int index) =>
+        CopyTo((object[])array, index);
 
     public IDisposable DeferRefresh()
     {
@@ -313,26 +386,19 @@ public sealed class FAIterableCollectionView : IFACollectionView, IFAAdvancedCol
         IList<FASortDescription> sortDescriptions)
     {
         using var defer = DeferRefresh();
-                
+
         if (filterProperties != null)
         {
             _filterProperties.Clear();
-            foreach (var prop in filterProperties)
-            {
-                AddFilterProperty(prop);
-            }
+            foreach (var prop in filterProperties) AddFilterProperty(prop);
         }
 
         Filter = filter;
 
         _sortDescriptions?.Clear();
         if (sortDescriptions != null)
-        {
             foreach (var item in sortDescriptions)
-            {
                 SortDescriptions.Add(item);
-            }
-        }
     }
 
     private void ReleaseDefer(object lastCurrentItem)
@@ -349,7 +415,6 @@ public sealed class FAIterableCollectionView : IFACollectionView, IFAAdvancedCol
     private void SourceCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
     {
         if (_hasFilterOrSort)
-        {
             switch (args.Action)
             {
                 case NotifyCollectionChangedAction.Add:
@@ -357,14 +422,11 @@ public sealed class FAIterableCollectionView : IFACollectionView, IFAAdvancedCol
                     if (_deferCounter <= 0)
                     {
                         if (args.NewItems.Count == 1)
-                        {
                             HandleItemAdded(args.NewStartingIndex, args.NewItems[0]);
-                        }
                         else
-                        {
                             HandleSourceChanged();
-                        }
                     }
+
                     break;
 
                 case NotifyCollectionChangedAction.Remove:
@@ -372,26 +434,20 @@ public sealed class FAIterableCollectionView : IFACollectionView, IFAAdvancedCol
                     if (_deferCounter <= 0)
                     {
                         if (args.OldItems.Count == 1)
-                        {
                             HandleItemRemoved(args.OldStartingIndex, args.OldItems[0]);
-                        }
                         else
-                        {
                             HandleSourceChanged();
-                        }
                     }
+
                     break;
 
                 default:
                     HandleSourceChanged();
                     break;
             }
-        }
         else
-        {
             // Just a simple CollectionView, just propagate the args
             OnVectorChanged(args);
-        }
     }
 
     private void OnSortDescriptionsChanged(object sender, NotifyCollectionChangedEventArgs args)
@@ -428,26 +484,22 @@ public sealed class FAIterableCollectionView : IFACollectionView, IFAAdvancedCol
             var oldIndex = _view.IndexOf(item);
 
             // Check if item is in view:
-            if (oldIndex < 0)
-            {
-                return;
-            }
+            if (oldIndex < 0) return;
 
             _view.RemoveAt(oldIndex);
             var targetIndex = _view.BinarySearch(item, this);
-            if (targetIndex < 0)
-            {
-                targetIndex = ~targetIndex;
-            }
+            if (targetIndex < 0) targetIndex = ~targetIndex;
 
             // Only trigger expensive UI updates if the index really changed:
             if (targetIndex != oldIndex)
             {
-                OnVectorChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, oldIndex));
+                OnVectorChanged(
+                    new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, oldIndex));
 
                 _view.Insert(targetIndex, item);
 
-                OnVectorChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, targetIndex));
+                OnVectorChanged(
+                    new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, targetIndex));
             }
             else
             {
@@ -462,28 +514,16 @@ public sealed class FAIterableCollectionView : IFACollectionView, IFAAdvancedCol
 
     private void AttachPropertyChangedHandler(IEnumerable items)
     {
-        if (!IsLiveShapingEnabled || items == null)
-        {
-            return;
-        }
+        if (!IsLiveShapingEnabled || items == null) return;
 
-        foreach (var item in items.OfType<INotifyPropertyChanged>())
-        {
-            item.PropertyChanged += ItemOnPropertyChanged;
-        }
+        foreach (var item in items.OfType<INotifyPropertyChanged>()) item.PropertyChanged += ItemOnPropertyChanged;
     }
 
     private void DetachPropertyChangedHandler(IEnumerable items)
     {
-        if (!IsLiveShapingEnabled || items == null)
-        {
-            return;
-        }
+        if (!IsLiveShapingEnabled || items == null) return;
 
-        foreach (var item in items.OfType<INotifyPropertyChanged>())
-        {
-            item.PropertyChanged -= ItemOnPropertyChanged;
-        }
+        foreach (var item in items.OfType<INotifyPropertyChanged>()) item.PropertyChanged -= ItemOnPropertyChanged;
     }
 
     private void HandleSourceChanged()
@@ -549,10 +589,7 @@ public sealed class FAIterableCollectionView : IFACollectionView, IFAAdvancedCol
                     continue;
                 }
 
-                if (HandleItemAdded(i, item, viewIndex))
-                {
-                    viewIndex++;
-                }
+                if (HandleItemAdded(i, item, viewIndex)) viewIndex++;
             }
         }
         else
@@ -584,19 +621,12 @@ public sealed class FAIterableCollectionView : IFACollectionView, IFAAdvancedCol
             }
 
             if (newStartingIndex == 0 || _view.Count == 0)
-            {
                 newViewIndex = 0;
-            }
             else if (newStartingIndex == _sourceView.Count - 1)
-            {
                 newViewIndex = _view.Count - 1;
-            }
             else if (viewIndex.HasValue)
-            {
                 newViewIndex = viewIndex.Value;
-            }
             else
-            {
                 for (int i = 0, j = 0; i < _sourceView.Count; i++)
                 {
                     if (i == newStartingIndex)
@@ -605,19 +635,12 @@ public sealed class FAIterableCollectionView : IFACollectionView, IFAAdvancedCol
                         break;
                     }
 
-                    if (_view[j] == _sourceView[i])
-                    {
-                        j++;
-                    }
+                    if (_view[j] == _sourceView[i]) j++;
                 }
-            }
         }
 
         _view.Insert(newViewIndex, newItem);
-        if (newViewIndex <= CurrentPosition)
-        {
-            CurrentPosition++;
-        }
+        if (newViewIndex <= CurrentPosition) CurrentPosition++;
 
         var args = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add,
             newItem, newViewIndex);
@@ -628,20 +651,11 @@ public sealed class FAIterableCollectionView : IFACollectionView, IFAAdvancedCol
 
     private void HandleItemRemoved(int index, object item)
     {
-        if (_filter != null && !_filter(item))
-        {
-            return;
-        }
+        if (_filter != null && !_filter(item)) return;
 
-        if (index < 0 || index >= _view.Count || !Equals(_view[index], item))
-        {
-            index = _view.IndexOf(item);
-        }
+        if (index < 0 || index >= _view.Count || !Equals(_view[index], item)) index = _view.IndexOf(item);
 
-        if (index < 0)
-        {
-            return;
-        }
+        if (index < 0) return;
 
         RemoveFromView(index, item);
     }
@@ -681,82 +695,10 @@ public sealed class FAIterableCollectionView : IFACollectionView, IFAAdvancedCol
         return result;
     }
 
-
-    int IComparer<object>.Compare(object x, object y)
-    {
-        if (_sortDescriptions != null)
-        {
-            for (var i = 0; i < _sortDescriptions.Count; i++)
-            {
-                var desc = _sortDescriptions[i];
-                object cx, cy;
-
-                if (desc.Property == null)
-                {
-                    cx = x;
-                    cy = y;
-                }
-                else
-                {
-                    cx = EvaluateBinding(desc.Property, x);
-                    cy = EvaluateBinding(desc.Property, y);
-                }
-
-                var cmp = desc.Comparer.Compare(cx, cy);
-                if (cmp != 0)
-                    return desc.Direction == FASortDirection.Ascending ? cmp : -cmp;
-            }
-        }
-
-        return 0;
-    }
-
-
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-    IAvaloniaList<IFACollectionViewGroup> IFACollectionView.CollectionGroups => null;
-
-    bool IList.IsFixedSize => _source is IList l && l.IsFixedSize;
-
-    bool ICollection.IsSynchronized => false;
-
-    object ICollection.SyncRoot => null;
-
-    int ICollection.Count => Count;
-
-    Task<FALoadMoreItemsResult> IFACollectionView.LoadMoreItemsAsync(uint count) =>
-        throw new NotImplementedException();
-
-    void IList.Insert(int index, object item) => Insert(index, item);
-
-    int IList.Add(object item)
-    {
-        Add(item);
-        return Count - 1;
-    }
-
-    void IList.Clear() => Clear();
-
-    bool IList.Contains(object value) => Contains(value);
-
-    void IList.Remove(object item) => Remove(item);
-
-    void ICollection.CopyTo(Array array, int index) =>
-        CopyTo((object[])array, index);
-
     private static void ThrowForNonMutableSource()
     {
-        throw new NotSupportedException("Underlying source of type {_collection.GetType()} is not mutable. Source collection" +
+        throw new NotSupportedException(
+            "Underlying source of type {_collection.GetType()} is not mutable. Source collection" +
             "must implement non-generic IList for CollectionView mutation");
     }
-
-    private IList<FASortDescription> _sortDescriptions;
-    private Predicate<object> _filter;
-    private IEnumerable _source;
-    private ItemsSourceView _sourceView;
-    private List<object> _view;
-    private HashSet<string> _filterProperties;
-    private int _deferCounter;
-    private static BindingEvaluator<object> _bindingHelper;
-    private bool _hasFilterOrSort;
 }

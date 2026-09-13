@@ -17,7 +17,7 @@
                     </ui:FAInfoBadge.IconSource>
                 </ui:FAInfoBadge>
 
-                <ui:FAInfoBadge Classes="Attention Dot"/>
+                <ui:FAInfoBadge Classes="Attention Dot" />
                 <ui:FAInfoBadge Classes="Attention" Value="10" />
                 <ui:FAInfoBadge Classes="Attention Icon" />
 
@@ -42,12 +42,12 @@
 
 
     <ControlTheme x:Key="{x:Type ui:FAInfoBadge}" TargetType="ui:FAInfoBadge">
-        <Setter Property="MinHeight" Value="{DynamicResource InfoBadgeMinHeight}"/>
-        <Setter Property="MinWidth" Value="{DynamicResource InfoBadgeMinWidth}"/>
-        <Setter Property="MaxHeight" Value="{DynamicResource InfoBadgeMaxHeight}"/>
-        <Setter Property="Background" Value="{DynamicResource InfoBadgeBackground}"/>
-        <Setter Property="Foreground" Value="{DynamicResource InfoBadgeForeground}"/>
-        <Setter Property="Padding" Value="{DynamicResource InfoBadgePadding}"/>
+        <Setter Property="MinHeight" Value="{DynamicResource InfoBadgeMinHeight}" />
+        <Setter Property="MinWidth" Value="{DynamicResource InfoBadgeMinWidth}" />
+        <Setter Property="MaxHeight" Value="{DynamicResource InfoBadgeMaxHeight}" />
+        <Setter Property="Background" Value="{DynamicResource InfoBadgeBackground}" />
+        <Setter Property="Foreground" Value="{DynamicResource InfoBadgeForeground}" />
+        <Setter Property="Padding" Value="{DynamicResource InfoBadgePadding}" />
         <Setter Property="Template">
             <ControlTemplate>
                 <Border Name="RootGrid"
@@ -60,13 +60,14 @@
                                    FontSize="{DynamicResource InfoBadgeValueFontSize}"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"
-                                   IsVisible="False"/>
+                                   IsVisible="False" />
 
-                        <Viewbox Name="IconPresenter" 
-                                 HorizontalAlignment="Center" 
+                        <Viewbox Name="IconPresenter"
+                                 HorizontalAlignment="Center"
                                  VerticalAlignment="Stretch"
                                  IsVisible="False">
-                            <ContentPresenter Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TemplateSettings.IconElement}" />
+                            <ContentPresenter
+                                Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TemplateSettings.IconElement}" />
                         </Viewbox>
                     </Panel>
                 </Border>
@@ -112,7 +113,7 @@
             <Setter Property="RenderTransform" Value="rotate(180deg)" />
             <Setter Property="IconSource">
                 <!--<ui:FAFontIconSource Glyph="&#xF4A5;" FontFamily="{StaticResource SymbolThemeFontFamily}" />-->
-                <ui:FASymbolIconSource Symbol="ImportantFilled"/>
+                <ui:FASymbolIconSource Symbol="ImportantFilled" />
             </Setter>
         </Style>
 

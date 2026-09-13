@@ -19,7 +19,8 @@
                 <MergeResourceInclude Source="/Styling/ControlThemes/BasicControls/OverlayPopupHostStyles.axaml" />
                 <MergeResourceInclude Source="/Styling/ControlThemes/BasicControls/PopupRootStyles.axaml" />
                 <MergeResourceInclude Source="/Styling/ControlThemes/BasicControls/ToolTipStyles.axaml" />
-                <MergeResourceInclude Source="/Styling/ControlThemes/BasicControls/WindowNotificationManagerStyles.axaml" />
+                <MergeResourceInclude
+                    Source="/Styling/ControlThemes/BasicControls/WindowNotificationManagerStyles.axaml" />
                 <MergeResourceInclude Source="/Styling/ControlThemes/BasicControls/CarouselStyles.axaml" />
                 <MergeResourceInclude Source="/Styling/ControlThemes/BasicControls/ContentControlStyles.axaml" />
                 <MergeResourceInclude Source="/Styling/ControlThemes/BasicControls/ButtonSpinnerStyles.axaml" />
@@ -51,7 +52,8 @@
                 <MergeResourceInclude Source="/Styling/ControlThemes/BasicControls/DatePickerStyles.axaml" />
                 <MergeResourceInclude Source="/Styling/ControlThemes/BasicControls/TimePickerStyles.axaml" />
                 <MergeResourceInclude Source="/Styling/ControlThemes/BasicControls/TitleBarStyles.axaml" />
-                <MergeResourceInclude Source="/Styling/ControlThemes/BasicControls/TransitioningContentControlStyles.axaml" />
+                <MergeResourceInclude
+                    Source="/Styling/ControlThemes/BasicControls/TransitioningContentControlStyles.axaml" />
                 <MergeResourceInclude Source="/Styling/ControlThemes/BasicControls/ColorPicker/ColorPickerStyles.axaml" />
                 <MergeResourceInclude Source="/Styling/ControlThemes/BasicControls/DataGrid/DataGridStyles.axaml" />
                 <MergeResourceInclude Source="/Styling/ControlThemes/BasicControls/RefreshControlStyles.axaml" />
@@ -68,11 +70,8 @@
                 <MergeResourceInclude Source="/Styling/ControlThemes/BasicControls/TextSelectionHandleStyles.axaml" />
                 <MergeResourceInclude Source="/Styling/ControlThemes/BasicControls/CommandBarStyles.axaml" />
                 <!-- <MergeResourceInclude Source="/Styling/ControlThemes/BasicControls/WindowDecorations.axaml" /> -->
-                
-                
-                
-                
-                
+
+
                 <!-- FluentAvalonia Controls -->
                 <MergeResourceInclude Source="/Styling/ControlThemes/FAControls/FrameStyles.axaml" />
                 <MergeResourceInclude Source="/Styling/ControlThemes/FAControls/ContentDialogStyles.axaml" />
@@ -81,42 +80,65 @@
                 <MergeResourceInclude Source="/Styling/ControlThemes/FAControls/InfoBarStyles.axaml" />
                 <MergeResourceInclude Source="/Styling/ControlThemes/FAControls/NumberBoxStyles.axaml" />
 
-                <MergeResourceInclude Source="/Styling/ControlThemes/FAControls/FAMenuFlyout/FAMenuFlyoutPresenter.axaml" />
-                <MergeResourceInclude Source="/Styling/ControlThemes/FAControls/FAMenuFlyout/MenuFlyoutItemStyles.axaml" />
-                <MergeResourceInclude Source="/Styling/ControlThemes/FAControls/FAMenuFlyout/MenuFlyoutSubItemStyles.axaml" />
-                <MergeResourceInclude Source="/Styling/ControlThemes/FAControls/FAMenuFlyout/ToggleMenuFlyoutItemStyles.axaml" />
-                <MergeResourceInclude Source="/Styling/ControlThemes/FAControls/FAMenuFlyout/RadioMenuFlyoutItemStyles.axaml" />
-                <MergeResourceInclude Source="/Styling/ControlThemes/FAControls/FAMenuFlyout/MenuFlyoutSeparatorStyles.axaml" />
+                <MergeResourceInclude
+                    Source="/Styling/ControlThemes/FAControls/FAMenuFlyout/FAMenuFlyoutPresenter.axaml" />
+                <MergeResourceInclude
+                    Source="/Styling/ControlThemes/FAControls/FAMenuFlyout/MenuFlyoutItemStyles.axaml" />
+                <MergeResourceInclude
+                    Source="/Styling/ControlThemes/FAControls/FAMenuFlyout/MenuFlyoutSubItemStyles.axaml" />
+                <MergeResourceInclude
+                    Source="/Styling/ControlThemes/FAControls/FAMenuFlyout/ToggleMenuFlyoutItemStyles.axaml" />
+                <MergeResourceInclude
+                    Source="/Styling/ControlThemes/FAControls/FAMenuFlyout/RadioMenuFlyoutItemStyles.axaml" />
+                <MergeResourceInclude
+                    Source="/Styling/ControlThemes/FAControls/FAMenuFlyout/MenuFlyoutSeparatorStyles.axaml" />
 
                 <MergeResourceInclude Source="/Styling/ControlThemes/FAControls/CommandBar/CommandBarStyles.axaml" />
-                <MergeResourceInclude Source="/Styling/ControlThemes/FAControls/CommandBar/CommandBarButtonStyles.axaml" />
-                <MergeResourceInclude Source="/Styling/ControlThemes/FAControls/CommandBar/CommandBarToggleButtonStyles.axaml" />
-                <MergeResourceInclude Source="/Styling/ControlThemes/FAControls/CommandBar/CommandBarElementContainerStyles.axaml" />
-                <MergeResourceInclude Source="/Styling/ControlThemes/FAControls/CommandBar/CommandBarOverflowPresenterStyles.axaml" />
-                <MergeResourceInclude Source="/Styling/ControlThemes/FAControls/CommandBar/CommandBarSeparatorStyles.axaml" />
-                <MergeResourceInclude Source="/Styling/ControlThemes/FAControls/CommandBar/CommandBarFlyoutCommandBarStyles.axaml" />
+                <MergeResourceInclude
+                    Source="/Styling/ControlThemes/FAControls/CommandBar/CommandBarButtonStyles.axaml" />
+                <MergeResourceInclude
+                    Source="/Styling/ControlThemes/FAControls/CommandBar/CommandBarToggleButtonStyles.axaml" />
+                <MergeResourceInclude
+                    Source="/Styling/ControlThemes/FAControls/CommandBar/CommandBarElementContainerStyles.axaml" />
+                <MergeResourceInclude
+                    Source="/Styling/ControlThemes/FAControls/CommandBar/CommandBarOverflowPresenterStyles.axaml" />
+                <MergeResourceInclude
+                    Source="/Styling/ControlThemes/FAControls/CommandBar/CommandBarSeparatorStyles.axaml" />
+                <MergeResourceInclude
+                    Source="/Styling/ControlThemes/FAControls/CommandBar/CommandBarFlyoutCommandBarStyles.axaml" />
 
                 <MergeResourceInclude Source="/Styling/ControlThemes/FAControls/TabView/TabViewStyles.axaml" />
                 <MergeResourceInclude Source="/Styling/ControlThemes/FAControls/TabView/TabViewItemStyles.axaml" />
                 <MergeResourceInclude Source="/Styling/ControlThemes/FAControls/TabView/TabViewListViewStyles.axaml" />
 
-                <MergeResourceInclude Source="/Styling/ControlThemes/FAControls/NavigationView/NavigationViewSharedStyles.axaml" />
-                <MergeResourceInclude Source="/Styling/ControlThemes/FAControls/NavigationView/NavigationViewBackButtonStyles.axaml" />
-                <MergeResourceInclude Source="/Styling/ControlThemes/FAControls/NavigationView/NavigationViewItemHeaderStyles.axaml" />
-                <MergeResourceInclude Source="/Styling/ControlThemes/FAControls/NavigationView/NavigationViewItemSeparatorStyles.axaml" />
-                <MergeResourceInclude Source="/Styling/ControlThemes/FAControls/NavigationView/NavigationViewItemPresenterStyles.axaml" />
-                <MergeResourceInclude Source="/Styling/ControlThemes/FAControls/NavigationView/NavigationViewItemStyles.axaml" />
-                <MergeResourceInclude Source="/Styling/ControlThemes/FAControls/NavigationView/NavigationViewStyles.axaml" />
+                <MergeResourceInclude
+                    Source="/Styling/ControlThemes/FAControls/NavigationView/NavigationViewSharedStyles.axaml" />
+                <MergeResourceInclude
+                    Source="/Styling/ControlThemes/FAControls/NavigationView/NavigationViewBackButtonStyles.axaml" />
+                <MergeResourceInclude
+                    Source="/Styling/ControlThemes/FAControls/NavigationView/NavigationViewItemHeaderStyles.axaml" />
+                <MergeResourceInclude
+                    Source="/Styling/ControlThemes/FAControls/NavigationView/NavigationViewItemSeparatorStyles.axaml" />
+                <MergeResourceInclude
+                    Source="/Styling/ControlThemes/FAControls/NavigationView/NavigationViewItemPresenterStyles.axaml" />
+                <MergeResourceInclude
+                    Source="/Styling/ControlThemes/FAControls/NavigationView/NavigationViewItemStyles.axaml" />
+                <MergeResourceInclude
+                    Source="/Styling/ControlThemes/FAControls/NavigationView/NavigationViewStyles.axaml" />
 
 
                 <MergeResourceInclude Source="/Styling/ControlThemes/FAControls/TaskDialog/TaskDialogStyles.axaml" />
-                <MergeResourceInclude Source="/Styling/ControlThemes/FAControls/TaskDialog/TaskDialogCommandStyles.axaml" />
-                <MergeResourceInclude Source="/Styling/ControlThemes/FAControls/TaskDialog/TaskDialogButtonStyles.axaml" />
+                <MergeResourceInclude
+                    Source="/Styling/ControlThemes/FAControls/TaskDialog/TaskDialogCommandStyles.axaml" />
+                <MergeResourceInclude
+                    Source="/Styling/ControlThemes/FAControls/TaskDialog/TaskDialogButtonStyles.axaml" />
 
                 <MergeResourceInclude Source="/Styling/ControlThemes/FAControls/TeachingTipStyles.axaml" />
 
-                <MergeResourceInclude Source="/Styling/ControlThemes/FAControls/SettingsExpander/SettingsExpanderStyles.axaml" />
-                <MergeResourceInclude Source="/Styling/ControlThemes/FAControls/SettingsExpander/SettingsExpanderItemStyles.axaml" />
+                <MergeResourceInclude
+                    Source="/Styling/ControlThemes/FAControls/SettingsExpander/SettingsExpanderStyles.axaml" />
+                <MergeResourceInclude
+                    Source="/Styling/ControlThemes/FAControls/SettingsExpander/SettingsExpanderItemStyles.axaml" />
 
                 <MergeResourceInclude Source="/Styling/ControlThemes/FAControls/FAComboBox/FAComboBoxStyles.axaml" />
                 <MergeResourceInclude Source="/Styling/ControlThemes/FAControls/FAComboBox/FAComboBoxItemStyles.axaml" />
@@ -127,8 +149,10 @@
 
                 <MergeResourceInclude Source="/Styling/ControlThemes/FAControls/ProgressRingStyles.axaml" />
 
-                <MergeResourceInclude Source="/Styling/ControlThemes/FAControls/BreadcrumbBar/BreadcrumbBarStyles.axaml" />
-                <MergeResourceInclude Source="/Styling/ControlThemes/FAControls/BreadcrumbBar/BreadcrumbBarItemStyles.axaml" />
+                <MergeResourceInclude
+                    Source="/Styling/ControlThemes/FAControls/BreadcrumbBar/BreadcrumbBarStyles.axaml" />
+                <MergeResourceInclude
+                    Source="/Styling/ControlThemes/FAControls/BreadcrumbBar/BreadcrumbBarItemStyles.axaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Styles.Resources>
@@ -161,7 +185,7 @@
             <Setter Property="Width" Value="0" />
         </Style>
     </Style>-->
-    
+
 
     <!--
     Amendments to CommandBar buttons which before ControlThemes used these styles to control their 
@@ -170,12 +194,14 @@
     going to do anything special for it - so we'll just bring these styles back to support it
     I'd like to replace the CommandBar with something better in the future...
     -->
-    
-    <Style Selector="ui|FACommandBar:labelbottom ui|FACommandBarButton:compact:not(:overflow) /template/ TextBlock#TextLabel,
+
+    <Style
+        Selector="ui|FACommandBar:labelbottom ui|FACommandBarButton:compact:not(:overflow) /template/ TextBlock#TextLabel,
                      ui|FACommandBar:labelbottom ui|FACommandBarToggleButton:compact:not(:overflow) /template/ TextBlock#TextLabel">
         <Setter Property="IsVisible" Value="False" />
     </Style>
-    <Style Selector="ui|FACommandBar:labelbottom ui|FACommandBarButton:compact:not(:overflow) /template/ Grid#ContentRoot,
+    <Style
+        Selector="ui|FACommandBar:labelbottom ui|FACommandBarButton:compact:not(:overflow) /template/ Grid#ContentRoot,
                      ui|FACommandBar:labelbottom ui|FACommandBarToggleButton:compact:not(:overflow) /template/ Grid#ContentRoot">
         <Setter Property="MinHeight" Value="{DynamicResource AppBarThemeCompactHeight}" />
     </Style>
@@ -185,53 +211,63 @@
      This will eliminate the need to iterate over the elements when opening/closing and adjusting on the
      ICommandBarElements themselves - we let the styling system do it for us
      -->
-    <Style Selector="ui|FACommandBar:labelbottom:not(:open) ui|FACommandBarButton:not(:overflow) /template/ TextBlock#TextLabel,
+    <Style
+        Selector="ui|FACommandBar:labelbottom:not(:open) ui|FACommandBarButton:not(:overflow) /template/ TextBlock#TextLabel,
                      ui|FACommandBar:labelbottom:not(:open) ui|FACommandBarToggleButton:not(:overflow) /template/ TextBlock#TextLabel">
         <Setter Property="IsVisible" Value="False" />
     </Style>
     <!-- Also apply our compact change here too -->
-    <Style Selector="ui|FACommandBar:labelbottom:not(:open) ui|FACommandBarButton:not(:overflow) /template/ Grid#ContentRoot,
+    <Style
+        Selector="ui|FACommandBar:labelbottom:not(:open) ui|FACommandBarButton:not(:overflow) /template/ Grid#ContentRoot,
                      ui|FACommandBar:labelbottom:not(:open) ui|FACommandBarToggleButton:not(:overflow) /template/ Grid#ContentRoot">
         <Setter Property="MinHeight" Value="{DynamicResource AppBarThemeCompactHeight}" />
     </Style>
-    <Style Selector="ui|FACommandBar:labelbottom:open ui|FACommandBarButton:not(:overflow) /template/ TextBlock#TextLabel,
+    <Style
+        Selector="ui|FACommandBar:labelbottom:open ui|FACommandBarButton:not(:overflow) /template/ TextBlock#TextLabel,
                      ui|FACommandBar:labelbottom:open ui|FACommandBarToggleButton:not(:overflow) /template/ TextBlock#TextLabel">
         <Setter Property="IsVisible" Value="True" />
     </Style>
 
     <!-- LabelOnRight -->
-    <Style Selector="ui|FACommandBar:labelright ui|FACommandBarButton:not(:overflow),
+    <Style
+        Selector="ui|FACommandBar:labelright ui|FACommandBarButton:not(:overflow),
                      ui|FACommandBar:labelright ui|FACommandBarToggleButton:not(:overflow)">
         <Setter Property="Width" Value="NaN" />
     </Style>
-    <Style Selector="ui|FACommandBar:labelright ui|FACommandBarButton:not(:overflow) /template/ Viewbox#ContentViewbox,
+    <Style
+        Selector="ui|FACommandBar:labelright ui|FACommandBarButton:not(:overflow) /template/ Viewbox#ContentViewbox,
                      ui|FACommandBar:labelright ui|FACommandBarToggleButton:not(:overflow) /template/ Viewbox#ContentViewbox">
         <Setter Property="Margin" Value="{DynamicResource AppBarButtonContentViewboxMargin}" />
     </Style>
-    <Style Selector="ui|FACommandBar:labelright ui|FACommandBarButton:not(:overflow) /template/ Grid#ContentRoot,
+    <Style
+        Selector="ui|FACommandBar:labelright ui|FACommandBarButton:not(:overflow) /template/ Grid#ContentRoot,
                      ui|FACommandBar:labelright ui|FACommandBarToggleButton:not(:overflow) /template/ Grid#ContentRoot">
         <Setter Property="MinHeight" Value="{DynamicResource AppBarThemeCompactHeight}" />
     </Style>
-    <Style Selector="ui|FACommandBar:labelright ui|FACommandBarButton:not(:overflow) /template/ TextBlock#TextLabel,
+    <Style
+        Selector="ui|FACommandBar:labelright ui|FACommandBarButton:not(:overflow) /template/ TextBlock#TextLabel,
                      ui|FACommandBar:labelright ui|FACommandBarToggleButton:not(:overflow) /template/ TextBlock#TextLabel">
         <Setter Property="Grid.Row" Value="0" />
         <Setter Property="Grid.Column" Value="1" />
         <Setter Property="TextAlignment" Value="Left" />
         <Setter Property="Margin" Value="{DynamicResource AppBarButtonTextLabelOnRightMargin}" />
     </Style>
-    <Style Selector="ui|FACommandBar:labelright ui|FACommandBarButton:not(:overflow) /template/ ui|FASymbolIcon#SubItemChevron,
+    <Style
+        Selector="ui|FACommandBar:labelright ui|FACommandBarButton:not(:overflow) /template/ ui|FASymbolIcon#SubItemChevron,
                      ui|FACommandBar:labelright ui|FACommandBarToggleButton:not(:overflow) /template/ ui|FASymbolIcon#SubItemChevron">
         <Setter Property="Margin" Value="-7,20,12,0" />
     </Style>
 
     <!-- LabelCollapsed -->
-    <Style Selector="ui|FACommandBar:labelcollapsed ui|FACommandBarButton:not(:overflow) /template/ Grid#ContentRoot,
+    <Style
+        Selector="ui|FACommandBar:labelcollapsed ui|FACommandBarButton:not(:overflow) /template/ Grid#ContentRoot,
                      ui|FACommandBar:labelcollapsed ui|FACommandBarToggleButton:not(:overflow) /template/ Grid#ContentRoot">
         <Setter Property="MinHeight" Value="{DynamicResource AppBarThemeCompactHeight}" />
     </Style>
-    <Style Selector="ui|FACommandBar:labelcollapsed ui|FACommandBarButton:not(:overflow) /template/ TextBlock#TextLabel,
+    <Style
+        Selector="ui|FACommandBar:labelcollapsed ui|FACommandBarButton:not(:overflow) /template/ TextBlock#TextLabel,
                      ui|FACommandBar:labelcollapsed ui|FACommandBarToggleButton:not(:overflow) /template/ TextBlock#TextLabel">
         <Setter Property="IsVisible" Value="False" />
     </Style>
-    
+
 </Styles>

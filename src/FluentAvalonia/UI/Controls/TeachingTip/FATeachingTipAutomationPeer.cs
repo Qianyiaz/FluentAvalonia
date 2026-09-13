@@ -4,24 +4,24 @@ using Avalonia.Automation.Peers;
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// AutomationPeer for a <see cref="TeachingTip"/>
+///     AutomationPeer for a <see cref="TeachingTip" />
 /// </summary>
 public class FATeachingTipAutomationPeer : ContentControlAutomationPeer
 {
-    internal FATeachingTipAutomationPeer(FATeachingTip owner) 
+    internal FATeachingTipAutomationPeer(FATeachingTip owner)
         : base(owner)
     {
-
     }
 
     private FATeachingTip TeachingTip => Unsafe.As<FATeachingTip>(Owner);
 
+    public bool Maximizable => false;
+
+    public bool Minimizable => false;
+
     protected override AutomationControlType GetAutomationControlTypeCore()
     {
-        if (TeachingTip.IsLightDismissEnabled)
-        {
-            return AutomationControlType.Window;
-        }
+        if (TeachingTip.IsLightDismissEnabled) return AutomationControlType.Window;
 
         return AutomationControlType.Pane;
     }
@@ -33,10 +33,6 @@ public class FATeachingTipAutomationPeer : ContentControlAutomationPeer
     public bool IsModal() => TeachingTip.IsLightDismissEnabled;
 
     public bool IsTopmost() => TeachingTip.IsOpen;
-
-    public bool Maximizable => false;
-
-    public bool Minimizable => false;
 
     // public WindowVisualState VisualState();
 

@@ -5,13 +5,19 @@ using Avalonia.Controls;
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Defines the automation peer for a <see cref="FABreadcrumbBarItem"/>
+///     Defines the automation peer for a <see cref="FABreadcrumbBarItem" />
 /// </summary>
 public class FABreadcrumbBarItemAutomationPeer : ControlAutomationPeer, IInvokeProvider
 {
-    public FABreadcrumbBarItemAutomationPeer(Control owner) 
+    public FABreadcrumbBarItemAutomationPeer(Control owner)
         : base(owner)
     {
+    }
+
+    void IInvokeProvider.Invoke()
+    {
+        if (GetImpl() is FABreadcrumbBarItem item)
+            item.OnClickEvent(null, null);
     }
 
     protected override string GetClassNameCore()
@@ -19,14 +25,8 @@ public class FABreadcrumbBarItemAutomationPeer : ControlAutomationPeer, IInvokeP
         return nameof(FABreadcrumbBarItem);
     }
 
-    protected override AutomationControlType GetAutomationControlTypeCore() => 
+    protected override AutomationControlType GetAutomationControlTypeCore() =>
         AutomationControlType.Button;
 
     private FABreadcrumbBarItem GetImpl() => Owner as FABreadcrumbBarItem;
-
-    void IInvokeProvider.Invoke()
-    {
-        if (GetImpl() is FABreadcrumbBarItem item)
-            item.OnClickEvent(null, null);
-    }
 }

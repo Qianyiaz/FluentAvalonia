@@ -7,12 +7,23 @@ using FluentAvalonia.Core;
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Represents a line that separates menu items in a NavigationView.
+///     Represents a line that separates menu items in a NavigationView.
 /// </summary>
 [PseudoClasses(s_pcHorizontal, s_pcHorizontalCompact, s_pcVertical)]
 [TemplatePart(s_tpRootGrid, typeof(Panel))]
 public class FANavigationViewItemSeparator : FANavigationViewItemBase
 {
+    private const string s_tpRootGrid = "RootGrid";
+
+    private const string s_pcHorizontal = ":horizontal";
+    private const string s_pcHorizontalCompact = ":horizontalcompact";
+    private const string s_pcVertical = ":vertical";
+    private bool _appliedTemplate;
+    private bool _isClosedCompact;
+    private Panel _rootGrid;
+
+    private FACompositeDisposable _splitViewRevokers;
+
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
     {
         _appliedTemplate = false;
@@ -27,8 +38,10 @@ public class FANavigationViewItemSeparator : FANavigationViewItemBase
         if (splitView != null)
         {
             _splitViewRevokers = new FACompositeDisposable(
-                splitView.GetPropertyChangedObservable(SplitView.IsPaneOpenProperty).Subscribe(OnSplitViewPropertyChanged),
-                splitView.GetPropertyChangedObservable(SplitView.DisplayModeProperty).Subscribe(OnSplitViewPropertyChanged));
+                splitView.GetPropertyChangedObservable(SplitView.IsPaneOpenProperty)
+                    .Subscribe(OnSplitViewPropertyChanged),
+                splitView.GetPropertyChangedObservable(SplitView.DisplayModeProperty)
+                    .Subscribe(OnSplitViewPropertyChanged));
 
             UpdateIsClosedCompact(false);
         }
@@ -59,7 +72,8 @@ public class FANavigationViewItemSeparator : FANavigationViewItemBase
             return;
 
         //States: :horizontalcompact, :horizontal, :vertical
-        var isTop = Position == NavigationViewRepeaterPosition.TopFooter || Position == NavigationViewRepeaterPosition.TopPrimary;
+        var isTop = Position == NavigationViewRepeaterPosition.TopFooter ||
+                    Position == NavigationViewRepeaterPosition.TopPrimary;
 
         PseudoClasses.Set(s_pcHorizontal, !isTop && !_isClosedCompact);
         PseudoClasses.Set(s_pcHorizontalCompact, !isTop && _isClosedCompact);
@@ -82,21 +96,11 @@ public class FANavigationViewItemSeparator : FANavigationViewItemBase
         if (splitView != null)
         {
             _isClosedCompact = !splitView.IsPaneOpen &&
-                (splitView.DisplayMode == SplitViewDisplayMode.CompactInline || splitView.DisplayMode == SplitViewDisplayMode.CompactOverlay);
+                               (splitView.DisplayMode == SplitViewDisplayMode.CompactInline ||
+                                splitView.DisplayMode == SplitViewDisplayMode.CompactOverlay);
 
             if (updateVisState)
                 UpdateVisualState();
         }
     }
-
-    private FACompositeDisposable _splitViewRevokers;
-    private bool _appliedTemplate;
-    private bool _isClosedCompact;
-    private Panel _rootGrid;
-
-    private const string s_tpRootGrid = "RootGrid";
-
-    private const string s_pcHorizontal = ":horizontal";
-    private const string s_pcHorizontalCompact = ":horizontalcompact";
-    private const string s_pcVertical = ":vertical";
 }

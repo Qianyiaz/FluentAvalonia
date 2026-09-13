@@ -10,7 +10,7 @@
                     <ComboBoxItem Content="Item2" />
                     <ComboBoxItem Content="Item3" />
                 </ComboBox>
-                
+
                 <ComboBox PlaceholderText="Placeholder">
                     <ComboBoxItem Content="Item1" />
                     <ComboBoxItem Content="Item2" />
@@ -18,26 +18,25 @@
                 </ComboBox>
 
                 <ComboBox IsEnabled="False" />
-                
+
                 <Border Height="1" Background="Gray" />
-                
+
                 <ComboBoxItem Content="Item1" />
 
                 <Rectangle Name="Pill"
-                           Theme="{StaticResource ComboBoxItemPill}"
-                           />
+                           Theme="{StaticResource ComboBoxItemPill}" />
 
                 <ComboBox IsEditable="True">
                     <ComboBoxItem>Item1</ComboBoxItem>
                     <ComboBoxItem>Item2</ComboBoxItem>
                     <ComboBoxItem>Item3</ComboBoxItem>
                 </ComboBox>
-                
+
                 <ComboBox SelectedIndex="0">
                     <ComboBox.SelectionBoxItemTemplate>
                         <DataTemplate>
                             <Border Padding="20" BorderBrush="Red" BorderThickness="1">
-                                <TextBlock Text="{ReflectionBinding}"/>
+                                <TextBlock Text="{ReflectionBinding}" />
                             </Border>
                         </DataTemplate>
                     </ComboBox.SelectionBoxItemTemplate>
@@ -108,7 +107,7 @@
             <ControlTemplate>
                 <DataValidationErrors>
                     <Grid ColumnDefinitions="*,32">
-                        
+
                         <Border Name="Background"
                                 Grid.Column="0"
                                 Grid.ColumnSpan="2"
@@ -116,7 +115,7 @@
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 MinWidth="{DynamicResource ComboBoxThemeMinWidth}"
-                                CornerRadius="{TemplateBinding CornerRadius}"/>
+                                CornerRadius="{TemplateBinding CornerRadius}" />
 
                         <Border Name="HighlightBackground"
                                 Grid.Column="0"
@@ -129,7 +128,7 @@
                         <Border Name="Pill"
                                 Classes="ComboBoxItemPill"
                                 Margin="1 0 0 0"
-                                Opacity="0"/>
+                                Opacity="0" />
 
                         <TextBlock x:Name="PlaceholderTextBlock"
                                    Grid.Column="0"
@@ -140,7 +139,8 @@
                                    Foreground="{TemplateBinding PlaceholderForeground}">
                             <TextBlock.IsVisible>
                                 <MultiBinding Converter="{x:Static BoolConverters.And}">
-                                    <Binding Path="SelectionBoxItem" RelativeSource="{RelativeSource TemplatedParent}" Converter="{x:Static ObjectConverters.IsNull}" />
+                                    <Binding Path="SelectionBoxItem" RelativeSource="{RelativeSource TemplatedParent}"
+                                             Converter="{x:Static ObjectConverters.IsNull}" />
                                     <Binding Path="!IsEditable" RelativeSource="{RelativeSource TemplatedParent}" />
                                 </MultiBinding>
                             </TextBlock.IsVisible>
@@ -209,9 +209,10 @@
                                     HorizontalAlignment="Stretch"
                                     CornerRadius="{DynamicResource OverlayCornerRadius}"
                                     BackgroundSizing="InnerBorderEdge">
-                                <ScrollViewer HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
-                                              VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}"
-                                              IsDeferredScrollingEnabled="{TemplateBinding (ScrollViewer.IsDeferredScrollingEnabled)}">
+                                <ScrollViewer
+                                    HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
+                                    VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}"
+                                    IsDeferredScrollingEnabled="{TemplateBinding (ScrollViewer.IsDeferredScrollingEnabled)}">
                                     <ItemsPresenter Name="PART_ItemsPresenter"
                                                     Margin="{DynamicResource ComboBoxDropdownContentMargin}"
                                                     ItemsPanel="{TemplateBinding ItemsPanel}" />
@@ -280,7 +281,7 @@
         </Style>
 
         <Style Selector="^:error /template/ Border#Background">
-            <Setter Property="BorderBrush" Value="{DynamicResource SystemFillColorCriticalBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource SystemFillColorCriticalBrush}" />
         </Style>
     </ControlTheme>
 
@@ -312,7 +313,7 @@
                     <Panel>
                         <Rectangle Name="Pill"
                                    Theme="{StaticResource ComboBoxItemPill}"
-                                   Opacity="0"/>
+                                   Opacity="0" />
 
                         <ContentPresenter Name="ContentPresenter"
                                           Content="{TemplateBinding Content}"
@@ -324,7 +325,7 @@
                                           Background="{x:Null}"
                                           BorderBrush="{x:Null}"
                                           CornerRadius="{TemplateBinding CornerRadius}"
-                                          BorderThickness="0"/>
+                                          BorderThickness="0" />
                     </Panel>
 
                 </Border>
@@ -375,7 +376,7 @@
         </Style>
 
         <!-- WinUI styles not implemented: SelectedUnfocused  -->
-        
+
         <Style Selector="^:selected:disabled">
             <Style Selector="^ /template/ Rectangle#Pill">
                 <Setter Property="Opacity" Value="1" />

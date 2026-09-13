@@ -7,10 +7,14 @@ using SkiaSharp;
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Represents and icon that uses a bitmap as its content
+///     Represents and icon that uses a bitmap as its content
 /// </summary>
 public partial class FABitmapIcon : FAIconElement
 {
+    private FABitmapIconSource _bis;
+    protected SKBitmap _bitmap;
+    private Size _originalSize;
+
     public FABitmapIcon()
     {
         RenderOptions.SetBitmapInterpolationMode(this, BitmapInterpolationMode.HighQuality);
@@ -22,14 +26,15 @@ public partial class FABitmapIcon : FAIconElement
         UnlinkFromBitmapIconSource();
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
         if (change.Property == UriSourceProperty)
         {
             if (_bis != null)
-                throw new InvalidOperationException("Cannot edit properties of BitmapIcon if BitmapIconSource is linked");
+                throw new InvalidOperationException(
+                    "Cannot edit properties of BitmapIcon if BitmapIconSource is linked");
 
             CreateBitmap(change.GetNewValue<Uri>());
             InvalidateVisual();
@@ -37,13 +42,14 @@ public partial class FABitmapIcon : FAIconElement
         else if (change.Property == ShowAsMonochromeProperty)
         {
             if (_bis != null)
-                throw new InvalidOperationException("Cannot edit properties of BitmapIcon if BitmapIconSource is linked");
+                throw new InvalidOperationException(
+                    "Cannot edit properties of BitmapIcon if BitmapIconSource is linked");
 
             InvalidateVisual();
         }
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     protected override Size MeasureOverride(Size availableSize)
     {
         if (_bis != null)
@@ -55,7 +61,7 @@ public partial class FABitmapIcon : FAIconElement
         return _originalSize;
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override void Render(DrawingContext context)
     {
         if (_bitmap == null && _bis == null)
@@ -72,7 +78,7 @@ public partial class FABitmapIcon : FAIconElement
         var hei = (int)dst.Height;
 
         using (var bmp = new WriteableBitmap(new PixelSize(wid, hei), new Vector(96, 96),
-            PixelFormats.Bgra8888, AlphaFormat.Premul))
+                   PixelFormats.Bgra8888, AlphaFormat.Premul))
         {
             using var buffer = bmp.Lock();
 
@@ -122,17 +128,13 @@ public partial class FABitmapIcon : FAIconElement
             return;
 
         if (src.IsAbsoluteUri && src.IsFile)
-        {
             _bitmap = SKBitmap.Decode(src.LocalPath);
-        }
         else
-        {
             _bitmap = SKBitmap.Decode(AssetLoader.Open(src));
-        }
         _originalSize = new Size(_bitmap.Width, _bitmap.Height);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     protected void Dispose()
     {
         _bitmap?.Dispose();
@@ -161,8 +163,4 @@ public partial class FABitmapIcon : FAIconElement
         _bitmap = _bis._bitmap;
         _originalSize = _bis.Size;
     }
-
-    private FABitmapIconSource _bis;
-    protected SKBitmap _bitmap;
-    private Size _originalSize;
 }

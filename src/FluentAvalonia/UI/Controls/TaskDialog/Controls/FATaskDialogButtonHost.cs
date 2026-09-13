@@ -5,11 +5,11 @@ using FluentAvalonia.Core;
 namespace FluentAvalonia.UI.Controls.Primitives;
 
 /// <summary>
-/// Represents a button in a TaskDialog
+///     Represents a button in a TaskDialog
 /// </summary>
 /// <remarks>
-/// This type should not be used directly and is generated automatically
-/// by a TaskDialog
+///     This type should not be used directly and is generated automatically
+///     by a TaskDialog
 /// </remarks>
 public class FATaskDialogButtonHost : Button
 {
@@ -26,10 +26,7 @@ public class FATaskDialogButtonHost : Button
     {
         base.OnClick();
 
-        if (DataContext is FATaskDialogButton tdb)
-        {
-            tdb.RaiseClick();
-        }
+        if (DataContext is FATaskDialogButton tdb) tdb.RaiseClick();
     }
 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
@@ -37,8 +34,6 @@ public class FATaskDialogButtonHost : Button
         base.OnPropertyChanged(change);
 
         if (change.Property == IconSourceProperty)
-        {
             PseudoClasses.Set(FASharedPseudoclasses.s_pcIcon, change.NewValue != null);
-        }
     }
 }

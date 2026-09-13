@@ -5,7 +5,7 @@ using Avalonia.Controls;
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Represets the <see cref="AutomationPeer"/> for a <see cref="FATabView"/>
+///     Represets the <see cref="AutomationPeer" /> for a <see cref="FATabView" />
 /// </summary>
 public sealed class FATabViewAutomationPeer : ControlAutomationPeer, ISelectionProvider
 {
@@ -17,22 +17,18 @@ public sealed class FATabViewAutomationPeer : ControlAutomationPeer, ISelectionP
     public bool CanSelectMultiple => false;
 
     public bool IsSelectionRequired => true;
-        
-    protected override string GetClassNameCore() => nameof(FATabView);
-
-    protected override AutomationControlType GetAutomationControlTypeCore() =>
-        AutomationControlType.Tab;
 
     public IReadOnlyList<AutomationPeer> GetSelection()
     {
         if (Owner is FATabView tv)
-        {
             if (tv.ContainerFromIndex(tv.SelectedIndex) is FATabViewItem tvi)
-            {
                 return new AutomationPeer[] { CreatePeerForElement(tvi) };
-            }
-        }
 
         return Array.Empty<AutomationPeer>();
     }
+
+    protected override string GetClassNameCore() => nameof(FATabView);
+
+    protected override AutomationControlType GetAutomationControlTypeCore() =>
+        AutomationControlType.Tab;
 }

@@ -1,13 +1,17 @@
-﻿using Avalonia;
+﻿using System.Diagnostics;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
 using FluentAvalonia.Core;
-using System.Diagnostics;
 
 namespace FluentAvalonia.UI.Controls;
 
 internal class Phaser
 {
+    private readonly FAItemsRepeater _owner;
+    private List<ElementInfo> _pendingElements;
+    private bool _registeredForCallbacks;
+
     public Phaser(FAItemsRepeater owner)
     {
         _owner = owner;
@@ -22,7 +26,7 @@ internal class Phaser
         // the same as the order in which items are realized.
         _pendingElements.Insert(0, new ElementInfo(element, cArgs.Phase, cArgs.callback, virtInfo));
 
-        RegisterForCallback();        
+        RegisterForCallback();
     }
 
     public void StopPhasing(Control element, VirtualizationInfo virtInfo)
@@ -33,16 +37,11 @@ internal class Phaser
         // We need to remove the element from the pending elements list. We cannot just change the phase to -1
         // since it will get updated when the element gets recycled.
         for (var i = _pendingElements.Count - 1; i >= 0; i--)
-        {
             if (_pendingElements[i].Element == element)
-            {
                 _pendingElements.RemoveAt(i);
-                // Because of the way we do this compared to WinUI, its possible to have multiple entries in 
-                // _pendingElements with the same control - so we can't break here, we must search
-                //break;
-            }
-        }
-
+        // Because of the way we do this compared to WinUI, its possible to have multiple entries in 
+        // _pendingElements with the same control - so we can't break here, we must search
+        //break;
         // We no longer store the phase information on VirtualizationInfo because we handle it differently
         virtInfo.UpdatePhasingInfo(null /*data*/);
     }
@@ -73,21 +72,19 @@ internal class Phaser
                     info.Callback.Invoke(_owner, args);
 
                     var nextPhase = VirtualizationInfo.PhaseReachedEnd;
-                    
+
                     ValidatePhaseOrdering(currentPhase, nextPhase);
 
                     var previousAvailableSize = LayoutInformation.GetPreviousMeasureConstraint(element);
                     element.Measure(previousAvailableSize.Value);
-                    
+
                     if (nextPhase > 0)
                     {
                         // If we are the first item or 
                         // If the current items phase is higher than the next items phase, then move to the next item.
                         if (currentIndex == 0 ||
                             nextPhase > _pendingElements[currentIndex - 1].Phase)
-                        {
                             currentIndex--;
-                        }
                     }
                     else
                     {
@@ -118,20 +115,16 @@ internal class Phaser
                     {
                         var haveVisibleItems = visibleWindow.Intersects(
                             _pendingElements[pendingCount - 1].LastArrangeBounds);
-                        if (haveVisibleItems)
-                        {
-                            currentIndex = pendingCount - 1;
-                        }
+                        if (haveVisibleItems) currentIndex = pendingCount - 1;
                     }
                 }
-            }
-            while (_pendingElements.Count > 0 && !BuildTreeScheduler.ShouldYield());
+            } while (_pendingElements.Count > 0 && !BuildTreeScheduler.ShouldYield());
         }
 
         //Debug.Assert(!_registeredForCallbacks);
 
         if (_pendingElements.Count > 0)
-            RegisterForCallback();        
+            RegisterForCallback();
     }
 
     private void RegisterForCallback()
@@ -141,7 +134,7 @@ internal class Phaser
             Debug.Assert(_pendingElements.Count > 0);
             _registeredForCallbacks = true;
             BuildTreeScheduler.RegisterWork(
-                _pendingElements[_pendingElements.Count - 1].Phase,// Use the phase of the last one in the sorted list
+                _pendingElements[_pendingElements.Count - 1].Phase, // Use the phase of the last one in the sorted list
                 DoPhasedWorkCallback);
         }
     }
@@ -154,10 +147,8 @@ internal class Phaser
     private static void ValidatePhaseOrdering(int currentPhase, int nextPhase)
     {
         if (nextPhase > 0 && nextPhase <= currentPhase)
-        {
             // nextPhase <= currentPhase is invalid
             throw new InvalidOperationException("Phases are required to be monotonically increasing.");
-        }
     }
 
     private void SortElements(Rect visibleWindow)
@@ -172,28 +163,21 @@ internal class Phaser
 
             if ((lhsIntersects && rhsIntersects) ||
                 (!lhsIntersects && !rhsIntersects))
-            {
                 // Both are in the visible window or both are not
                 return lhs.Phase.CompareTo(rhs.Phase); // ??
-            }
 
             if (lhsIntersects)
-            {
                 // Left is in the visible window
                 return 0; // C++ returns false
-            }
 
             return 1; // C++ returns true
         });
     }
 
-    private readonly FAItemsRepeater _owner;
-    private List<ElementInfo> _pendingElements;
-    private bool _registeredForCallbacks;
-
     private readonly struct ElementInfo
     {
-        public ElementInfo(Control element, int phase, TypedEventHandler<FAItemsRepeater, FAContainerContentChangingEventArgs> callback, 
+        public ElementInfo(Control element, int phase,
+            TypedEventHandler<FAItemsRepeater, FAContainerContentChangingEventArgs> callback,
             VirtualizationInfo virtInfo)
         {
             Element = element;

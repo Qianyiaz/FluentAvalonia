@@ -6,8 +6,8 @@
     <ControlTheme x:Key="{x:Type ui:FANavigationViewItemHeader}" TargetType="ui:FANavigationViewItemHeader">
         <Setter Property="IsEnabled" Value="False" />
         <Setter Property="KeyboardNavigation.IsTabStop" Value="False" />
-        <Setter Property="MinHeight" Value="0"/>
-        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="MinHeight" Value="0" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="Foreground" Value="{DynamicResource NavigationViewItemHeaderForeground}" />
         <Setter Property="Template">
             <ControlTemplate>
@@ -37,7 +37,7 @@
                             <TextBlock.Transitions>
                                 <Transitions>
                                     <DoubleTransition Duration="00:00:00.2" Property="Opacity"
-                                                      Easing="0,0.35 0.15,1"/>
+                                                      Easing="0,0.35 0.15,1" />
                                 </Transitions>
                             </TextBlock.Transitions>
                         </TextBlock>

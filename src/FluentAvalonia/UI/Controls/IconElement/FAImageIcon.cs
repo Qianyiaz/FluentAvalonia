@@ -6,23 +6,23 @@ using Avalonia.Metadata;
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Represents an icon that uses an <see cref="Avalonia.Media.IImage"/> as its content.
+///     Represents an icon that uses an <see cref="Avalonia.Media.IImage" /> as its content.
 /// </summary>
 public class FAImageIcon : FAIconElement
 {
+    /// <summary>
+    ///     Defines the <see cref="Source" /> property
+    /// </summary>
+    public static readonly StyledProperty<IImage> SourceProperty =
+        AvaloniaProperty.Register<FAImageIcon, IImage>(nameof(Source));
+
     public FAImageIcon()
     {
         RenderOptions.SetBitmapInterpolationMode(this, BitmapInterpolationMode.HighQuality);
     }
 
     /// <summary>
-    /// Defines the <see cref="Source"/> property
-    /// </summary>
-    public static readonly StyledProperty<IImage> SourceProperty =
-        AvaloniaProperty.Register<FAImageIcon, IImage>(nameof(Source));
-
-    /// <summary>
-    /// Gets or sets the <see cref="Avalonia.Media.IImage"/> content this icon displays
+    ///     Gets or sets the <see cref="Avalonia.Media.IImage" /> content this icon displays
     /// </summary>
     [Content]
     public IImage Source

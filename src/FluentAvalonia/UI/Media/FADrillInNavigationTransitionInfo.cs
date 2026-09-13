@@ -7,18 +7,18 @@ using Avalonia.Styling;
 namespace FluentAvalonia.UI.Media.Animation;
 
 /// <summary>
-/// Specifies the animation to run when a user navigates forward in a logical hierarchy, 
-/// like from a master list to a detail page.
+///     Specifies the animation to run when a user navigates forward in a logical hierarchy,
+///     like from a master list to a detail page.
 /// </summary>
 public class FADrillInNavigationTransitionInfo : FANavigationTransitionInfo
 {
     /// <summary>
-    /// Gets or sets whether the animation should drill in (false) or drill out (true)
+    ///     Gets or sets whether the animation should drill in (false) or drill out (true)
     /// </summary>
     public bool IsReversed { get; set; } = false; //Zoom out if true
 
     //Zoom & Fade
-    public async override void RunAnimation(Animatable ctrl, CancellationToken cancellationToken)
+    public override async void RunAnimation(Animatable ctrl, CancellationToken cancellationToken)
     {
         var animation = new Avalonia.Animation.Animation
         {
@@ -55,4 +55,3 @@ public class FADrillInNavigationTransitionInfo : FANavigationTransitionInfo
         (ctrl as Visual).Opacity = 1;
     }
 }
-

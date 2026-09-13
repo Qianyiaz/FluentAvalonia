@@ -1,4 +1,5 @@
-﻿using Avalonia;
+﻿using System.Diagnostics;
+using Avalonia;
 using Avalonia.Automation.Peers;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
@@ -11,12 +12,27 @@ using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using FluentAvalonia.Core;
-using System.Diagnostics;
 
 namespace FluentAvalonia.UI.Controls;
 
 public partial class FAComboBox : HeaderedSelectingItemsControl
 {
+    private readonly ITemplate<Control> _noFocusAdornerTemplate = new FuncTemplate<Control>(() => new Decorator());
+    private int _currentTextSelectionStart;
+    private BindingEvaluator<object> _displayMemberBindingEvaluator;
+    private IDataTemplate _displayMemberTemplate;
+    private Border _dropDownOverlay;
+    private int _dropDownSelectedIndex = -1;
+    private bool _hasUnsubmittedText;
+    private int _ignoreTextPropertyChange;
+    private bool _ignoreTextSelectionChange;
+
+
+    private Popup _popup;
+
+    private FACompositeDisposable _subscriptionsOnOpen = new();
+    private TextBox _textBox;
+
     static FAComboBox()
     {
         FocusableProperty.OverrideDefaultValue<FAComboBox>(true);
@@ -69,13 +85,9 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
 
         var text = Text;
         if (IsEditable && !string.IsNullOrEmpty(text))
-        {
             UpdateSelectionBoxItem(text);
-        }
         else
-        {
             UpdateSelectionBoxItem(SelectedItem);
-        }
     }
 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
@@ -90,7 +102,6 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
         {
             var temp = change.GetNewValue<BindingBase>();
             if (temp != null)
-            {
                 _displayMemberTemplate = new FuncDataTemplate<object>((_, _) =>
                 {
                     return new TextBlock
@@ -98,11 +109,8 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
                         [!TextBlock.TextProperty] = temp
                     };
                 });
-            }
             else
-            {
                 _displayMemberTemplate = null;
-            }
         }
         else if (change.Property == ItemTemplateProperty)
         {
@@ -116,10 +124,7 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
         }
         else if (change.Property == TextProperty)
         {
-            if (_textBox != null && IsEditable)
-            {
-                OnTextChanged(change.GetNewValue<string>());
-            }
+            if (_textBox != null && IsEditable) OnTextChanged(change.GetNewValue<string>());
         }
         else if (change.Property == HeaderProperty)
         {
@@ -156,17 +161,14 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
         var isEditable = IsEditable;
 
         if ((e.Key == Key.F4 && e.KeyModifiers.HasFlag(KeyModifiers.Alt) == false) ||
-                ((e.Key == Key.Down || e.Key == Key.Up) && e.KeyModifiers.HasFlag(KeyModifiers.Alt)))
+            ((e.Key == Key.Down || e.Key == Key.Up) && e.KeyModifiers.HasFlag(KeyModifiers.Alt)))
         {
             IsDropDownOpen = !isOpen;
             e.Handled = true;
         }
         else if (e.Key == Key.Escape)
         {
-            if (isOpen)
-            {
-                IsDropDownOpen = false;
-            }
+            if (isOpen) IsDropDownOpen = false;
 
             // Two cases for this:
             // 1- If isOpen, since we change the selection box based on keyboard navigaton without changing
@@ -174,11 +176,9 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
             // 2- If !isOpen, and editable, user can revert their text change by pressing escape
             UpdateSelectionBoxItem(SelectedItem);
             if (isEditable && SelectedItem is null)
-            {
                 // UWP behavior - even if text is set, hitting escape will clear the text if no
                 // item is selected
                 Text = null;
-            }
             e.Handled = true;
         }
         else if (!isOpen && !isEditable && (e.Key == Key.Enter || e.Key == Key.Space))
@@ -189,13 +189,9 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
         else if (isEditable && e.Key == Key.Enter)
         {
             if (_textBox is not null && _textBox.IsFocused)
-            {
                 OnTextSubmittedCore();
-            }
             else
-            {
                 SelectFocusedItem();
-            }
             IsDropDownOpen = false;
             e.Handled = true;
         }
@@ -210,25 +206,17 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
             if (e.Key == Key.Down)
             {
                 if (!isEditable)
-                {
                     SelectNext();
-                }
                 else
-                {
                     IsDropDownOpen = true;
-                }
                 e.Handled = true;
             }
             else if (e.Key == Key.Up)
             {
                 if (!isEditable)
-                {
                     SelectPrevious();
-                }
                 else
-                {
                     IsDropDownOpen = true;
-                }
                 e.Handled = true;
             }
         }
@@ -275,10 +263,8 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
         base.OnPointerPressed(e);
 
         if (!e.Handled && e.Source is Visual src)
-        {
             if (_popup?.IsInsidePopup(src) == true)
                 return;
-        }
         PseudoClasses.Set(FASharedPseudoclasses.s_pcPressed, true);
     }
 
@@ -297,7 +283,7 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
                         _popup.Close();
                         e.Handled = true;
                     }
-                }                
+                }
             }
             else
             {
@@ -312,6 +298,7 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
                 e.Handled = true;
             }
         }
+
         PseudoClasses.Set(FASharedPseudoclasses.s_pcPressed, false);
         base.OnPointerReleased(e);
     }
@@ -330,11 +317,9 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
             else
             {
                 if (!_textBox.IsFocused)
-                {
                     // If focus moves to the dropdown, keep the textbox style looking
                     // like its focused
                     ((IPseudoClasses)_textBox.Classes).Set(s_pcFocus, true);
-                }
             }
         }
 
@@ -345,22 +330,13 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
     {
         base.OnLostFocus(e);
 
-        if (IsDropDownOpen && e.Source is FAComboBoxItem)
-        {
-            return;
-        }
+        if (IsDropDownOpen && e.Source is FAComboBoxItem) return;
 
         if (IsEditable && !HasImplicitFocus())
         {
-            if (_hasUnsubmittedText)
-            {
-                OnTextSubmittedCore();
-            }
+            if (_hasUnsubmittedText) OnTextSubmittedCore();
 
-            if (IsDropDownOpen && _popup.IsLightDismissEnabled)
-            {
-                IsDropDownOpen = false;
-            }
+            if (IsDropDownOpen && _popup.IsLightDismissEnabled) IsDropDownOpen = false;
 
             ClearTextBoxSelection();
         }
@@ -382,21 +358,16 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
         base.PrepareContainerForItemOverride(element, item, index);
 
         if (IsEditable)
-        {
             // When the ComboBox is editable, we don't use the FocusAdorner in the ComboBox dropdown
             // and use the "selected" visual state as the indicator
             element.FocusAdorner = _noFocusAdornerTemplate;
-        }
     }
 
     protected override void ClearContainerForItemOverride(Control element)
     {
         base.ClearContainerForItemOverride(element);
 
-        if (IsEditable)
-        {
-            element.ClearValue(FocusAdornerProperty);
-        }
+        if (IsEditable) element.ClearValue(FocusAdornerProperty);
     }
 
     protected override AutomationPeer OnCreateAutomationPeer()
@@ -412,16 +383,11 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
         var baseResult = base.ShouldTriggerSelection(selectable, eventArgs);
 
         if (!baseResult)
-        {
             if (eventArgs is PointerReleasedEventArgs args)
             {
                 var pt = args.GetCurrentPoint(this);
-                if (pt.Properties.PointerUpdateKind == PointerUpdateKind.LeftButtonReleased)
-                {
-                    baseResult = true;
-                }
+                if (pt.Properties.PointerUpdateKind == PointerUpdateKind.LeftButtonReleased) baseResult = true;
             }
-        }
 
         return baseResult;
     }
@@ -433,10 +399,7 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
             item.BringIntoView();
 
             var oldContainer = ContainerFromIndex(_dropDownSelectedIndex);
-            if (oldContainer != null)
-            {
-                ((IPseudoClasses)oldContainer.Classes).Set(s_pcSelected, false);
-            }
+            if (oldContainer != null) ((IPseudoClasses)oldContainer.Classes).Set(s_pcSelected, false);
 
             var changeType = SelectionChangedTrigger;
             if (changeType == FAComboBoxSelectionChangedTrigger.Always)
@@ -460,7 +423,6 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
 
     protected virtual void OnTextSubmitted(FAComboBoxTextSubmittedEventArgs args)
     {
-
     }
 
     private void OnPopupOpened(object sender, EventArgs e)
@@ -474,25 +436,21 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
 
         var toplevel = TopLevel.GetTopLevel(this);
         if (toplevel != null)
-        {
             _subscriptionsOnOpen.Add(
                 toplevel.AddDisposableHandler(PointerWheelChangedEvent, (s, ev) =>
                 {
                     if (IsDropDownOpen && TopLevel.GetTopLevel(ev.Source as Visual) == toplevel)
                         ev.Handled = true;
                 }, RoutingStrategies.Tunnel));
-        }
 
         _subscriptionsOnOpen.Add(
             this.GetObservable(IsVisibleProperty).Subscribe(
                 new SimpleObserver<bool>(IsVisibleChanged)));
 
         foreach (var parent in this.GetVisualAncestors().OfType<Control>())
-        {
             _subscriptionsOnOpen.Add(
                 parent.GetObservable(IsVisibleProperty).Subscribe(
                     new SimpleObserver<bool>(IsVisibleChanged)));
-        }
 
         UpdateFlowDirection();
 
@@ -531,11 +489,9 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
 
             var contentRoot = TopLevel.GetTopLevel(_popup.Child);
             if (contentRoot is PopupRoot)
-            {
                 // HACK: Windowed popups appear to be +1 offset on x-axis for some reason
                 // which makes the popup look off center. Overlay popups are fine
                 _popup.HorizontalOffset = -1;
-            }
         }
         else
         {
@@ -584,13 +540,9 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
         if (CanFocus(this))
         {
             if (IsEditable && _textBox != null)
-            {
                 _textBox.Focus();
-            }
             else
-            {
                 Focus();
-            }
         }
 
         DropDownClosed?.Invoke(this, EventArgs.Empty);
@@ -600,11 +552,9 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
         if (_dropDownSelectedIndex != SelectedIndex)
         {
             var container = ContainerFromIndex(_dropDownSelectedIndex);
-            if (container != null)
-            {
-                ((IPseudoClasses)container.Classes).Set(s_pcSelected, false);
-            }
+            if (container != null) ((IPseudoClasses)container.Classes).Set(s_pcSelected, false);
         }
+
         _dropDownSelectedIndex = -1;
         PseudoClasses.Set(s_pcDropDownOpen, false);
         PseudoClasses.Set(s_pcPopupAbove, false);
@@ -639,22 +589,13 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
 
     private void UpdateSelectionBoxItem(object item)
     {
-        if (!this.IsAttachedToVisualTree())
-        {
-            return;
-        }
+        if (!this.IsAttachedToVisualTree()) return;
 
-        if (IsEditable && item != null)
-        {
-            UpdateTextValue(FormatValue(item), false);
-        }
+        if (IsEditable && item != null) UpdateTextValue(FormatValue(item), false);
 
         var contentControl = item as ContentControl;
 
-        if (contentControl != null)
-        {
-            item = contentControl.Content;
-        }
+        if (contentControl != null) item = contentControl.Content;
 
         var control = item as Control;
 
@@ -663,29 +604,22 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
             control.Measure(Size.Infinity);
 
             var sbi = SelectionBoxItem;
-            var displayItem = (sbi as Rectangle) ?? new Rectangle();
+            var displayItem = sbi as Rectangle ?? new Rectangle();
 
             displayItem.Width = control.DesiredSize.Width;
             displayItem.Height = control.DesiredSize.Height;
 
             if (displayItem.Fill is VisualBrush vb)
-            {
                 vb.Visual = control;
-            }
             else
-            {
                 displayItem.Fill = new VisualBrush
                 {
                     Visual = control,
                     Stretch = Stretch.None,
-                    AlignmentX = AlignmentX.Left,
+                    AlignmentX = AlignmentX.Left
                 };
-            }
 
-            if (sbi != displayItem)
-            {
-                SelectionBoxItem = displayItem;
-            }
+            if (sbi != displayItem) SelectionBoxItem = displayItem;
 
             UpdateFlowDirection();
         }
@@ -711,13 +645,11 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
     private void UpdateFlowDirection()
     {
         if (SelectionBoxItem is Rectangle rectangle)
-        {
             if ((rectangle.Fill as VisualBrush)?.Visual is Visual content)
             {
                 var flowDirection = (content.GetVisualParent() as Control)?.FlowDirection ?? FlowDirection.LeftToRight;
                 rectangle.FlowDirection = flowDirection;
             }
-        }
     }
 
     private void SelectNext() => MoveSelection(SelectedIndex, 1, WrapSelection);
@@ -767,13 +699,11 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
         else
         {
             foreach (var item in GetRealizedContainers())
-            {
                 if (item.IsFocused)
                 {
                     SelectedIndex = IndexFromContainer(item);
                     break;
                 }
-            }
         }
     }
 
@@ -786,7 +716,6 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
         // so we'll just use the first
         IsSelectionBoxHighlighted = !IsDropDownOpen && IsKeyboardFocusWithin;
     }
-
 
 
     //////////////////////////////////////////////////////////////
@@ -834,15 +763,9 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
 
     private string FormatValue(object item)
     {
-        if (item is ContentControl cc)
-        {
-            return cc.Content.ToString();
-        }
+        if (item is ContentControl cc) return cc.Content.ToString();
 
-        if (item is string s)
-        {
-            return s;
-        }
+        if (item is string s) return s;
 
         var result = GetBindingEvaluator().Evaluate(item)?.ToString();
         _displayMemberBindingEvaluator.ClearDataContext();
@@ -897,11 +820,9 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
         var start = _textBox.SelectionStart;
         var end = _textBox.SelectionEnd;
 
-        if (IsTextSearchEnabled && _textBox != null && (end - start) > 0 &&
+        if (IsTextSearchEnabled && _textBox != null && end - start > 0 &&
             start != _textBox.Text.Length)
-        {
             return;
-        }
 
         _hasUnsubmittedText = true;
 
@@ -918,7 +839,6 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
     {
         var text = Text;
         if (ItemCount > 0)
-        {
             if (IsTextSearchEnabled && _textBox != null && user)
             {
                 var curLen = _textBox.Text.Length;
@@ -939,23 +859,16 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
                             _textBox.SelectionStart = curLen;
                             _textBox.SelectionEnd = value.Length;
 
-                            if (IsDropDownOpen)
-                            {
-                                _dropDownSelectedIndex = index;
-                            }
+                            if (IsDropDownOpen) _dropDownSelectedIndex = index;
                         }
                     }
                 }
             }
-        }
 
         if (_ignoreTextSelectionChange)
         {
             _ignoreTextSelectionChange = false;
-            if (_textBox != null)
-            {
-                _currentTextSelectionStart = _textBox.SelectionStart;
-            }
+            if (_textBox != null) _currentTextSelectionStart = _textBox.SelectionStart;
         }
 
         static bool Compare(string text1, string text2, int minLength)
@@ -1058,10 +971,7 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
                 // If the item is a ContentControl (ComboBoxItem), directly search its content
                 // we don't need to go through the binding path here since DisplayMemberBinding
                 // isn't active when item = container
-                if (cc.Content.ToString().Equals(text))
-                {
-                    return i;
-                }
+                if (cc.Content.ToString().Equals(text)) return i;
             }
             else
             {
@@ -1079,19 +989,4 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
         evaluator.ClearDataContext();
         return -1;
     }
-
-
-    private Popup _popup;
-    private TextBox _textBox;
-    private Border _dropDownOverlay;
-    private IDataTemplate _displayMemberTemplate;
-    private int _dropDownSelectedIndex = -1;
-    private int _ignoreTextPropertyChange;
-    private bool _ignoreTextSelectionChange;
-    private bool _hasUnsubmittedText;
-    private int _currentTextSelectionStart;
-    private readonly ITemplate<Control> _noFocusAdornerTemplate = new FuncTemplate<Control>(() => new Decorator());
-    private BindingEvaluator<object> _displayMemberBindingEvaluator;
-
-    private FACompositeDisposable _subscriptionsOnOpen = new FACompositeDisposable();
 }

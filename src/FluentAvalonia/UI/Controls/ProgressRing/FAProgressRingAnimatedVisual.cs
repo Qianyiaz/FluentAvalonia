@@ -9,13 +9,16 @@ using SkiaSharp;
 namespace FluentAvalonia.UI.Controls.Primitives;
 
 /// <summary>
-/// Represents the animated visual source for a <see cref="FAProgressRing"/>
+///     Represents the animated visual source for a <see cref="FAProgressRing" />
 /// </summary>
 /// <remarks>
-/// This class is only public for Xaml support in the control template of the ProgressRing
+///     This class is only public for Xaml support in the control template of the ProgressRing
 /// </remarks>
 public sealed class FAProgressRingAnimatedVisual : Control
 {
+    private CustomCompHandler _handler;
+    private CompositionCustomVisual _sfc;
+
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {
         base.OnAttachedToVisualTree(e);
@@ -78,29 +81,18 @@ public sealed class FAProgressRingAnimatedVisual : Control
     internal void SetBackground(IBrush brush)
     {
         if (brush is ISolidColorBrush scb)
-        {
             _sfc?.SendHandlerMessage(new HandlerMessage(HandlerMessageType.Background, scb.Color.ToSKColor()));
-        }
         else
-        {
             _sfc?.SendHandlerMessage(new HandlerMessage(HandlerMessageType.Background, null));
-        }
     }
 
     internal void SetForeground(IBrush brush)
     {
         if (brush is ISolidColorBrush scb)
-        {
             _sfc?.SendHandlerMessage(new HandlerMessage(HandlerMessageType.Foreground, scb.Color.ToSKColor()));
-        }
         else
-        {
             _sfc?.SendHandlerMessage(new HandlerMessage(HandlerMessageType.Foreground, SKColors.Transparent));
-        }
     }
-
-    private CustomCompHandler _handler;
-    private CompositionCustomVisual _sfc;
 
     private enum HandlerMessageType
     {
@@ -128,6 +120,22 @@ public sealed class FAProgressRingAnimatedVisual : Control
 
     private class CustomCompHandler : CompositionCustomVisualHandler
     {
+        private readonly SKPaint _layerPaint;
+        private readonly SKPaint _paint;
+        private readonly SKPath _path;
+        private readonly SKRect _visualBounds = new(10, 10, 70, 70);
+        private bool _active;
+
+        private SKColor? _background;
+        private float _duration = 2;
+        private SKColor _foreground;
+        private bool _indeterminate;
+        private bool _isAnimatingToValue;
+
+        private TimeSpan? _lastTime;
+        private float _lastValue;
+        private float _min, _max, _value;
+
         public CustomCompHandler(double minimum, double maximum, double value, bool isActive,
             IBrush background, IBrush foreground)
         {
@@ -136,15 +144,9 @@ public sealed class FAProgressRingAnimatedVisual : Control
             _value = (float)value;
             _active = isActive;
 
-            if (background is ISolidColorBrush scb)
-            {
-                _background = scb.Color.ToSKColor();
-            }
+            if (background is ISolidColorBrush scb) _background = scb.Color.ToSKColor();
 
-            if (foreground is ISolidColorBrush scbF)
-            {
-                _foreground = scbF.Color.ToSKColor();
-            }
+            if (foreground is ISolidColorBrush scbF) _foreground = scbF.Color.ToSKColor();
 
             _paint = new SKPaint
             {
@@ -185,15 +187,13 @@ public sealed class FAProgressRingAnimatedVisual : Control
                 _paint.Color = _background.Value;
                 dc.DrawArc(_visualBounds, 0, 360, false, _paint);
             }
-            
+
             _paint.Color = _foreground;
             dc.DrawPath(_path, _paint);
 
             if (needsOpacityLayer)
-            {
                 // Restore the canvas to apply the layer with the specified opacity
                 dc.Restore();
-            }
         }
 
         public override void OnAnimationFrameUpdate()
@@ -218,10 +218,7 @@ public sealed class FAProgressRingAnimatedVisual : Control
 
                 if (seconds > _duration)
                 {
-                    while (seconds > _duration)
-                    {
-                        seconds -= _duration;
-                    }
+                    while (seconds > _duration) seconds -= _duration;
 
                     _lastTime = now - TimeSpan.FromSeconds(seconds);
                 }
@@ -236,17 +233,11 @@ public sealed class FAProgressRingAnimatedVisual : Control
 
                 float size = 0, size2 = 0, position = 0;
                 if (progress < 0.25)
-                {
                     size = 180 * (progress / 0.25f);
-                }
                 else if (progress >= 0.75)
-                {
                     size = 180 * ((1 - progress) / 0.25f);
-                }
                 else
-                {
                     size = 180;
-                }
 
                 size2 = size / 2;
 
@@ -274,13 +265,13 @@ public sealed class FAProgressRingAnimatedVisual : Control
                 }
 
                 var dV = _value - _lastValue;
-                var size = _lastValue + (dV * progress);
+                var size = _lastValue + dV * progress;
                 _path.Reset();
                 _path.MoveTo(40, 10);
                 _path.AddArc(_visualBounds, -90, 360 * (size - _min) / (_max - _min));
             }
             else
-            {                
+            {
                 _path.Reset();
                 _path.MoveTo(40, 10);
                 _path.AddArc(_visualBounds, -90, 360 * (_value - _min) / (_max - _min));
@@ -302,25 +293,25 @@ public sealed class FAProgressRingAnimatedVisual : Control
                         break;
 
                     case HandlerMessageType.Value:
-                        {
-                            var next = (float)hm.Data;
-                            _lastValue = _value;
+                    {
+                        var next = (float)hm.Data;
+                        _lastValue = _value;
 
-                            // No animation if we drop the value
-                            if (next <= _value)
-                            {
-                                _value = next;
-                                _isAnimatingToValue = false;
-                            }
-                            else
-                            {
-                                // Increasing, animate to new value
-                                _value = next;
-                                _isAnimatingToValue = true;
-                                RegisterForNextAnimationFrameUpdate();
-                                return;
-                            }
-                        }                        
+                        // No animation if we drop the value
+                        if (next <= _value)
+                        {
+                            _value = next;
+                            _isAnimatingToValue = false;
+                        }
+                        else
+                        {
+                            // Increasing, animate to new value
+                            _value = next;
+                            _isAnimatingToValue = true;
+                            RegisterForNextAnimationFrameUpdate();
+                            return;
+                        }
+                    }
                         break;
 
                     case HandlerMessageType.Active:
@@ -346,29 +337,21 @@ public sealed class FAProgressRingAnimatedVisual : Control
                         break;
 
                     case HandlerMessageType.Background:
-                        {
-                            if (hm.Data is SKColor c)
-                            {
-                                _background = c;
-                            }
-                            else
-                            {
-                                _background = null;
-                            }
-                        }
+                    {
+                        if (hm.Data is SKColor c)
+                            _background = c;
+                        else
+                            _background = null;
+                    }
                         break;
 
                     case HandlerMessageType.Foreground:
-                        {
-                            if (hm.Data is SKColor c)
-                            {
-                                _foreground = c;
-                            }
-                            else
-                            {
-                                _foreground = SKColors.Transparent;
-                            }
-                        }
+                    {
+                        if (hm.Data is SKColor c)
+                            _foreground = c;
+                        else
+                            _foreground = SKColors.Transparent;
+                    }
                         break;
                 }
 
@@ -376,20 +359,5 @@ public sealed class FAProgressRingAnimatedVisual : Control
                 Invalidate();
             }
         }
-
-        private TimeSpan? _lastTime;
-        private float _duration = 2;
-        private readonly SKPaint _paint;
-        private readonly SKPath _path;
-        private readonly SKPaint _layerPaint;
-        private readonly SKRect _visualBounds = new SKRect(10, 10, 70, 70);
-
-        private SKColor? _background;
-        private SKColor _foreground;
-        private float _min, _max, _value;
-        private bool _indeterminate;
-        private bool _active;
-        private bool _isAnimatingToValue;
-        private float _lastValue;
     }
 }

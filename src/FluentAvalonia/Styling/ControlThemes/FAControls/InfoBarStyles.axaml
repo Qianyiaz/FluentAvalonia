@@ -18,7 +18,8 @@
                 <ui:FAInfoBar IsOpen="True" Title="Title" Message="Message" Severity="Error" />
                 <ui:FAInfoBar IsOpen="True" Title="Title" Message="Message" Severity="Success" />
 
-                <ui:FAInfoBar IsOpen="True" Title="Title" Background="DarkSlateBlue" Message="Message" Severity="Success" Foreground="Red" />
+                <ui:FAInfoBar IsOpen="True" Title="Title" Background="DarkSlateBlue" Message="Message"
+                              Severity="Success" Foreground="Red" />
 
                 <ui:FAInfoBar IsOpen="True" Title="Custom Icon" Message="akls;df">
                     <ui:FAInfoBar.IconSource>
@@ -81,7 +82,7 @@
     <Thickness x:Key="InfoBarActionVerticalOrientationMargin">0,12,0,0</Thickness>
     <ui:FASymbol x:Key="InfoBarCloseButtonSymbol">Dismiss</ui:FASymbol>
 
-    
+
     <ControlTheme x:Key="InfoBarCloseButtonStyle"
                   BasedOn="{StaticResource TransparentButton}"
                   TargetType="Button">
@@ -116,7 +117,7 @@
                     <Panel>
                         <!-- use separate border for Background b/c no margin -->
                         <Border Background="{TemplateBinding Background}"
-                                CornerRadius="{TemplateBinding CornerRadius}"/>
+                                CornerRadius="{TemplateBinding CornerRadius}" />
                         <Grid HorizontalAlignment="Stretch"
                               MinHeight="{DynamicResource InfoBarMinHeight}"
                               Margin="{StaticResource InfoBarContentRootPadding}"
@@ -128,12 +129,12 @@
                                 <Ellipse Name="IconBackground"
                                          Width="16" Height="16"
                                          VerticalAlignment="Top"
-                                         Margin="{StaticResource InfoBarIconMargin}"/>
+                                         Margin="{StaticResource InfoBarIconMargin}" />
 
                                 <ui:FAFontIcon VerticalAlignment="Top"
                                                FontFamily="{StaticResource SymbolThemeFontFamily}"
                                                Name="StandardIcon"
-                                               Margin="{DynamicResource InfoBarIconMargin}"/>
+                                               Margin="{DynamicResource InfoBarIconMargin}" />
                             </Panel>
 
                             <Viewbox Name="UserIconBox"
@@ -147,9 +148,9 @@
                             </Viewbox>
 
                             <uip:FAInfoBarPanel Grid.Column="1"
-                                              Margin="{StaticResource InfoBarPanelMargin}"
-                                              HorizontalOrientationPadding="{StaticResource InfoBarPanelHorizontalOrientationPadding}"
-                                              VerticalOrientationPadding="{StaticResource InfoBarPanelVerticalOrientationPadding}">
+                                                Margin="{StaticResource InfoBarPanelMargin}"
+                                                HorizontalOrientationPadding="{StaticResource InfoBarPanelHorizontalOrientationPadding}"
+                                                VerticalOrientationPadding="{StaticResource InfoBarPanelVerticalOrientationPadding}">
 
                                 <TextBlock Name="Title"
                                            Foreground="{DynamicResource InfoBarTitleForeground}"
@@ -167,14 +168,15 @@
                                            uip:FAInfoBarPanel.VerticalOrientationMargin="{StaticResource InfoBarMessageVerticalOrientationMargin}"
                                            TextWrapping="Wrap"
                                            FontWeight="{StaticResource InfoBarMessageFontWeight}"
-                                           FontSize="{StaticResource InfoBarMessageFontSize}"/>
+                                           FontSize="{StaticResource InfoBarMessageFontSize}" />
 
-                                <ContentPresenter uip:FAInfoBarPanel.HorizontalOrientationMargin="{StaticResource InfoBarActionHorizontalOrientationMargin}"
-                                                  uip:FAInfoBarPanel.VerticalOrientationMargin="{StaticResource InfoBarActionVerticalOrientationMargin}"
-                                                  VerticalAlignment="Top"
-                                                  Content="{TemplateBinding ActionButton}"
-                                                  HorizontalContentAlignment="Stretch"
-                                                  VerticalContentAlignment="Center" />
+                                <ContentPresenter
+                                    uip:FAInfoBarPanel.HorizontalOrientationMargin="{StaticResource InfoBarActionHorizontalOrientationMargin}"
+                                    uip:FAInfoBarPanel.VerticalOrientationMargin="{StaticResource InfoBarActionVerticalOrientationMargin}"
+                                    VerticalAlignment="Top"
+                                    Content="{TemplateBinding ActionButton}"
+                                    HorizontalContentAlignment="Stretch"
+                                    VerticalContentAlignment="Center" />
 
                             </uip:FAInfoBarPanel>
 
@@ -187,8 +189,10 @@
                                               Name="ContentPresenter">
                                 <ContentPresenter.Styles>
                                     <Style Selector="HyperlinkButton">
-                                        <Setter Property="Margin" Value="{DynamicResource InfoBarHyperlinkButtonMargin}" />
-                                        <Setter Property="Foreground" Value="{DynamicResource InfoBarHyperlinkeButtonForeground}" />
+                                        <Setter Property="Margin"
+                                                Value="{DynamicResource InfoBarHyperlinkButtonMargin}" />
+                                        <Setter Property="Foreground"
+                                                Value="{DynamicResource InfoBarHyperlinkeButtonForeground}" />
                                     </Style>
                                 </ContentPresenter.Styles>
                             </ContentPresenter>
@@ -313,6 +317,6 @@
         <Style Selector="^:noBannerContent /template/ ContentPresenter#ContentPresenter">
             <Setter Property="Grid.Row" Value="0" />
         </Style>
-        
+
     </ControlTheme>
 </ResourceDictionary>

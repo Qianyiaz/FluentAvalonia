@@ -7,7 +7,7 @@
                 <TabItem Header="Arch">
                     <Border Background="AntiqueWhite"
                             Height="100">
-                        <TextBlock Text="Content" Foreground="Black" FontSize="20"/>
+                        <TextBlock Text="Content" Foreground="Black" FontSize="20" />
                     </Border>
                 </TabItem>
                 <TabItem Header="Leaf">
@@ -43,7 +43,7 @@
                     <DockPanel>
                         <ItemsPresenter Name="PART_ItemsPresenter"
                                         ItemsPanel="{TemplateBinding ItemsPanel}"
-                                        DockPanel.Dock="{TemplateBinding TabStripPlacement}"/>
+                                        DockPanel.Dock="{TemplateBinding TabStripPlacement}" />
                         <Panel ClipToBounds="True">
                             <ContentPresenter Name="PART_SelectedContentHost2"
                                               Margin="{TemplateBinding Padding}"
@@ -101,7 +101,7 @@
                                    Fill="{DynamicResource PivotHeaderItemSelectedPipeFill}"
                                    IsVisible="False"
                                    RadiusX="2"
-                                   RadiusY="2"/>
+                                   RadiusY="2" />
                     </Panel>
                 </Border>
             </ControlTemplate>
@@ -156,7 +156,7 @@
 
         <Style Selector="^[TabStripPlacement=Right]">
             <Setter Property="HorizontalContentAlignment" Value="Right" />
-            
+
             <Style Selector="^ /template/ Rectangle#PART_SelectedPipe">
                 <Setter Property="Width" Value="{DynamicResource TabItemPipeThickness}" />
                 <Setter Property="Height" Value="{DynamicResource TabItemVerticalPipeHeight}" />

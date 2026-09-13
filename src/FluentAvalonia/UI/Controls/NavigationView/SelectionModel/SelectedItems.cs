@@ -16,42 +16,42 @@ internal struct SelectedItemInfo
 
 internal class SelectedItems<T> : IReadOnlyList<T>
 {
+    private Func<IList<SelectedItemInfo>, int, T> _getAtImpl;
+
+    private IList<SelectedItemInfo> _infos;
+    private int _totalCount;
+
     public SelectedItems(IList<SelectedItemInfo> infos,
         Func<IList<SelectedItemInfo>, int, T> getAtImpl)
     {
         _infos = infos;
         _getAtImpl = getAtImpl;
-        foreach(var info in infos)
-        {
+        foreach (var info in infos)
             if (info.Node.TryGetTarget(out var selNode))
-            {
                 _totalCount += selNode.SelectedCount;
-            }
             else
-            {
-                throw new InvalidOperationException("Selection changed after the SelectedIndices/Items property was read");
-            }
-        }
+                throw new InvalidOperationException(
+                    "Selection changed after the SelectedIndices/Items property was read");
     }
 
     public int Count => _totalCount;
 
-    public int Size() => Count;
-
     public T this[int index] => GetAt(index);
-
-    public T GetAt(int index) => _getAtImpl(_infos, index);
 
     public IEnumerator<T> GetEnumerator() => new Iterator<T>(this);
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    private IList<SelectedItemInfo> _infos;
-    private int _totalCount;
-    private Func<IList<SelectedItemInfo>, int, T> _getAtImpl;
+    public int Size() => Count;
+
+    public T GetAt(int index) => _getAtImpl(_infos, index);
 
     private class Iterator<TInner> : IEnumerator<TInner>
     {
+        private int _currentIndex;
+
+        private IReadOnlyList<TInner> _owner;
+
         public Iterator(IReadOnlyList<TInner> owner)
         {
             _owner = owner;
@@ -62,10 +62,7 @@ internal class SelectedItems<T> : IReadOnlyList<T>
             get
             {
                 var items = _owner;
-                if (_currentIndex < items.Count)
-                {
-                    return items.ElementAt(_currentIndex);
-                }
+                if (_currentIndex < items.Count) return items.ElementAt(_currentIndex);
 
                 return default;
             }
@@ -75,7 +72,6 @@ internal class SelectedItems<T> : IReadOnlyList<T>
 
         public void Dispose()
         {
-
         }
 
         public bool MoveNext()
@@ -83,7 +79,7 @@ internal class SelectedItems<T> : IReadOnlyList<T>
             if (_currentIndex < _owner.Count)
             {
                 ++_currentIndex;
-                return (_currentIndex < _owner.Count);
+                return _currentIndex < _owner.Count;
             }
 
             return false;
@@ -91,10 +87,6 @@ internal class SelectedItems<T> : IReadOnlyList<T>
 
         public void Reset()
         {
-
         }
-
-        private IReadOnlyList<TInner> _owner;
-        private int _currentIndex;
     }
 }

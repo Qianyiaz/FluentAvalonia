@@ -4,7 +4,7 @@
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// A set of predefined symbols derived from the FluentUI Icons font. This enum is compatible with WinUI/SegoeFluent
+///     A set of predefined symbols derived from the FluentUI Icons font. This enum is compatible with WinUI/SegoeFluent
 /// </summary>
 public enum FASymbol
 {
@@ -62,6 +62,7 @@ public enum FASymbol
     Camera = 0xE114,
     CameraFilled = 0xF8025,
     Cancel = 0xE10A,
+
     [Obsolete("Added for compatibility with WinUI only. No glyph exists for this symbol.")]
     Caption = 0xE15A,
     CellPhone = 0xE1C9,
@@ -83,6 +84,7 @@ public enum FASymbol
     ClockFilled = 0xF8036,
     ClosedCaption = 0xE190,
     ClosedCaptionFilled = 0xF8037,
+
     [Obsolete("Added for compatibility with WinUI only. No glyph exists for this symbol.")]
     ClosePane = 0xE127,
     Cloud = 0xE753,
@@ -119,6 +121,7 @@ public enum FASymbol
     Contact2 = 0xE187,
     ContactInfo = 0xE136,
     ContactInfoFilled = 0xF8055,
+
     [Obsolete("Added for compatibility with WinUI only. No glyph exists for this symbol.")]
     ContactPresence = 0xE181,
     Copy = 0xE16F,
@@ -130,8 +133,10 @@ public enum FASymbol
     DeleteFilled = 0xF805B,
     Directions = 0xE1D1,
     DirectionsFilled = 0xF805C,
+
     [Obsolete("Added for compatibility with WinUI only. No glyph exists for this symbol.")]
     DisableUpdates = 0xE194,
+
     [Obsolete("Added for compatibility with WinUI only. No glyph exists for this symbol.")]
     DisconnectDrive = 0xE17A,
     Dislike = 0xE19E,
@@ -178,11 +183,13 @@ public enum FASymbol
     Globe = 0xE12B,
     GlobeFilled = 0xF8079,
     Go = 0xE143,
+
     [Obsolete("Added for compatibility with WinUI only. No glyph exists for this symbol.")]
     GoToStart = 0xE1E4,
     GoToToday = 0xE184,
     HangUp = 0xE137,
     Help = 0xE11B,
+
     [Obsolete("Added for compatibility with WinUI only. No glyph exists for this symbol.")]
     HideBcc = 0xE16A,
     Highlight = 0xE193,
@@ -210,6 +217,7 @@ public enum FASymbol
     Library = 0xE1D3,
     LibraryFilled = 0xF808B,
     Like = 0xE19F,
+
     [Obsolete("Added for compatibility with WinUI only. No glyph exists for this symbol.")]
     LikeDislike = 0xE19D,
     LikeFilled = 0xF808C,
@@ -243,6 +251,7 @@ public enum FASymbol
     More = 0xE10C,
     MoreVertical = 0xF809E,
     MoveToFolder = 0xE19C,
+
     [Obsolete("Added for compatibility with WinUI only. No glyph exists for this symbol.")]
     MusicInfo = 0xE142,
     Mute = 0xE198,
@@ -259,8 +268,10 @@ public enum FASymbol
     OpenFolder = 0xF80A8,
     OpenFolderFilled = 0xF80A9,
     OpenLocal = 0xE197,
+
     [Obsolete("Added for compatibility with WinUI only. No glyph exists for this symbol.")]
     OpenPane = 0xE126,
+
     [Obsolete("Added for compatibility with WinUI only. No glyph exists for this symbol.")]
     OpenWith = 0xE17D,
     Orientation = 0xE14F,
@@ -282,10 +293,12 @@ public enum FASymbol
     PhoneFilled = 0xF80AF,
     Pictures = 0xE158,
     Pin = 0xE141,
+
     [Obsolete("Added for compatibility with WinUI only. No glyph exists for this symbol.")]
     Placeholder = 0xE18A,
     Play = 0xE102,
     PlayFilled = 0xF80B0,
+
     [Obsolete("Added for compatibility with WinUI only. No glyph exists for this symbol.")]
     PostUpdate = 0xE1D7,
     Preview = 0xE295,
@@ -295,6 +308,7 @@ public enum FASymbol
     PreviousFilled = 0xF80B2,
     Print = 0xE749,
     PrintFilled = 0xF80B3,
+
     [Obsolete("Added for compatibility with WinUI only. No glyph exists for this symbol.")]
     Priority = 0xE182,
     ProtectedDocument = 0xE131,
@@ -310,6 +324,7 @@ public enum FASymbol
     RepeatAll = 0xE1CD,
     RepeatOne = 0xE1CC,
     ReportHacked = 0xE1DE,
+
     [Obsolete("Added for compatibility with WinUI only. No glyph exists for this symbol.")]
     ReShare = 0xE1CA,
     Restore = 0xF80B9,
@@ -330,8 +345,10 @@ public enum FASymbol
     SelectAllFilled = 0xF80C5,
     Send = 0xE122,
     SendFilled = 0xF80C6,
+
     [Obsolete("Added for compatibility with WinUI only. No glyph exists for this symbol.")]
     SetLockScreen = 0xE18C,
+
     [Obsolete("Added for compatibility with WinUI only. No glyph exists for this symbol.")]
     SetTile = 0xE18D,
     Setting = 0xE115,
@@ -344,6 +361,7 @@ public enum FASymbol
     ShareScreen = 0xF80CE,
     ShareScreenFilled = 0xF80CF,
     Shop = 0xE14D,
+
     [Obsolete("Added for compatibility with WinUI only. No glyph exists for this symbol.")]
     ShowBcc = 0xE169,
     ShowResults = 0xE15C,
@@ -376,9 +394,11 @@ public enum FASymbol
     Stop = 0xE15B,
     StopFilled = 0xF80E7,
     StopSlideShow = 0xE191,
+
     [Obsolete("Added for compatibility with WinUI only. No glyph exists for this symbol.")]
     Street = 0xE1C3,
     Switch = 0xE13C,
+
     [Obsolete("Added for compatibility with WinUI only. No glyph exists for this symbol.")]
     SwitchApps = 0xE1E1,
     Sync = 0xE117,
@@ -388,8 +408,10 @@ public enum FASymbol
     Target = 0xE1D2,
     TargetEdit = 0xF80EA,
     ThreeBars = 0xE1E8,
+
     [Obsolete("Added for compatibility with WinUI only. No glyph exists for this symbol.")]
     TouchPointer = 0xE1E3,
+
     [Obsolete("Added for compatibility with WinUI only. No glyph exists for this symbol.")]
     Trim = 0xE12C,
     TwoBars = 0xE1E7,
@@ -398,11 +420,13 @@ public enum FASymbol
     Undo = 0xE10E,
     UnFavorite = 0xE195,
     UnPin = 0xE196,
+
     [Obsolete("Added for compatibility with WinUI only. No glyph exists for this symbol.")]
     UnSyncFolder = 0xE1DD,
     Up = 0xE110,
     Upload = 0xE11C,
     Video = 0xE116,
+
     [Obsolete("Added for compatibility with WinUI only. No glyph exists for this symbol.")]
     VideoChat = 0xE13B,
     VideoFilled = 0xF80F1,
@@ -473,5 +497,5 @@ public enum FASymbol
     ZoomIn = 0xE12E,
     ZoomInFilled = 0xF8132,
     ZoomOut = 0xE1A4,
-    ZoomOutFilled = 0xF8133,
+    ZoomOutFilled = 0xF8133
 }

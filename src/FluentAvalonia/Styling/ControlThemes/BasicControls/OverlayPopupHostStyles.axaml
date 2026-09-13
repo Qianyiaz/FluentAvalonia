@@ -2,7 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     x:CompileBindings="True">
     <ControlTheme x:Key="{x:Type OverlayPopupHost}" TargetType="OverlayPopupHost">
-        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Background" Value="Transparent" />
         <Setter Property="CornerRadius" Value="{DynamicResource OverlayCornerRadius}" />
         <Setter Property="FontSize" Value="{DynamicResource ControlContentThemeFontSize}" />
         <Setter Property="FontFamily" Value="{DynamicResource ContentControlThemeFontFamily}" />
@@ -14,7 +14,7 @@
                                           Background="{TemplateBinding Background}"
                                           ContentTemplate="{TemplateBinding ContentTemplate}"
                                           Content="{TemplateBinding Content}"
-                                          Padding="{TemplateBinding Padding}"/>
+                                          Padding="{TemplateBinding Padding}" />
                     </VisualLayerManager>
                 </LayoutTransformControl>
             </ControlTemplate>

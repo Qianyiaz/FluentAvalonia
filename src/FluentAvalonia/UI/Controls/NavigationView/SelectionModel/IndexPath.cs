@@ -54,7 +54,7 @@ internal struct IndexPath : IComparable<IndexPath>, IEquatable<IndexPath>
         if (lhsCount == 0 || rhsCount == 0)
         {
             // one of the paths are empty, compare based on size
-            compareResult = (lhsCount - rhsCount);
+            compareResult = lhsCount - rhsCount;
         }
         else
         {
@@ -75,13 +75,10 @@ internal struct IndexPath : IComparable<IndexPath>, IEquatable<IndexPath>
             }
 
             // if both match upto min(lhs...), compare based on size
-            compareResult = compareResult == 0 ? (lhsCount - rhsCount) : compareResult;
+            compareResult = compareResult == 0 ? lhsCount - rhsCount : compareResult;
         }
 
-        if (compareResult != 0)
-        {
-            compareResult = compareResult > 0 ? 1 : -1;
-        }
+        if (compareResult != 0) compareResult = compareResult > 0 ? 1 : -1;
 
         return compareResult;
     }
@@ -89,10 +86,7 @@ internal struct IndexPath : IComparable<IndexPath>, IEquatable<IndexPath>
     public override string ToString()
     {
         var result = "R";
-        foreach (var index in _path)
-        {
-            result += $".{index}";
-        }
+        foreach (var index in _path) result += $".{index}";
 
         return result;
     }
@@ -100,12 +94,9 @@ internal struct IndexPath : IComparable<IndexPath>, IEquatable<IndexPath>
     public bool IsValid()
     {
         for (var i = 0; i < _path.Count; i++)
-        {
             if (_path[i] < 0)
-            {
                 return false;
-            }
-        }
+
         return true;
     }
 
@@ -132,14 +123,45 @@ internal struct IndexPath : IComparable<IndexPath>, IEquatable<IndexPath>
     public bool Equals(IndexPath other) => CompareTo(other) == 0;
 
     //From original port
-    public static bool operator <(IndexPath x, IndexPath y) { return x.CompareTo(y) < 0; }
-    public static bool operator >(IndexPath x, IndexPath y) { return x.CompareTo(y) > 0; }
-    public static bool operator <=(IndexPath x, IndexPath y) { return x.CompareTo(y) <= 0; }
-    public static bool operator >=(IndexPath x, IndexPath y) { return x.CompareTo(y) >= 0; }
-    public static bool operator ==(IndexPath x, IndexPath y) { return x.CompareTo(y) == 0; }
-    public static bool operator !=(IndexPath x, IndexPath y) { return x.CompareTo(y) != 0; }
-    public static bool operator ==(IndexPath? x, IndexPath? y) { return (x ?? default).CompareTo(y ?? default) == 0; }
-    public static bool operator !=(IndexPath? x, IndexPath? y) { return (x ?? default).CompareTo(y ?? default) != 0; }
+    public static bool operator <(IndexPath x, IndexPath y)
+    {
+        return x.CompareTo(y) < 0;
+    }
+
+    public static bool operator >(IndexPath x, IndexPath y)
+    {
+        return x.CompareTo(y) > 0;
+    }
+
+    public static bool operator <=(IndexPath x, IndexPath y)
+    {
+        return x.CompareTo(y) <= 0;
+    }
+
+    public static bool operator >=(IndexPath x, IndexPath y)
+    {
+        return x.CompareTo(y) >= 0;
+    }
+
+    public static bool operator ==(IndexPath x, IndexPath y)
+    {
+        return x.CompareTo(y) == 0;
+    }
+
+    public static bool operator !=(IndexPath x, IndexPath y)
+    {
+        return x.CompareTo(y) != 0;
+    }
+
+    public static bool operator ==(IndexPath? x, IndexPath? y)
+    {
+        return (x ?? default).CompareTo(y ?? default) == 0;
+    }
+
+    public static bool operator !=(IndexPath? x, IndexPath? y)
+    {
+        return (x ?? default).CompareTo(y ?? default) != 0;
+    }
 
     private IList<int> _path;
 }

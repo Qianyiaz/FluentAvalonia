@@ -5,24 +5,28 @@ using FluentAvalonia.Core;
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Provides data for the <see cref="FATeachingTip.Closing"/> event.
+///     Provides data for the <see cref="FATeachingTip.Closing" /> event.
 /// </summary>
 public class FATeachingTipClosingEventArgs : CancelEventArgs
 {
+    private FADeferral _deferral;
+
+    private int _deferralCount;
+
     internal FATeachingTipClosingEventArgs(FATeachingTipCloseReason reason)
     {
         Reason = reason;
     }
 
     /// <summary>
-    /// Gets a constant that specifies whether the cause of the Closing event was due to 
-    /// user interaction (Close button click), light-dismissal, or programmatic closure.
+    ///     Gets a constant that specifies whether the cause of the Closing event was due to
+    ///     user interaction (Close button click), light-dismissal, or programmatic closure.
     /// </summary>
     public FATeachingTipCloseReason Reason { get; }
 
 
     /// <summary>
-    /// Gets a <see cref="FADeferral"/> object for managing the work done in the Closing event handler.
+    ///     Gets a <see cref="FADeferral" /> object for managing the work done in the Closing event handler.
     /// </summary>
     public FADeferral GetDeferral()
     {
@@ -43,14 +47,8 @@ public class FATeachingTipClosingEventArgs : CancelEventArgs
     internal void DecrementDeferralCount()
     {
         _deferralCount--;
-        if (_deferralCount == 0)
-        {
-            _deferral.Complete();
-        }
+        if (_deferralCount == 0) _deferral.Complete();
     }
 
     internal void IncrementDeferralCount() => _deferralCount++;
-
-    private int _deferralCount;
-    private FADeferral _deferral;
 }

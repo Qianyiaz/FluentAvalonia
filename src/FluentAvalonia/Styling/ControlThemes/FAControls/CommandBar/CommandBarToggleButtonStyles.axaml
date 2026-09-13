@@ -6,7 +6,7 @@
         <Border Padding="20">
             <Border>
                 <StackPanel>
-                    <ui:FACommandBarToggleButton Label="Button1" IconSource="Save" HotKey="Ctrl+S" IsCompact="True"/>
+                    <ui:FACommandBarToggleButton Label="Button1" IconSource="Save" HotKey="Ctrl+S" IsCompact="True" />
 
                     <ui:FACommandBarOverflowPresenter>
                         <ui:FACommandBarToggleButton Label="Button1" IconSource="Save" />
@@ -14,7 +14,7 @@
                     </ui:FACommandBarOverflowPresenter>
 
                     <ui:FACommandBar ClosedDisplayMode="Compact" IsOpen="False"
-                               DefaultLabelPosition="Right">
+                                     DefaultLabelPosition="Right">
                         <ui:FACommandBar.PrimaryCommands>
                             <ui:FACommandBarToggleButton Label="Test" IconSource="Save" IsCompact="False" />
                         </ui:FACommandBar.PrimaryCommands>
@@ -71,16 +71,16 @@
                           MinHeight="{DynamicResource AppBarThemeMinHeight}">
 
                         <ui:FASymbolIcon Name="OverflowCheckGlyph"
-                                       Symbol="Checkmark"
-                                       Foreground="{DynamicResource AppBarToggleButtonCheckGlyphForeground}"
-                                       FontSize="18"
-                                       HorizontalAlignment="Left"
-                                       VerticalAlignment="Center"
-                                       Height="14"
-                                       Width="14"
-                                       Margin="{DynamicResource AppBarToggleButtonOverflowCheckMargin}"
-                                       Opacity="0"
-                                       IsVisible="False"/>
+                                         Symbol="Checkmark"
+                                         Foreground="{DynamicResource AppBarToggleButtonCheckGlyphForeground}"
+                                         FontSize="18"
+                                         HorizontalAlignment="Left"
+                                         VerticalAlignment="Center"
+                                         Height="14"
+                                         Width="14"
+                                         Margin="{DynamicResource AppBarToggleButtonOverflowCheckMargin}"
+                                         Opacity="0"
+                                         IsVisible="False" />
 
                         <Viewbox Name="ContentViewbox"
                                  Height="{DynamicResource AppBarButtonContentHeight}"
@@ -99,12 +99,12 @@
                                    FontSize="12"
                                    TextAlignment="Center"
                                    TextWrapping="Wrap"
-                                   Margin="{DynamicResource AppBarToggleButtonTextLabelMargin}"/>
+                                   Margin="{DynamicResource AppBarToggleButtonTextLabelMargin}" />
 
                         <TextBlock Name="OverflowTextLabel"
                                    Text="{TemplateBinding Label}"
                                    Foreground="{TemplateBinding Foreground}"
-                                   FontFamily="{TemplateBinding FontFamily}" 
+                                   FontFamily="{TemplateBinding FontFamily}"
                                    FontSize="{DynamicResource ControlContentThemeFontSize}"
                                    TextAlignment="Left"
                                    TextTrimming="CharacterEllipsis"
@@ -123,7 +123,7 @@
                                    VerticalAlignment="Center"
                                    Margin="24 0 12 0"
                                    Foreground="{DynamicResource AppBarToggleButtonKeyboardAcceleratorTextForeground}"
-                                   IsVisible="False"/>
+                                   IsVisible="False" />
                     </Grid>
 
                 </Panel>
@@ -143,13 +143,16 @@
                 <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonForegroundPointerOver}" />
             </Style>
             <Style Selector="^ /template/ ui|FASymbolIcon#OverflowCheckGlyph">
-                <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonOverflowLabelForegroundPointerOver}" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource AppBarToggleButtonOverflowLabelForegroundPointerOver}" />
             </Style>
             <Style Selector="^ /template/ TextBlock#OverflowTextLabel">
-                <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonOverflowLabelForegroundPointerOver}" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource AppBarToggleButtonOverflowLabelForegroundPointerOver}" />
             </Style>
             <Style Selector="^ /template/ TextBlock#KeyboardAcceleratorTextLabel">
-                <Setter Property="Foreground" Value="{DynamicResource AppBarButtonKeyboardAcceleratorTextForegroundPointerOver}" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource AppBarButtonKeyboardAcceleratorTextForegroundPointerOver}" />
             </Style>
         </Style>
 
@@ -165,13 +168,16 @@
                 <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonForegroundPressed}" />
             </Style>
             <Style Selector="^ /template/ ui|FASymbolIcon#OverflowCheckGlyph">
-                <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonOverflowLabelForegroundPressed}" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource AppBarToggleButtonOverflowLabelForegroundPressed}" />
             </Style>
             <Style Selector="^ /template/ TextBlock#OverflowTextLabel">
-                <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonOverflowLabelForegroundPressed}" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource AppBarToggleButtonOverflowLabelForegroundPressed}" />
             </Style>
             <Style Selector="^ /template/ TextBlock#KeyboardAcceleratorTextLabel">
-                <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonKeyboardAcceleratorTextForegroundPressed}" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource AppBarToggleButtonKeyboardAcceleratorTextForegroundPressed}" />
             </Style>
         </Style>
 
@@ -187,13 +193,16 @@
                 <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonForegroundDisabled}" />
             </Style>
             <Style Selector="^ /template/ ui|FASymbolIcon#OverflowCheckGlyph">
-                <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonOverflowLabelForegroundDisabled}" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource AppBarToggleButtonOverflowLabelForegroundDisabled}" />
             </Style>
             <Style Selector="^ /template/ TextBlock#OverflowTextLabel">
-                <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonOverflowLabelForegroundDisabled}" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource AppBarToggleButtonOverflowLabelForegroundDisabled}" />
             </Style>
             <Style Selector="^ /template/ TextBlock#KeyboardAcceleratorTextLabel">
-                <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonKeyboardAcceleratorTextForegroundDisabled}" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource AppBarToggleButtonKeyboardAcceleratorTextForegroundDisabled}" />
             </Style>
         </Style>
 
@@ -209,7 +218,8 @@
                 <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonForegroundChecked}" />
             </Style>
             <Style Selector="^ /template/ TextBlock#KeyboardAcceleratorTextLabel">
-                <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonKeyboardAcceleratorTextForegroundChecked}" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource AppBarToggleButtonKeyboardAcceleratorTextForegroundChecked}" />
             </Style>
             <Style Selector="^ /template/ ui|FASymbolIcon#OverflowCheckGlyph">
                 <Setter Property="Opacity" Value="1" />
@@ -217,31 +227,39 @@
 
             <Style Selector="^:pointerover">
                 <Style Selector="^ /template/ Border#AppBarButtonInnerBorder">
-                    <Setter Property="Background" Value="{DynamicResource AppBarToggleButtonBackgroundCheckedPointerOver}" />
-                    <Setter Property="BorderBrush" Value="{DynamicResource AppBarToggleButtonBorderBrushCheckedPointerOver}" />
+                    <Setter Property="Background"
+                            Value="{DynamicResource AppBarToggleButtonBackgroundCheckedPointerOver}" />
+                    <Setter Property="BorderBrush"
+                            Value="{DynamicResource AppBarToggleButtonBorderBrushCheckedPointerOver}" />
                 </Style>
                 <Style Selector="^ /template/ ContentPresenter#Content">
-                    <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonForegroundCheckedPointerOver}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource AppBarToggleButtonForegroundCheckedPointerOver}" />
                 </Style>
                 <Style Selector="^ /template/ TextBlock#TextLabel">
-                    <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonForegroundCheckedPointerOver}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource AppBarToggleButtonForegroundCheckedPointerOver}" />
                 </Style>
                 <Style Selector="^ /template/ ui|FASymbolIcon#OverflowCheckGlyph">
-                    <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonOverflowLabelForegroundCheckedPointerOver}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource AppBarToggleButtonOverflowLabelForegroundCheckedPointerOver}" />
                     <Setter Property="Opacity" Value="1" />
                 </Style>
                 <Style Selector="^ /template/ TextBlock#OverflowTextLabel">
-                    <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonOverflowLabelForegroundCheckedPointerOver}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource AppBarToggleButtonOverflowLabelForegroundCheckedPointerOver}" />
                 </Style>
                 <Style Selector="^ /template/ TextBlock#KeyboardAcceleratorTextLabel">
-                    <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonKeyboardAcceleratorTextForegroundCheckedPointerOver}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource AppBarToggleButtonKeyboardAcceleratorTextForegroundCheckedPointerOver}" />
                 </Style>
             </Style>
 
             <Style Selector="^:pressed">
                 <Style Selector="^ /template/ Border#AppBarButtonInnerBorder">
                     <Setter Property="Background" Value="{DynamicResource AppBarToggleButtonBackgroundCheckedPressed}" />
-                    <Setter Property="BorderBrush" Value="{DynamicResource AppBarToggleButtonBorderBrushCheckedPressed}" />
+                    <Setter Property="BorderBrush"
+                            Value="{DynamicResource AppBarToggleButtonBorderBrushCheckedPressed}" />
                 </Style>
                 <Style Selector="^ /template/ ContentPresenter#Content">
                     <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonForegroundCheckedPressed}" />
@@ -250,21 +268,25 @@
                     <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonForegroundCheckedPressed}" />
                 </Style>
                 <Style Selector="^ /template/ ui|FASymbolIcon#OverflowCheckGlyph">
-                    <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonOverflowLabelForegroundCheckedPressed}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource AppBarToggleButtonOverflowLabelForegroundCheckedPressed}" />
                     <Setter Property="Opacity" Value="1" />
                 </Style>
                 <Style Selector="^ /template/ TextBlock#OverflowTextLabel">
-                    <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonOverflowLabelForegroundCheckedPressed}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource AppBarToggleButtonOverflowLabelForegroundCheckedPressed}" />
                 </Style>
                 <Style Selector="^ /template/ TextBlock#KeyboardAcceleratorTextLabel">
-                    <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonKeyboardAcceleratorTextForegroundCheckedPressed}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource AppBarToggleButtonKeyboardAcceleratorTextForegroundCheckedPressed}" />
                 </Style>
             </Style>
 
             <Style Selector="^:disabled">
                 <Style Selector="^ /template/ Border#AppBarButtonInnerBorder">
                     <Setter Property="Background" Value="{DynamicResource AppBarToggleButtonBackgroundCheckedDisabled}" />
-                    <Setter Property="BorderBrush" Value="{DynamicResource AppBarToggleButtonBorderBrushCheckedDisabled}" />
+                    <Setter Property="BorderBrush"
+                            Value="{DynamicResource AppBarToggleButtonBorderBrushCheckedDisabled}" />
                 </Style>
                 <Style Selector="^ /template/ ContentPresenter#Content">
                     <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonForegroundCheckedDisabled}" />
@@ -273,14 +295,17 @@
                     <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonForegroundCheckedDisabled}" />
                 </Style>
                 <Style Selector="^ /template/ ui|FASymbolIcon#OverflowCheckGlyph">
-                    <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonOverflowLabelForegroundCheckedDisabled}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource AppBarToggleButtonOverflowLabelForegroundCheckedDisabled}" />
                     <Setter Property="Opacity" Value="1" />
                 </Style>
                 <Style Selector="^ /template/ TextBlock#OverflowTextLabel">
-                    <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonOverflowLabelForegroundCheckedDisabled}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource AppBarToggleButtonOverflowLabelForegroundCheckedDisabled}" />
                 </Style>
                 <Style Selector="^ /template/ TextBlock#KeyboardAcceleratorTextLabel">
-                    <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonKeyboardAcceleratorTextForegroundCheckedDisabled}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource AppBarToggleButtonKeyboardAcceleratorTextForegroundCheckedDisabled}" />
                 </Style>
 
             </Style>
@@ -296,7 +321,8 @@
             <Style Selector="^ /template/ Border#AppBarButtonInnerBorder">
                 <Setter Property="Margin" Value="{DynamicResource AppBarButtonInnerBorderOverflowMargin}" />
             </Style>
-            <Style Selector="^ /template/ Viewbox#ContentViewbox,
+            <Style
+                Selector="^ /template/ Viewbox#ContentViewbox,
                              ^ /template/ TextBlock#TextLabel">
                 <Setter Property="IsVisible" Value="False" />
             </Style>
@@ -310,7 +336,8 @@
 
             <Style Selector="^:pointerover">
                 <Style Selector="^ /template/ Border#AppBarButtonInnerBorder">
-                    <Setter Property="Background" Value="{DynamicResource AppBarToggleButtonBackgroundHighLightOverlayPointerOver}" />
+                    <Setter Property="Background"
+                            Value="{DynamicResource AppBarToggleButtonBackgroundHighLightOverlayPointerOver}" />
                     <Setter Property="BorderBrush" Value="{DynamicResource AppBarToggleButtonBorderBrushPointerOver}" />
                 </Style>
                 <Style Selector="^ /template/ ContentPresenter#Content">
@@ -320,19 +347,23 @@
                     <Setter Property="Foreground" Value="{DynamicResource AppBarButtonForegroundPointerOver}" />
                 </Style>
                 <Style Selector="^ /template/ ui|FASymbolIcon#OverflowCheckGlyph">
-                    <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonCheckGlyphForegroundPointerOver}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource AppBarToggleButtonCheckGlyphForegroundPointerOver}" />
                 </Style>
                 <Style Selector="^ /template/ TextBlock#OverflowTextLabel">
-                    <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonOverflowLabelForegroundPointerOver}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource AppBarToggleButtonOverflowLabelForegroundPointerOver}" />
                 </Style>
                 <Style Selector="^ /template/ TextBlock#KeyboardAcceleratorTextLabel">
-                    <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonKeyboardAcceleratorTextForegroundPointerOver}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource AppBarToggleButtonKeyboardAcceleratorTextForegroundPointerOver}" />
                 </Style>
             </Style>
 
             <Style Selector="^:pressed">
                 <Style Selector="^ /template/ Border#AppBarButtonInnerBorder">
-                    <Setter Property="Background" Value="{DynamicResource AppBarToggleButtonBackgroundHighLightOverlayPressed}" />
+                    <Setter Property="Background"
+                            Value="{DynamicResource AppBarToggleButtonBackgroundHighLightOverlayPressed}" />
                     <Setter Property="BorderBrush" Value="{DynamicResource AppBarToggleButtonBorderBrushPressed}" />
                 </Style>
                 <Style Selector="^ /template/ ContentPresenter#Content">
@@ -342,13 +373,16 @@
                     <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonForegroundPressed}" />
                 </Style>
                 <Style Selector="^ /template/ ui|FASymbolIcon#OverflowCheckGlyph">
-                    <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonCheckGlyphForegroundPressed}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource AppBarToggleButtonCheckGlyphForegroundPressed}" />
                 </Style>
                 <Style Selector="^ /template/ TextBlock#OverflowTextLabel">
-                    <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonOverflowLabelForegroundPressed}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource AppBarToggleButtonOverflowLabelForegroundPressed}" />
                 </Style>
                 <Style Selector="^ /template/ TextBlock#KeyboardAcceleratorTextLabel">
-                    <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonKeyboardAcceleratorTextForegroundPressed}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource AppBarToggleButtonKeyboardAcceleratorTextForegroundPressed}" />
                 </Style>
             </Style>
 
@@ -370,47 +404,60 @@
 
                 <Style Selector="^:pointerover">
                     <Style Selector="^ /template/ Border#AppBarButtonInnerBorder">
-                        <Setter Property="Background" Value="{DynamicResource AppBarToggleButtonBackgroundHighLightOverlayCheckedPointerOver}" />
+                        <Setter Property="Background"
+                                Value="{DynamicResource AppBarToggleButtonBackgroundHighLightOverlayCheckedPointerOver}" />
                         <Setter Property="BorderBrush" Value="Transparent" />
                     </Style>
                     <Style Selector="^ /template/ ContentPresenter#Content">
-                        <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonOverflowLabelForegroundCheckedPointerOver}" />
+                        <Setter Property="Foreground"
+                                Value="{DynamicResource AppBarToggleButtonOverflowLabelForegroundCheckedPointerOver}" />
                     </Style>
                     <Style Selector="^ /template/ TextBlock#TextLabel">
-                        <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonForegroundCheckedPointerOver}" />
+                        <Setter Property="Foreground"
+                                Value="{DynamicResource AppBarToggleButtonForegroundCheckedPointerOver}" />
                     </Style>
                     <Style Selector="^ /template/ ui|FASymbolIcon#OverflowCheckGlyph">
-                        <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonOverflowLabelForegroundCheckedPointerOver}" />
+                        <Setter Property="Foreground"
+                                Value="{DynamicResource AppBarToggleButtonOverflowLabelForegroundCheckedPointerOver}" />
                         <Setter Property="Opacity" Value="1" />
                     </Style>
                     <Style Selector="^ /template/ TextBlock#OverflowTextLabel">
-                        <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonOverflowLabelForegroundCheckedPointerOver}" />
+                        <Setter Property="Foreground"
+                                Value="{DynamicResource AppBarToggleButtonOverflowLabelForegroundCheckedPointerOver}" />
                     </Style>
                     <Style Selector="^ /template/ TextBlock#KeyboardAcceleratorTextLabel">
-                        <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonKeyboardAcceleratorTextForegroundPointerOver}" />
+                        <Setter Property="Foreground"
+                                Value="{DynamicResource AppBarToggleButtonKeyboardAcceleratorTextForegroundPointerOver}" />
                     </Style>
                 </Style>
 
                 <Style Selector="^:pressed">
                     <Style Selector="^ /template/ Border#AppBarButtonInnerBorder">
-                        <Setter Property="Background" Value="{DynamicResource AppBarToggleButtonBackgroundHighLightOverlayCheckedPressed}" />
-                        <Setter Property="BorderBrush" Value="{DynamicResource AppBarToggleButtonBorderBrushCheckedPressed}" />
+                        <Setter Property="Background"
+                                Value="{DynamicResource AppBarToggleButtonBackgroundHighLightOverlayCheckedPressed}" />
+                        <Setter Property="BorderBrush"
+                                Value="{DynamicResource AppBarToggleButtonBorderBrushCheckedPressed}" />
                     </Style>
                     <Style Selector="^ /template/ ContentPresenter#Content">
-                        <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonOverflowLabelForegroundCheckedPressed}" />
+                        <Setter Property="Foreground"
+                                Value="{DynamicResource AppBarToggleButtonOverflowLabelForegroundCheckedPressed}" />
                     </Style>
                     <Style Selector="^ /template/ TextBlock#TextLabel">
-                        <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonForegroundCheckedPressed}" />
+                        <Setter Property="Foreground"
+                                Value="{DynamicResource AppBarToggleButtonForegroundCheckedPressed}" />
                     </Style>
                     <Style Selector="^ /template/ ui|FASymbolIcon#OverflowCheckGlyph">
-                        <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonOverflowLabelForegroundCheckedPressed}" />
+                        <Setter Property="Foreground"
+                                Value="{DynamicResource AppBarToggleButtonOverflowLabelForegroundCheckedPressed}" />
                         <Setter Property="Opacity" Value="1" />
                     </Style>
                     <Style Selector="^ /template/ TextBlock#OverflowTextLabel">
-                        <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonOverflowLabelForegroundCheckedPressed}" />
+                        <Setter Property="Foreground"
+                                Value="{DynamicResource AppBarToggleButtonOverflowLabelForegroundCheckedPressed}" />
                     </Style>
                     <Style Selector="^ /template/ TextBlock#KeyboardAcceleratorTextLabel">
-                        <Setter Property="Foreground" Value="{DynamicResource AppBarToggleButtonKeyboardAcceleratorTextForegroundPressed}" />
+                        <Setter Property="Foreground"
+                                Value="{DynamicResource AppBarToggleButtonKeyboardAcceleratorTextForegroundPressed}" />
                     </Style>
                 </Style>
             </Style>

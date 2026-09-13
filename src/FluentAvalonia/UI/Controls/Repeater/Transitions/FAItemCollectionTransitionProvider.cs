@@ -22,7 +22,13 @@ public enum FAItemCollectionTransitionOperation
 
 public abstract class FAItemCollectionTransitionProvider
 {
-    public event TypedEventHandler<FAItemCollectionTransitionProvider, FAItemCollectionTransitionCompletedEventArgs> TransitionCompleted;
+    private bool _rendering;
+
+    private List<FAItemCollectionTransition> _transitions;
+    private List<FAItemCollectionTransition> _transitionsWithAnimations;
+
+    public event TypedEventHandler<FAItemCollectionTransitionProvider, FAItemCollectionTransitionCompletedEventArgs>
+        TransitionCompleted;
 
     public void QueueTransition(FAItemCollectionTransition transition)
     {
@@ -30,18 +36,13 @@ public abstract class FAItemCollectionTransitionProvider
         _transitionsWithAnimations ??= new List<FAItemCollectionTransition>();
 
         if (FAUISettings.AreAnimationsEnabled() && ShouldAnimate(transition))
-        {
             _transitionsWithAnimations.Add(transition);
-        }
 
         // To ensure proper VirtualizationInfo ordering, we still need to raise TransitionCompleted in a
         // CompositionTarget.Rendering handler, even if we aren't going to animate anything for this transition.
         _transitions.Add(transition);
 
-        if (!_rendering)
-        {
-            Dispatcher.UIThread.Post(OnRendering, DispatcherPriority.Render);
-        }
+        if (!_rendering) Dispatcher.UIThread.Post(OnRendering, DispatcherPriority.Render);
     }
 
     public bool ShouldAnimate(FAItemCollectionTransition transition)
@@ -69,10 +70,8 @@ public abstract class FAItemCollectionTransitionProvider
             // We'll automatically raise TransitionCompleted on all of the transitions that were not actually animated
             // in order to guarantee that every transition queued receives a corresponding TransitionCompleted event.
             foreach (var transition in _transitions)
-            {
                 if (!transition.HasStarted)
                     NotifyTransitionComplete(transition);
-            }
         }
         finally
         {
@@ -85,8 +84,4 @@ public abstract class FAItemCollectionTransitionProvider
         _transitions.Clear();
         _transitionsWithAnimations.Clear();
     }
-
-    private List<FAItemCollectionTransition> _transitions;
-    private List<FAItemCollectionTransition> _transitionsWithAnimations;
-    private bool _rendering;
 }

@@ -9,7 +9,6 @@ public class FANumberBoxAutomationPeer : ControlAutomationPeer, IRangeValueProvi
 {
     public FANumberBoxAutomationPeer(Control owner) : base(owner)
     {
-        
     }
 
     public bool IsReadOnly { get; }
@@ -24,6 +23,11 @@ public class FANumberBoxAutomationPeer : ControlAutomationPeer, IRangeValueProvi
 
     public double SmallChange => GetImpl().SmallChange;
 
+    public void SetValue(double value)
+    {
+        GetImpl().Value = value;
+    }
+
     protected override AutomationControlType GetAutomationControlTypeCore()
     {
         return AutomationControlType.Spinner;
@@ -33,19 +37,10 @@ public class FANumberBoxAutomationPeer : ControlAutomationPeer, IRangeValueProvi
     {
         var name = base.GetNameCore();
         if (string.IsNullOrEmpty(name))
-        {
             if (Owner is FANumberBox nb)
-            {
                 name = nb.Header is string ? nb.Header.ToString() : null;
-            }
-        }
 
         return name;
-    }
-
-    public void SetValue(double value)
-    {
-        GetImpl().Value = value;
     }
 
     internal void RaiseValueChangedEvent(double oldValue, double newValue)

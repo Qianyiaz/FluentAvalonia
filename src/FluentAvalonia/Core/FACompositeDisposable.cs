@@ -4,6 +4,8 @@ namespace FluentAvalonia.Core;
 
 internal class FADisposable : IDisposable
 {
+    private Action _dispose;
+
     public FADisposable(Action dispose)
     {
         _dispose = dispose;
@@ -13,12 +15,12 @@ internal class FADisposable : IDisposable
     {
         _dispose();
     }
-
-    private Action _dispose;
 }
 
 internal class FACompositeDisposable : ICollection<IDisposable>, IEnumerable<IDisposable>, IEnumerable, IDisposable
 {
+    private readonly List<IDisposable> _list;
+
     public FACompositeDisposable()
     {
         _list = new List<IDisposable>();
@@ -55,15 +57,6 @@ internal class FACompositeDisposable : ICollection<IDisposable>, IEnumerable<IDi
     public void CopyTo(IDisposable[] array, int arrayIndex) =>
         _list.CopyTo(array, arrayIndex);
 
-    public void Dispose()
-    {
-        for (var i = _list.Count - 1; i >= 0; i--)
-        {
-            _list[i].Dispose();
-            _list.RemoveAt(i);
-        }
-    }
-
     public IEnumerator<IDisposable> GetEnumerator() => _list.GetEnumerator();
 
     public bool Remove(IDisposable item)
@@ -80,5 +73,12 @@ internal class FACompositeDisposable : ICollection<IDisposable>, IEnumerable<IDi
 
     IEnumerator IEnumerable.GetEnumerator() => _list.GetEnumerator();
 
-    private readonly List<IDisposable> _list;
+    public void Dispose()
+    {
+        for (var i = _list.Count - 1; i >= 0; i--)
+        {
+            _list[i].Dispose();
+            _list.RemoveAt(i);
+        }
+    }
 }

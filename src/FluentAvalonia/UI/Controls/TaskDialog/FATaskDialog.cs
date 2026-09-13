@@ -13,10 +13,29 @@ using FluentAvalonia.UI.Controls.Primitives;
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Represents and enhanced dialog with enhanced button, command, and progress support
+///     Represents and enhanced dialog with enhanced button, command, and progress support
 /// </summary>
 public partial class FATaskDialog : ContentControl
 {
+    private ItemsControl _buttonsHost;
+    private ItemsControl _commandsHost;
+
+    private FATaskDialogProgressState _currentProgressState = FATaskDialogProgressState.Normal;
+
+    private Button _defaultButton;
+    internal bool _hasDeferralActive;
+    private Control _host;
+    private bool _ignoreWindowClosingEvent;
+    private bool _isOpening;
+    private Button _moreDetailsButton;
+
+    private IInputElement _previousFocus;
+    private ProgressBar _progressBar;
+    private TaskCompletionSource<object> _tcs;
+
+    public Control _xamlOwner;
+    private int _xamlOwnerChildIndex;
+
     public FATaskDialog()
     {
         PseudoClasses.Add(s_pcHidden);
@@ -29,10 +48,7 @@ public partial class FATaskDialog : ContentControl
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
     {
-        if (_moreDetailsButton != null)
-        {
-            _moreDetailsButton.Click -= MoreDetailsButtonClick;
-        }
+        if (_moreDetailsButton != null) _moreDetailsButton.Click -= MoreDetailsButtonClick;
 
         base.OnApplyTemplate(e);
 
@@ -43,10 +59,7 @@ public partial class FATaskDialog : ContentControl
 
         _progressBar = e.NameScope.Find<ProgressBar>(s_tpProgressBar);
 
-        if (_moreDetailsButton != null)
-        {
-            _moreDetailsButton.Click += MoreDetailsButtonClick;
-        }        
+        if (_moreDetailsButton != null) _moreDetailsButton.Click += MoreDetailsButtonClick;
     }
 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
@@ -91,7 +104,7 @@ public partial class FATaskDialog : ContentControl
             PseudoClasses.Set(s_pcIconForeground, change.NewValue != null);
         }
     }
-    
+
     protected override bool RegisterContentPresenter(ContentPresenter presenter)
     {
         if (presenter.Name == "ContentPresenter")
@@ -112,7 +125,7 @@ public partial class FATaskDialog : ContentControl
             SetButtons();
             SetCommands();
             TrySetInitialFocus();
-        }       
+        }
     }
 
     private void OnKeyDownPreview(object sender, KeyEventArgs e)
@@ -126,10 +139,7 @@ public partial class FATaskDialog : ContentControl
         {
             if (_defaultButton != null && _defaultButton.DataContext is FATaskDialogButton b)
             {
-                if (b.Command?.CanExecute(b.CommandParameter) == true)
-                {
-                    b.Command.Execute(b.CommandParameter);
-                }
+                if (b.Command?.CanExecute(b.CommandParameter) == true) b.Command.Execute(b.CommandParameter);
 
                 b.RaiseClick();
 
@@ -143,28 +153,30 @@ public partial class FATaskDialog : ContentControl
     }
 
     /// <summary>
-    /// Shows the TaskDialog
+    ///     Shows the TaskDialog
     /// </summary>
-    /// <param name="showHosted">Optional parameter that specifies whether this dialog should show in the OverlayLayer even on windowing platforms. Defaults to false</param>
+    /// <param name="showHosted">
+    ///     Optional parameter that specifies whether this dialog should show in the OverlayLayer even on
+    ///     windowing platforms. Defaults to false
+    /// </param>
     /// <returns>The TaskDialog result corresponding to the command/button used to close the dialog</returns>
     /// <remarks>
-    /// Before calling this method, you MUST set <see cref="XamlRoot"/> property to the TopLevel/Window that should
-    /// own or host this Dialog. If you declare the dialog in Xaml, this is done automatically since 
-    /// the dialog is already attached to the visual tree
+    ///     Before calling this method, you MUST set <see cref="XamlRoot" /> property to the TopLevel/Window that should
+    ///     own or host this Dialog. If you declare the dialog in Xaml, this is done automatically since
+    ///     the dialog is already attached to the visual tree
     /// </remarks>
     public async Task<object> ShowAsync(bool showHosted = false)
     {
         var declaredInXaml = this.IsAttachedToVisualTree();
         if (!declaredInXaml && XamlRoot == null)
-        {
-            throw new InvalidOperationException("XamlRoot not set on TaskDialog. This should be set to the TopLevel that should own or host the dialog.");
-        }
+            throw new InvalidOperationException(
+                "XamlRoot not set on TaskDialog. This should be set to the TopLevel that should own or host the dialog.");
 
         // See OnLoaded
         _isOpening = true;
 
         OnOpening();
-        
+
         var owner = XamlRoot ?? TopLevel.GetTopLevel(this);
 
         void UnparentDialog()
@@ -196,10 +208,7 @@ public partial class FATaskDialog : ContentControl
         {
             // Hosted in OverlayLayer
             _tcs = new TaskCompletionSource<object>();
-            if (declaredInXaml)
-            {
-                UnparentDialog();
-            }
+            if (declaredInXaml) UnparentDialog();
 
             var host = new FADialogHost
             {
@@ -231,10 +240,7 @@ public partial class FATaskDialog : ContentControl
         }
         else
         {
-            if (declaredInXaml)
-            {
-                UnparentDialog();
-            }
+            if (declaredInXaml) UnparentDialog();
 
             PseudoClasses.Set(s_pcHidden, false);
             PseudoClasses.Set(s_pcHosted, false);
@@ -250,7 +256,7 @@ public partial class FATaskDialog : ContentControl
     }
 
     /// <summary>
-    /// Hides the TaskDialog with a <see cref="FATaskDialogStandardResult.None"/> result
+    ///     Hides the TaskDialog with a <see cref="FATaskDialogStandardResult.None" /> result
     /// </summary>
     public void Hide()
     {
@@ -258,7 +264,7 @@ public partial class FATaskDialog : ContentControl
     }
 
     /// <summary>
-    /// Hides the dialog with the specified dialog result
+    ///     Hides the dialog with the specified dialog result
     /// </summary>
     public void Hide(object result)
     {
@@ -318,25 +324,16 @@ public partial class FATaskDialog : ContentControl
                 return;
 
             if (_xamlOwner is Panel p)
-            {
                 p.Children.Insert(_xamlOwnerChildIndex, this);
-            }
             else if (_xamlOwner is Decorator d)
-            {
                 d.Child = this;
-            }
             else if (_xamlOwner is ContentControl icc)
-            {
                 icc.Content = this;
-            }
-            else if (_xamlOwner is ContentPresenter icp)
-            {
-                icp.Content = this;
-            }
+            else if (_xamlOwner is ContentPresenter icp) icp.Content = this;
         }
 
         if (_host is Window w)
-        {            
+        {
             _ignoreWindowClosingEvent = true;
 
             w.Close(result);
@@ -388,7 +385,6 @@ public partial class FATaskDialog : ContentControl
 
         // TaskDialogCommandHost is a TaskDialogButtonHost, this captures everything
         if (e.Source is Visual v && v.FindAncestorOfType<FATaskDialogButtonHost>(true) is FATaskDialogButtonHost b)
-        {
             // DataContext for the hosts are the user defined buttons/commands, get the dialog from that
             if (b.DataContext is FATaskDialogControl tdb)
             {
@@ -397,7 +393,6 @@ public partial class FATaskDialog : ContentControl
 
                 Hide(tdb.DialogResult);
             }
-        }
     }
 
     public void SetProgressBarState(double value, FATaskDialogProgressState state)
@@ -408,14 +403,17 @@ public partial class FATaskDialog : ContentControl
             {
                 _progressBar.Value = value;
 
-                _progressBar.IsIndeterminate = (state & FATaskDialogProgressState.Indeterminate) == FATaskDialogProgressState.Indeterminate;
+                _progressBar.IsIndeterminate = (state & FATaskDialogProgressState.Indeterminate) ==
+                                               FATaskDialogProgressState.Indeterminate;
 
                 if (_currentProgressState != state)
                 {
                     _currentProgressState = state;
 
-                    PseudoClasses.Set(s_pcProgressError, (state & FATaskDialogProgressState.Error) == FATaskDialogProgressState.Error);
-                    PseudoClasses.Set(s_pcProgressSuspend, (state & FATaskDialogProgressState.Suspended) == FATaskDialogProgressState.Suspended);
+                    PseudoClasses.Set(s_pcProgressError,
+                        (state & FATaskDialogProgressState.Error) == FATaskDialogProgressState.Error);
+                    PseudoClasses.Set(s_pcProgressSuspend,
+                        (state & FATaskDialogProgressState.Suspended) == FATaskDialogProgressState.Suspended);
                 }
             }
         });
@@ -449,12 +447,14 @@ public partial class FATaskDialog : ContentControl
             if (button.IsDefault)
             {
                 if (foundDefault)
-                    throw new InvalidOperationException("Cannot set 'IsDefault' property on more than one item in a TaskDialog");
+                    throw new InvalidOperationException(
+                        "Cannot set 'IsDefault' property on more than one item in a TaskDialog");
 
                 foundDefault = true;
                 b.Classes.Add(FASharedPseudoclasses.s_cAccent);
                 _defaultButton = b;
             }
+
             buttons.Add(b);
         }
 
@@ -472,7 +472,6 @@ public partial class FATaskDialog : ContentControl
         var iconCount = 0;
         var normalCommandCount = 0;
         for (var i = 0; i < _commands.Count; i++)
-        {
             if (_commands[i] is FATaskDialogCheckBox tdcb)
             {
                 var com = new CheckBox
@@ -485,7 +484,7 @@ public partial class FATaskDialog : ContentControl
 
                 com.Classes.Add(s_cFATDCom);
 
-                commands.Add(com);                
+                commands.Add(com);
             }
             else if (_commands[i] is FATaskDialogRadioButton tdrb)
             {
@@ -516,7 +515,8 @@ public partial class FATaskDialog : ContentControl
                 if (tdc.IsDefault)
                 {
                     if (foundDefault)
-                        throw new InvalidOperationException("Cannot set 'IsDefault' property on more than one item in a TaskDialog");
+                        throw new InvalidOperationException(
+                            "Cannot set 'IsDefault' property on more than one item in a TaskDialog");
 
                     foundDefault = true;
                     com.Classes.Add(FASharedPseudoclasses.s_cAccent);
@@ -530,17 +530,12 @@ public partial class FATaskDialog : ContentControl
                     iconCount++;
                 normalCommandCount++;
             }
-        }
 
         if (iconCount != normalCommandCount)
-        {
             // We have an item with no icon - force it to display as if one
             // was present so that its aligned with the others
             for (var i = 0; i < commands.Count; i++)
-            {
                 (commands[i].Classes as IPseudoClasses).Set(FASharedPseudoclasses.s_pcIcon, true);
-            }
-        }
 
         _commandsHost.ItemsSource = commands;
     }
@@ -549,10 +544,7 @@ public partial class FATaskDialog : ContentControl
     {
         var curFocus = TopLevel.GetTopLevel(this).FocusManager.GetFocusedElement() as Control;
         var setFocus = false;
-        if (curFocus?.FindAncestorOfType<FATaskDialog>() == null)
-        {
-            setFocus = true;
-        }
+        if (curFocus?.FindAncestorOfType<FATaskDialog>() == null) setFocus = true;
 
         // User requested something to be focused, don't override their choice
         if (!setFocus)
@@ -563,7 +555,8 @@ public partial class FATaskDialog : ContentControl
         {
             _defaultButton.Focus();
 #if DEBUG
-            Logger.TryGet(LogEventLevel.Debug, "TaskDialog")?.Log("TrySetInitialFocus", "Set initial focus to requested DefaultButton");
+            Logger.TryGet(LogEventLevel.Debug, "TaskDialog")
+                ?.Log("TrySetInitialFocus", "Set initial focus to requested DefaultButton");
 #endif
         }
         else
@@ -572,36 +565,14 @@ public partial class FATaskDialog : ContentControl
             // TODO: v3 - does this work?
             var next = FocusManager.FindFirstFocusableElement(this);
             if (next != null)
-            {
                 next.Focus();
-            }
             else
-            {
                 Focus();
-            }
 
 #if DEBUG
-            Logger.TryGet(LogEventLevel.Debug, "TaskDialog")?.Log("TrySetInitialFocus", "Set initial focus to {next}", next);
+            Logger.TryGet(LogEventLevel.Debug, "TaskDialog")
+                ?.Log("TrySetInitialFocus", "Set initial focus to {next}", next);
 #endif
         }
     }
-
-    private ItemsControl _buttonsHost;
-    private ItemsControl _commandsHost;
-    private ProgressBar _progressBar;
-    private Button _moreDetailsButton;
-
-    private FATaskDialogProgressState _currentProgressState = FATaskDialogProgressState.Normal;
-
-    private Button _defaultButton;
-
-    public Control _xamlOwner;
-    private int _xamlOwnerChildIndex;
-    private Control _host;
-    private TaskCompletionSource<object> _tcs;
-    internal bool _hasDeferralActive;
-
-    private IInputElement _previousFocus; 
-    private bool _ignoreWindowClosingEvent;
-    private bool _isOpening;
 }

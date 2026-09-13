@@ -4,10 +4,12 @@ using Avalonia.Media;
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Represents an icon that uses a vector path as its content.
+///     Represents an icon that uses a vector path as its content.
 /// </summary>
 public partial class FAPathIcon : FAIconElement
 {
+    private Matrix _transform = Matrix.Identity;
+
     static FAPathIcon()
     {
         StretchProperty.OverrideDefaultValue<FAPathIcon>(Stretch.Uniform);
@@ -19,17 +21,16 @@ public partial class FAPathIcon : FAIconElement
     {
         base.OnPropertyChanged(change);
 
-        if (change.Property == StretchProperty || 
+        if (change.Property == StretchProperty ||
             change.Property == StretchDirectionProperty ||
             change.Property == DataProperty)
-        {
             InvalidateMeasure();
-        }
     }
 
     protected override Size MeasureOverride(Size availableSize) =>
-        Data != null ? CalculateSizeAndTransform(availableSize, Data.Bounds, Stretch, StretchDirection).size :
-        base.MeasureOverride(availableSize);
+        Data != null
+            ? CalculateSizeAndTransform(availableSize, Data.Bounds, Stretch, StretchDirection).size
+            : base.MeasureOverride(availableSize);
 
     protected override Size ArrangeOverride(Size finalSize)
     {
@@ -37,10 +38,7 @@ public partial class FAPathIcon : FAIconElement
         {
             var (_, transform) = CalculateSizeAndTransform(finalSize, Data.Bounds, Stretch, StretchDirection);
 
-            if (_transform != transform)
-            {
-                _transform = transform;
-            }
+            if (_transform != transform) _transform = transform;
 
             return finalSize;
         }
@@ -58,40 +56,19 @@ public partial class FAPathIcon : FAIconElement
         var sx = 0.0;
         var sy = 0.0;
 
-        if (stretch != Stretch.None)
-        {
-            shapeSize = shapeBounds.Size;
-        }
+        if (stretch != Stretch.None) shapeSize = shapeBounds.Size;
 
-        if (double.IsInfinity(availableSize.Width))
-        {
-            desiredX = shapeSize.Width;
-        }
+        if (double.IsInfinity(availableSize.Width)) desiredX = shapeSize.Width;
 
-        if (double.IsInfinity(availableSize.Height))
-        {
-            desiredY = shapeSize.Height;
-        }
+        if (double.IsInfinity(availableSize.Height)) desiredY = shapeSize.Height;
 
-        if (shapeBounds.Width > 0)
-        {
-            sx = desiredX / shapeSize.Width;
-        }
+        if (shapeBounds.Width > 0) sx = desiredX / shapeSize.Width;
 
-        if (shapeBounds.Height > 0)
-        {
-            sy = desiredY / shapeSize.Height;
-        }
+        if (shapeBounds.Height > 0) sy = desiredY / shapeSize.Height;
 
-        if (double.IsInfinity(availableSize.Width))
-        {
-            sx = sy;
-        }
+        if (double.IsInfinity(availableSize.Width)) sx = sy;
 
-        if (double.IsInfinity(availableSize.Height))
-        {
-            sy = sx;
-        }
+        if (double.IsInfinity(availableSize.Height)) sy = sx;
 
         switch (stretch)
         {
@@ -104,15 +81,9 @@ public partial class FAPathIcon : FAIconElement
                 break;
 
             case Stretch.Fill:
-                if (double.IsInfinity(availableSize.Width))
-                {
-                    sx = 1.0;
-                }
+                if (double.IsInfinity(availableSize.Width)) sx = 1.0;
 
-                if (double.IsInfinity(availableSize.Height))
-                {
-                    sy = 1.0;
-                }
+                if (double.IsInfinity(availableSize.Height)) sy = 1.0;
 
                 break;
             default:
@@ -153,15 +124,11 @@ public partial class FAPathIcon : FAIconElement
             case Stretch.Uniform:
             case Stretch.UniformToFill:
                 if (sx != 0 && sy != 0)
-                {
                     translate = Matrix.CreateTranslation(
                         -shapeBounds.Position.X - (shapeBounds.Width * sx - desiredX) / sx / 2,
                         -shapeBounds.Position.Y - (shapeBounds.Height * sy - desiredY) / sy / 2);
-                }
                 else
-                {
                     translate = Matrix.CreateTranslation(-(Vector)shapeBounds.Position);
-                }
 
                 break;
 
@@ -180,7 +147,7 @@ public partial class FAPathIcon : FAIconElement
 
     public override void Render(DrawingContext context)
     {
-        var geometry = Data;//RenderedGeometry;
+        var geometry = Data; //RenderedGeometry;
         if (geometry == null)
             return;
 
@@ -190,10 +157,10 @@ public partial class FAPathIcon : FAIconElement
     }
 
     /// <summary>
-    /// Quick and dirty check if we have a valid PathGeometry. This probably needs to be
-    /// more robust, but this is better than a bunch of InvalidDataExceptions becase we 
-    /// don't have a Path.TryParse() method. This does still fail sometimes, but its better
-    /// than nothing. Its really only meant to be called from the StringToIconElementConverter
+    ///     Quick and dirty check if we have a valid PathGeometry. This probably needs to be
+    ///     more robust, but this is better than a bunch of InvalidDataExceptions becase we
+    ///     don't have a Path.TryParse() method. This does still fail sometimes, but its better
+    ///     than nothing. Its really only meant to be called from the StringToIconElementConverter
     /// </summary>
     public static bool IsDataValid(string data, out Geometry g)
     {
@@ -207,7 +174,7 @@ public partial class FAPathIcon : FAIconElement
         {
             var first = data[0].ToString().ToUpper();
 
-            var acceptFirst = new List<string>() { "M", "C", "L", "V", "H", "F" };
+            var acceptFirst = new List<string> { "M", "C", "L", "V", "H", "F" };
 
             if (acceptFirst.Contains(first) || data.Contains(" ") || data.Contains(","))
             {
@@ -225,6 +192,4 @@ public partial class FAPathIcon : FAIconElement
             return false;
         }
     }
-
-    private Matrix _transform = Matrix.Identity;
 }

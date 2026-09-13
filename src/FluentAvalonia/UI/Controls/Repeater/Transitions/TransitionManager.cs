@@ -4,8 +4,17 @@ using Avalonia.Controls;
 using Avalonia.VisualTree;
 
 namespace FluentAvalonia.UI.Controls;
+
 internal sealed class TransitionManager
 {
+    private readonly FAItemsRepeater _owner;
+
+    private bool _hasRecordedAdds;
+    private bool _hasRecordedLayoutTransitions;
+    private bool _hasRecordedRemoves;
+    private bool _hasRecordedResets;
+    private FAItemCollectionTransitionProvider _transitionProvider;
+
     public TransitionManager(FAItemsRepeater owner)
     {
         _owner = owner;
@@ -17,17 +26,12 @@ internal sealed class TransitionManager
         // to know when its animation completes so that we give it back
         // to the view generator.
         if (_transitionProvider != null)
-        {
             //m_transitionProvider.get().TransitionCompleted(m_transitionCompleted);
             _transitionProvider.TransitionCompleted -= OnTransitionProviderTransitionCompleted;
-        }
 
         _transitionProvider = newProvider;
 
-        if (newProvider != null)
-        {
-            newProvider.TransitionCompleted += OnTransitionProviderTransitionCompleted;
-        }
+        if (newProvider != null) newProvider.TransitionCompleted += OnTransitionProviderTransitionCompleted;
     }
 
     public void OnLayoutChanging()
@@ -74,10 +78,9 @@ internal sealed class TransitionManager
                 triggers |= FAItemCollectionTransitionTriggers.LayoutTransition;
 
             if (triggers != 0)
-            {
                 _transitionProvider.QueueTransition(
-                    new FAItemCollectionTransition(_transitionProvider, element, FAItemCollectionTransitionOperation.Add, triggers));
-            }
+                    new FAItemCollectionTransition(_transitionProvider, element,
+                        FAItemCollectionTransitionOperation.Add, triggers));
         }
     }
 
@@ -93,7 +96,8 @@ internal sealed class TransitionManager
             if (_hasRecordedResets)
                 triggers |= FAItemCollectionTransitionTriggers.CollectionChangeReset;
 
-            var transition = new FAItemCollectionTransition(_transitionProvider, element, FAItemCollectionTransitionOperation.Remove, triggers);
+            var transition = new FAItemCollectionTransition(_transitionProvider, element,
+                FAItemCollectionTransitionOperation.Remove, triggers);
 
             canClear = triggers != 0 && _transitionProvider.ShouldAnimate(transition);
 
@@ -133,7 +137,8 @@ internal sealed class TransitionManager
         _hasRecordedAdds = _hasRecordedRemoves = _hasRecordedLayoutTransitions = _hasRecordedResets = false;
     }
 
-    private void OnTransitionProviderTransitionCompleted(FAItemCollectionTransitionProvider sender, FAItemCollectionTransitionCompletedEventArgs args)
+    private void OnTransitionProviderTransitionCompleted(FAItemCollectionTransitionProvider sender,
+        FAItemCollectionTransitionCompletedEventArgs args)
     {
         if (args.Transition.Operation == FAItemCollectionTransitionOperation.Remove)
         {
@@ -148,12 +153,4 @@ internal sealed class TransitionManager
             }
         }
     }
-
-    private readonly FAItemsRepeater _owner;
-    private FAItemCollectionTransitionProvider _transitionProvider;
-
-    private bool _hasRecordedAdds;
-    private bool _hasRecordedRemoves;
-    private bool _hasRecordedResets;
-    private bool _hasRecordedLayoutTransitions;
 }

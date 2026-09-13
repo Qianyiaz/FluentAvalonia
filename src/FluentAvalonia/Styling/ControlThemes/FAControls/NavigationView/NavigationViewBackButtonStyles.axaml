@@ -27,7 +27,7 @@
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="Content" Value="&#xE72B;" />
-        <Setter Property="Margin"  Value="4,2" />
+        <Setter Property="Margin" Value="4,2" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="HorizontalAlignment" Value="Left" />
         <Setter Property="Template">
@@ -36,14 +36,14 @@
                         Background="{TemplateBinding Background}"
                         CornerRadius="{TemplateBinding CornerRadius}">
                     <ui:FAFontIcon Name="Content"
-                                 FontSize="{TemplateBinding FontSize}"
-                                 FontFamily="{TemplateBinding FontFamily}"
-                                 Glyph="{TemplateBinding Content}"
-                                 Foreground="{TemplateBinding Foreground}"
-                                 HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                 VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                 RenderTransform="none"
-                                 RenderTransformOrigin="100%,50%">
+                                   FontSize="{TemplateBinding FontSize}"
+                                   FontFamily="{TemplateBinding FontFamily}"
+                                   Glyph="{TemplateBinding Content}"
+                                   Foreground="{TemplateBinding Foreground}"
+                                   HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                   VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                   RenderTransform="none"
+                                   RenderTransformOrigin="100%,50%">
                         <ui:FAFontIcon.Transitions>
                             <Transitions>
                                 <TransformOperationsTransition Duration="00:00:00.083"

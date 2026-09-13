@@ -1,14 +1,18 @@
-﻿using Avalonia.Collections;
-using Avalonia.Data;
-using FluentAvalonia.Core;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using Avalonia.Collections;
+using Avalonia.Data;
+using FluentAvalonia.Core;
 
 namespace FluentAvalonia.UI.Data;
 
 internal class CollectionViewGroup : IFACollectionViewGroup
 {
+    protected bool _hasItemsBinding;
+
+    protected FAGroupedDataCollectionView _owner;
+
     public CollectionViewGroup(FAGroupedDataCollectionView owner, object item, bool hasItemsBinding)
     {
         _owner = owner;
@@ -27,25 +31,17 @@ internal class CollectionViewGroup : IFACollectionViewGroup
         Group = group;
 
         if (!_hasItemsBinding)
-        {
             GroupItems = new CollectionWrapper(group as IEnumerable);
-        }
         else
-        {
             GroupItems = new CollectionWrapper(_owner.GetItemsFromGroup(group));
-        }
     }
 
     protected virtual void Init()
     {
         if (!_hasItemsBinding)
-        {
             GroupItems = new CollectionWrapper(Group as IEnumerable);
-        }
         else
-        {
             GroupItems = new CollectionWrapper(_owner.GetItemsFromGroup(Group));
-        }
 
         (GroupItems as INotifyCollectionChanged).CollectionChanged += OnGroupItemsCollectionChanged;
     }
@@ -54,17 +50,47 @@ internal class CollectionViewGroup : IFACollectionViewGroup
     {
         _owner.GroupItemsChanged(this, args);
     }
-
-    protected FAGroupedDataCollectionView _owner;
-    protected bool _hasItemsBinding;
 }
 
 internal class SpecializedCollectionViewGroup : CollectionViewGroup, IComparer<object>
 {
+    private static BindingEvaluator<object> _bindingHelper;
+    private IEnumerable _actualItems;
+    private bool _ignoreNotify;
+
+    private List<object> _view;
+
     public SpecializedCollectionViewGroup(FAGroupedDataCollectionView owner, object item, bool hasItemsBinding)
         : base(owner, item, hasItemsBinding)
     {
+    }
 
+    int IComparer<object>.Compare(object x, object y)
+    {
+        var sortDesc = _owner.GetSortDescriptions();
+        if (sortDesc != null)
+            for (var i = 0; i < sortDesc.Count; i++)
+            {
+                var desc = sortDesc[i];
+                object cx, cy;
+
+                if (desc.Property == null)
+                {
+                    cx = x;
+                    cy = y;
+                }
+                else
+                {
+                    cx = EvaluateBinding(desc.Property, x);
+                    cy = EvaluateBinding(desc.Property, y);
+                }
+
+                var cmp = desc.Comparer.Compare(cx, cy);
+                if (cmp != 0)
+                    return desc.Direction == FASortDirection.Ascending ? cmp : -cmp;
+            }
+
+        return 0;
     }
 
     internal int HandleFilterChanged(Predicate<object> filter)
@@ -92,10 +118,7 @@ internal class SpecializedCollectionViewGroup : CollectionViewGroup, IComparer<o
                     continue;
                 }
 
-                if (HandleItemAdded(i, item, viewIndex))
-                {
-                    viewIndex++;
-                }
+                if (HandleItemAdded(i, item, viewIndex)) viewIndex++;
             }
         }
 
@@ -144,13 +167,9 @@ internal class SpecializedCollectionViewGroup : CollectionViewGroup, IComparer<o
         // So, we load the actual items into _actualItems, and _view will be mapped to GroupItems
         // which are the filtered/sorted items that are displayed
         if (!_hasItemsBinding)
-        {
             _actualItems = new CollectionWrapper(Group as IEnumerable);
-        }
         else
-        {
             _actualItems = new CollectionWrapper(_owner.GetItemsFromGroup(Group));
-        }
 
         (_actualItems as INotifyCollectionChanged).CollectionChanged += OnGroupItemsCollectionChanged;
 
@@ -177,37 +196,29 @@ internal class SpecializedCollectionViewGroup : CollectionViewGroup, IComparer<o
         switch (args.Action)
         {
             case NotifyCollectionChangedAction.Add:
+            {
+                AttachPropertyChangedHandler(args.NewItems);
+                if (_owner.DeferCounter <= 0)
                 {
-                    AttachPropertyChangedHandler(args.NewItems);
-                    if (_owner.DeferCounter <= 0)
-                    {
-                        if (args.NewItems.Count == 1)
-                        {
-                            HandleItemAdded(args.NewStartingIndex, args.NewItems[0]);
-                        }
-                        else
-                        {
-                            SourceChanged();
-                        }
-                    }
+                    if (args.NewItems.Count == 1)
+                        HandleItemAdded(args.NewStartingIndex, args.NewItems[0]);
+                    else
+                        SourceChanged();
                 }
+            }
                 break;
 
             case NotifyCollectionChangedAction.Remove:
+            {
+                DetachPropertyChangedHandler(args.OldItems);
+                if (_owner.DeferCounter <= 0)
                 {
-                    DetachPropertyChangedHandler(args.OldItems);
-                    if (_owner.DeferCounter <= 0)
-                    {
-                        if (args.OldItems.Count == 1)
-                        {
-                            HandleItemRemoved(args.OldStartingIndex, args.OldItems[0]);
-                        }
-                        else
-                        {
-                            SourceChanged();
-                        }
-                    }
+                    if (args.OldItems.Count == 1)
+                        HandleItemRemoved(args.OldStartingIndex, args.OldItems[0]);
+                    else
+                        SourceChanged();
                 }
+            }
                 break;
 
             default:
@@ -221,10 +232,7 @@ internal class SpecializedCollectionViewGroup : CollectionViewGroup, IComparer<o
         if (!_owner.IsLiveShapingEnabled || items == null)
             return;
 
-        foreach (var item in items.OfType<INotifyPropertyChanged>())
-        {
-            item.PropertyChanged += ItemOnPropertyChanged;
-        }
+        foreach (var item in items.OfType<INotifyPropertyChanged>()) item.PropertyChanged += ItemOnPropertyChanged;
     }
 
     private void DetachPropertyChangedHandler(IEnumerable items)
@@ -232,10 +240,7 @@ internal class SpecializedCollectionViewGroup : CollectionViewGroup, IComparer<o
         if (!_owner.IsLiveShapingEnabled || items == null)
             return;
 
-        foreach (var item in items.OfType<INotifyPropertyChanged>())
-        {
-            item.PropertyChanged -= ItemOnPropertyChanged;
-        }
+        foreach (var item in items.OfType<INotifyPropertyChanged>()) item.PropertyChanged -= ItemOnPropertyChanged;
     }
 
     private void ItemOnPropertyChanged(object item, PropertyChangedEventArgs args)
@@ -268,26 +273,22 @@ internal class SpecializedCollectionViewGroup : CollectionViewGroup, IComparer<o
             var oldIndex = _view.IndexOf(item);
 
             // Check if item is in view:
-            if (oldIndex < 0)
-            {
-                return;
-            }
+            if (oldIndex < 0) return;
 
             _view.RemoveAt(oldIndex);
             var targetIndex = _view.BinarySearch(item, this);
-            if (targetIndex < 0)
-            {
-                targetIndex = ~targetIndex;
-            }
+            if (targetIndex < 0) targetIndex = ~targetIndex;
 
             // Only trigger expensive UI updates if the index really changed:
             if (targetIndex != oldIndex)
             {
-                OnVectorChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, oldIndex));
+                OnVectorChanged(
+                    new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, oldIndex));
 
                 _view.Insert(targetIndex, item);
 
-                OnVectorChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, targetIndex));
+                OnVectorChanged(
+                    new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, targetIndex));
             }
             else
             {
@@ -365,19 +366,12 @@ internal class SpecializedCollectionViewGroup : CollectionViewGroup, IComparer<o
             }
 
             if (newStartingIndex == 0 || _view.Count == 0)
-            {
                 newViewIndex = 0;
-            }
             else if (newStartingIndex == _actualItems.Count() - 1)
-            {
                 newViewIndex = _view.Count - 1;
-            }
             else if (viewIndex.HasValue)
-            {
                 newViewIndex = viewIndex.Value;
-            }
             else
-            {
                 for (int i = 0, j = 0; i < _actualItems.Count(); i++)
                 {
                     if (i == newStartingIndex)
@@ -386,12 +380,8 @@ internal class SpecializedCollectionViewGroup : CollectionViewGroup, IComparer<o
                         break;
                     }
 
-                    if (_view[j] == _actualItems.ElementAt(i))
-                    {
-                        j++;
-                    }
+                    if (_view[j] == _actualItems.ElementAt(i)) j++;
                 }
-            }
         }
 
         _view.Insert(newViewIndex, newItem);
@@ -410,20 +400,11 @@ internal class SpecializedCollectionViewGroup : CollectionViewGroup, IComparer<o
     private void HandleItemRemoved(int index, object item)
     {
         var filter = _owner.Filter;
-        if (filter != null && !filter(item))
-        {
-            return;
-        }
+        if (filter != null && !filter(item)) return;
 
-        if (index < 0 || index >= _view.Count || !Equals(_view[index], item))
-        {
-            index = _view.IndexOf(item);
-        }
+        if (index < 0 || index >= _view.Count || !Equals(_view[index], item)) index = _view.IndexOf(item);
 
-        if (index < 0)
-        {
-            return;
-        }
+        if (index < 0) return;
 
         RemoveFromView(index, item);
     }
@@ -439,36 +420,6 @@ internal class SpecializedCollectionViewGroup : CollectionViewGroup, IComparer<o
         OnVectorChanged(args);
     }
 
-    int IComparer<object>.Compare(object x, object y)
-    {
-        var sortDesc = _owner.GetSortDescriptions();
-        if (sortDesc != null)
-        {
-            for (var i = 0; i < sortDesc.Count; i++)
-            {
-                var desc = sortDesc[i];
-                object cx, cy;
-
-                if (desc.Property == null)
-                {
-                    cx = x;
-                    cy = y;
-                }
-                else
-                {
-                    cx = EvaluateBinding(desc.Property, x);
-                    cy = EvaluateBinding(desc.Property, y);
-                }
-
-                var cmp = desc.Comparer.Compare(cx, cy);
-                if (cmp != 0)
-                    return desc.Direction == FASortDirection.Ascending ? cmp : -cmp;
-            }
-        }
-
-        return 0;
-    }
-
     private static object EvaluateBinding(BindingBase binding, object item)
     {
         _bindingHelper ??= new BindingEvaluator<object>();
@@ -478,15 +429,12 @@ internal class SpecializedCollectionViewGroup : CollectionViewGroup, IComparer<o
         _bindingHelper.ClearDataContext();
         return result;
     }
-
-    private List<object> _view;
-    private IEnumerable _actualItems;
-    private static BindingEvaluator<object> _bindingHelper;
-    private bool _ignoreNotify;
 }
 
 internal class CollectionWrapper : IAvaloniaList<object>, IList // IList for INCC compatibility
 {
+    private IEnumerable _collection;
+
     public CollectionWrapper(IEnumerable collection)
     {
         _collection = collection;
@@ -502,10 +450,7 @@ internal class CollectionWrapper : IAvaloniaList<object>, IList // IList for INC
         {
             ThrowIfNotMutable();
 
-            if (_collection is IList list)
-            {
-                list[index] = value;
-            }
+            if (_collection is IList list) list[index] = value;
         }
     }
 
@@ -516,20 +461,11 @@ internal class CollectionWrapper : IAvaloniaList<object>, IList // IList for INC
     public event NotifyCollectionChangedEventHandler CollectionChanged;
     public event PropertyChangedEventHandler PropertyChanged;
 
-    private void OnBackingCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-    {
-        CollectionChanged?.Invoke(this, e);
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
-    }
-
     public void Add(object item)
     {
         ThrowIfNotMutable();
 
-        if (_collection is IList l)
-        {
-            l.Add(item);
-        }
+        if (_collection is IList l) l.Add(item);
     }
 
     public void AddRange(IEnumerable<object> items)
@@ -537,10 +473,8 @@ internal class CollectionWrapper : IAvaloniaList<object>, IList // IList for INC
         ThrowIfNotMutable();
 
         if (_collection is IList l)
-        {
             foreach (var item in items)
                 l.Add(item);
-        }
     }
 
     public void Clear()
@@ -557,14 +491,10 @@ internal class CollectionWrapper : IAvaloniaList<object>, IList // IList for INC
     public void CopyTo(object[] array, int arrayIndex)
     {
         if (_collection is ICollection list)
-        {
             list.CopyTo(array, arrayIndex);
-        }
         else
-        {
             // I hope this is never needed
             Enumerable.ToList<object>(_collection.Cast<object>()).CopyTo(array, arrayIndex);
-        }
     }
 
     public IEnumerator<object> GetEnumerator()
@@ -582,10 +512,7 @@ internal class CollectionWrapper : IAvaloniaList<object>, IList // IList for INC
     {
         ThrowIfNotMutable();
 
-        if (_collection is IList list)
-        {
-            list.Insert(index, item);
-        }
+        if (_collection is IList list) list.Insert(index, item);
     }
 
     public void InsertRange(int index, IEnumerable<object> items)
@@ -629,10 +556,7 @@ internal class CollectionWrapper : IAvaloniaList<object>, IList // IList for INC
     {
         ThrowIfNotMutable();
 
-        if (_collection is IList l)
-        {
-            l.RemoveAt(index);
-        }
+        if (_collection is IList l) l.RemoveAt(index);
     }
 
     public void RemoveRange(int index, int count)
@@ -642,16 +566,6 @@ internal class CollectionWrapper : IAvaloniaList<object>, IList // IList for INC
 
     IEnumerator IEnumerable.GetEnumerator() =>
         _collection.GetEnumerator();
-
-    private void ThrowIfNotMutable()
-    {
-        // We can't modify the CollectionViewGroup items if it's not able to notify,
-        // even if the underlying type is something like a List
-        if (!IsReadOnly || _collection is INotifyCollectionChanged)
-            return;
-
-        throw new NotSupportedException("Collection is not mutable. Collection groups must implement INotifyCollectionChanged");
-    }
 
     object IReadOnlyList<object>.this[int index] => this[index];
 
@@ -702,5 +616,20 @@ internal class CollectionWrapper : IAvaloniaList<object>, IList // IList for INC
         CopyTo((object[])array, index);
     }
 
-    private IEnumerable _collection;
+    private void OnBackingCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+        CollectionChanged?.Invoke(this, e);
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
+    }
+
+    private void ThrowIfNotMutable()
+    {
+        // We can't modify the CollectionViewGroup items if it's not able to notify,
+        // even if the underlying type is something like a List
+        if (!IsReadOnly || _collection is INotifyCollectionChanged)
+            return;
+
+        throw new NotSupportedException(
+            "Collection is not mutable. Collection groups must implement INotifyCollectionChanged");
+    }
 }

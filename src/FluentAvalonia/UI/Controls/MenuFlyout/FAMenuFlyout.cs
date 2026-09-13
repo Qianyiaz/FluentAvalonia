@@ -1,20 +1,49 @@
-﻿using Avalonia;
+﻿using System.Collections;
+using System.Collections.Specialized;
+using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Templates;
 using Avalonia.Metadata;
 using Avalonia.Styling;
-using System.Collections;
-using System.Collections.Specialized;
 
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Represents a flyout that displays a menu of commands.
+///     Represents a flyout that displays a menu of commands.
 /// </summary>
 public class FAMenuFlyout : PopupFlyoutBase
 {
+    /// <summary>
+    ///     Defines the <see cref="Items" /> property
+    /// </summary>
+    public static readonly StyledProperty<IEnumerable> ItemsSourceProperty =
+        ItemsControl.ItemsSourceProperty.AddOwner<FAMenuFlyout>();
+
+    /// <summary>
+    ///     Defines the <see cref="ItemTemplate" /> property
+    /// </summary>
+    public static readonly StyledProperty<IDataTemplate> ItemTemplateProperty =
+        ItemsControl.ItemTemplateProperty.AddOwner<FAMenuFlyout>();
+
+    /// <summary>
+    ///     Defines the <see cref="ItemContainerTheme" /> property
+    /// </summary>
+    public static readonly StyledProperty<ControlTheme> ItemContainerThemeProperty =
+        ItemsControl.ItemContainerThemeProperty.AddOwner<ControlTheme>();
+
+    /// <summary>
+    ///     Defines the <see cref="FlyoutPresenterTheme" /> property
+    /// </summary>
+    public static readonly StyledProperty<ControlTheme> FlyoutPresenterThemeProperty =
+        AvaloniaProperty.Register<FAMenuFlyout, ControlTheme>(nameof(FlyoutPresenterTheme));
+
+    private Classes _classes;
+
+
+    private FAMenuFlyoutPresenter _presenter;
+
     public FAMenuFlyout()
     {
         var al = new AvaloniaList<object>();
@@ -23,41 +52,17 @@ public class FAMenuFlyout : PopupFlyoutBase
     }
 
     /// <summary>
-    /// Defines the <see cref="Items"/> property
-    /// </summary>
-    public static readonly StyledProperty<IEnumerable> ItemsSourceProperty =
-        ItemsControl.ItemsSourceProperty.AddOwner<FAMenuFlyout>();
-
-    /// <summary>
-    /// Defines the <see cref="ItemTemplate"/> property
-    /// </summary>
-    public static readonly StyledProperty<IDataTemplate> ItemTemplateProperty =
-        ItemsControl.ItemTemplateProperty.AddOwner<FAMenuFlyout>();
-
-    /// <summary>
-    /// Defines the <see cref="ItemContainerTheme"/> property
-    /// </summary>
-    public static readonly StyledProperty<ControlTheme> ItemContainerThemeProperty =
-        ItemsControl.ItemContainerThemeProperty.AddOwner<ControlTheme>();
-
-    /// <summary>
-    /// Defines the <see cref="FlyoutPresenterTheme"/> property
-    /// </summary>
-    public static readonly StyledProperty<ControlTheme> FlyoutPresenterThemeProperty =
-        AvaloniaProperty.Register<FAMenuFlyout, ControlTheme>(nameof(FlyoutPresenterTheme));
-
-    /// <summary>
-    /// Gets the items of the MenuFlyoutSubItem
+    ///     Gets the items of the MenuFlyoutSubItem
     /// </summary>
     /// <remarks>
-    /// NOTE: Unlike normal ItemsControls, when ItemsSource is set, this property will
-    /// not act as a view over the ItemsSource
+    ///     NOTE: Unlike normal ItemsControls, when ItemsSource is set, this property will
+    ///     not act as a view over the ItemsSource
     /// </remarks>
     [Content]
     public IList Items { get; private set; }
 
     /// <summary>
-    /// Gets or sets the items of the MenuFlyout
+    ///     Gets or sets the items of the MenuFlyout
     /// </summary>
     public IEnumerable ItemsSource
     {
@@ -66,7 +71,7 @@ public class FAMenuFlyout : PopupFlyoutBase
     }
 
     /// <summary>
-    /// Gets or sets the template used for the items
+    ///     Gets or sets the template used for the items
     /// </summary>
     public IDataTemplate ItemTemplate
     {
@@ -75,7 +80,7 @@ public class FAMenuFlyout : PopupFlyoutBase
     }
 
     /// <summary>
-    /// Gets or sets the <see cref="ControlTheme"/> to apply for the items
+    ///     Gets or sets the <see cref="ControlTheme" /> to apply for the items
     /// </summary>
     public ControlTheme ItemContainerTheme
     {
@@ -84,13 +89,13 @@ public class FAMenuFlyout : PopupFlyoutBase
     }
 
     /// <summary>
-    /// Sets the Classes used for styling the MenuFlyoutPresenter. This property
-    /// takes the place of WinUI's MenuFlyoutPresenterStyle
+    ///     Sets the Classes used for styling the MenuFlyoutPresenter. This property
+    ///     takes the place of WinUI's MenuFlyoutPresenterStyle
     /// </summary>
     public Classes FlyoutPresenterClasses => _classes ??= new Classes();
 
     /// <summary>
-    /// Gets or sets the ControlTheme for the flyout presenter
+    ///     Gets or sets the ControlTheme for the flyout presenter
     /// </summary>
     public ControlTheme FlyoutPresenterTheme
     {
@@ -123,31 +128,20 @@ public class FAMenuFlyout : PopupFlyoutBase
         if (change.Property == ItemsSourceProperty)
         {
             if (Items.Count > 0)
-            {
                 throw new InvalidOperationException("Items collection must be empty before using ItemsSource.");
-            }
 
             var newV = change.GetNewValue<IEnumerable>();
 
-            if (_presenter != null)
-            {
-                _presenter.ItemsSource = newV ?? Items;
-            }
+            if (_presenter != null) _presenter.ItemsSource = newV ?? Items;
         }
     }
 
     protected override void OnOpened()
     {
-        if (_classes != null)
-        {
-            SetPresenterClasses(_presenter, FlyoutPresenterClasses);
-        }
+        if (_classes != null) SetPresenterClasses(_presenter, FlyoutPresenterClasses);
 
         var theme = FlyoutPresenterTheme;
-        if (theme != null)
-        {
-            _presenter.Theme = theme;
-        }
+        if (theme != null) _presenter.Theme = theme;
 
         base.OnOpened();
 
@@ -164,13 +158,9 @@ public class FAMenuFlyout : PopupFlyoutBase
     {
         //Remove any classes no longer in use, ignoring pseudoclasses
         for (var i = presenter.Classes.Count - 1; i >= 0; i--)
-        {
             if (!classes.Contains(presenter.Classes[i]) &&
                 !presenter.Classes[i].Contains(':'))
-            {
                 presenter.Classes.RemoveAt(i);
-            }
-        }
 
         //Add new classes
         presenter.Classes.AddRange(classes);
@@ -178,10 +168,7 @@ public class FAMenuFlyout : PopupFlyoutBase
 
     private void ItemsCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
     {
-        if (ItemsSource != null)
-        {
-            throw new InvalidOperationException("Cannot edit Items when ItemsSource is set.");
-        }
+        if (ItemsSource != null) throw new InvalidOperationException("Cannot edit Items when ItemsSource is set.");
         //if (!IsOpen)
         //{
         //    // If the flyout isn't open we'll just trigger a refresh when the flyout next opens
@@ -231,8 +218,4 @@ public class FAMenuFlyout : PopupFlyoutBase
         //    _itemsInternal.RemoveRange(index, count);
         //}
     }
-
-   
-    private FAMenuFlyoutPresenter _presenter;
-    private Classes _classes;
 }

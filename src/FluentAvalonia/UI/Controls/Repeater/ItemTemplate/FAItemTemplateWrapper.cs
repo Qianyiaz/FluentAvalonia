@@ -6,6 +6,9 @@ namespace FluentAvalonia.UI.Controls;
 
 public class FAItemTemplateWrapper : IFAElementFactory
 {
+    private IDataTemplate _dataTemplate;
+    private FADataTemplateSelector _dataTemplateSelector;
+
     public FAItemTemplateWrapper(IDataTemplate template)
     {
         _dataTemplate = template;
@@ -47,20 +50,17 @@ public class FAItemTemplateWrapper : IFAElementFactory
             }
 
             if (selectedTemplate == null)
-            {
                 // Still nullptr, fail with a reasonable message now.
-                throw new InvalidOperationException("Null encountered as data template. That is not a valid value for a data template, and can not be used.");
-            }
+                throw new InvalidOperationException(
+                    "Null encountered as data template. That is not a valid value for a data template, and can not be used.");
         }
 
         var recyclePool = FARecyclePool.GetPoolInstance(selectedTemplate);
         Control element = null;
 
         if (recyclePool != null)
-        {
             // try to get an element from the recycle pool.
             element = recyclePool.TryGetElement(string.Empty, args.Parent);
-        }
 
         if (element == null)
         {
@@ -85,7 +85,7 @@ public class FAItemTemplateWrapper : IFAElementFactory
     {
         var element = args.Element;
         var selectedTemplate = _dataTemplate ??
-            element.GetValue(FARecyclePool.OriginTemplateProperty);
+                               element.GetValue(FARecyclePool.OriginTemplateProperty);
         var recyclePool = FARecyclePool.GetPoolInstance(selectedTemplate);
         if (recyclePool == null)
         {
@@ -106,7 +106,4 @@ public class FAItemTemplateWrapper : IFAElementFactory
     {
         throw new NotImplementedException();
     }
-
-    private IDataTemplate _dataTemplate;
-    private FADataTemplateSelector _dataTemplateSelector;
 }

@@ -4,11 +4,11 @@ using Avalonia.Controls;
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Represents the AutomationPeer for a <see cref="FAInfoBar"/>
+///     Represents the AutomationPeer for a <see cref="FAInfoBar" />
 /// </summary>
 public sealed class FAInfoBarAutomationPeer : ControlAutomationPeer
 {
-    public FAInfoBarAutomationPeer(Control owner) 
+    public FAInfoBarAutomationPeer(Control owner)
         : base(owner)
     {
     }

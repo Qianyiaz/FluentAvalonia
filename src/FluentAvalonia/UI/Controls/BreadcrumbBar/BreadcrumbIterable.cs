@@ -15,6 +15,10 @@ internal class BreadcrumbIterable : IEnumerable
 
     public class BreadcrumbIterator : IEnumerator
     {
+        private readonly FAItemsSourceView _itemsSource;
+        private readonly int _size;
+        private int _currentIndex = -1;
+
         public BreadcrumbIterator(IEnumerable itemsSource)
         {
             // WinUI sets this, but I think IIterator calls Current before MoveNext
@@ -37,15 +41,9 @@ internal class BreadcrumbIterable : IEnumerable
         {
             get
             {
-                if (_currentIndex == 0)
-                {
-                    return null;
-                }
+                if (_currentIndex == 0) return null;
 
-                if (HasCurrent())
-                {
-                    return _itemsSource.GetAt(_currentIndex - 1);
-                }
+                if (HasCurrent()) return _itemsSource.GetAt(_currentIndex - 1);
 
                 throw new IndexOutOfRangeException();
             }
@@ -64,13 +62,8 @@ internal class BreadcrumbIterable : IEnumerable
 
         public void Reset()
         {
-
         }
 
         private bool HasCurrent() => _currentIndex < _size;
-
-        private readonly FAItemsSourceView _itemsSource;
-        private int _currentIndex = -1;
-        private readonly int _size;
     }
 }

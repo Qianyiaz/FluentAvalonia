@@ -1,6 +1,6 @@
-﻿using Avalonia.Controls;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Specialized;
+using Avalonia.Controls;
 
 namespace FluentAvalonia.UI.Controls;
 
@@ -15,18 +15,72 @@ internal enum NavigationViewSplitVectorID
 
 internal class TopNavigationViewDataProvider : SplitDataSourceBase<object, NavigationViewSplitVectorID, double>
 {
+    private Action<NotifyCollectionChangedEventArgs> _dataChangedCallback;
+    private ItemsSourceView _dataSource;
+    private double _overflowButtonCachedWidth;
+    private IEnumerable _rawDataSource;
+
     public TopNavigationViewDataProvider(FANavigationView owner) : base(5)
     {
         //Wow Microsoft, creative naming
-        var lambda = (object value) =>
-        {
-            return IndexOf(value);
-        };
+        var lambda = (object value) => { return IndexOf(value); };
 
-        var primaryVector = new SplitVector<object, NavigationViewSplitVectorID>(NavigationViewSplitVectorID.PrimaryList, lambda);
-        var secondaryVector = new SplitVector<object, NavigationViewSplitVectorID>(NavigationViewSplitVectorID.OverflowList, lambda);
+        var primaryVector =
+            new SplitVector<object, NavigationViewSplitVectorID>(NavigationViewSplitVectorID.PrimaryList, lambda);
+        var secondaryVector =
+            new SplitVector<object, NavigationViewSplitVectorID>(NavigationViewSplitVectorID.OverflowList, lambda);
 
         InitializeSplitVectors(primaryVector, secondaryVector);
+    }
+
+    public override int Size
+    {
+        get
+        {
+            if (_dataSource != null)
+                return _dataSource.Count;
+
+            return 0;
+        }
+    }
+
+    protected override NavigationViewSplitVectorID DefaultVectorIDOnInsert =>
+        NavigationViewSplitVectorID.NotInitialized;
+
+    protected override double DefaultAttachedData => double.MinValue;
+
+    public int PrimaryListSize => GetPrimaryItems().Count;
+
+    public int NavigationViewItemCountInPrimaryList
+    {
+        get
+        {
+            var count = 0;
+            for (var i = 0; i < Size; i++)
+                if (IsItemInPrimaryList(i) && IsContainerNavigationViewItem(i))
+                    count++;
+
+            return count;
+        }
+    }
+
+    public int NavigationViewItemCountInTopNav
+    {
+        get
+        {
+            var count = 0;
+            for (var i = 0; i < Size; i++)
+                if (IsContainerNavigationViewItem(i))
+                    count++;
+
+            return count;
+        }
+    }
+
+    public double OverflowButtonWidth
+    {
+        get => _overflowButtonCachedWidth;
+        set => _overflowButtonCachedWidth = value;
     }
 
     public IList<object> GetPrimaryItems()
@@ -46,16 +100,11 @@ internal class TopNavigationViewDataProvider : SplitDataSourceBase<object, Navig
         {
             ItemsSourceView dataSource = null;
             if (rawData != null)
-            {
                 //Avalonia ItemsSourceView only accepts IEnumerable types
                 dataSource = ItemsSourceView.GetOrCreate(rawData);
-            }
             ChangeDataSource(dataSource);
             _rawDataSource = rawData;
-            if (dataSource != null)
-            {
-                MoveAllItemsToPrimaryList();
-            }
+            if (dataSource != null) MoveAllItemsToPrimaryList();
         }
     }
 
@@ -71,10 +120,7 @@ internal class TopNavigationViewDataProvider : SplitDataSourceBase<object, Navig
 
     public override int IndexOf(object value)
     {
-        if (_dataSource != null)
-        {
-            return _dataSource.IndexOf(value);
-        }
+        if (_dataSource != null) return _dataSource.IndexOf(value);
         return -1;
     }
 
@@ -86,43 +132,21 @@ internal class TopNavigationViewDataProvider : SplitDataSourceBase<object, Navig
         {
             var vector = GetVectorForItem(indexInOriginalVector);
             if (vector != null && vector.GetVectorIDForItem() == id)
-            {
                 index = vector.IndexFromIndexInOriginalVector(indexInOriginalVector);
-            }
         }
+
         return index;
     }
 
     public override object GetAt(int index)
     {
-        if (_dataSource != null)
-        {
-            return _dataSource.GetAt(index);
-        }
+        if (_dataSource != null) return _dataSource.GetAt(index);
         return null;
     }
 
-    public override int Size
-    {
-        get
-        {
-            if (_dataSource != null)
-                return _dataSource.Count;
-
-            return 0;
-        }
-    }
-
-    protected override NavigationViewSplitVectorID DefaultVectorIDOnInsert => NavigationViewSplitVectorID.NotInitialized;
-
-    protected override double DefaultAttachedData => double.MinValue;
-
     public void MoveAllItemsToPrimaryList()
     {
-        for (var i = 0; i < Size; i++)
-        {
-            MoveItemToVector(i, NavigationViewSplitVectorID.PrimaryList);
-        }
+        for (var i = 0; i < Size; i++) MoveItemToVector(i, NavigationViewSplitVectorID.PrimaryList);
     }
 
     public IList<int> ConvertPrimaryIndexToIndex(IList<int> indicesInPrimary)
@@ -132,17 +156,18 @@ internal class TopNavigationViewDataProvider : SplitDataSourceBase<object, Navig
         {
             var vector = GetVector(NavigationViewSplitVectorID.PrimaryList);
             if (vector != null)
-            {
                 //https://github.com/unoplatform/uno/blob/master/src/Uno.UI/UI/Xaml/Controls/NavigationView/TopNavigationViewDataProvider.cs
                 indices.AddRange(indicesInPrimary.Select(index => vector.IndexToIndexInOriginalVector(index)));
-            }
         }
+
         return indices;
     }
 
     public int ConvertOriginalIndexToIndex(int originalIndex)
     {
-        var vector = GetVector(IsItemInPrimaryList(originalIndex) ? NavigationViewSplitVectorID.PrimaryList : NavigationViewSplitVectorID.OverflowList);
+        var vector = GetVector(IsItemInPrimaryList(originalIndex)
+            ? NavigationViewSplitVectorID.PrimaryList
+            : NavigationViewSplitVectorID.OverflowList);
         return vector.IndexFromIndexInOriginalVector(originalIndex);
     }
 
@@ -153,44 +178,7 @@ internal class TopNavigationViewDataProvider : SplitDataSourceBase<object, Navig
 
     public void MoveItemsToList(IList<int> indices, NavigationViewSplitVectorID id)
     {
-        foreach (var index in indices)
-        {
-            MoveItemToVector(index, id);
-        }
-    }
-
-    public int PrimaryListSize => GetPrimaryItems().Count;
-
-    public int NavigationViewItemCountInPrimaryList
-    {
-        get
-        {
-            var count = 0;
-            for (var i = 0; i < Size; i++)
-            {
-                if (IsItemInPrimaryList(i) && IsContainerNavigationViewItem(i))
-                {
-                    count++;
-                }
-            }
-            return count;
-        }
-    }
-
-    public int NavigationViewItemCountInTopNav
-    {
-        get
-        {
-            var count = 0;
-            for (var i = 0; i < Size; i++)
-            {
-                if (IsContainerNavigationViewItem(i))
-                {
-                    count++;
-                }
-            }
-            return count;
-        }
+        foreach (var index in indices) MoveItemToVector(index, id);
     }
 
     public void UpdateWidthForPrimaryItem(int indexInPrimary, double width)
@@ -207,12 +195,9 @@ internal class TopNavigationViewDataProvider : SplitDataSourceBase<object, Navig
     {
         var width = 0.0;
         for (var i = 0; i < Size; i++)
-        {
             if (!IsItemInPrimaryList(i))
-            {
                 width += GetWidthForItem(i);
-            }
-        }
+
         width -= _overflowButtonCachedWidth;
         return Math.Max(0.0, width);
     }
@@ -221,33 +206,26 @@ internal class TopNavigationViewDataProvider : SplitDataSourceBase<object, Navig
     {
         var hasInvalidWidth = false;
         foreach (var index in items)
-        {
             if (!IsValidWidthForItem(index))
             {
                 hasInvalidWidth = true;
                 break;
             }
-        }
+
         return hasInvalidWidth;
     }
 
     public double GetWidthForItem(int index)
     {
         var width = AttachedData(index);
-        if (!IsValidWidth(width))
-        {
-            width = 0;
-        }
+        if (!IsValidWidth(width)) width = 0;
         return width;
     }
 
     public double CalculateWidthForItems(IList<int> items)
     {
         var width = 0.0;
-        foreach (var index in items)
-        {
-            width += GetWidthForItem(index);
-        }
+        foreach (var index in items) width += GetWidthForItem(index);
         return width;
     }
 
@@ -256,16 +234,10 @@ internal class TopNavigationViewDataProvider : SplitDataSourceBase<object, Navig
         ResetAttachedData(-1.0);
     }
 
-    public double OverflowButtonWidth
-    {
-        get => _overflowButtonCachedWidth;
-        set => _overflowButtonCachedWidth = value;
-    }
-
     public bool IsItemSelectableInPrimaryList(object value)
     {
         var index = IndexOf(value);
-        return (index != -1);
+        return index != -1;
     }
 
     public void OnDataSourceChanged(object sender, NotifyCollectionChangedEventArgs args)
@@ -286,12 +258,13 @@ internal class TopNavigationViewDataProvider : SplitDataSourceBase<object, Navig
                 OnInsertAt(args.NewStartingIndex, args.NewItems.Count);
                 break;
         }
+
         _dataChangedCallback?.Invoke(args);
     }
 
     public bool IsValidWidth(double width)
     {
-        return (width >= 0) && (width < double.MaxValue);
+        return width >= 0 && width < double.MaxValue;
     }
 
     public bool IsValidWidthForItem(int index)
@@ -302,10 +275,7 @@ internal class TopNavigationViewDataProvider : SplitDataSourceBase<object, Navig
 
     public void SetWidthForItem(int index, double width)
     {
-        if (IsValidWidth(width))
-        {
-            AttachedData(index, width);
-        }
+        if (IsValidWidth(width)) AttachedData(index, width);
     }
 
     public void ChangeDataSource(ItemsSourceView newValue)
@@ -315,12 +285,8 @@ internal class TopNavigationViewDataProvider : SplitDataSourceBase<object, Navig
         {
             //update to new datasource
             if (oldValue != null)
-            {
                 if (oldValue is INotifyCollectionChanged nc)
-                {
                     nc.CollectionChanged -= OnDataSourceChanged;
-                }
-            }
 
             Clear();
 
@@ -328,10 +294,7 @@ internal class TopNavigationViewDataProvider : SplitDataSourceBase<object, Navig
 
             SyncAndInitVectorFlagsWithID(NavigationViewSplitVectorID.NotInitialized, DefaultAttachedData);
 
-            if (newValue is INotifyCollectionChanged newNC)
-            {
-                newNC.CollectionChanged += OnDataSourceChanged;
-            }
+            if (newValue is INotifyCollectionChanged newNC) newNC.CollectionChanged += OnDataSourceChanged;
         }
 
         // Move all to primary list
@@ -346,20 +309,14 @@ internal class TopNavigationViewDataProvider : SplitDataSourceBase<object, Navig
     public bool IsContainerNavigationViewItem(int index)
     {
         var item = GetAt(index);
-        if (item is FANavigationViewItemHeader || item is FANavigationViewItemSeparator)
-        {
-            return false;
-        }
+        if (item is FANavigationViewItemHeader || item is FANavigationViewItemSeparator) return false;
         return true;
     }
 
     public bool IsContainerNavigationViewHeader(int index)
     {
         var item = GetAt(index);
-        if (item is FANavigationViewItemHeader)
-        {
-            return true;
-        }
+        if (item is FANavigationViewItemHeader) return true;
         return false;
     }
 
@@ -367,11 +324,4 @@ internal class TopNavigationViewDataProvider : SplitDataSourceBase<object, Navig
     {
         MoveItemsToList(indexes, NavigationViewSplitVectorID.PrimaryList);
     }
-
-
-
-    private Action<NotifyCollectionChangedEventArgs> _dataChangedCallback;
-    private IEnumerable _rawDataSource;
-    private ItemsSourceView _dataSource;
-    private double _overflowButtonCachedWidth;
 }

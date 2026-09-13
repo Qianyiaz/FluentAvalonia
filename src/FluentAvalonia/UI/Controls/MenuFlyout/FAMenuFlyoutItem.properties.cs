@@ -1,9 +1,9 @@
-﻿using Avalonia.Controls;
+﻿using System.Windows.Input;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Metadata;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia;
-using System.Windows.Input;
-using Avalonia.Controls.Metadata;
 using FluentAvalonia.Core;
 
 namespace FluentAvalonia.UI.Controls;
@@ -13,49 +13,54 @@ namespace FluentAvalonia.UI.Controls;
 public partial class FAMenuFlyoutItem
 {
     /// <summary>
-    /// Defines the <see cref="Text"/> property
+    ///     Defines the <see cref="Text" /> property
     /// </summary>
     public static readonly StyledProperty<string> TextProperty =
         AvaloniaProperty.Register<FAMenuFlyoutItem, string>(nameof(Text));
 
     /// <summary>
-    /// Defines the <see cref="IconSource"/> property
+    ///     Defines the <see cref="IconSource" /> property
     /// </summary>
     public static readonly StyledProperty<FAIconSource> IconSourceProperty =
         FASettingsExpander.IconSourceProperty.AddOwner<FAMenuFlyoutItem>();
 
     /// <summary>
-    /// Defines the <see cref="Command"/> property
+    ///     Defines the <see cref="Command" /> property
     /// </summary>
     public static readonly StyledProperty<ICommand> CommandProperty =
         Button.CommandProperty.AddOwner<FAMenuFlyoutItem>();
 
     /// <summary>
-    /// Defines the <see cref="CommandParameter"/> property
+    ///     Defines the <see cref="CommandParameter" /> property
     /// </summary>
     public static readonly StyledProperty<object> CommandParameterProperty =
         Button.CommandParameterProperty.AddOwner<FAMenuFlyoutItem>();
 
     /// <summary>
-    /// Defines the <see cref="HotKey"/> property
+    ///     Defines the <see cref="HotKey" /> property
     /// </summary>
     public static readonly StyledProperty<KeyGesture> HotKeyProperty =
         Button.HotKeyProperty.AddOwner<FAMenuFlyoutItem>();
 
     /// <summary>
-    /// Defines the <see cref="InputGesture"/> property
+    ///     Defines the <see cref="InputGesture" /> property
     /// </summary>
     public static readonly StyledProperty<KeyGesture> InputGestureProperty =
         AvaloniaProperty.Register<FAMenuFlyoutItem, KeyGesture>(nameof(InputGesture));
 
     /// <summary>
-    /// Defines the <see cref="TemplateSettings"/> property
+    ///     Defines the <see cref="TemplateSettings" /> property
     /// </summary>
     public static readonly StyledProperty<FAMenuFlyoutItemTemplateSettings> TemplateSettingsProperty =
         AvaloniaProperty.Register<FAMenuFlyoutItem, FAMenuFlyoutItemTemplateSettings>(nameof(TemplateSettings));
 
     /// <summary>
-    /// Gets or sets the text content of a MenuFlyoutItem.
+    ///     Defines the <see cref="Click" /> event
+    /// </summary>
+    public static readonly RoutedEvent<RoutedEventArgs> ClickEvent = MenuItem.ClickEvent;
+
+    /// <summary>
+    ///     Gets or sets the text content of a MenuFlyoutItem.
     /// </summary>
     public string Text
     {
@@ -64,7 +69,7 @@ public partial class FAMenuFlyoutItem
     }
 
     /// <summary>
-    /// Gets or sets the graphic content of the menu flyout item.
+    ///     Gets or sets the graphic content of the menu flyout item.
     /// </summary>
     public FAIconSource IconSource
     {
@@ -73,7 +78,7 @@ public partial class FAMenuFlyoutItem
     }
 
     /// <summary>
-    /// Gets or sets the KeyGesture that should invoke this MenuFlyoutItem
+    ///     Gets or sets the KeyGesture that should invoke this MenuFlyoutItem
     /// </summary>
     public KeyGesture HotKey
     {
@@ -82,12 +87,12 @@ public partial class FAMenuFlyoutItem
     }
 
     /// <summary>
-    /// Gets or sets the input gesture displayed by the MenuFlyoutItem
+    ///     Gets or sets the input gesture displayed by the MenuFlyoutItem
     /// </summary>
     /// <remarks>
-    /// This property is equivalent to WinUI's KeyboardAcceleratorTextOverride
-    /// property. It allows you to specify a key gesture without mapping to 
-    /// a hotkey. This property takes priority over <see cref="HotKey"/>
+    ///     This property is equivalent to WinUI's KeyboardAcceleratorTextOverride
+    ///     property. It allows you to specify a key gesture without mapping to
+    ///     a hotkey. This property takes priority over <see cref="HotKey" />
     /// </remarks>
     public KeyGesture InputGesture
     {
@@ -96,25 +101,7 @@ public partial class FAMenuFlyoutItem
     }
 
     /// <summary>
-    /// Gets or sets the command to invoke when the item is pressed.
-    /// </summary>
-    public ICommand Command
-    {
-        get => GetValue(CommandProperty);
-        set => SetValue(CommandProperty, value);
-    }
-
-    /// <summary>
-    /// Gets or sets the parameter to pass to the <see cref="Command"/> property.
-    /// </summary>
-    public object CommandParameter
-    {
-        get => GetValue(CommandParameterProperty);
-        set => SetValue(CommandParameterProperty, value);
-    }
-
-    /// <summary>
-    /// Gets the template settings for this MenuFlyoutItem
+    ///     Gets the template settings for this MenuFlyoutItem
     /// </summary>
     public FAMenuFlyoutItemTemplateSettings TemplateSettings
     {
@@ -125,12 +112,25 @@ public partial class FAMenuFlyoutItem
     protected override bool IsEnabledCore => base.IsEnabledCore && _canExecute;
 
     /// <summary>
-    /// Defines the <see cref="Click"/> event
+    ///     Gets or sets the command to invoke when the item is pressed.
     /// </summary>
-    public static readonly RoutedEvent<RoutedEventArgs> ClickEvent = MenuItem.ClickEvent;
+    public ICommand Command
+    {
+        get => GetValue(CommandProperty);
+        set => SetValue(CommandProperty, value);
+    }
 
     /// <summary>
-    /// Raised when this MenuFlyoutItem is invoked
+    ///     Gets or sets the parameter to pass to the <see cref="Command" /> property.
+    /// </summary>
+    public object CommandParameter
+    {
+        get => GetValue(CommandParameterProperty);
+        set => SetValue(CommandParameterProperty, value);
+    }
+
+    /// <summary>
+    ///     Raised when this MenuFlyoutItem is invoked
     /// </summary>
     public event EventHandler<RoutedEventArgs> Click
     {

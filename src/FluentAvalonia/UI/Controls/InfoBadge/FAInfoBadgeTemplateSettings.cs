@@ -3,25 +3,25 @@
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Provides calculated values that can be referenced as TemplatedParent sources 
-/// when defining templates for an InfoBadge.
+///     Provides calculated values that can be referenced as TemplatedParent sources
+///     when defining templates for an InfoBadge.
 /// </summary>
 public sealed class FAInfoBadgeTemplateSettings : AvaloniaObject
 {
     /// <summary>
-    /// Defines the <see cref="InfoBadgeCornerRadius"/> property
+    ///     Defines the <see cref="InfoBadgeCornerRadius" /> property
     /// </summary>
     public static readonly StyledProperty<CornerRadius> InfoBadgeCornerRadiusProperty =
         AvaloniaProperty.Register<FAInfoBadgeTemplateSettings, CornerRadius>(nameof(InfoBadgeCornerRadius));
 
     /// <summary>
-    /// Defines the <see cref="IconElement"/> property
+    ///     Defines the <see cref="IconElement" /> property
     /// </summary>
     public static readonly StyledProperty<FAIconElement> IconElementProperty =
         AvaloniaProperty.Register<FAInfoBadgeTemplateSettings, FAIconElement>(nameof(IconElement));
 
     /// <summary>
-    /// Gets or sets the corner radius for an InfoBadge.
+    ///     Gets or sets the corner radius for an InfoBadge.
     /// </summary>
     public CornerRadius InfoBadgeCornerRadius
     {
@@ -30,7 +30,7 @@ public sealed class FAInfoBadgeTemplateSettings : AvaloniaObject
     }
 
     /// <summary>
-    /// Gets or sets the icon element for an InfoBadge.
+    ///     Gets or sets the icon element for an InfoBadge.
     /// </summary>
     public FAIconElement IconElement
     {

@@ -8,15 +8,16 @@ using Avalonia.Controls.Primitives;
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// AutomationPeer for the FAComboBox control
+///     AutomationPeer for the FAComboBox control
 /// </summary>
 public class FAComboBoxAutomationPeer : SelectingItemsControlAutomationPeer,
     IExpandCollapseProvider, IValueProvider
 {
-    public FAComboBoxAutomationPeer(SelectingItemsControl owner) 
+    private UnrealizedSelectionPeer[] _selection;
+
+    public FAComboBoxAutomationPeer(SelectingItemsControl owner)
         : base(owner)
     {
-
     }
 
     public new FAComboBox Owner => (FAComboBox)base.Owner;
@@ -24,6 +25,10 @@ public class FAComboBoxAutomationPeer : SelectingItemsControlAutomationPeer,
     public ExpandCollapseState ExpandCollapseState => ToState(Owner.IsDropDownOpen);
 
     public bool ShowsMenu => true;
+
+    public void Collapse() => Owner.IsDropDownOpen = false;
+
+    public void Expand() => Owner.IsDropDownOpen = true;
 
     bool IValueProvider.IsReadOnly => true;
 
@@ -35,10 +40,6 @@ public class FAComboBoxAutomationPeer : SelectingItemsControlAutomationPeer,
             return selection.Count == 1 ? selection[0].GetName() : null;
         }
     }
-
-    public void Collapse() => Owner.IsDropDownOpen = false;
-
-    public void Expand() => Owner.IsDropDownOpen = true;
 
     public void SetValue(string value) => throw new NotSupportedException();
 
@@ -68,11 +69,9 @@ public class FAComboBoxAutomationPeer : SelectingItemsControlAutomationPeer,
         base.OwnerPropertyChanged(sender, e);
 
         if (e.Property == FAComboBox.IsDropDownOpenProperty)
-        {
             RaisePropertyChangedEvent(ExpandCollapsePatternIdentifiers.ExpandCollapseStateProperty,
                 ToState((bool)e.OldValue!),
                 ToState((bool)e.NewValue!));
-        }
     }
 
     private static ExpandCollapseState ToState(bool value)
@@ -80,10 +79,11 @@ public class FAComboBoxAutomationPeer : SelectingItemsControlAutomationPeer,
         return value ? ExpandCollapseState.Expanded : ExpandCollapseState.Collapsed;
     }
 
-    private UnrealizedSelectionPeer[] _selection;
-
     private class UnrealizedSelectionPeer : UnrealizedElementAutomationPeer
     {
+        private readonly FAComboBoxAutomationPeer _owner;
+        private object _item;
+
         public UnrealizedSelectionPeer(FAComboBoxAutomationPeer owner)
         {
             _owner = owner;
@@ -121,22 +121,14 @@ public class FAComboBoxAutomationPeer : SelectingItemsControlAutomationPeer,
                 var result = AutomationProperties.GetName(c);
 
                 if (result is null && c is ContentControl cc && cc.Presenter?.Child is TextBlock text)
-                {
                     result = text.Text;
-                }
 
-                if (result is null)
-                {
-                    result = c.GetValue(ContentControl.ContentProperty)?.ToString();
-                }
+                if (result is null) result = c.GetValue(ContentControl.ContentProperty)?.ToString();
 
                 return result;
             }
 
             return _item?.ToString();
         }
-
-        private readonly FAComboBoxAutomationPeer _owner;
-        private object _item;
     }
 }

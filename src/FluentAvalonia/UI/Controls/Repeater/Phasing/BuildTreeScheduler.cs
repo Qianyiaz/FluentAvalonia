@@ -4,6 +4,15 @@ namespace FluentAvalonia.UI.Controls;
 
 internal static class BuildTreeScheduler
 {
+    private static double _budgetInMs = 40;
+    private static readonly object _lockObj = new();
+
+    [ThreadStatic] private static QPCTimer _timer = new();
+
+    [ThreadStatic] private static readonly List<WorkInfo> _pendingWork = new();
+
+    private static bool _renderingToken;
+
     public static void RegisterWork(int priority, Action workFunc)
     {
         if (priority < 0)
@@ -31,19 +40,15 @@ internal static class BuildTreeScheduler
             {
                 _pendingWork[currentIndex].InvokeWorkFunc();
                 _pendingWork.RemoveAt(currentIndex);
-            }
-            while (--currentIndex >= 0 && !ShouldYield());
+            } while (--currentIndex >= 0 && !ShouldYield());
         }
 
         if (_pendingWork.Count == 0)
-        {
             // No more pending work, unhook from rendering event since being hooked up will cause wux to try to 
             // call the event at 60 frames per second
             _renderingToken = false;
-            //CompositionTarget.Rendering -= OnRendering;
-            // RepeaterTestHooks.NotifyBuildTreeCompleted();
-        }
-
+        //CompositionTarget.Rendering -= OnRendering;
+        // RepeaterTestHooks.NotifyBuildTreeCompleted();
         // Reset the timer so it snaps the time just before rendering
         _timer.Reset();
 
@@ -61,19 +66,9 @@ internal static class BuildTreeScheduler
             Dispatcher.UIThread.Post(OnRendering, DispatcherPriority.Render);
         }
     }
-
-    private static double _budgetInMs = 40;
-    private static readonly object _lockObj = new object();
-
-    [ThreadStatic]
-    private static QPCTimer _timer = new QPCTimer();
-    [ThreadStatic]
-    private static readonly List<WorkInfo> _pendingWork = new List<WorkInfo>();
-
-    private static bool _renderingToken;
 }
 
-struct WorkInfo
+internal struct WorkInfo
 {
     public WorkInfo(int priority, Action workFunc)
     {

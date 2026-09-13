@@ -59,6 +59,7 @@ internal static partial class NumberBoxParser
                     }
                 }
             }
+
             input = input.Slice(1);
         }
 
@@ -74,9 +75,7 @@ internal static partial class NumberBoxParser
             // Might be a number
             var matchLength = match.Current.Length;
             if (double.TryParse(input[..matchLength], NumberStyles.Any, CultureInfo.CurrentCulture, out var result))
-            {
                 return (result, matchLength);
-            }
         }
 
         return (double.NaN, 0);
@@ -84,15 +83,9 @@ internal static partial class NumberBoxParser
 
     public static int GetPrecedenceValue(char c)
     {
-        if (c == '*' || c == '/')
-        {
-            return 1;
-        }
+        if (c == '*' || c == '/') return 1;
 
-        if (c == '^')
-        {
-            return 2;
-        }
+        if (c == '^') return 2;
 
         return 0;
     }
@@ -104,7 +97,6 @@ internal static partial class NumberBoxParser
         var operatorTokens = new Stack<MathToken>();
 
         foreach (var token in infixTokens)
-        {
             if (token.Type == MathTokenType.Numeric)
             {
                 postFixTokens.Add(token);
@@ -114,7 +106,8 @@ internal static partial class NumberBoxParser
                 while (operatorTokens.Count != 0)
                 {
                     var top = operatorTokens.Peek();
-                    if (top.Type != MathTokenType.Parenthesis && (GetPrecedenceValue(top.Char) >= GetPrecedenceValue(token.Char)))
+                    if (top.Type != MathTokenType.Parenthesis &&
+                        GetPrecedenceValue(top.Char) >= GetPrecedenceValue(token.Char))
                     {
                         postFixTokens.Add(top);
                         operatorTokens.Pop();
@@ -124,6 +117,7 @@ internal static partial class NumberBoxParser
                         break;
                     }
                 }
+
                 operatorTokens.Push(token);
             }
             else if (token.Type == MathTokenType.Parenthesis)
@@ -142,25 +136,20 @@ internal static partial class NumberBoxParser
                     }
 
                     if (operatorTokens.Count == 0)
-                    {
                         // Broken parenthesis
                         return null;
-                    }
 
                     // Pop left paren and discard
                     operatorTokens.Pop();
                 }
             }
-        }
 
         // Pop all remaining operators
         while (operatorTokens.Count != 0)
         {
             if (operatorTokens.Peek().Type == MathTokenType.Parenthesis)
-            {
                 // Broken parenthesis
                 return null;
-            }
 
             postFixTokens.Add(operatorTokens.Pop());
         }
@@ -173,14 +162,10 @@ internal static partial class NumberBoxParser
         var stack = new Stack<double?>();
 
         foreach (var token in tokens)
-        {
             if (token.Type == MathTokenType.Operator)
             {
                 // There has to be at least two values on the stack to apply
-                if (stack.Count < 2)
-                {
-                    return null;
-                }
+                if (stack.Count < 2) return null;
 
                 var op1 = stack.Pop().Value;
                 var op2 = stack.Pop().Value;
@@ -202,10 +187,7 @@ internal static partial class NumberBoxParser
                         break;
 
                     case '/':
-                        if (op1 == 0)
-                        {
-                            return double.NaN;
-                        }
+                        if (op1 == 0) return double.NaN;
 
                         result = op2 / op1;
                         break;
@@ -225,12 +207,8 @@ internal static partial class NumberBoxParser
             {
                 stack.Push(token.Value);
             }
-        }
 
-        if (stack.Count != 1)
-        {
-            return null;
-        }
+        if (stack.Count != 1) return null;
 
         return stack.Pop();
     }
@@ -243,10 +221,8 @@ internal static partial class NumberBoxParser
             // Rearrange to postfix notation
             var postfixTokens = ConvertInfixToPostfix(tokens);
             if (postfixTokens?.Count > 0)
-            {
                 // Compute expression
                 return ComputePostfixExpression(postfixTokens);
-            }
         }
 
         return null;

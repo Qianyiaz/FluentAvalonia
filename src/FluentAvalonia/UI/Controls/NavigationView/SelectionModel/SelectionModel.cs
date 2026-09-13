@@ -8,6 +8,15 @@ namespace FluentAvalonia.UI.Controls;
 
 internal class SelectionModel : INotifyPropertyChanged, IDisposable
 {
+    private SelectionModelChildrenRequestedEventArgs _childrenRequestedEventArgs;
+
+
+    private SelectionNode _rootNode;
+    private IReadOnlyList<IndexPath> _selectedIndicesCached;
+    private IReadOnlyList<object> _selectedItemsCached;
+    private SelectionModelSelectionChangedEventArgs _selectionChangedEventArgs;
+    private bool _singleSelect;
+
     public SelectionModel()
     {
         // Parent is null for root node.
@@ -79,17 +88,10 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
         set
         {
             if (value != IndexPath.Unselected)
-            {
                 SelectionTreeHelper.TraverseIndexPath(_rootNode, value, true /* realizeChildren */,
-                    (childNode, path, depth, childIndex) =>
-                    {
-                        childNode.AnchorIndex = path.GetAt(depth);
-                    });
-            }
+                    (childNode, path, depth, childIndex) => { childNode.AnchorIndex = path.GetAt(depth); });
             else
-            {
                 _rootNode.AnchorIndex = -1;
-            }
 
             RaisePropertyChanged();
         }
@@ -101,10 +103,7 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
         {
             var selectedIndex = IndexPath.Unselected;
             var selectedIndices = SelectedIndices;
-            if (selectedIndices != null && selectedIndices.Count > 0)
-            {
-                selectedIndex = selectedIndices[0];
-            }
+            if (selectedIndices != null && selectedIndices.Count > 0) selectedIndex = selectedIndices[0];
 
             return selectedIndex;
         }
@@ -126,10 +125,7 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
         {
             object item = null;
             var selectedItems = SelectedItems;
-            if (selectedItems != null && selectedItems.Count > 0)
-            {
-                item = selectedItems[0];
-            }
+            if (selectedItems != null && selectedItems.Count > 0) item = selectedItems[0];
 
             return item;
         }
@@ -143,16 +139,12 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
             {
                 var selectedInfos = new List<SelectedItemInfo>();
                 if (_rootNode.Source != null)
-                {
                     SelectionTreeHelper.Traverse(_rootNode, false /* realizeChildren */,
                         currentInfo =>
                         {
                             if (currentInfo.Node.SelectedCount > 0)
-                            {
                                 selectedInfos.Add(new SelectedItemInfo(currentInfo.Node, currentInfo.Path));
-                            }
                         });
-                }
 
                 // Instead of creating a dumb vector that takes up the space for all the selected items,
                 // we create a custom VectorView implimentation that calls back using a delegate to find 
@@ -165,7 +157,6 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
                         var currentIndex = 0;
                         object item = null;
                         foreach (var info in infos)
-                        {
                             if (info.Node.TryGetTarget(out var node))
                             {
                                 var currentCount = node.SelectedCount;
@@ -180,9 +171,9 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
                             }
                             else
                             {
-                                throw new InvalidOperationException("Selection has changed since SelectedItems property was read.");
+                                throw new InvalidOperationException(
+                                    "Selection has changed since SelectedItems property was read.");
                             }
-                        }
 
                         return item;
                     });
@@ -205,9 +196,7 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
                     currentInfo =>
                     {
                         if (currentInfo.Node.SelectedCount > 0)
-                        {
                             selectedInfos.Add(new SelectedItemInfo(currentInfo.Node, currentInfo.Path));
-                        }
                     });
 
                 // Instead of creating a dumb vector that takes up the space for all the selected indices,
@@ -220,8 +209,7 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
                     {
                         var currentIndex = 0;
                         var path = IndexPath.Unselected;
-                        foreach(var info in infos)
-                        {
+                        foreach (var info in infos)
                             if (info.Node.TryGetTarget(out var node))
                             {
                                 var currentCount = node.SelectedCount;
@@ -236,9 +224,9 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
                             }
                             else
                             {
-                                throw new InvalidOperationException("Selection has changed since SelectedIndices property was read.");
+                                throw new InvalidOperationException(
+                                    "Selection has changed since SelectedIndices property was read.");
                             }
-                        }
 
                         return path;
                     });
@@ -252,9 +240,19 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
 
     internal SelectionNode SharedLeafNode { get; private set; }
 
+    public void Dispose()
+    {
+        ClearSelection(false, false);
+        _rootNode = null;
+        SharedLeafNode = null;
+        _selectedIndicesCached = null;
+        _selectedItemsCached = null;
+    }
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
     public event EventHandler<SelectionModelChildrenRequestedEventArgs> ChildrenRequested;
     public event EventHandler<SelectionModelSelectionChangedEventArgs> SelectionChanged;
-    public event PropertyChangedEventHandler PropertyChanged;
 
     public void SetAnchorIndex(int index) => AnchorIndex = new IndexPath(index);
 
@@ -301,10 +299,7 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
         Debug.Assert(groupIndex >= 0 && itemIndex >= 0);
         bool? isSelected = false;
         var childNode = _rootNode.GetAt(groupIndex, false);
-        if (childNode != null)
-        {
-            isSelected = childNode.IsSelectedWithPartial(itemIndex);
-        }
+        if (childNode != null) isSelected = childNode.IsSelectedWithPartial(itemIndex);
 
         return isSelected;
     }
@@ -331,13 +326,9 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
         {
             var size = path.GetSize();
             if (size == 0)
-            {
                 isSelected = SelectionNode.ConvertToNullableBool(node.EvaluateIsSelectedBasedOnChildrenNodes());
-            }
             else
-            {
                 isSelected = node.IsSelectedWithPartial(path.GetAt(size - 1));
-            }
         }
 
         return isSelected;
@@ -388,10 +379,7 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
         SelectionTreeHelper.Traverse(_rootNode, true,
             info =>
             {
-                if (info.Node.DataCount > 0)
-                {
-                    info.Node.SelectAll();
-                }
+                if (info.Node.DataCount > 0) info.Node.SelectAll();
             });
 
         OnSelectionChanged();
@@ -400,15 +388,6 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
     public void ClearSelection()
     {
         ClearSelection(true, true);
-    }
-
-    public void Dispose()
-    {
-        ClearSelection(false, false);
-        _rootNode = null;
-        SharedLeafNode = null;
-        _selectedIndicesCached = null;
-        _selectedItemsCached = null;
     }
 
     // Skip ICustomPropertyProvider...
@@ -435,13 +414,9 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
         if (ChildrenRequested != null)
         {
             if (_childrenRequestedEventArgs == null)
-            {
                 _childrenRequestedEventArgs = new SelectionModelChildrenRequestedEventArgs(data, dataIndexPath, false);
-            }
             else
-            {
                 _childrenRequestedEventArgs.Initialize(data, dataIndexPath, false);
-            }
 
             ChildrenRequested?.Invoke(this, _childrenRequestedEventArgs);
             resolved = _childrenRequestedEventArgs.Children;
@@ -456,10 +431,7 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
             // auto-resolve that as the child. If not, then we consider the value as a leaf. This is to 
             // avoid having to provide the event handler for the most common scenarios. If the app dev does
             // not want this default behavior, they can provide the handler to override.
-            if (data is ItemsSourceView || data is IEnumerable)
-            {
-                resolved = data;
-            }
+            if (data is ItemsSourceView || data is IEnumerable) resolved = data;
         }
 
         return resolved;
@@ -468,20 +440,11 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
     private void ClearSelection(bool resetAnchor, bool raiseSelectionChanged)
     {
         SelectionTreeHelper.Traverse(_rootNode, false,
-            info =>
-            {
-                info.Node.Clear();
-            });
+            info => { info.Node.Clear(); });
 
-        if (resetAnchor)
-        {
-            AnchorIndex = IndexPath.Unselected;
-        }
+        if (resetAnchor) AnchorIndex = IndexPath.Unselected;
 
-        if (raiseSelectionChanged)
-        {
-            OnSelectionChanged();
-        }
+        if (raiseSelectionChanged) OnSelectionChanged();
     }
 
     private void OnSelectionChanged()
@@ -492,9 +455,7 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
         if (SelectionChanged != null)
         {
             if (_selectionChangedEventArgs == null)
-            {
                 _selectionChangedEventArgs = new SelectionModelSelectionChangedEventArgs();
-            }
 
             SelectionChanged.Invoke(this, _selectionChangedEventArgs);
         }
@@ -512,32 +473,20 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
     {
         if (_rootNode.IsSelected(index) != select)
         {
-            if (_singleSelect)
-            {
-                ClearSelection(true, false);
-            }
+            if (_singleSelect) ClearSelection(true, false);
             var selected = _rootNode.Select(index, select);
-            if (selected)
-            {
-                AnchorIndex = new IndexPath(index);
-            }
+            if (selected) AnchorIndex = new IndexPath(index);
             OnSelectionChanged();
         }
     }
 
     private void SelectWithGroupImpl(int groupIndex, int itemIndex, bool select)
     {
-        if (_singleSelect)
-        {
-            ClearSelection(true, false);
-        }
+        if (_singleSelect) ClearSelection(true, false);
 
         var childNode = _rootNode.GetAt(groupIndex, true);
         var selected = childNode.Select(itemIndex, select);
-        if (selected)
-        {
-            AnchorIndex = new IndexPath(groupIndex, itemIndex);
-        }
+        if (selected) AnchorIndex = new IndexPath(groupIndex, itemIndex);
 
         OnSelectionChanged();
     }
@@ -552,10 +501,7 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
             var selectedIndex = SelectedIndex;
             if (selectedIndex != IndexPath.Unselected)
             {
-                if (select && selectedIndex.CompareTo(index) == 0)
-                {
-                    newSelection = false;
-                }
+                if (select && selectedIndex.CompareTo(index) == 0) newSelection = false;
             }
             else
             {
@@ -578,10 +524,7 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
             // 
             // If we want to unselect something we unselect it directly in TraverseIndexPath below and raise the SelectionChanged event
             // if required.
-            if (_singleSelect && select)
-            {
-                ClearSelection(true, false);
-            }
+            if (_singleSelect && select) ClearSelection(true, false);
 
             SelectionTreeHelper.TraverseIndexPath(_rootNode, index, true,
                 (currentNode, path, depth, childIndex) =>
@@ -589,28 +532,20 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
                     if (depth == path.GetSize() - 1)
                     {
                         if (currentNode.IsSelected(childIndex) != select)
-                        {
                             // Node has different value then we want to set, so lets update!
                             changedSelection = true;
-                        }
                         selected = currentNode.Select(childIndex, select);
                     }
                 });
 
-            if (selected)
-            {
-                AnchorIndex = index;
-            }
+            if (selected) AnchorIndex = index;
 
             // The walk tree operation can change the indices, and the next time it get's read,
             // we would throw an exception. That's what we are preventing with next two lines
             _selectedIndicesCached = null;
             _selectedItemsCached = null;
 
-            if (raiseSelectionChanged && changedSelection)
-            {
-                OnSelectionChanged();
-            }
+            if (raiseSelectionChanged && changedSelection) OnSelectionChanged();
         }
     }
 
@@ -625,10 +560,7 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
         }
 
         var selected = _rootNode.SelectRange(new IndexRange(anchorIndex, index), select);
-        if (selected)
-        {
-            OnSelectionChanged();
-        }
+        if (selected) OnSelectionChanged();
     }
 
     private void SelectRangeFromAnchorWithGroupImpl(int endGroupIndex, int endItemIndex, bool select)
@@ -664,10 +596,7 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
             selected |= groupNode.SelectRange(new IndexRange(startIndex, endIndex), select);
         }
 
-        if (selected)
-        {
-            OnSelectionChanged();
-        }
+        if (selected) OnSelectionChanged();
     }
 
     private void SelectRangeImpl(IndexPath start, IndexPath end, bool select)
@@ -687,23 +616,9 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
         SelectionTreeHelper.TraverseRangeRealizeChildren(_rootNode, winrtStart, winrtEnd,
             info =>
             {
-                if (info.Node.DataCount == 0)
-                {
-                    info.ParentNode.Select(info.Path.GetAt(info.Path.GetSize() - 1), select);
-                }
+                if (info.Node.DataCount == 0) info.ParentNode.Select(info.Path.GetAt(info.Path.GetSize() - 1), select);
             });
 
         OnSelectionChanged();
     }
-
-
-    private SelectionNode _rootNode;
-    private bool _singleSelect;
-    private IReadOnlyList<IndexPath> _selectedIndicesCached;
-    private IReadOnlyList<object> _selectedItemsCached;
-
-    private SelectionModelChildrenRequestedEventArgs _childrenRequestedEventArgs;
-    private SelectionModelSelectionChangedEventArgs _selectionChangedEventArgs;
 }
-
-

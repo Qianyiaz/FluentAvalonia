@@ -8,10 +8,18 @@ using FluentAvalonia.Core;
 namespace FluentAvalonia.UI.Controls.Primitives;
 
 /// <summary>
-/// Represents the visual elements of a NavigationViewItem.
+///     Represents the visual elements of a NavigationViewItem.
 /// </summary>
 public partial class FANavigationViewItemPresenter : ContentControl
 {
+    private double _compactPaneLengthValue = 40;
+
+    private Panel _contentGrid;
+    private Panel _expandCollapseChevron;
+    private ContentPresenter _infoBadgePresenter;
+    private double _leftIndentation;
+    private Control _selectionIndicator;
+
     public FANavigationViewItemPresenter()
     {
         TemplateSettings = new FANavigationViewItemPresenterTemplateSettings();
@@ -24,10 +32,7 @@ public partial class FANavigationViewItemPresenter : ContentControl
         //       reapply it after applying the template.
         var ts = TemplateSettings;
         var icoSrc = IconSource;
-        if (icoSrc != null)
-        {
-            ts.Icon = null;
-        }
+        if (icoSrc != null) ts.Icon = null;
 
         base.OnApplyTemplate(e);
 
@@ -43,30 +48,20 @@ public partial class FANavigationViewItemPresenter : ContentControl
         {
             _expandCollapseChevron = e.NameScope.Find<Panel>(s_tpExpandCollapseChevron);
 
-            if (_expandCollapseChevron != null)
-            {
-                _expandCollapseChevron.Tapped += nvi.OnExpandCollapseChevronTapped;
-            }
+            if (_expandCollapseChevron != null) _expandCollapseChevron.Tapped += nvi.OnExpandCollapseChevronTapped;
             nvi.UpdateVisualState();
 
             // We probably switched displaymode, so restore width now, otherwise the next time we will restore is when the CompactPaneLength changes
             var navView = nvi.GetNavigationView;
             if (navView != null)
-            {
                 if (navView.PaneDisplayMode != FANavigationViewPaneDisplayMode.Top)
-                {
                     UpdateCompactPaneLength(_compactPaneLengthValue, true);
-                }
-            }
         }
 
         UpdateMargin();
 
         // HACK
-        if (icoSrc != null)
-        {
-            ts.Icon = FAIconHelpers.CreateFromUnknown(icoSrc);
-        }
+        if (icoSrc != null) ts.Icon = FAIconHelpers.CreateFromUnknown(icoSrc);
     }
 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
@@ -74,18 +69,14 @@ public partial class FANavigationViewItemPresenter : ContentControl
         base.OnPropertyChanged(change);
 
         if (change.Property == IconSourceProperty)
-        {
             TemplateSettings.Icon = FAIconHelpers.CreateFromUnknown(change.GetNewValue<FAIconSource>());
-        }
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
     {
         base.OnPointerPressed(e);
         if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
-        {
             PseudoClasses.Set(FASharedPseudoclasses.s_pcPressed, true);
-        }
     }
 
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
@@ -93,9 +84,7 @@ public partial class FANavigationViewItemPresenter : ContentControl
         base.OnPointerReleased(e);
         if (e.GetCurrentPoint(this).Properties.PointerUpdateKind == PointerUpdateKind.LeftButtonReleased
             && e.InitialPressMouseButton == MouseButton.Left)
-        {
             PseudoClasses.Set(FASharedPseudoclasses.s_pcPressed, false);
-        }
     }
 
     protected override void OnPointerCaptureLost(PointerCaptureLostEventArgs e)
@@ -148,11 +137,4 @@ public partial class FANavigationViewItemPresenter : ContentControl
         PseudoClasses.Set(s_pcClosedCompactTop, isClosedCompact && topLevel);
         PseudoClasses.Set(s_pcNotClosedCompactTop, !isClosedCompact && topLevel);
     }
-
-    private Panel _contentGrid;
-    private Panel _expandCollapseChevron;
-    private Control _selectionIndicator;
-    private ContentPresenter _infoBadgePresenter;
-    private double _compactPaneLengthValue = 40;
-    private double _leftIndentation;
 }

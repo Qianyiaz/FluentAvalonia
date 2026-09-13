@@ -6,12 +6,12 @@
         <Border Padding="50" Width="400">
             <StackPanel>
                 <ui:FACommandBar ClosedDisplayMode="Compact" ItemsAlignment="Left"
-                               DefaultLabelPosition="Right">
+                                 DefaultLabelPosition="Right">
                     <ui:FACommandBar.PrimaryCommands>
-                        <ui:FACommandBarButton Label="Test" IconSource="Save" IsCompact="False"  />
+                        <ui:FACommandBarButton Label="Test" IconSource="Save" IsCompact="False" />
                     </ui:FACommandBar.PrimaryCommands>
                     <ui:FACommandBar.SecondaryCommands>
-                        <ui:FACommandBarButton Label="Test" IconSource="Save" IsCompact="False"  />
+                        <ui:FACommandBarButton Label="Test" IconSource="Save" IsCompact="False" />
                     </ui:FACommandBar.SecondaryCommands>
                 </ui:FACommandBar>
             </StackPanel>
@@ -54,16 +54,16 @@
             <ControlTemplate>
                 <Panel>
                     <ContentPresenter Name="ContentPresenter"
-                                    Background="{TemplateBinding Background}"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                    ContentTemplate="{TemplateBinding ContentTemplate}"
-                                    Content="{TemplateBinding Content}"
-                                    Margin="{StaticResource AppBarEllipsisButtonInnerBorderMargin}"
-                                    Padding="0"
-                                    HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                    VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
-                                    CornerRadius="{TemplateBinding CornerRadius}" />
+                                      Background="{TemplateBinding Background}"
+                                      BorderBrush="{TemplateBinding BorderBrush}"
+                                      BorderThickness="{TemplateBinding BorderThickness}"
+                                      ContentTemplate="{TemplateBinding ContentTemplate}"
+                                      Content="{TemplateBinding Content}"
+                                      Margin="{StaticResource AppBarEllipsisButtonInnerBorderMargin}"
+                                      Padding="0"
+                                      HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                      VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                      CornerRadius="{TemplateBinding CornerRadius}" />
                 </Panel>
             </ControlTemplate>
         </Setter>
@@ -109,7 +109,8 @@
 
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" MinWidth="{DynamicResource AppBarMoreButtonColumnMinWidth}" />
+                                <ColumnDefinition Width="Auto"
+                                                  MinWidth="{DynamicResource AppBarMoreButtonColumnMinWidth}" />
                             </Grid.ColumnDefinitions>
 
                             <!-- ColumnDefs are locked in "dynamic overflow" b/c
@@ -144,9 +145,9 @@
                                     MinHeight="{StaticResource AppBarThemeCompactHeight}"
                                     VerticalAlignment="Top">
                                 <ui:FASymbolIcon Symbol="More"
-                                               FontSize="24"
-                                               Height="{StaticResource AppBarExpandButtonCircleDiameter}"
-                                               Name="EllipsisIcon"/>
+                                                 FontSize="24"
+                                                 Height="{StaticResource AppBarExpandButtonCircleDiameter}"
+                                                 Name="EllipsisIcon" />
                             </Button>
 
                             <Border Name="OpenBorder"
@@ -155,7 +156,7 @@
                                     CornerRadius="{TemplateBinding CornerRadius}"
                                     BorderThickness="{DynamicResource CommandBarBorderThicknessOpen}"
                                     BorderBrush="{DynamicResource CommandBarBorderBrushOpen}"
-                                    IsVisible="False"/>
+                                    IsVisible="False" />
                         </Grid>
                     </Border>
 
@@ -181,7 +182,7 @@
 
         <Style Selector="^:hidden">
             <Setter Property="IsVisible" Value="False" />
-            
+
             <Style Selector="^:open">
                 <Setter Property="IsVisible" Value="True" />
             </Style>
@@ -226,7 +227,7 @@
 
             <Style Selector="^:open">
                 <Setter Property="Height" Value="NaN" />
-                
+
                 <Style Selector="^ /template/ ContentControl#ContentControl">
                     <Setter Property="IsHitTestVisible" Value="True" />
                     <Setter Property="IsEnabled" Value="True" />
@@ -254,7 +255,7 @@
                 <Setter Property="IsVisible" Value="True" />
             </Style>
         </Style>
-        
+
         <Style Selector="^:open /template/ Button#MoreButton">
             <Setter Property="VerticalAlignment" Value="Stretch" />
         </Style>

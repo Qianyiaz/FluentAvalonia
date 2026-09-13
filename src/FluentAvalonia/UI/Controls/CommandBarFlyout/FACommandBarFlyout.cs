@@ -1,20 +1,29 @@
-﻿using Avalonia;
+﻿using System.Collections.Specialized;
+using System.ComponentModel;
+using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using Avalonia.Metadata;
-using System.Collections.Specialized;
-using System.ComponentModel;
 
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Represents a specialized flyout that provides layout for CommandBarButton,
-/// CommandBarToggleButton, and CommandBarSeparator controls.
+///     Represents a specialized flyout that provides layout for CommandBarButton,
+///     CommandBarToggleButton, and CommandBarSeparator controls.
 /// </summary>
 public class FACommandBarFlyout : PopupFlyoutBase
 {
+    /// <summary>
+    ///     Defines the <see cref="AlwaysExpanded" /> property
+    /// </summary>
+    public static readonly StyledProperty<bool> AlwaysExpandedProperty =
+        AvaloniaProperty.Register<FACommandBarFlyout, bool>(nameof(AlwaysExpanded));
+
+    protected FACommandBarFlyoutCommandBar _commandBar;
+    protected FlyoutPresenter _presenter;
+
     public FACommandBarFlyout()
     {
         // TEMPORARY FIX...REVERT TO CREATEPRESENTER() WHEN NRE ISSUE FIXED
@@ -32,7 +41,8 @@ public class FACommandBarFlyout : PopupFlyoutBase
             switch (e.Action)
             {
                 case NotifyCollectionChangedAction.Add:
-                    _commandBar.PrimaryCommands.InsertRange(e.NewStartingIndex, e.NewItems.Cast<IFACommandBarElement>());
+                    _commandBar.PrimaryCommands.InsertRange(e.NewStartingIndex,
+                        e.NewItems.Cast<IFACommandBarElement>());
                     break;
 
                 case NotifyCollectionChangedAction.Remove:
@@ -42,7 +52,8 @@ public class FACommandBarFlyout : PopupFlyoutBase
                 case NotifyCollectionChangedAction.Move:
                 case NotifyCollectionChangedAction.Replace:
                     _commandBar.PrimaryCommands.RemoveRange(e.OldStartingIndex, e.OldItems.Count);
-                    _commandBar.PrimaryCommands.InsertRange(e.NewStartingIndex, e.NewItems.Cast<IFACommandBarElement>());
+                    _commandBar.PrimaryCommands.InsertRange(e.NewStartingIndex,
+                        e.NewItems.Cast<IFACommandBarElement>());
 
                     break;
 
@@ -66,92 +77,70 @@ public class FACommandBarFlyout : PopupFlyoutBase
             switch (e.Action)
             {
                 case NotifyCollectionChangedAction.Add:
-                    _commandBar.SecondaryCommands.InsertRange(e.NewStartingIndex, e.NewItems.Cast<IFACommandBarElement>());
+                    _commandBar.SecondaryCommands.InsertRange(e.NewStartingIndex,
+                        e.NewItems.Cast<IFACommandBarElement>());
 
                     for (var i = 0; i < e.NewItems.Count; i++)
-                    {
                         if (e.NewItems[i] is FACommandBarButton b)
-                        {
                             b.Click += OnCommandBarButtonInSecondaryCommandsClick;
-                        }
                         else if (e.NewItems[i] is FACommandBarToggleButton tb)
-                        {
                             // Fortunately Click is fired even on ToggleButton so we
                             // don't need to hook Checked/Unchecked
                             tb.Click += OnCommandBarButtonInSecondaryCommandsClick;
-                        }
-                    }
+
                     break;
 
                 case NotifyCollectionChangedAction.Remove:
                     _commandBar.SecondaryCommands.RemoveRange(e.OldStartingIndex, e.OldItems.Count);
 
                     for (var i = 0; i < e.OldItems.Count; i++)
-                    {
                         if (e.OldItems[i] is FACommandBarButton b)
-                        {
                             b.Click -= OnCommandBarButtonInSecondaryCommandsClick;
-                        }
                         else if (e.OldItems[i] is FACommandBarToggleButton tb)
-                        {
                             // Fortunately Click is fired even on ToggleButton so we
                             // don't need to hook Checked/Unchecked
                             tb.Click -= OnCommandBarButtonInSecondaryCommandsClick;
-                        }
-                    }
+
                     break;
 
                 case NotifyCollectionChangedAction.Move:
                 case NotifyCollectionChangedAction.Replace:
                     _commandBar.SecondaryCommands.RemoveRange(e.OldStartingIndex, e.OldItems.Count);
-                    _commandBar.SecondaryCommands.InsertRange(e.NewStartingIndex, e.NewItems.Cast<IFACommandBarElement>());
+                    _commandBar.SecondaryCommands.InsertRange(e.NewStartingIndex,
+                        e.NewItems.Cast<IFACommandBarElement>());
                     break;
 
                 case NotifyCollectionChangedAction.Reset:
                     _commandBar.SecondaryCommands.Clear();
                     if (e.OldItems != null)
-                    {
                         for (var i = 0; i < e.OldItems.Count; i++)
-                        {
                             if (e.OldItems[i] is FACommandBarButton b)
-                            {
                                 b.Click -= OnCommandBarButtonInSecondaryCommandsClick;
-                            }
                             else if (e.OldItems[i] is FACommandBarToggleButton tb)
-                            {
                                 // Fortunately Click is fired even on ToggleButton so we
                                 // don't need to hook Checked/Unchecked
                                 tb.Click -= OnCommandBarButtonInSecondaryCommandsClick;
-                            }
-                        }
-                    }
+
                     break;
             }
-
         };
     }
 
     /// <summary>
-    /// Defines the <see cref="AlwaysExpanded"/> property
-    /// </summary>
-    public static readonly StyledProperty<bool> AlwaysExpandedProperty =
-        AvaloniaProperty.Register<FACommandBarFlyout, bool>(nameof(AlwaysExpanded));
-
-    /// <summary>
-    /// Gets the collection of primary command elements for the CommandBarFlyout.
+    ///     Gets the collection of primary command elements for the CommandBarFlyout.
     /// </summary>
     [Content]
     public IAvaloniaList<IFACommandBarElement> PrimaryCommands { get; }
 
     /// <summary>
-    /// Gets the collection of secondary command elements for the CommandBarFlyout.
+    ///     Gets the collection of secondary command elements for the CommandBarFlyout.
     /// </summary>
     public IAvaloniaList<IFACommandBarElement> SecondaryCommands { get; }
 
     /// <summary>
-    /// Gets or sets a value that indicates whether or not the CommandBarFlyout should 
-    /// always stay in its Expanded state and block the user from entering the Collapsed state. 
-    /// Defaults to false.
+    ///     Gets or sets a value that indicates whether or not the CommandBarFlyout should
+    ///     always stay in its Expanded state and block the user from entering the Collapsed state.
+    ///     Defaults to false.
     /// </summary>
     public bool AlwaysExpanded
     {
@@ -183,26 +172,18 @@ public class FACommandBarFlyout : PopupFlyoutBase
         base.OnOpening(args);
 
         if (PrimaryCommands.Count > 0 && _commandBar.PrimaryCommands.Count == 0)
-        {
             _commandBar.PrimaryCommands.AddRange(PrimaryCommands);
-        }
         if (SecondaryCommands.Count > 0 && _commandBar.SecondaryCommands.Count == 0)
         {
             _commandBar.SecondaryCommands.AddRange(SecondaryCommands);
 
             for (var i = 0; i < SecondaryCommands.Count; i++)
-            {
                 if (SecondaryCommands[i] is FACommandBarButton b)
-                {
                     b.Click += OnCommandBarButtonInSecondaryCommandsClick;
-                }
                 else if (SecondaryCommands[i] is FACommandBarToggleButton tb)
-                {
                     // Fortunately Click is fired even on ToggleButton so we
                     // don't need to hook Checked/Unchecked
                     tb.Click += OnCommandBarButtonInSecondaryCommandsClick;
-                }
-            }
         }
 
         if (AlwaysExpanded)
@@ -215,10 +196,8 @@ public class FACommandBarFlyout : PopupFlyoutBase
             _commandBar.OverflowButtonVisibility = FACommandBarOverflowButtonVisibility.Auto;
         }
 
-        if (ShowMode == FlyoutShowMode.Standard && SecondaryCommands.Count > 0 || PrimaryCommands.Count == 0)
-        {
+        if ((ShowMode == FlyoutShowMode.Standard && SecondaryCommands.Count > 0) || PrimaryCommands.Count == 0)
             _commandBar.IsOpen = true;
-        }
     }
 
     protected override void OnClosed()
@@ -232,7 +211,4 @@ public class FACommandBarFlyout : PopupFlyoutBase
     {
         HideCore(false);
     }
-
-    protected FACommandBarFlyoutCommandBar _commandBar;
-    protected FlyoutPresenter _presenter;
 }

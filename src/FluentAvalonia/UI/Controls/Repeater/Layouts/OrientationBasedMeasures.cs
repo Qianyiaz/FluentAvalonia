@@ -8,7 +8,7 @@ internal interface IOrientationBasedMeasures
 }
 
 internal static class OrientationBasedMeasuresExt
-{   
+{
     public static double Major(this IOrientationBasedMeasures m, Size size) =>
         m.ScrollOrientation == ScrollOrientation.Vertical ? size.Height : size.Width;
 
@@ -41,8 +41,7 @@ internal static class OrientationBasedMeasuresExt
         m.ScrollOrientation == ScrollOrientation.Vertical ? rect.Y : rect.X;
 
     public static double MajorEnd(this IOrientationBasedMeasures m, Rect rect) =>
-        m.ScrollOrientation == ScrollOrientation.Vertical ?
-            rect.Y + rect.Height : rect.X + rect.Width;
+        m.ScrollOrientation == ScrollOrientation.Vertical ? rect.Y + rect.Height : rect.X + rect.Width;
 
     public static double MinorStart(this IOrientationBasedMeasures m, Rect rect) =>
         m.ScrollOrientation == ScrollOrientation.Vertical ? rect.X : rect.Y;
@@ -64,21 +63,17 @@ internal static class OrientationBasedMeasuresExt
     }
 
     public static double MinorEnd(this IOrientationBasedMeasures m, Rect rect) =>
-        m.ScrollOrientation == ScrollOrientation.Vertical ?
-            rect.X + rect.Width : rect.Y + rect.Height;
+        m.ScrollOrientation == ScrollOrientation.Vertical ? rect.X + rect.Width : rect.Y + rect.Height;
 
-    public static Rect MinorMajorRect(this IOrientationBasedMeasures m, 
+    public static Rect MinorMajorRect(this IOrientationBasedMeasures m,
         double minor, double major, double minorSize, double majorSize) =>
-        m.ScrollOrientation == ScrollOrientation.Vertical ?
-            new Rect(minor, major, minorSize, majorSize) :
-            new Rect(major, minor, majorSize, minorSize);
+        m.ScrollOrientation == ScrollOrientation.Vertical
+            ? new Rect(minor, major, minorSize, majorSize)
+            : new Rect(major, minor, majorSize, minorSize);
 
     public static Point MinorMajorPoint(this IOrientationBasedMeasures m, double minor, double major) =>
-        m.ScrollOrientation == ScrollOrientation.Vertical ?
-            new Point(minor, major) : new Point(major, minor);
+        m.ScrollOrientation == ScrollOrientation.Vertical ? new Point(minor, major) : new Point(major, minor);
 
     public static Size MinorMajorSize(this IOrientationBasedMeasures m, double minor, double major) =>
-        m.ScrollOrientation == ScrollOrientation.Vertical ?
-            new Size(minor, major) :
-            new Size(major, minor);
+        m.ScrollOrientation == ScrollOrientation.Vertical ? new Size(minor, major) : new Size(major, minor);
 }

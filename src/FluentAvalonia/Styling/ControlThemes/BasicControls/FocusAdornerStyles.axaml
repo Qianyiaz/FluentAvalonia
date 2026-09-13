@@ -14,7 +14,7 @@
                         CornerRadius="{DynamicResource ControlCornerRadius}">
                     <Border BorderThickness="{DynamicResource SystemControlFocusVisualSecondaryThickness}"
                             BorderBrush="{DynamicResource FocusStrokeColorInnerBrush}"
-                            CornerRadius="{DynamicResource ControlCornerRadius}"/>
+                            CornerRadius="{DynamicResource ControlCornerRadius}" />
                 </Border>
             </FocusAdornerTemplate>
         </Setter>

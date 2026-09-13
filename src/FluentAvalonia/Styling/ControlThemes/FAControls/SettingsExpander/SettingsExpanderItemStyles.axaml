@@ -4,20 +4,20 @@
     <Design.PreviewWith>
         <Border Padding="20" Width="700" Height="250">
             <ui:FASettingsExpander IconSource="Globe" Header="Test Header" IsExpanded="True"
-                                 Description="This is a description for the SettingsExpander"
-                                 ActionIconSource="Save" IsClickEnabled="False">
+                                   Description="This is a description for the SettingsExpander"
+                                   ActionIconSource="Save" IsClickEnabled="False">
                 <ui:FASettingsExpander.Footer>
                     <Button Content="FooterButton" />
                 </ui:FASettingsExpander.Footer>
 
-                <ui:FASettingsExpanderItem Content="Content Here" ActionIconSource="Pin" IsClickEnabled="True"  />
+                <ui:FASettingsExpanderItem Content="Content Here" ActionIconSource="Pin" IsClickEnabled="True" />
                 <ui:FASettingsExpanderItem Content="Content Here">
                     <ui:FASettingsExpanderItem.Footer>
                         <Button Content="FooterButton" />
                     </ui:FASettingsExpanderItem.Footer>
                 </ui:FASettingsExpanderItem>
-                <ui:FASettingsExpanderItem Content="Right Content Here" 
-                                         HorizontalContentAlignment="Right"/>
+                <ui:FASettingsExpanderItem Content="Right Content Here"
+                                           HorizontalContentAlignment="Right" />
             </ui:FASettingsExpander>
         </Border>
     </Design.PreviewWith>
@@ -71,14 +71,14 @@
                             <ContentPresenter Content="{TemplateBinding Content}"
                                               ContentTemplate="{TemplateBinding ContentTemplate}"
                                               Name="ContentPresenter"
-                                              IsVisible="False"/>
+                                              IsVisible="False" />
 
                             <TextBlock Text="{TemplateBinding Description}"
                                        TextWrapping="Wrap"
                                        Theme="{StaticResource CaptionTextBlockStyle}"
                                        Foreground="{DynamicResource TextFillColorSecondaryBrush}"
                                        Name="DescriptionText"
-                                       IsVisible="False"/>
+                                       IsVisible="False" />
                         </StackPanel>
 
                         <ContentPresenter Content="{TemplateBinding Footer}"
@@ -92,7 +92,7 @@
                                           Grid.Row="0"
                                           Grid.ColumnSpan="1" />
 
-                        <Viewbox Width="{DynamicResource SettingsExpanderItemActionIconSize}" 
+                        <Viewbox Width="{DynamicResource SettingsExpanderItemActionIconSize}"
                                  Height="{DynamicResource SettingsExpanderItemActionIconSize}"
                                  Name="ActionIconHost"
                                  IsVisible="False"
@@ -110,7 +110,8 @@
         </Style>
 
         <Style Selector="^:nth-last-child(1) /template/ Border#Root">
-            <Setter Property="CornerRadius" Value="{Binding Source={StaticResource ControlCornerRadius}, Converter={StaticResource BottomCornerRadiusFilterConverter}}" />
+            <Setter Property="CornerRadius"
+                    Value="{Binding Source={StaticResource ControlCornerRadius}, Converter={StaticResource BottomCornerRadiusFilterConverter}}" />
         </Style>
 
         <Style Selector="^:footer /template/ ContentPresenter#FooterPresenter">

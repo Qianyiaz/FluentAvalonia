@@ -3,7 +3,7 @@
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Provides data for the <see cref="FAItemsRepeater.ElementPrepared"/> event
+///     Provides data for the <see cref="FAItemsRepeater.ElementPrepared" /> event
 /// </summary>
 public class FAItemsRepeaterElementPreparedEventArgs : EventArgs
 {
@@ -14,12 +14,12 @@ public class FAItemsRepeaterElementPreparedEventArgs : EventArgs
     }
 
     /// <summary>
-    /// Gets the prepared element.
+    ///     Gets the prepared element.
     /// </summary>
     public Control Element { get; private set; }
 
     /// <summary>
-    /// Gets the index of the item the element was prepared for.
+    ///     Gets the index of the item the element was prepared for.
     /// </summary>
     public int Index { get; private set; }
 

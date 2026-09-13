@@ -2,7 +2,7 @@
 
 internal readonly struct IndexRange : IEquatable<IndexRange>
 {
-    private static readonly IndexRange s_invalid = new IndexRange(int.MinValue, int.MinValue);
+    private static readonly IndexRange s_invalid = new(int.MinValue, int.MinValue);
 
     public IndexRange(int begin, int end)
     {
@@ -22,7 +22,7 @@ internal readonly struct IndexRange : IEquatable<IndexRange>
 
     public int End { get; }
 
-    public int Count => (End - Begin) + 1;
+    public int Count => End - Begin + 1;
 
     public bool Contains(int index) => index >= Begin && index <= End;
 
@@ -48,7 +48,7 @@ internal readonly struct IndexRange : IEquatable<IndexRange>
 
     public bool Intersects(IndexRange other)
     {
-        return (Begin <= other.End) && (End >= other.Begin);
+        return Begin <= other.End && End >= other.Begin;
     }
 
     public bool Adjacent(IndexRange other)
@@ -77,7 +77,7 @@ internal readonly struct IndexRange : IEquatable<IndexRange>
     public override string ToString() => $"[{Begin}..{End}]";
 
     public static bool operator ==(IndexRange left, IndexRange right) => left.Equals(right);
-    
+
     public static bool operator !=(IndexRange left, IndexRange right) => !(left == right);
 
     public static int Add(
@@ -101,9 +101,7 @@ internal readonly struct IndexRange : IEquatable<IndexRange>
                     result += add.Count;
                 }
 
-                range = range.End <= existing.End ?
-                    s_invalid :
-                    new IndexRange(existing.End + 1, range.End);
+                range = range.End <= existing.End ? s_invalid : new IndexRange(existing.End + 1, range.End);
             }
             else if (range.End < existing.Begin)
             {
@@ -164,10 +162,7 @@ internal readonly struct IndexRange : IEquatable<IndexRange>
 
         MergeRanges(ranges);
 
-        if (removed is object)
-        {
-            MergeRanges(removed);
-        }
+        if (removed is object) MergeRanges(removed);
 
         return result;
     }
@@ -223,10 +218,7 @@ internal readonly struct IndexRange : IEquatable<IndexRange>
     {
         var result = new List<IndexRange> { lhs };
 
-        foreach (var range in rhs)
-        {
-            Remove(result, range);
-        }
+        foreach (var range in rhs) Remove(result, range);
 
         return result;
     }
@@ -234,22 +226,15 @@ internal readonly struct IndexRange : IEquatable<IndexRange>
     public static IEnumerable<int> EnumerateIndices(IEnumerable<IndexRange> ranges)
     {
         foreach (var range in ranges)
-        {
             for (var i = range.Begin; i <= range.End; ++i)
-            {
                 yield return i;
-            }
-        }
     }
 
     public static int GetCount(IEnumerable<IndexRange> ranges)
     {
         var result = 0;
 
-        foreach (var range in ranges)
-        {
-            result += (range.End - range.Begin) + 1;
-        }
+        foreach (var range in ranges) result += range.End - range.Begin + 1;
 
         return result;
     }

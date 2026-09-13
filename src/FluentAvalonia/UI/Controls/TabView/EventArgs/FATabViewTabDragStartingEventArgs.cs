@@ -3,10 +3,12 @@
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Provides data for the <see cref="FATabView.TabDragStarting"/> event
+///     Provides data for the <see cref="FATabView.TabDragStarting" /> event
 /// </summary>
 public class FATabViewTabDragStartingEventArgs : EventArgs
 {
+    private DragItemsStartingEventArgs _innerArgs;
+
     internal FATabViewTabDragStartingEventArgs(DragItemsStartingEventArgs args, object item, FATabViewItem tab)
     {
         _innerArgs = args;
@@ -15,7 +17,7 @@ public class FATabViewTabDragStartingEventArgs : EventArgs
     }
 
     /// <summary>
-    /// Gets or sets a value that indicates whether the drag action should be cancelled
+    ///     Gets or sets a value that indicates whether the drag action should be cancelled
     /// </summary>
     public bool Cancel
     {
@@ -24,19 +26,17 @@ public class FATabViewTabDragStartingEventArgs : EventArgs
     }
 
     /// <summary>
-    /// Gets the data payload associated with a drag action
+    ///     Gets the data payload associated with a drag action
     /// </summary>
     public DataPackage Data => _innerArgs.Data;
 
     /// <summary>
-    /// Gets the item taht was selected for the drag action
+    ///     Gets the item taht was selected for the drag action
     /// </summary>
     public object Item { get; }
 
     /// <summary>
-    /// Gets the TabViewItem that was selected for the drag action
+    ///     Gets the TabViewItem that was selected for the drag action
     /// </summary>
     public FATabViewItem Tab { get; }
-
-    private DragItemsStartingEventArgs _innerArgs;
 }

@@ -1,27 +1,27 @@
-﻿using Avalonia.Controls;
-using Avalonia.Data;
-using Avalonia;
+﻿using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
+using Avalonia.Data;
 using FluentAvalonia.Core;
 
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Represents an item in a <see cref="FAMenuFlyout"/> that a user can change 
-/// between two states, checked or unchecked.
+///     Represents an item in a <see cref="FAMenuFlyout" /> that a user can change
+///     between two states, checked or unchecked.
 /// </summary>
 [PseudoClasses(FASharedPseudoclasses.s_pcChecked)]
 public class FAToggleMenuFlyoutItem : FAMenuFlyoutItem
 {
     /// <summary>
-    /// Defines the <see cref="IsChecked"/> Property
+    ///     Defines the <see cref="IsChecked" /> Property
     /// </summary>
     public static readonly StyledProperty<bool> IsCheckedProperty =
         AvaloniaProperty.Register<FAToggleMenuFlyoutItem, bool>(nameof(IsChecked),
             defaultBindingMode: BindingMode.TwoWay);
 
     /// <summary>
-    /// Gets or sets whether the ToggleMenuFlyoutItem is checked.
+    ///     Gets or sets whether the ToggleMenuFlyoutItem is checked.
     /// </summary>
     public bool IsChecked
     {
@@ -35,9 +35,7 @@ public class FAToggleMenuFlyoutItem : FAMenuFlyoutItem
     {
         base.OnPropertyChanged(change);
         if (change.Property == IsCheckedProperty)
-        {
             PseudoClasses.Set(FASharedPseudoclasses.s_pcChecked, change.GetNewValue<bool>());
-        }
     }
 
     protected override void OnClick()

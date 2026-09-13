@@ -6,10 +6,17 @@ using Avalonia.VisualTree;
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Represents the base class for <see cref="FANavigationView"/> menu items
+///     Represents the base class for <see cref="FANavigationView" /> menu items
 /// </summary>
 public class FANavigationViewItemBase : ListBoxItem
 {
+    // (WinUI) TODO: Constant is a temporary measure. Potentially expose using TemplateSettings.
+    protected readonly int _itemIndentation = 31;
+    private int _depth;
+
+    private WeakReference<FANavigationView> _navView;
+    private NavigationViewRepeaterPosition _position;
+
     public FANavigationViewItemBase()
     {
         Loaded += OnNavItemBaseLoaded;
@@ -42,10 +49,7 @@ public class FANavigationViewItemBase : ListBoxItem
     {
         get
         {
-            if (_navView != null && _navView.TryGetTarget(out var target))
-            {
-                return target;
-            }
+            if (_navView != null && _navView.TryGetTarget(out var target)) return target;
 
             return null;
         }
@@ -56,10 +60,7 @@ public class FANavigationViewItemBase : ListBoxItem
         get
         {
             var navView = GetNavigationView;
-            if (navView != null)
-            {
-                return navView.GetSplitView;
-            }
+            if (navView != null) return navView.GetSplitView;
 
             return null;
         }
@@ -81,30 +82,23 @@ public class FANavigationViewItemBase : ListBoxItem
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
-        if (change.Property == IsSelectedProperty)
-        {
-            OnNavigationViewItemBaseIsSelectedChanged();
-        }
+        if (change.Property == IsSelectedProperty) OnNavigationViewItemBaseIsSelectedChanged();
     }
 
-    protected virtual void OnNavigationViewItemBasePositionChanged() { }
+    protected virtual void OnNavigationViewItemBasePositionChanged()
+    {
+    }
 
-    protected virtual void OnNavigationViewItemBaseDepthChanged() { }
+    protected virtual void OnNavigationViewItemBaseDepthChanged()
+    {
+    }
 
-    protected virtual void OnNavigationViewItemBaseIsSelectedChanged() { }
+    protected virtual void OnNavigationViewItemBaseIsSelectedChanged()
+    {
+    }
 
     private void OnNavItemBaseLoaded(object sender, RoutedEventArgs e)
     {
-        if (_navView == null)
-        {
-            SetNavigationViewParent(this.FindAncestorOfType<FANavigationView>());
-        }
+        if (_navView == null) SetNavigationViewParent(this.FindAncestorOfType<FANavigationView>());
     }
-
-    // (WinUI) TODO: Constant is a temporary measure. Potentially expose using TemplateSettings.
-    protected readonly int _itemIndentation = 31;
-
-    private WeakReference<FANavigationView> _navView;
-    private int _depth;
-    private NavigationViewRepeaterPosition _position;
 }

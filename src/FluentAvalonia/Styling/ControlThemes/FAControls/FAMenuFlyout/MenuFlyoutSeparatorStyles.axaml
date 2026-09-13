@@ -6,9 +6,9 @@
     <Design.PreviewWith>
         <Border Padding="50">
             <ui:FAMenuFlyoutPresenter>
-                <ui:FAMenuFlyoutItem Text="Hello" IconSource="SaveFilled" InputGesture="Ctrl+k"/>
+                <ui:FAMenuFlyoutItem Text="Hello" IconSource="SaveFilled" InputGesture="Ctrl+k" />
                 <ui:FAMenuFlyoutSeparator />
-                <ui:FAMenuFlyoutItem Text="Hello" IconSource="SaveFilled" InputGesture="Ctrl+k"/>
+                <ui:FAMenuFlyoutItem Text="Hello" IconSource="SaveFilled" InputGesture="Ctrl+k" />
             </ui:FAMenuFlyoutPresenter>
         </Border>
     </Design.PreviewWith>

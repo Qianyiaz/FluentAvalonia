@@ -5,26 +5,36 @@ using Avalonia.Platform.Storage;
 namespace FluentAvalonia.UI.Data;
 
 /// <summary>
-/// Contains the data a user want to exchange
+///     Contains the data a user want to exchange
 /// </summary>
 public sealed class DataPackage : IDataTransfer, IAsyncDataTransfer
 {
+    private readonly DataTransfer _dt;
+
     public DataPackage()
     {
         _dt = new DataTransfer();
     }
 
+    /// <summary>
+    ///     Gets or sets the requested operation for the data object
+    /// </summary>
+    public DragDropEffects RequestedOperation { get; set; }
+
     public IReadOnlyList<DataFormat> Formats => _dt.Formats;
 
     public IReadOnlyList<IAsyncDataTransferItem> Items => _dt.Items;
 
-    /// <summary>
-    /// Gets or sets the requested operation for the data object
-    /// </summary>
-    public DragDropEffects RequestedOperation { get; set; }
+    IReadOnlyList<DataFormat> IDataTransfer.Formats => _dt.Formats;
+
+    IReadOnlyList<IDataTransferItem> IDataTransfer.Items => _dt.Items;
+
+    void IDisposable.Dispose()
+    {
+    }
 
     /// <summary>
-    /// Adds the specified text into the Data Transfer package
+    ///     Adds the specified text into the Data Transfer package
     /// </summary>
     public void SetText(string text)
     {
@@ -32,7 +42,7 @@ public sealed class DataPackage : IDataTransfer, IAsyncDataTransfer
     }
 
     /// <summary>
-    /// If present, synchronously retrieves the current text in the Data Transfer package
+    ///     If present, synchronously retrieves the current text in the Data Transfer package
     /// </summary>
     public string GetText()
     {
@@ -40,7 +50,7 @@ public sealed class DataPackage : IDataTransfer, IAsyncDataTransfer
     }
 
     /// <summary>
-    /// If present, asynchronously retrieves the current text in the Data Transfer package
+    ///     If present, asynchronously retrieves the current text in the Data Transfer package
     /// </summary>
     public Task<string> GetTextAsync()
     {
@@ -48,20 +58,17 @@ public sealed class DataPackage : IDataTransfer, IAsyncDataTransfer
     }
 
     /// <summary>
-    /// Sets the specified <see cref="IStorageItem"/>s into the current
-    /// Data Transfer package
+    ///     Sets the specified <see cref="IStorageItem" />s into the current
+    ///     Data Transfer package
     /// </summary>
     public void SetStorageItems(IEnumerable<IStorageItem> items)
     {
-        foreach (var item in items)
-        {
-            _dt.Add(DataTransferItem.CreateFile(item));
-        }
+        foreach (var item in items) _dt.Add(DataTransferItem.CreateFile(item));
     }
 
     /// <summary>
-    /// If present, synchronously retreives the <see cref="IStorageItem"/>s in
-    /// the current Data Transfer package
+    ///     If present, synchronously retreives the <see cref="IStorageItem" />s in
+    ///     the current Data Transfer package
     /// </summary>
     public IReadOnlyList<IStorageItem> GetStorageItems()
     {
@@ -69,8 +76,8 @@ public sealed class DataPackage : IDataTransfer, IAsyncDataTransfer
     }
 
     /// <summary>
-    /// If present, asynchronously retreives the <see cref="IStorageItem"/>s in
-    /// the current Data Transfer package
+    ///     If present, asynchronously retreives the <see cref="IStorageItem" />s in
+    ///     the current Data Transfer package
     /// </summary>
     public async Task<IReadOnlyList<IStorageItem>> GetStorageItemsAsync()
     {
@@ -79,7 +86,7 @@ public sealed class DataPackage : IDataTransfer, IAsyncDataTransfer
     }
 
     /// <summary>
-    /// Sets the specified <see cref="Bitmap"/> to the current Data Transfer package
+    ///     Sets the specified <see cref="Bitmap" /> to the current Data Transfer package
     /// </summary>
     public void SetBitmap(Bitmap bmp)
     {
@@ -87,8 +94,8 @@ public sealed class DataPackage : IDataTransfer, IAsyncDataTransfer
     }
 
     /// <summary>
-    /// If present, synchronously retreives the <see cref="Bitmap"/>s in
-    /// the current Data Transfer package
+    ///     If present, synchronously retreives the <see cref="Bitmap" />s in
+    ///     the current Data Transfer package
     /// </summary>
     public Bitmap GetBitmap()
     {
@@ -96,8 +103,8 @@ public sealed class DataPackage : IDataTransfer, IAsyncDataTransfer
     }
 
     /// <summary>
-    /// If present, asynchronously retreives the <see cref="Bitmap"/>s in
-    /// the current Data Transfer package
+    ///     If present, asynchronously retreives the <see cref="Bitmap" />s in
+    ///     the current Data Transfer package
     /// </summary>
     public Task<Bitmap> GetBitmapAsync()
     {
@@ -105,8 +112,8 @@ public sealed class DataPackage : IDataTransfer, IAsyncDataTransfer
     }
 
     /// <summary>
-    /// Sets an unspecified object to the Data Transfer package with 
-    /// the custom <see cref="DataFormat{T}"/>
+    ///     Sets an unspecified object to the Data Transfer package with
+    ///     the custom <see cref="DataFormat{T}" />
     /// </summary>
     public void Set<T>(DataFormat<T> format, T value) where T : class
     {
@@ -114,28 +121,20 @@ public sealed class DataPackage : IDataTransfer, IAsyncDataTransfer
     }
 
     /// <summary>
-    /// If present, synchronously retreives the item in the Data Transfer package
-    /// using the specified <see cref="DataFormat{T}"/>
+    ///     If present, synchronously retreives the item in the Data Transfer package
+    ///     using the specified <see cref="DataFormat{T}" />
     /// </summary>
     public T Get<T>(DataFormat<T> format) where T : class
     {
         return _dt.TryGetValue(format);
     }
-    
+
     /// <summary>
-    /// If present, asynchronously retreives the item in the Data Transfer package
-    /// using the specified <see cref="DataFormat{T}"/>
+    ///     If present, asynchronously retreives the item in the Data Transfer package
+    ///     using the specified <see cref="DataFormat{T}" />
     /// </summary>
     public Task<T> GetAsync<T>(DataFormat<T> format) where T : class
     {
         return _dt.TryGetValueAsync(format);
     }
-
-    IReadOnlyList<DataFormat> IDataTransfer.Formats => _dt.Formats;
-
-    IReadOnlyList<IDataTransferItem> IDataTransfer.Items => _dt.Items;
-
-    void IDisposable.Dispose() { }
-
-    private readonly DataTransfer _dt;
 }

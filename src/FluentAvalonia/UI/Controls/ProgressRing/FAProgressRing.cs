@@ -10,21 +10,25 @@ namespace FluentAvalonia.UI.Controls;
 [TemplatePart(_tpAnimatedVisual, typeof(FAProgressRingAnimatedVisual))]
 public class FAProgressRing : RangeBase
 {
+    private const string _tpAnimatedVisual = "AnimatedVisual";
+
     /// <summary>
-    /// Defines the <see cref="IsActive"/> property
+    ///     Defines the <see cref="IsActive" /> property
     /// </summary>
     public static readonly StyledProperty<bool> IsActiveProperty =
         AvaloniaProperty.Register<FAProgressRing, bool>(nameof(IsActive), true);
 
     /// <summary>
-    /// Defines the <see cref="IsIndeterminate"/> property
+    ///     Defines the <see cref="IsIndeterminate" /> property
     /// </summary>
     public static readonly StyledProperty<bool> IsIndeterminateProperty =
         ProgressBar.IsIndeterminateProperty.AddOwner<FAProgressRing>(
-            new StyledPropertyMetadata<bool>(defaultValue: true));
+            new StyledPropertyMetadata<bool>(true));
+
+    private FAProgressRingAnimatedVisual _animatedVisualSource;
 
     /// <summary>
-    /// Gets or sets a value that indicates whether the ProgressRing is showing progress
+    ///     Gets or sets a value that indicates whether the ProgressRing is showing progress
     /// </summary>
     public bool IsActive
     {
@@ -33,8 +37,8 @@ public class FAProgressRing : RangeBase
     }
 
     /// <summary>
-    /// Gets or sets a value that indicates whether the progress ring reports generic progress 
-    /// with a repeating pattern or reports progress based on the Value property.
+    ///     Gets or sets a value that indicates whether the progress ring reports generic progress
+    ///     with a repeating pattern or reports progress based on the Value property.
     /// </summary>
     public bool IsIndeterminate
     {
@@ -53,36 +57,17 @@ public class FAProgressRing : RangeBase
         base.OnPropertyChanged(change);
 
         if (change.Property == ValueProperty)
-        {
             _animatedVisualSource?.SetValue(change.GetNewValue<double>());
-        }
         else if (change.Property == MinimumProperty)
-        {
             _animatedVisualSource?.SetMinimum(change.GetNewValue<double>());
-        }
         else if (change.Property == MaximumProperty)
-        {
             _animatedVisualSource?.SetMaximum(change.GetNewValue<double>());
-        }
         else if (change.Property == IsIndeterminateProperty)
-        {
             _animatedVisualSource?.SetIndeterminate(change.GetNewValue<bool>());
-        }
         else if (change.Property == IsActiveProperty)
-        {
             _animatedVisualSource?.SetActive(change.GetNewValue<bool>());
-        }
         else if (change.Property == ForegroundProperty)
-        {
             _animatedVisualSource?.SetForeground((IBrush)change.NewValue);
-        }
-        else if (change.Property == BackgroundProperty)
-        {
-            _animatedVisualSource?.SetBackground((IBrush)change.NewValue);
-        }
+        else if (change.Property == BackgroundProperty) _animatedVisualSource?.SetBackground((IBrush)change.NewValue);
     }
-
-    private FAProgressRingAnimatedVisual _animatedVisualSource;
-
-    private const string _tpAnimatedVisual = "AnimatedVisual";
 }

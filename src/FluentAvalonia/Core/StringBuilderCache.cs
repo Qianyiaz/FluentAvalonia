@@ -22,8 +22,7 @@ internal static class StringBuilderCache
     // See https://github.com/dotnet/corert/blob/master/Documentation/design-docs/diagnostics/diagnostics-tools-contract.md for more details.
     // Please do not change the type, the name, or the semantic usage of this member without understanding the implication for tools.
     // Get in touch with the diagnostics team if you have questions.
-    [ThreadStatic]
-    private static StringBuilder t_cachedInstance;
+    [ThreadStatic] private static StringBuilder t_cachedInstance;
 
     /// <summary>Get a StringBuilder for the specified capacity.</summary>
     /// <remarks>If a StringBuilder of an appropriate size is cached, it will be returned and the cache emptied.</remarks>
@@ -33,7 +32,6 @@ internal static class StringBuilderCache
         {
             var sb = t_cachedInstance;
             if (sb != null)
-            {
                 // Avoid stringbuilder block fragmentation by getting a new StringBuilder
                 // when the requested size is larger than the current capacity
                 if (capacity <= sb.Capacity)
@@ -42,7 +40,6 @@ internal static class StringBuilderCache
                     sb.Clear();
                     return sb;
                 }
-            }
         }
 
         return new StringBuilder(capacity);
@@ -51,10 +48,7 @@ internal static class StringBuilderCache
     /// <summary>Place the specified builder in the cache if it is not too big.</summary>
     public static void Release(StringBuilder sb)
     {
-        if (sb.Capacity <= MaxBuilderSize)
-        {
-            t_cachedInstance = sb;
-        }
+        if (sb.Capacity <= MaxBuilderSize) t_cachedInstance = sb;
     }
 
     /// <summary>ToString() the stringbuilder, Release it to the cache, and return the resulting string.</summary>

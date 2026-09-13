@@ -3,75 +3,77 @@
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Provides calculated values that can be referenced as TemplatedParent 
-/// sources when defining templates for a NavigationView. Not intended for general use.
+///     Provides calculated values that can be referenced as TemplatedParent
+///     sources when defining templates for a NavigationView. Not intended for general use.
 /// </summary>
 public sealed class FANavigationViewTemplateSettings : AvaloniaObject
 {
-    internal FANavigationViewTemplateSettings() { }
-
     /// <summary>
-    /// Defines the <see cref="BackButtonVisibility"/> property
+    ///     Defines the <see cref="BackButtonVisibility" /> property
     /// </summary>
     public static readonly StyledProperty<bool> BackButtonVisibilityProperty =
         AvaloniaProperty.Register<FANavigationViewTemplateSettings, bool>(nameof(BackButtonVisibility), false);
 
     /// <summary>
-    /// Defines the <see cref="LeftPaneVisibility"/> property
+    ///     Defines the <see cref="LeftPaneVisibility" /> property
     /// </summary>
     public static readonly StyledProperty<bool> LeftPaneVisibilityProperty =
         AvaloniaProperty.Register<FANavigationViewTemplateSettings, bool>(nameof(LeftPaneVisibility), true);
 
     /// <summary>
-    /// Defines the <see cref="OverflowButtonVisibility"/> property
+    ///     Defines the <see cref="OverflowButtonVisibility" /> property
     /// </summary>
     public static readonly StyledProperty<bool> OverflowButtonVisibilityProperty =
         AvaloniaProperty.Register<FANavigationViewTemplateSettings, bool>(nameof(OverflowButtonVisibility), false);
 
     /// <summary>
-    /// Defines the <see cref="PaneToggleButtonVisibility"/> property
+    ///     Defines the <see cref="PaneToggleButtonVisibility" /> property
     /// </summary>
     public static readonly StyledProperty<bool> PaneToggleButtonVisibilityProperty =
         AvaloniaProperty.Register<FANavigationViewTemplateSettings, bool>(nameof(PaneToggleButtonVisibility), true);
 
     /// <summary>
-    /// Defines the <see cref="PaneToggleButtonWidth"/> property
+    ///     Defines the <see cref="PaneToggleButtonWidth" /> property
     /// </summary>
     public static readonly StyledProperty<double> PaneToggleButtonWidthProperty =
-    AvaloniaProperty.Register<FANavigationViewTemplateSettings, double>(nameof(PaneToggleButtonWidth));
+        AvaloniaProperty.Register<FANavigationViewTemplateSettings, double>(nameof(PaneToggleButtonWidth));
 
     /// <summary>
-    /// Defines the <see cref="SingleSelectionFollowsFocus"/> property
+    ///     Defines the <see cref="SingleSelectionFollowsFocus" /> property
     /// </summary>
     public static readonly StyledProperty<bool> SingleSelectionFollowsFocusProperty =
         AvaloniaProperty.Register<FANavigationViewTemplateSettings, bool>(nameof(SingleSelectionFollowsFocus), false);
 
     /// <summary>
-    /// Defines the <see cref="SmallerPaneToggleButtonWidth"/> property
+    ///     Defines the <see cref="SmallerPaneToggleButtonWidth" /> property
     /// </summary>
     public static readonly StyledProperty<double> SmallerPaneToggleButtonWidthProperty =
-    AvaloniaProperty.Register<FANavigationViewTemplateSettings, double>(nameof(SmallerPaneToggleButtonWidth));
+        AvaloniaProperty.Register<FANavigationViewTemplateSettings, double>(nameof(SmallerPaneToggleButtonWidth));
 
     /// <summary>
-    /// Defines the <see cref="TopPadding"/> property
+    ///     Defines the <see cref="TopPadding" /> property
     /// </summary>
     public static readonly StyledProperty<double> TopPaddingProperty =
-    AvaloniaProperty.Register<FANavigationViewTemplateSettings, double>(nameof(TopPadding), 0d);
+        AvaloniaProperty.Register<FANavigationViewTemplateSettings, double>(nameof(TopPadding), 0d);
 
     /// <summary>
-    /// Defines the <see cref="TopPaneVisibility"/> property
+    ///     Defines the <see cref="TopPaneVisibility" /> property
     /// </summary>
     public static readonly StyledProperty<bool> TopPaneVisibilityProperty =
         AvaloniaProperty.Register<FANavigationViewTemplateSettings, bool>(nameof(TopPaneVisibility), false);
 
     /// <summary>
-    /// Defines the <see cref="OpenPaneWidth"/> property
+    ///     Defines the <see cref="OpenPaneWidth" /> property
     /// </summary>
     public static readonly StyledProperty<double> OpenPaneWidthProperty =
         AvaloniaProperty.Register<FANavigationViewTemplateSettings, double>(nameof(OpenPaneWidth), 320d);
 
+    internal FANavigationViewTemplateSettings()
+    {
+    }
+
     /// <summary>
-    /// Gets the visibility of the back button.
+    ///     Gets the visibility of the back button.
     /// </summary>
     public bool BackButtonVisibility
     {
@@ -80,7 +82,7 @@ public sealed class FANavigationViewTemplateSettings : AvaloniaObject
     }
 
     /// <summary>
-    /// Gets the visibility of the left pane.
+    ///     Gets the visibility of the left pane.
     /// </summary>
     public bool LeftPaneVisibility
     {
@@ -89,7 +91,7 @@ public sealed class FANavigationViewTemplateSettings : AvaloniaObject
     }
 
     /// <summary>
-    /// Gets the visibility of the overflow button.
+    ///     Gets the visibility of the overflow button.
     /// </summary>
     public bool OverflowButtonVisibility
     {
@@ -98,7 +100,7 @@ public sealed class FANavigationViewTemplateSettings : AvaloniaObject
     }
 
     /// <summary>
-    /// Gets the visibility of the pane toggle button.
+    ///     Gets the visibility of the pane toggle button.
     /// </summary>
     public bool PaneToggleButtonVisibility
     {
@@ -107,7 +109,7 @@ public sealed class FANavigationViewTemplateSettings : AvaloniaObject
     }
 
     /// <summary>
-    /// Gets the width of the pane toggle button
+    ///     Gets the width of the pane toggle button
     /// </summary>
     public double PaneToggleButtonWidth
     {
@@ -116,7 +118,7 @@ public sealed class FANavigationViewTemplateSettings : AvaloniaObject
     }
 
     /// <summary>
-    /// Gets the SelectionFollowsFocus value.
+    ///     Gets the SelectionFollowsFocus value.
     /// </summary>
     public bool SingleSelectionFollowsFocus
     {
@@ -125,7 +127,7 @@ public sealed class FANavigationViewTemplateSettings : AvaloniaObject
     }
 
     /// <summary>
-    /// TODO: Relatively new property - need docs from MS
+    ///     TODO: Relatively new property - need docs from MS
     /// </summary>
     public double SmallerPaneToggleButtonWidth
     {
@@ -134,7 +136,7 @@ public sealed class FANavigationViewTemplateSettings : AvaloniaObject
     }
 
     /// <summary>
-    /// Gets the padding value of the top pane.
+    ///     Gets the padding value of the top pane.
     /// </summary>
     public double TopPadding
     {
@@ -143,7 +145,7 @@ public sealed class FANavigationViewTemplateSettings : AvaloniaObject
     }
 
     /// <summary>
-    /// Gets the visibility of the top pane.
+    ///     Gets the visibility of the top pane.
     /// </summary>
     public bool TopPaneVisibility
     {
@@ -152,7 +154,7 @@ public sealed class FANavigationViewTemplateSettings : AvaloniaObject
     }
 
     /// <summary>
-    /// TODO: Relatively new property - need docs from MS
+    ///     TODO: Relatively new property - need docs from MS
     /// </summary>
     public double OpenPaneWidth // WinUI #5800
     {

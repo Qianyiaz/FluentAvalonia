@@ -1,7 +1,7 @@
 ﻿namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Provides data for the InfoBar.Closed event.
+///     Provides data for the InfoBar.Closed event.
 /// </summary>
 public class FAInfoBarClosedEventArgs : EventArgs
 {
@@ -11,8 +11,8 @@ public class FAInfoBarClosedEventArgs : EventArgs
     }
 
     /// <summary>
-    /// Gets a constant that specifies whether the cause of the Closed event 
-    /// was due to user interaction (Close button click) or programmatic closure.
+    ///     Gets a constant that specifies whether the cause of the Closed event
+    ///     was due to user interaction (Close button click) or programmatic closure.
     /// </summary>
     public FAInfoBarCloseReason Reason { get; }
 }

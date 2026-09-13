@@ -7,6 +7,15 @@ namespace FluentAvalonia.UI.Controls;
 
 public class FAItemCollectionTransition
 {
+    private Control _element;
+    private Rect _newBounds;
+    private Rect _oldBounds;
+    private FAItemCollectionTransitionOperation _operation;
+
+    private WeakReference<FAItemCollectionTransitionProvider> _owningProvider;
+    private FAItemCollectionTransitionProgress _progress;
+    private FAItemCollectionTransitionTriggers _triggers;
+
     public FAItemCollectionTransition(FAItemCollectionTransitionProvider provider, Control element,
         FAItemCollectionTransitionOperation operation, FAItemCollectionTransitionTriggers triggers)
         : this(provider, element, operation, triggers, default, default)
@@ -17,10 +26,9 @@ public class FAItemCollectionTransition
     public FAItemCollectionTransition(FAItemCollectionTransitionProvider provider, Control element,
         FAItemCollectionTransitionTriggers triggers,
         Rect oldBounds, Rect newBounds)
-        : this(provider, element, FAItemCollectionTransitionOperation.Move, triggers, 
-              oldBounds, newBounds)
+        : this(provider, element, FAItemCollectionTransitionOperation.Move, triggers,
+            oldBounds, newBounds)
     {
-
     }
 
     public FAItemCollectionTransition(FAItemCollectionTransitionProvider provider, Control element,
@@ -35,7 +43,8 @@ public class FAItemCollectionTransition
         _newBounds = newBounds;
     }
 
-    public FAItemCollectionTransitionProvider OwningProvider => _owningProvider.TryGetTarget(out var target) ? target : null;
+    public FAItemCollectionTransitionProvider OwningProvider =>
+        _owningProvider.TryGetTarget(out var target) ? target : null;
 
     public Control Element => _element;
 
@@ -51,12 +60,4 @@ public class FAItemCollectionTransition
 
         return _progress;
     }
-
-    private WeakReference<FAItemCollectionTransitionProvider> _owningProvider;
-    private Control _element;
-    private FAItemCollectionTransitionOperation _operation;
-    private FAItemCollectionTransitionTriggers _triggers;
-    private Rect _oldBounds;
-    private Rect _newBounds;
-    private FAItemCollectionTransitionProgress _progress;
 }

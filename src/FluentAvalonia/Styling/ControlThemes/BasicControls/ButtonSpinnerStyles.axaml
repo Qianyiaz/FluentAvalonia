@@ -21,17 +21,17 @@
         </Border>
     </Design.PreviewWith>
 
-    <ControlTheme x:Key="ButtonSpinnerButton" 
+    <ControlTheme x:Key="ButtonSpinnerButton"
                   BasedOn="{StaticResource TransparentRepeatButton}"
                   TargetType="RepeatButton">
         <Setter Property="MinWidth" Value="32" />
         <Setter Property="Padding" Value="0" />
-        <Setter Property="VerticalAlignment" Value="Stretch"/>
-        <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="VerticalAlignment" Value="Stretch" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
         <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
-        <Setter Property="BorderThickness" Value="{DynamicResource NumberBoxSpinButtonBorderThickness}"/>
-        <Setter Property="FontFamily" Value="{DynamicResource SymbolThemeFontFamily}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource NumberBoxSpinButtonBorderThickness}" />
+        <Setter Property="FontFamily" Value="{DynamicResource SymbolThemeFontFamily}" />
     </ControlTheme>
 
     <ControlTheme x:Key="{x:Type ButtonSpinner}" TargetType="ButtonSpinner">
@@ -46,7 +46,7 @@
         <Setter Property="FontSize" Value="{DynamicResource ControlContentThemeFontSize}" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
-        <Setter Property="Focusable" Value="True"/>
+        <Setter Property="Focusable" Value="True" />
         <Setter Property="Template">
             <ControlTemplate>
                 <DataValidationErrors>
@@ -75,7 +75,7 @@
                                               Foreground="{TemplateBinding Foreground}"
                                               FontSize="18"
                                               Margin="4"
-                                              Content="&#xE70E;"/>
+                                              Content="&#xE70E;" />
 
                                 <RepeatButton Name="PART_DecreaseButton"
                                               Theme="{StaticResource ButtonSpinnerButton}"
@@ -83,7 +83,7 @@
                                               VerticalContentAlignment="Center"
                                               FontSize="18"
                                               Margin="0 4 4 4"
-                                              Content="&#xE70D;"/>
+                                              Content="&#xE70D;" />
                             </StackPanel>
                         </Grid>
                     </Border>
@@ -91,7 +91,7 @@
             </ControlTemplate>
         </Setter>
         <Style Selector="^:right /template/ StackPanel#PART_SpinnerPanel">
-            <Setter Property="Grid.Column" Value="2"/>
+            <Setter Property="Grid.Column" Value="2" />
         </Style>
         <Style Selector="^:error">
             <Setter Property="BorderBrush" Value="{DynamicResource SystemFillColorCriticalBrush}" />

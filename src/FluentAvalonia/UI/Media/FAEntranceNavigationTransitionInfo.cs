@@ -7,22 +7,22 @@ using Avalonia.Styling;
 namespace FluentAvalonia.UI.Media.Animation;
 
 /// <summary>
-/// Specifies the animation to run when content appears on a Page.
+///     Specifies the animation to run when content appears on a Page.
 /// </summary>
 public class FAEntranceNavigationTransitionInfo : FANavigationTransitionInfo
 {
     /// <summary>
-    /// Gets or sets the Horizontal Offset used when animating
+    ///     Gets or sets the Horizontal Offset used when animating
     /// </summary>
     public double FromHorizontalOffset { get; set; } = 0;
 
     /// <summary>
-    /// Gets or sets the Vertical Offset used when animating
+    ///     Gets or sets the Vertical Offset used when animating
     /// </summary>
     public double FromVerticalOffset { get; set; } = 100;
 
     //SlideUp and FadeIn
-    public async override void RunAnimation(Animatable ctrl, CancellationToken cancellationToken)
+    public override async void RunAnimation(Animatable ctrl, CancellationToken cancellationToken)
     {
         var animation = new Avalonia.Animation.Animation
         {
@@ -34,7 +34,7 @@ public class FAEntranceNavigationTransitionInfo : FANavigationTransitionInfo
                     Setters =
                     {
                         new Setter(Visual.OpacityProperty, 0.0),
-                        new Setter(TranslateTransform.XProperty,FromHorizontalOffset),
+                        new Setter(TranslateTransform.XProperty, FromHorizontalOffset),
                         new Setter(TranslateTransform.YProperty, FromVerticalOffset)
                     },
                     Cue = new Cue(0d)
@@ -44,7 +44,7 @@ public class FAEntranceNavigationTransitionInfo : FANavigationTransitionInfo
                     Setters =
                     {
                         new Setter(Visual.OpacityProperty, 1d),
-                        new Setter(TranslateTransform.XProperty,0.0),
+                        new Setter(TranslateTransform.XProperty, 0.0),
                         new Setter(TranslateTransform.YProperty, 0.0)
                     },
                     Cue = new Cue(1d)
@@ -59,4 +59,3 @@ public class FAEntranceNavigationTransitionInfo : FANavigationTransitionInfo
         (ctrl as Visual).Opacity = 1;
     }
 }
-

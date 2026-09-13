@@ -11,6 +11,27 @@ namespace FluentAvalonia.UI.Controls;
 
 public partial class FARangeSlider : TemplatedControl
 {
+    private const double Epsilon = 0.01;
+    private readonly DispatcherTimer _keyTimer = new();
+    private double _absolutePosition;
+
+
+    private Rectangle _activeRectangle;
+    private Canvas _containerCanvas;
+    private bool _isDraggingEnd;
+    private bool _isDraggingStart;
+    private bool _maxSet;
+    private Thumb _maxThumb;
+    private bool _minSet;
+    private Thumb _minThumb;
+    private double _oldValue;
+    private bool _pointerManipulatingBoth;
+    private bool _pointerManipulatingMax;
+    private bool _pointerManipulatingMin;
+    private Control _toolTip;
+    private TextBlock _toolTipText;
+    private bool _valuesAssigned;
+
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
@@ -41,9 +62,8 @@ public partial class FARangeSlider : TemplatedControl
             SyncThumbs();
 
             if (!_isDraggingEnd && !_isDraggingStart)
-            {
-                OnValueChanged(new FARangeChangedEventArgs(change.GetOldValue<double>(), newV, FARangeSelectorProperty.RangeStartValue));
-            }
+                OnValueChanged(new FARangeChangedEventArgs(change.GetOldValue<double>(), newV,
+                    FARangeSelectorProperty.RangeStartValue));
         }
         else if (change.Property == RangeEndProperty)
         {
@@ -71,9 +91,8 @@ public partial class FARangeSlider : TemplatedControl
             SyncThumbs();
 
             if (!_isDraggingEnd && !_isDraggingStart)
-            {
-                OnValueChanged(new FARangeChangedEventArgs(change.GetOldValue<double>(), newV, FARangeSelectorProperty.RangeEndValue));
-            }
+                OnValueChanged(new FARangeChangedEventArgs(change.GetOldValue<double>(), newV,
+                    FARangeSelectorProperty.RangeEndValue));
         }
         else if (change.Property == MinimumProperty)
         {
@@ -151,10 +170,8 @@ public partial class FARangeSlider : TemplatedControl
         _toolTipText = e.NameScope.Find<TextBlock>(s_tpToolTipText);
 
         if (_toolTip != null)
-        {
             if (_toolTip.Parent is Panel p)
                 p.Children.Remove(_toolTip);
-        }
 
         _minThumb.DragCompleted += HandleThumbDragCompleted;
         _minThumb.DragDelta += MinThumbDragDelta;
@@ -209,10 +226,7 @@ public partial class FARangeSlider : TemplatedControl
             RangeStart = newStart;
         }
 
-        if (_toolTipText != null)
-        {
-            UpdateToolTipText(RangeStart);
-        }
+        if (_toolTipText != null) UpdateToolTipText(RangeStart);
     }
 
     private void MaxThumbDragDelta(object sender, VectorEventArgs e)
@@ -234,10 +248,7 @@ public partial class FARangeSlider : TemplatedControl
             RangeEnd = newEnd;
         }
 
-        if (_toolTipText != null)
-        {
-            UpdateToolTipText(RangeEnd);
-        }
+        if (_toolTipText != null) UpdateToolTipText(RangeEnd);
     }
 
     private void MinThumbDragStarted(object sender, VectorEventArgs e)
@@ -258,15 +269,12 @@ public partial class FARangeSlider : TemplatedControl
     {
         _isDraggingStart = _isDraggingEnd = false;
         OnThumbDragCompleted(e);
-        OnValueChanged(sender.Equals(_minThumb) ? 
-            new FARangeChangedEventArgs(_oldValue, RangeStart, FARangeSelectorProperty.RangeStartValue) : 
-            new FARangeChangedEventArgs(_oldValue, RangeEnd, FARangeSelectorProperty.RangeEndValue));
+        OnValueChanged(sender.Equals(_minThumb)
+            ? new FARangeChangedEventArgs(_oldValue, RangeStart, FARangeSelectorProperty.RangeStartValue)
+            : new FARangeChangedEventArgs(_oldValue, RangeEnd, FARangeSelectorProperty.RangeEndValue));
         SyncThumbs();
 
-        if (_toolTip != null)
-        {
-            SetToolTipAt(sender as Thumb, false);
-        }
+        if (_toolTip != null) SetToolTipAt(sender as Thumb, false);
     }
 
     private double DragThumb(Thumb thumb, double min, double max, double nextPos)
@@ -276,7 +284,7 @@ public partial class FARangeSlider : TemplatedControl
 
         Canvas.SetLeft(thumb, nextPos);
 
-        return Minimum + ((nextPos / DragWidth) * (Maximum - Minimum));
+        return Minimum + nextPos / DragWidth * (Maximum - Minimum);
     }
 
     private void HandleThumbDragStarted(Thumb thumb)
@@ -303,7 +311,7 @@ public partial class FARangeSlider : TemplatedControl
         {
             case Key.Left:
                 RangeStart -= StepFrequency;
-                SyncThumbs(fromMinKeyDown: true);
+                SyncThumbs(true);
 
                 SetToolTipAt(_minThumb, true);
 
@@ -312,7 +320,7 @@ public partial class FARangeSlider : TemplatedControl
 
             case Key.Right:
                 RangeStart += StepFrequency;
-                SyncThumbs(fromMinKeyDown: true);
+                SyncThumbs(true);
 
                 SetToolTipAt(_minThumb, true);
 
@@ -365,14 +373,11 @@ public partial class FARangeSlider : TemplatedControl
             case Key.Left:
             case Key.Right:
                 if (_toolTip != null)
-                {
                     _keyTimer.Debounce(() =>
                     {
                         SetToolTipAt(_minThumb, false);
                         SetToolTipAt(_maxThumb, false);
-
                     }, TimeSpan.FromSeconds(1));
-                }
 
                 e.Handled = true;
                 break;
@@ -384,22 +389,25 @@ public partial class FARangeSlider : TemplatedControl
         var position = e.GetCurrentPoint(_containerCanvas).Position;
 
         // Bug in Avalonia.InputElement.PointerExited // https://github.com/avaloniaui/avalonia/issues/20520
-        if (position.X >= _containerCanvas.Bounds.Left && position.X <= _containerCanvas.Bounds.Right && position.Y >= _containerCanvas.Bounds.Top && position.Y <= _containerCanvas.Bounds.Bottom)
+        if (position.X >= _containerCanvas.Bounds.Left && position.X <= _containerCanvas.Bounds.Right &&
+            position.Y >= _containerCanvas.Bounds.Top && position.Y <= _containerCanvas.Bounds.Bottom)
             return;
 
-        var normalizedPosition = ((position.X / DragWidth) * (Maximum - Minimum)) + Minimum;
+        var normalizedPosition = position.X / DragWidth * (Maximum - Minimum) + Minimum;
 
         if (_pointerManipulatingMin)
         {
             _pointerManipulatingMin = false;
             _containerCanvas.IsHitTestVisible = true;
-            OnValueChanged(new FARangeChangedEventArgs(RangeStart, normalizedPosition, FARangeSelectorProperty.RangeStartValue));
+            OnValueChanged(new FARangeChangedEventArgs(RangeStart, normalizedPosition,
+                FARangeSelectorProperty.RangeStartValue));
         }
         else if (_pointerManipulatingMax)
         {
             _pointerManipulatingMax = false;
             _containerCanvas.IsHitTestVisible = true;
-            OnValueChanged(new FARangeChangedEventArgs(RangeEnd, normalizedPosition, FARangeSelectorProperty.RangeEndValue));
+            OnValueChanged(new FARangeChangedEventArgs(RangeEnd, normalizedPosition,
+                FARangeSelectorProperty.RangeEndValue));
         }
     }
 
@@ -407,7 +415,7 @@ public partial class FARangeSlider : TemplatedControl
     {
         _pointerManipulatingBoth = false;
         var position = e.GetCurrentPoint(_containerCanvas).Position.X;
-        var normalizedPosition = ((position / DragWidth) * (Maximum - Minimum)) + Minimum;
+        var normalizedPosition = position / DragWidth * (Maximum - Minimum) + Minimum;
 
         if (_toolTip != null)
         {
@@ -424,13 +432,15 @@ public partial class FARangeSlider : TemplatedControl
         {
             _pointerManipulatingMin = false;
             _containerCanvas.IsHitTestVisible = true;
-            OnValueChanged(new FARangeChangedEventArgs(RangeStart, normalizedPosition, FARangeSelectorProperty.RangeStartValue));
+            OnValueChanged(new FARangeChangedEventArgs(RangeStart, normalizedPosition,
+                FARangeSelectorProperty.RangeStartValue));
         }
         else if (_pointerManipulatingMax)
         {
             _pointerManipulatingMax = false;
             _containerCanvas.IsHitTestVisible = true;
-            OnValueChanged(new FARangeChangedEventArgs(RangeEnd, normalizedPosition, FARangeSelectorProperty.RangeEndValue));
+            OnValueChanged(new FARangeChangedEventArgs(RangeEnd, normalizedPosition,
+                FARangeSelectorProperty.RangeEndValue));
         }
 
         SyncThumbs();
@@ -444,12 +454,12 @@ public partial class FARangeSlider : TemplatedControl
             var max = Maximum;
             var min = Minimum;
             var dragDelta = position - _absolutePosition;
-            var delta = ((dragDelta / DragWidth) * (max - min));
+            var delta = dragDelta / DragWidth * (max - min);
             if (Math.Abs(delta) < StepFrequency)
                 return;
             var rs = RangeStart;
             var re = RangeEnd;
-            
+
             if (delta > 0)
             {
                 if (FAMathHelpers.IsClose(re, max))
@@ -468,15 +478,15 @@ public partial class FARangeSlider : TemplatedControl
                     delta = min - rs;
             }
 
-            
+
             RangeStart += delta;
             RangeEnd += delta;
             _absolutePosition = position;
             return;
         }
-                
-        var normalizedPosition = ((position / DragWidth) * (Maximum - Minimum)) + Minimum;
-         
+
+        var normalizedPosition = position / DragWidth * (Maximum - Minimum) + Minimum;
+
         if (_pointerManipulatingMin && normalizedPosition < RangeEnd)
         {
             RangeStart = DragThumb(_minThumb, 0, Canvas.GetLeft(_maxThumb), position);
@@ -541,45 +551,21 @@ public partial class FARangeSlider : TemplatedControl
             Maximum = Maximum;
         }
 
-        if (Minimum == Maximum)
-        {
-            Maximum += Epsilon;
-        }
+        if (Minimum == Maximum) Maximum += Epsilon;
 
-        if (!_maxSet)
-        {
-            RangeEnd = Maximum;
-        }
+        if (!_maxSet) RangeEnd = Maximum;
 
-        if (!_minSet)
-        {
-            RangeStart = Minimum;
-        }
+        if (!_minSet) RangeStart = Minimum;
 
-        if (RangeStart < Minimum)
-        {
-            RangeStart = Minimum;
-        }
+        if (RangeStart < Minimum) RangeStart = Minimum;
 
-        if (RangeEnd < Minimum)
-        {
-            RangeEnd = Minimum;
-        }
+        if (RangeEnd < Minimum) RangeEnd = Minimum;
 
-        if (RangeStart > Maximum)
-        {
-            RangeStart = Maximum;
-        }
+        if (RangeStart > Maximum) RangeStart = Maximum;
 
-        if (RangeEnd > Maximum)
-        {
-            RangeEnd = Maximum;
-        }
+        if (RangeEnd > Maximum) RangeEnd = Maximum;
 
-        if (RangeEnd < RangeStart)
-        {
-            RangeStart = RangeEnd;
-        }
+        if (RangeEnd < RangeStart) RangeStart = RangeEnd;
     }
 
     private void RangeMinToStepFrequency()
@@ -594,42 +580,28 @@ public partial class FARangeSlider : TemplatedControl
 
     private double MoveToStepFrequency(double rangeValue)
     {
-        var newValue = Minimum + (((int)Math.Round((rangeValue - Minimum) / StepFrequency)) * StepFrequency);
+        var newValue = Minimum + (int)Math.Round((rangeValue - Minimum) / StepFrequency) * StepFrequency;
 
-        if (newValue < Minimum)
-        {
-            return Minimum;
-        }
+        if (newValue < Minimum) return Minimum;
 
-        if (newValue > Maximum || Maximum - newValue < StepFrequency)
-        {
-            return Maximum;
-        }
+        if (newValue > Maximum || Maximum - newValue < StepFrequency) return Maximum;
 
         return newValue;
     }
 
     private void SyncThumbs(bool fromMinKeyDown = false, bool fromMaxKeyDown = false)
     {
-        if (_containerCanvas == null)
-        {
-            return;
-        }
+        if (_containerCanvas == null) return;
 
-        var relativeLeft = ((RangeStart - Minimum) / (Maximum - Minimum)) * DragWidth;
-        var relativeRight = ((RangeEnd - Minimum) / (Maximum - Minimum)) * DragWidth;
+        var relativeLeft = (RangeStart - Minimum) / (Maximum - Minimum) * DragWidth;
+        var relativeRight = (RangeEnd - Minimum) / (Maximum - Minimum) * DragWidth;
 
         Canvas.SetLeft(_minThumb, relativeLeft);
         Canvas.SetLeft(_maxThumb, relativeRight);
 
         if (_isDraggingStart)
-        {
-            _absolutePosition += (relativeLeft - _absolutePosition);
-        }
-        else if (_isDraggingEnd)
-        {
-            _absolutePosition += (relativeRight - _absolutePosition);
-        }
+            _absolutePosition += relativeLeft - _absolutePosition;
+        else if (_isDraggingEnd) _absolutePosition += relativeRight - _absolutePosition;
 
         var y = _containerCanvas.Bounds.Height / 2 - _minThumb.Bounds.Height / 2;
         Canvas.SetTop(_minThumb, y);
@@ -642,11 +614,8 @@ public partial class FARangeSlider : TemplatedControl
                 fromMinKeyDown ? 0 : Canvas.GetLeft(_minThumb),
                 fromMinKeyDown ? Canvas.GetLeft(_maxThumb) : DragWidth,
                 fromMinKeyDown ? relativeLeft : relativeRight);
-            
-            if (_toolTipText != null)
-            {
-                UpdateToolTipText(fromMinKeyDown ? RangeStart : RangeEnd);
-            }
+
+            if (_toolTipText != null) UpdateToolTipText(fromMinKeyDown ? RangeStart : RangeEnd);
         }
 
         SyncActiveRectangle();
@@ -692,52 +661,24 @@ public partial class FARangeSlider : TemplatedControl
     private static void UnParentToolTip(Control c)
     {
         if (c.Parent is Panel p)
-        {
             p.Children.Remove(c);
-        }
         else if (c.Parent is ContentControl cc)
-        {
             cc.Content = null;
-        }
-        else if (c.Parent is Decorator d)
-        {
-            d.Child = null;
-        }
+        else if (c.Parent is Decorator d) d.Child = null;
     }
-
-
-    private Rectangle _activeRectangle;
-    private Thumb _minThumb;
-    private Thumb _maxThumb;
-    private Canvas _containerCanvas;
-    private double _oldValue;
-    private bool _valuesAssigned;
-    private bool _minSet;
-    private bool _maxSet;
-    private bool _pointerManipulatingMin;
-    private bool _pointerManipulatingMax;
-    private bool _pointerManipulatingBoth;
-    private double _absolutePosition;
-    private Control _toolTip;
-    private TextBlock _toolTipText;
-    private const double Epsilon = 0.01;
-    private bool _isDraggingStart;
-    private bool _isDraggingEnd;
-    private readonly DispatcherTimer _keyTimer = new DispatcherTimer();
 }
 
 // Copied from WinUI Community Toolkit - only for RangeSlider at this time
 // Extension classes can't be nested so its out here as an internal class =(
 internal static class DispatcherTimerExtensions
 {
+    private static ConcurrentDictionary<DispatcherTimer, Action> _debounceInstances = new();
+
     public static void Debounce(this DispatcherTimer timer, Action action, TimeSpan interval, bool immediate = false)
     {
         // Check and stop any existing timer
         var timeout = timer.IsEnabled;
-        if (timeout)
-        {
-            timer.Stop();
-        }
+        if (timeout) timer.Stop();
 
         // Reset timer parameters
         timer.Tick -= TimerTick;
@@ -746,10 +687,7 @@ internal static class DispatcherTimerExtensions
         if (immediate)
         {
             // If we're in immediate mode then we only execute if the timer wasn't running beforehand
-            if (!timeout)
-            {
-                action.Invoke();
-            }
+            if (!timeout) action.Invoke();
         }
         else
         {
@@ -772,13 +710,7 @@ internal static class DispatcherTimerExtensions
             timer.Tick -= TimerTick;
             timer.Stop();
 
-            if (_debounceInstances.TryRemove(timer, out var action))
-            {
-                action?.Invoke();
-            }
+            if (_debounceInstances.TryRemove(timer, out var action)) action?.Invoke();
         }
     }
-
-    private static ConcurrentDictionary<DispatcherTimer, Action> _debounceInstances = new ConcurrentDictionary<DispatcherTimer, Action>();
-
 }

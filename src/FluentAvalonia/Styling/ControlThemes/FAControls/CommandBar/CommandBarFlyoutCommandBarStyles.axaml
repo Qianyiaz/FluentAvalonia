@@ -12,7 +12,8 @@
 
                 <ui:FACommandBarFlyoutCommandBar.SecondaryCommands>
                     <ui:FACommandBarButton IconSource="Save" Label="Save" HotKey="Ctrl+S" />
-                    <ui:FACommandBarToggleButton IconSource="ChevronUp" Label="Move Up" IsChecked="True" HotKey="Ctrl+F1" />
+                    <ui:FACommandBarToggleButton IconSource="ChevronUp" Label="Move Up" IsChecked="True"
+                                                 HotKey="Ctrl+F1" />
                 </ui:FACommandBarFlyoutCommandBar.SecondaryCommands>
             </ui:FACommandBarFlyoutCommandBar>
         </Border>
@@ -62,7 +63,7 @@
                                   Padding="{TemplateBinding Padding}"
                                   HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
                                   VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
-                                  CornerRadius="{TemplateBinding CornerRadius}"/>
+                                  CornerRadius="{TemplateBinding CornerRadius}" />
             </ControlTemplate>
         </Setter>
 
@@ -80,7 +81,7 @@
         </Style>
     </ControlTheme>
 
-    <ControlTheme x:Key="CBFlyoutPresenterStyle"    
+    <ControlTheme x:Key="CBFlyoutPresenterStyle"
                   TargetType="ui:FACommandBarOverflowPresenter">
         <Setter Property="Background" Value="{DynamicResource CommandBarFlyoutButtonBackground}" />
         <Setter Property="BorderThickness" Value="0" />
@@ -167,7 +168,7 @@
                                    VerticalAlignment="Center"
                                    Margin="12 0"
                                    Padding="0 6 0 7"
-                                   IsVisible="False"/>
+                                   IsVisible="False" />
 
                         <TextBlock Name="KeyboardAcceleratorTextLabel"
                                    Grid.Column="1"
@@ -177,16 +178,16 @@
                                    Foreground="{DynamicResource CommandBarFlyoutAppBarButtonKeyboardTextLabelForeground}"
                                    HorizontalAlignment="Right"
                                    VerticalAlignment="Center"
-                                   IsVisible="False"/>
+                                   IsVisible="False" />
 
                         <ui:FASymbolIcon Name="SubItemChevron"
-                                       Grid.Column="2"
-                                       Symbol="ChevronRight"
-                                       FontSize="12"
-                                       Foreground="{DynamicResource CommandBarFlyoutAppBarButtonSubItemChevronForeground}"
-                                       Margin="12 0"
-                                       VerticalAlignment="Center"
-                                       IsVisible="False"/>
+                                         Grid.Column="2"
+                                         Symbol="ChevronRight"
+                                         FontSize="12"
+                                         Foreground="{DynamicResource CommandBarFlyoutAppBarButtonSubItemChevronForeground}"
+                                         Margin="12 0"
+                                         VerticalAlignment="Center"
+                                         IsVisible="False" />
 
                     </Grid>
                 </Panel>
@@ -195,10 +196,12 @@
 
         <Style Selector="^:pointerover">
             <Style Selector="^ /template/ Border#AppBarButtonInnerBorder">
-                <Setter Property="Background" Value="{DynamicResource CommandBarFlyoutAppBarButtonBackgroundPointerOver}" />
+                <Setter Property="Background"
+                        Value="{DynamicResource CommandBarFlyoutAppBarButtonBackgroundPointerOver}" />
             </Style>
             <Style Selector="^ /template/ ContentPresenter#Content">
-                <Setter Property="Foreground" Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundPointerOver}" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundPointerOver}" />
             </Style>
         </Style>
 
@@ -246,46 +249,58 @@
 
             <Style Selector="^:pointerover">
                 <Style Selector="^ /template/ Border#AppBarButtonInnerBorder">
-                    <Setter Property="Background" Value="{DynamicResource CommandBarFlyoutAppBarButtonBackgroundPointerOver}" />
+                    <Setter Property="Background"
+                            Value="{DynamicResource CommandBarFlyoutAppBarButtonBackgroundPointerOver}" />
                 </Style>
                 <Style Selector="^ /template/ ContentPresenter#Content">
-                    <Setter Property="Foreground" Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundPointerOver}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundPointerOver}" />
                 </Style>
                 <Style Selector="^ /template/ TextBlock#OverflowTextLabel">
-                    <Setter Property="Foreground" Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundPointerOver}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundPointerOver}" />
                 </Style>
                 <Style Selector="^ /template/ TextBlock#KeyboardAcceleratorTextLabel">
-                    <Setter Property="Foreground" Value="{DynamicResource CommandBarFlyoutAppBarButtonKeyboardTextLabelForegroundPointerOver}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource CommandBarFlyoutAppBarButtonKeyboardTextLabelForegroundPointerOver}" />
                 </Style>
             </Style>
 
             <Style Selector="^:pressed">
                 <Style Selector="^ /template/ Border#AppBarButtonInnerBorder">
-                    <Setter Property="Background" Value="{DynamicResource CommandBarFlyoutAppBarButtonBackgroundPressed}" />
+                    <Setter Property="Background"
+                            Value="{DynamicResource CommandBarFlyoutAppBarButtonBackgroundPressed}" />
                 </Style>
                 <Style Selector="^ /template/ ContentPresenter#Content">
-                    <Setter Property="Foreground" Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundPressed}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundPressed}" />
                 </Style>
                 <Style Selector="^ /template/ TextBlock#OverflowTextLabel">
-                    <Setter Property="Foreground" Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundPressed}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundPressed}" />
                 </Style>
                 <Style Selector="^ /template/ TextBlock#KeyboardAcceleratorTextLabel">
-                    <Setter Property="Foreground" Value="{DynamicResource CommandBarFlyoutAppBarButtonKeyboardTextLabelForegroundPressed}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource CommandBarFlyoutAppBarButtonKeyboardTextLabelForegroundPressed}" />
                 </Style>
             </Style>
 
             <Style Selector="^:submenuopen">
                 <Style Selector="^ /template/ Border#AppBarButtonInnerBorder">
-                    <Setter Property="Background" Value="{DynamicResource CommandBarFlyoutAppBarButtonBackgroundPointerOver}" />
+                    <Setter Property="Background"
+                            Value="{DynamicResource CommandBarFlyoutAppBarButtonBackgroundPointerOver}" />
                 </Style>
                 <Style Selector="^ /template/ ContentPresenter#Content">
-                    <Setter Property="Foreground" Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundPointerOver}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundPointerOver}" />
                 </Style>
                 <Style Selector="^ /template/ TextBlock#OverflowTextLabel">
-                    <Setter Property="Foreground" Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundPointerOver}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundPointerOver}" />
                 </Style>
                 <Style Selector="^ /template/ TextBlock#KeyboardAcceleratorTextLabel">
-                    <Setter Property="Foreground" Value="{DynamicResource CommandBarFlyoutAppBarButtonKeyboardTextLabelForegroundPointerOver}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource CommandBarFlyoutAppBarButtonKeyboardTextLabelForegroundPointerOver}" />
                 </Style>
             </Style>
 
@@ -391,15 +406,15 @@
                           Width="40">
 
                         <ui:FASymbolIcon Name="OverflowCheckGlyph"
-                                       Symbol="Checkmark"
-                                       Foreground="{DynamicResource CommandBarFlyoutAppBarButtonForeground}"
-                                       FontSize="18"
-                                       HorizontalAlignment="Left"
-                                       VerticalAlignment="Center"
-                                       Height="14" Width="14"
-                                       Margin="15 4 14 4"
-                                       Opacity="0"
-                                       IsVisible="False"/>
+                                         Symbol="Checkmark"
+                                         Foreground="{DynamicResource CommandBarFlyoutAppBarButtonForeground}"
+                                         FontSize="18"
+                                         HorizontalAlignment="Left"
+                                         VerticalAlignment="Center"
+                                         Height="14" Width="14"
+                                         Margin="15 4 14 4"
+                                         Opacity="0"
+                                         IsVisible="False" />
 
                         <Viewbox Name="ContentViewbox"
                                  Height="20"
@@ -440,10 +455,12 @@
 
         <Style Selector="^:pointerover">
             <Style Selector="^ /template/ Border#AppBarButtonInnerBorder">
-                <Setter Property="Background" Value="{DynamicResource CommandBarFlyoutAppBarButtonBackgroundPointerOver}" />
+                <Setter Property="Background"
+                        Value="{DynamicResource CommandBarFlyoutAppBarButtonBackgroundPointerOver}" />
             </Style>
             <Style Selector="^ /template/ ContentPresenter#Content">
-                <Setter Property="Foreground" Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundPointerOver}" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundPointerOver}" />
             </Style>
         </Style>
 
@@ -482,38 +499,47 @@
 
             <Style Selector="^:pointerover">
                 <Style Selector="^ /template/ Border#AppBarButtonInnerBorder">
-                    <Setter Property="Background" Value="{DynamicResource CommandBarFlyoutAppBarButtonBackgroundCheckedPointerOver}" />
+                    <Setter Property="Background"
+                            Value="{DynamicResource CommandBarFlyoutAppBarButtonBackgroundCheckedPointerOver}" />
                 </Style>
                 <Style Selector="^ /template/ ContentPresenter#Content">
-                    <Setter Property="Foreground" Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundCheckedPointerOver}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundCheckedPointerOver}" />
                 </Style>
             </Style>
 
             <Style Selector="^:pressed">
                 <Style Selector="^ /template/ Border#AppBarButtonInnerBorder">
-                    <Setter Property="Background" Value="{DynamicResource CommandBarFlyoutAppBarButtonBackgroundCheckedPressed}" />
+                    <Setter Property="Background"
+                            Value="{DynamicResource CommandBarFlyoutAppBarButtonBackgroundCheckedPressed}" />
                 </Style>
                 <Style Selector="^ /template/ ContentPresenter#Content">
-                    <Setter Property="Foreground" Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundCheckedPressed}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundCheckedPressed}" />
                 </Style>
             </Style>
 
             <Style Selector="^:disabled">
                 <Style Selector="^ /template/ Border#AppBarButtonInnerBorder">
-                    <Setter Property="Background" Value="{DynamicResource CommandBarFlyoutAppBarButtonBackgroundDisabled}" />
+                    <Setter Property="Background"
+                            Value="{DynamicResource CommandBarFlyoutAppBarButtonBackgroundDisabled}" />
                 </Style>
                 <Style Selector="^ /template/ ContentPresenter#Content">
-                    <Setter Property="Foreground" Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundDisabled}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundDisabled}" />
                 </Style>
                 <Style Selector="^ /template/ TextBlock#OverflowTextLabel">
-                    <Setter Property="Foreground" Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundDisabled}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundDisabled}" />
                 </Style>
                 <Style Selector="^ /template/ TextBlock#KeyboardAcceleratorTextLabel">
-                    <Setter Property="Foreground" Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundDisabled}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundDisabled}" />
                 </Style>
                 <Style Selector="^ /template/ ui|FASymbolIcon#OverflowCheckGlyph">
                     <Setter Property="Opacity" Value="1" />
-                    <Setter Property="Foreground" Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundDisabled}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundDisabled}" />
                 </Style>
             </Style>
 
@@ -544,31 +570,39 @@
 
             <Style Selector="^:pointerover">
                 <Style Selector="^ /template/ Border#AppBarButtonInnerBorder">
-                    <Setter Property="Background" Value="{DynamicResource CommandBarFlyoutAppBarButtonBackgroundPointerOver}" />
+                    <Setter Property="Background"
+                            Value="{DynamicResource CommandBarFlyoutAppBarButtonBackgroundPointerOver}" />
                 </Style>
                 <Style Selector="^ /template/ ContentPresenter#Content">
-                    <Setter Property="Foreground" Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundPointerOver}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundPointerOver}" />
                 </Style>
                 <Style Selector="^ /template/ TextBlock#OverflowTextLabel">
-                    <Setter Property="Foreground" Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundPointerOver}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundPointerOver}" />
                 </Style>
                 <Style Selector="^ /template/ TextBlock#KeyboardAcceleratorTextLabel">
-                    <Setter Property="Foreground" Value="{DynamicResource CommandBarFlyoutAppBarButtonKeyboardTextLabelForegroundPointerOver}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource CommandBarFlyoutAppBarButtonKeyboardTextLabelForegroundPointerOver}" />
                 </Style>
             </Style>
 
             <Style Selector="^:pressed">
                 <Style Selector="^ /template/ Border#AppBarButtonInnerBorder">
-                    <Setter Property="Background" Value="{DynamicResource CommandBarFlyoutAppBarButtonBackgroundPressed}" />
+                    <Setter Property="Background"
+                            Value="{DynamicResource CommandBarFlyoutAppBarButtonBackgroundPressed}" />
                 </Style>
                 <Style Selector="^ /template/ ContentPresenter#Content">
-                    <Setter Property="Foreground" Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundPressed}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundPressed}" />
                 </Style>
                 <Style Selector="^ /template/ TextBlock#OverflowTextLabel">
-                    <Setter Property="Foreground" Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundPressed}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundPressed}" />
                 </Style>
                 <Style Selector="^ /template/ TextBlock#KeyboardAcceleratorTextLabel">
-                    <Setter Property="Foreground" Value="{DynamicResource CommandBarFlyoutAppBarButtonKeyboardTextLabelForegroundPressed}" />
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource CommandBarFlyoutAppBarButtonKeyboardTextLabelForegroundPressed}" />
                 </Style>
             </Style>
 
@@ -585,39 +619,49 @@
 
                 <Style Selector="^:pointerover">
                     <Style Selector="^ /template/ Border#AppBarButtonInnerBorder">
-                        <Setter Property="Background" Value="{DynamicResource CommandBarFlyoutAppBarButtonBackgroundPointerOver}" />
+                        <Setter Property="Background"
+                                Value="{DynamicResource CommandBarFlyoutAppBarButtonBackgroundPointerOver}" />
                     </Style>
                     <Style Selector="^ /template/ ContentPresenter#Content">
-                        <Setter Property="Foreground" Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundPointerOver}" />
+                        <Setter Property="Foreground"
+                                Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundPointerOver}" />
                     </Style>
                     <Style Selector="^ /template/ TextBlock#OverflowTextLabel">
-                        <Setter Property="Foreground" Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundPointerOver}" />
+                        <Setter Property="Foreground"
+                                Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundPointerOver}" />
                     </Style>
                     <Style Selector="^ /template/ TextBlock#KeyboardAcceleratorTextLabel">
-                        <Setter Property="Foreground" Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundPointerOver}" />
+                        <Setter Property="Foreground"
+                                Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundPointerOver}" />
                     </Style>
                     <Style Selector="^ /template/ ui|FASymbolIcon#OverflowCheckGlyph">
                         <Setter Property="Opacity" Value="1" />
-                        <Setter Property="Foreground" Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundPointerOver}" />
+                        <Setter Property="Foreground"
+                                Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundPointerOver}" />
                     </Style>
                 </Style>
 
                 <Style Selector="^:pressed">
                     <Style Selector="^ /template/ Border#AppBarButtonInnerBorder">
-                        <Setter Property="Background" Value="{DynamicResource CommandBarFlyoutAppBarButtonBackgroundPressed}" />
+                        <Setter Property="Background"
+                                Value="{DynamicResource CommandBarFlyoutAppBarButtonBackgroundPressed}" />
                     </Style>
                     <Style Selector="^ /template/ ContentPresenter#Content">
-                        <Setter Property="Foreground" Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundPressed}" />
+                        <Setter Property="Foreground"
+                                Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundPressed}" />
                     </Style>
                     <Style Selector="^ /template/ TextBlock#OverflowTextLabel">
-                        <Setter Property="Foreground" Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundPressed}" />
+                        <Setter Property="Foreground"
+                                Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundPressed}" />
                     </Style>
                     <Style Selector="^ /template/ TextBlock#KeyboardAcceleratorTextLabel">
-                        <Setter Property="Foreground" Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundPressed}" />
+                        <Setter Property="Foreground"
+                                Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundPressed}" />
                     </Style>
                     <Style Selector="^ /template/ ui|FASymbolIcon#OverflowCheckGlyph">
                         <Setter Property="Opacity" Value="1" />
-                        <Setter Property="Foreground" Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundPressed}" />
+                        <Setter Property="Foreground"
+                                Value="{DynamicResource CommandBarFlyoutAppBarButtonForegroundPressed}" />
                     </Style>
                 </Style>
             </Style>
@@ -738,20 +782,20 @@
                             </ItemsControl>
 
                             <Button Name="MoreButton"
-                                        Foreground="{TemplateBinding Foreground}"
-                                        Grid.Column="1"
-                                        Theme="{StaticResource CBFlyoutEllipsisButton}">
+                                    Foreground="{TemplateBinding Foreground}"
+                                    Grid.Column="1"
+                                    Theme="{StaticResource CBFlyoutEllipsisButton}">
                                 <ui:FASymbolIcon Symbol="More"
-                                                FontSize="24"
-                                                Height="{StaticResource AppBarExpandButtonCircleDiameter}"
-                                                Name="EllipsisIcon"/>
+                                                 FontSize="24"
+                                                 Height="{StaticResource AppBarExpandButtonCircleDiameter}"
+                                                 Name="EllipsisIcon" />
                             </Button>
 
                             <Border Name="OpenBorder"
                                     Grid.ColumnSpan="2"
                                     VerticalAlignment="Stretch"
                                     IsHitTestVisible="False"
-                                    CornerRadius="{DynamicResource ControlCornerRadius}"/>
+                                    CornerRadius="{DynamicResource ControlCornerRadius}" />
 
                         </Grid>
 
@@ -760,11 +804,11 @@
                                 IsVisible="False">
                             <ScrollViewer HorizontalScrollBarVisibility="Disabled">
                                 <ui:FACommandBarOverflowPresenter Name="SecondaryItemsControl"
-                                                                CornerRadius="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=CornerRadius, Converter={StaticResource BottomCornerRadiusFilterConverter}}"
-                                                                BorderBrush="Transparent"
-                                                                BorderThickness="1 0 1 1"
-                                                                Theme="{StaticResource CBFlyoutPresenterStyle}"
-                                                                KeyboardNavigation.TabNavigation="Once"/>
+                                                                  CornerRadius="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=CornerRadius, Converter={StaticResource BottomCornerRadiusFilterConverter}}"
+                                                                  BorderBrush="Transparent"
+                                                                  BorderThickness="1 0 1 1"
+                                                                  Theme="{StaticResource CBFlyoutPresenterStyle}"
+                                                                  KeyboardNavigation.TabNavigation="Once" />
                             </ScrollViewer>
                         </Border>
                     </StackPanel>
@@ -779,7 +823,8 @@
                 <Setter Property="IsVisible" Value="True" />
             </Style>
             <Style Selector="^ /template/ Border#OpenBorder">
-                <Setter Property="CornerRadius" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=CornerRadius, Converter={StaticResource TopCornerRadiusFilterConverter}}" />
+                <Setter Property="CornerRadius"
+                        Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=CornerRadius, Converter={StaticResource TopCornerRadiusFilterConverter}}" />
             </Style>
         </Style>
 

@@ -1,4 +1,6 @@
-﻿using Avalonia;
+﻿using System.Collections.Specialized;
+using System.ComponentModel;
+using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
@@ -7,18 +9,31 @@ using Avalonia.Threading;
 using Avalonia.VisualTree;
 using FluentAvalonia.Core;
 using FluentAvalonia.UI.Controls.Primitives;
-using System.Collections.Specialized;
-using System.ComponentModel;
 
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Represents the container for an item in a NavigationView control.
+///     Represents the container for an item in a NavigationView control.
 /// </summary>
 public partial class FANavigationViewItem : FANavigationViewItemBase
 {
+    private bool _appliedTemplate;
+    private Panel _flyoutContentGrid;
+
+    private bool _isClosedCompact;
+
+    //private bool _hasKeyboardFocus;//TODO: needed?
+    private bool _isRepeaterParentedToFlyout;
+    private FANavigationViewItemPresenter _presenter;
+    private FAItemsRepeater _repeater;
+    private bool _restoreToExpandedState;
+    private Grid _rootGrid;
+
+    private FACompositeDisposable _splitViewRevokers;
+    private object _suggestedToolTipContent;
+
     /// <summary>
-    /// Create instance of <see cref="FANavigationViewItem"/>.
+    ///     Create instance of <see cref="FANavigationViewItem" />.
     /// </summary>
     public FANavigationViewItem()
     {
@@ -49,13 +64,10 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
         {
             var flyout = _rootGrid.GetValue(FlyoutBase.AttachedFlyoutProperty) as PopupFlyoutBase;
             if (flyout != null)
-            {
-                flyout.Placement = (Position == NavigationViewRepeaterPosition.TopPrimary ||
-                    Position == NavigationViewRepeaterPosition.TopFooter) ?
-                    PlacementMode.BottomEdgeAlignedLeft :
-                    PlacementMode.RightEdgeAlignedTop;
-
-            }
+                flyout.Placement = Position == NavigationViewRepeaterPosition.TopPrimary ||
+                                   Position == NavigationViewRepeaterPosition.TopFooter
+                    ? PlacementMode.BottomEdgeAlignedLeft
+                    : PlacementMode.RightEdgeAlignedTop;
         }
     }
 
@@ -93,13 +105,9 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
 
         var splitView = GetSplitView;
         if (splitView != null)
-        {
             PrepNavigationViewItem(splitView);
-        }
         else
-        {
             Loaded += HandleLoaded;
-        }
 
         //var navView = GetNavigationView;
         if (navView != null)
@@ -126,10 +134,7 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
         UpdateVisualState();
         ReparentRepeater();
         // We dont want to update the repeater visibilty during OnApplyTemplate if NavigationView is in a mode when items are shown in a flyout
-        if (!ShouldRepeaterShowInFlyout)
-        {
-            ShowHideChildren();
-        }
+        if (!ShouldRepeaterShowInFlyout) ShowHideChildren();
     }
 
     /// <inheritdoc />
@@ -137,25 +142,14 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
     {
         base.OnPropertyChanged(change);
         if (change.Property == IconSourceProperty)
-        {
             OnIconPropertyChanged(change);
-        }
         else if (change.Property == ContentProperty)
-        {
             OnContentChanged(change);
-        }
         else if (change.Property == InfoBadgeProperty)
-        {
             UpdateVisualStateForInfoBadge();
-        }
         else if (change.Property == MenuItemsProperty)
-        {
             OnMenuItemsPropertyChanged();
-        }
-        else if (change.Property == MenuItemsSourceProperty)
-        {
-            OnMenuItemsSourcePropertyChanged();
-        }
+        else if (change.Property == MenuItemsSourceProperty) OnMenuItemsSourcePropertyChanged();
     }
 
     private void UpdateRepeaterItemsSource()
@@ -163,18 +157,14 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
         if (_repeater != null)
         {
             if (_repeater.ItemsSourceView != null)
-            {
                 _repeater.ItemsSourceView.CollectionChanged -= OnItemsSourceViewChanged;
-            }
 
             var miSource = MenuItemsSource;
 
             _repeater.ItemsSource = miSource != null ? miSource : _menuItems;
 
             if (_repeater.ItemsSourceView != null)
-            {
                 _repeater.ItemsSourceView.CollectionChanged += OnItemsSourceViewChanged;
-            }
         }
     }
 
@@ -190,7 +180,7 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
             UpdateCompactPaneLength();
         }
         else if (args.Property == SplitView.IsPaneOpenProperty ||
-            args.Property == SplitView.DisplayModeProperty)
+                 args.Property == SplitView.DisplayModeProperty)
         {
             UpdateIsClosedCompact();
             ReparentRepeater();
@@ -206,10 +196,7 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
             var paneLength = splitView.CompactPaneLength;
             CompactPaneLength = paneLength;
 
-            if (_presenter != null)
-            {
-                _presenter.UpdateCompactPaneLength(paneLength, IsOnLeftNav);
-            }
+            if (_presenter != null) _presenter.UpdateCompactPaneLength(paneLength, IsOnLeftNav);
         }
     }
 
@@ -219,7 +206,8 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
         if (splitView != null)
         {
             _isClosedCompact = !splitView.IsPaneOpen &&
-                (splitView.DisplayMode == SplitViewDisplayMode.CompactOverlay || splitView.DisplayMode == SplitViewDisplayMode.CompactInline);
+                               (splitView.DisplayMode == SplitViewDisplayMode.CompactOverlay ||
+                                splitView.DisplayMode == SplitViewDisplayMode.CompactInline);
 
             UpdateVisualState();
         }
@@ -227,10 +215,7 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
 
     private void UpdateVisualStateForClosedCompact()
     {
-        if (_presenter != null)
-        {
-            _presenter.UpdateClosedCompactVisualState(IsTopLevelItem, _isClosedCompact);
-        }
+        if (_presenter != null) _presenter.UpdateClosedCompactVisualState(IsTopLevelItem, _isClosedCompact);
     }
 
     private void UpdateNavigationViewItemToolTip()
@@ -254,22 +239,15 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
     private void SuggestedToolTipChanged(object newContent)
     {
         object newToolTip = null;
-        if (newContent is string s)
-        {
-            newToolTip = s;
-        }
+        if (newContent is string s) newToolTip = s;
 
         // Both customer and NavigationViewItem can update ToolTipContent by winrt::ToolTipService::SetToolTip or XAML
         // If the ToolTipContent is not the same as m_suggestedToolTipContent, then it's set by customer.
         // Customer's ToolTip take high priority, and we never override Customer's ToolTip.
         var toolTip = ToolTip.GetTip(this);
         if (_suggestedToolTipContent != null)
-        {
             if (toolTip == _suggestedToolTipContent)
-            {
                 ToolTip.SetTip(this, null);
-            }
-        }
 
         _suggestedToolTipContent = newToolTip;
     }
@@ -317,7 +295,7 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
         UpdateRepeaterItemsSource();
         UpdateVisualStateForChevron();
     }
-        
+
     private void OnHasUnrealizedChildrenPropertyChanged()
     {
         UpdateVisualStateForChevron();
@@ -325,10 +303,7 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
 
     private void ShowSelectionIndicator(bool vis)
     {
-        if (SelectionIndicator != null)
-        {
-            SelectionIndicator.Opacity = vis ? 1.0 : 0.0;
-        }
+        if (SelectionIndicator != null) SelectionIndicator.Opacity = vis ? 1.0 : 0.0;
     }
 
     private void UpdateVisualStateForIconAndContent(bool showIcon, bool showContent)
@@ -376,6 +351,7 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
                     ((IPseudoClasses)_presenter.Classes).Set(FASharedPseudoclasses.s_pcTopNav, true);
                     ((IPseudoClasses)_presenter.Classes).Set(FASharedPseudoclasses.s_pcTopOverflow, false);
                 }
+
                 break;
 
             case NavigationViewRepeaterPosition.TopOverflow:
@@ -390,6 +366,7 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
                     ((IPseudoClasses)_presenter.Classes).Set(FASharedPseudoclasses.s_pcTopNav, false);
                     ((IPseudoClasses)_presenter.Classes).Set(FASharedPseudoclasses.s_pcTopOverflow, true);
                 }
+
                 break;
         }
 
@@ -406,10 +383,7 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
         if (!_appliedTemplate)
             return;
 
-        if (_presenter != null)
-        {
-            ((IPseudoClasses)_presenter.Classes).Set(s_pcSelected, IsSelected);
-        }
+        if (_presenter != null) ((IPseudoClasses)_presenter.Classes).Set(s_pcSelected, IsSelected);
 
         UpdateVisualStateForNavigationViewPositionChange();
 
@@ -419,19 +393,14 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
         if (IsOnLeftNav)
         {
             if (_presenter != null)
-            {
                 //This is supposed to be for backwards compatibility with RS4-, but
                 //is apparently still used in the NVIPresenterWhenOnLeftPane style
                 ((IPseudoClasses)_presenter.Classes).Set(s_pcIconCollapsed, !showIcon);
-                //Only using IconCollapsed, IconVisible is default
-            }
+            //Only using IconCollapsed, IconVisible is default
         }
         else
         {
-            if (_presenter != null)
-            {
-                ((IPseudoClasses)_presenter.Classes).Set(s_pcIconCollapsed, false);
-            }
+            if (_presenter != null) ((IPseudoClasses)_presenter.Classes).Set(s_pcIconCollapsed, false);
         }
 
         UpdateVisualStateForToolTip();
@@ -477,10 +446,7 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
         {
             if (shouldShowChildren)
             {
-                if (!_isRepeaterParentedToFlyout)
-                {
-                    ReparentRepeater();
-                }
+                if (!_isRepeaterParentedToFlyout) ReparentRepeater();
 
                 Dispatcher.UIThread.Post(() => FlyoutBase.ShowAttachedFlyout(_rootGrid));
             }
@@ -531,12 +497,8 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
         var count = _repeater.ItemsSourceView.Count;
 
         for (var i = 0; i < count; i++)
-        {
             if (_repeater.TryGetElement(i) is FANavigationViewItemBase nvib)
-            {
                 nvib.Depth = depth;
-            }
-        }
     }
 
     internal void OnExpandCollapseChevronTapped(object sender, RoutedEventArgs args)
@@ -552,10 +514,7 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
 
     internal void RotateExpandCollapseChevron(bool isExpanded)
     {
-        if (_presenter != null)
-        {
-            _presenter.RotateExpandCollapseChevron(isExpanded);
-        }
+        if (_presenter != null) _presenter.RotateExpandCollapseChevron(isExpanded);
     }
 
     private void UnhookEventsAndClearFields()
@@ -563,10 +522,7 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
         if (_rootGrid != null)
         {
             var flyout = FlyoutBase.GetAttachedFlyout(_rootGrid) as PopupFlyoutBase;
-            if (flyout != null)
-            {
-                flyout.Closing -= OnFlyoutClosing;
-            }
+            if (flyout != null) flyout.Closing -= OnFlyoutClosing;
             _rootGrid = null;
         }
 
@@ -580,9 +536,7 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
             _repeater.ElementClearing -= navView.OnRepeaterElementClearing;
 
             if (_repeater.ItemsSourceView != null)
-            {
                 _repeater.ItemsSourceView.CollectionChanged -= OnItemsSourceViewChanged;
-            }
             _repeater.ItemsSource = null;
             _repeater = null;
         }
@@ -607,7 +561,8 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
         _splitViewRevokers = new FACompositeDisposable(
             splitView.GetPropertyChangedObservable(SplitView.IsPaneOpenProperty).Subscribe(OnSplitViewPropertyChanged),
             splitView.GetPropertyChangedObservable(SplitView.DisplayModeProperty).Subscribe(OnSplitViewPropertyChanged),
-            splitView.GetPropertyChangedObservable(SplitView.CompactPaneLengthProperty).Subscribe(OnSplitViewPropertyChanged));
+            splitView.GetPropertyChangedObservable(SplitView.CompactPaneLengthProperty)
+                .Subscribe(OnSplitViewPropertyChanged));
 
         UpdateCompactPaneLength();
         UpdateIsClosedCompact();
@@ -615,10 +570,7 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
 
     private void HandleLoaded(object sender, RoutedEventArgs args)
     {
-        if (GetSplitView is SplitView sv)
-        {
-            PrepNavigationViewItem(sv);
-        }
+        if (GetSplitView is SplitView sv) PrepNavigationViewItem(sv);
 
         UpdateVisualStateForChevron();
         Loaded -= HandleLoaded;
@@ -631,19 +583,13 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
     private void HandleExpansionStateMemory()
     {
         if (IsTopLevelItem)
-        {
             if (GetSplitView is SplitView sv)
             {
                 if (sv.IsPaneOpen)
-                {
                     RestoreExpandedState();
-                }
                 else
-                {
                     ForceCollapse();
-                }
             }
-        }
     }
 
     private void ForceCollapse()
@@ -663,17 +609,4 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
             _restoreToExpandedState = false;
         }
     }
-
-    private FACompositeDisposable _splitViewRevokers;
-    private FANavigationViewItemPresenter _presenter;
-    private object _suggestedToolTipContent;
-    private FAItemsRepeater _repeater;
-    private Panel _flyoutContentGrid;
-    private Grid _rootGrid;
-
-    private bool _isClosedCompact;
-    private bool _appliedTemplate;
-    //private bool _hasKeyboardFocus;//TODO: needed?
-    private bool _isRepeaterParentedToFlyout;
-    private bool _restoreToExpandedState;
 }

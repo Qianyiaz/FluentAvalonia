@@ -4,7 +4,7 @@
     <Design.PreviewWith>
         <Border Padding="50">
             <StackPanel Orientation="Vertical" Spacing="5">
-                <AutoCompleteBox Width="100" PlaceholderForeground="Red" PlaceholderText="sdfgsadeg"/>
+                <AutoCompleteBox Width="100" PlaceholderForeground="Red" PlaceholderText="sdfgsadeg" />
             </StackPanel>
         </Border>
     </Design.PreviewWith>

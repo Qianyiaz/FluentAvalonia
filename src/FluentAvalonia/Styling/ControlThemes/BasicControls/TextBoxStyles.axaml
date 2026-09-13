@@ -6,7 +6,7 @@
         <Border Padding="50">
             <StackPanel Spacing="5">
                 <TextBox />
-                <TextBox Text="Hello Down there"/>
+                <TextBox Text="Hello Down there" />
                 <TextBox PlaceholderText="Placeholder" />
                 <TextBox Text="Test" IsEnabled="False" />
                 <TextBox Text="Test Clear" Classes="clearButton" />
@@ -36,11 +36,11 @@
                         Background="Transparent"
                         CornerRadius="{TemplateBinding CornerRadius}">
                     <ui:FASymbolIcon Foreground="{TemplateBinding Foreground}"
-                                   VerticalAlignment="Center"
-                                   HorizontalAlignment="Center"
-                                   FontSize="{StaticResource TextBoxIconFontSize}"
-                                   Symbol="Dismiss"
-                                   Name="Glyph"/>
+                                     VerticalAlignment="Center"
+                                     HorizontalAlignment="Center"
+                                     FontSize="{StaticResource TextBoxIconFontSize}"
+                                     Symbol="Dismiss"
+                                     Name="Glyph" />
                 </Border>
             </ControlTemplate>
         </Setter>
@@ -92,7 +92,7 @@
                                    FontSize="{StaticResource TextBoxIconFontSize}"
                                    FontFamily="{StaticResource SymbolThemeFontFamily}"
                                    Glyph="&#xE18B;"
-                                   Name="Glyph"/>
+                                   Name="Glyph" />
                 </Border>
             </ControlTemplate>
         </Setter>
@@ -128,7 +128,7 @@
         <Style Selector="^:checked:pressed /template/ ui|FAFontIcon#Glyph">
             <Setter Property="Foreground" Value="{DynamicResource TextControlButtonForegroundPointerOver}" />
         </Style>
-        
+
         <Style Selector="^:disabled /template/ Border#ButtonLayoutGrid">
             <Setter Property="Opacity" Value="0" />
         </Style>
@@ -164,10 +164,10 @@
                                 MinHeight="{TemplateBinding MinHeight}" />
 
                         <Border Margin="{TemplateBinding BorderThickness}">
-                            <Grid ColumnDefinitions="Auto,*,Auto" >
+                            <Grid ColumnDefinitions="Auto,*,Auto">
                                 <ContentPresenter Grid.Column="0"
                                                   Grid.ColumnSpan="1"
-                                                  Content="{TemplateBinding InnerLeftContent}"/>
+                                                  Content="{TemplateBinding InnerLeftContent}" />
                                 <DockPanel x:Name="PART_InnerDockPanel"
                                            Grid.Column="1"
                                            Grid.ColumnSpan="1"
@@ -179,10 +179,11 @@
                                                IsVisible="False"
                                                Text="{TemplateBinding PlaceholderText}"
                                                DockPanel.Dock="Top" />
-                                    <ScrollViewer HorizontalScrollBarVisibility="{TemplateBinding (ScrollViewer.HorizontalScrollBarVisibility)}"
-                                                  VerticalScrollBarVisibility="{TemplateBinding (ScrollViewer.VerticalScrollBarVisibility)}"
-                                                  IsScrollChainingEnabled="{TemplateBinding (ScrollViewer.IsScrollChainingEnabled)}"
-                                                  AllowAutoHide="{TemplateBinding (ScrollViewer.AllowAutoHide)}">
+                                    <ScrollViewer
+                                        HorizontalScrollBarVisibility="{TemplateBinding (ScrollViewer.HorizontalScrollBarVisibility)}"
+                                        VerticalScrollBarVisibility="{TemplateBinding (ScrollViewer.VerticalScrollBarVisibility)}"
+                                        IsScrollChainingEnabled="{TemplateBinding (ScrollViewer.IsScrollChainingEnabled)}"
+                                        AllowAutoHide="{TemplateBinding (ScrollViewer.AllowAutoHide)}">
                                         <ScrollViewer.Styles>
                                             <Style Selector="ScrollContentPresenter#PART_ContentPresenter">
                                                 <Setter Property="Cursor" Value="IBeam" />
@@ -199,8 +200,11 @@
                                                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
                                                 <TextBlock.IsVisible>
                                                     <MultiBinding Converter="{x:Static BoolConverters.And}">
-                                                        <Binding ElementName="PART_TextPresenter" Path="PreeditText" Converter="{x:Static StringConverters.IsNullOrEmpty}"/>
-                                                        <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="Text" Converter="{x:Static StringConverters.IsNullOrEmpty}"/>
+                                                        <Binding ElementName="PART_TextPresenter" Path="PreeditText"
+                                                                 Converter="{x:Static StringConverters.IsNullOrEmpty}" />
+                                                        <Binding RelativeSource="{RelativeSource TemplatedParent}"
+                                                                 Path="Text"
+                                                                 Converter="{x:Static StringConverters.IsNullOrEmpty}" />
                                                     </MultiBinding>
                                                 </TextBlock.IsVisible>
                                             </TextBlock>
@@ -220,13 +224,13 @@
                                                            SelectionForegroundBrush="{TemplateBinding SelectionForegroundBrush}"
                                                            CaretBrush="{TemplateBinding CaretBrush}"
                                                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                                           VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                                           VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
                                         </Panel>
                                     </ScrollViewer>
                                 </DockPanel>
                                 <ContentPresenter Grid.Column="2"
                                                   Grid.ColumnSpan="1"
-                                                  Content="{TemplateBinding InnerRightContent}"/>
+                                                  Content="{TemplateBinding InnerRightContent}" />
                             </Grid>
                         </Border>
                     </Panel>
@@ -253,7 +257,7 @@
             <Setter Property="Foreground" Value="{DynamicResource TextControlForegroundPointerOver}" />
 
             <Style Selector="^ /template/ Border#PART_BorderElement">
-                <Setter Property="BorderBrush" Value="{DynamicResource TextControlBorderBrushPointerOver}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource TextControlBorderBrushPointerOver}" />
                 <Setter Property="Background" Value="{DynamicResource TextControlBackgroundPointerOver}" />
             </Style>
 
@@ -271,14 +275,14 @@
             </Style>
 
             <Style Selector="^ /template/ Border#PART_BorderElement">
-                <Setter Property="Background" Value="{DynamicResource TextControlBackgroundFocused}"/>
-                <Setter Property="BorderBrush" Value="{DynamicResource TextControlBorderBrushFocused}"/>
+                <Setter Property="Background" Value="{DynamicResource TextControlBackgroundFocused}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource TextControlBorderBrushFocused}" />
                 <Setter Property="BorderThickness" Value="{DynamicResource TextControlBorderThemeThicknessFocused}" />
             </Style>
         </Style>
 
         <Style Selector="^:error /template/ Border#PART_BorderElement">
-            <Setter Property="BorderBrush" Value="{DynamicResource SystemFillColorCriticalBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource SystemFillColorCriticalBrush}" />
         </Style>
 
         <Style Selector="^[UseFloatingPlaceholder=true]:not(:empty) /template/ TextBlock#PART_FloatingPlaceholder">
@@ -297,7 +301,7 @@
                                   FontSize="{TemplateBinding FontSize}"
                                   Width="30"
                                   VerticalAlignment="Stretch"
-                                  IsChecked="{Binding $parent[TextBox].RevealPassword, Mode=TwoWay}"/>
+                                  IsChecked="{Binding $parent[TextBox].RevealPassword, Mode=TwoWay}" />
                 </Template>
             </Setter>
         </Style>

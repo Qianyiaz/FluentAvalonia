@@ -5,11 +5,19 @@ using FluentAvalonia.UI.Controls;
 namespace FluentAvalonia.UI.Input;
 
 /// <summary>
-/// Derives from XamlUICommand, adding a set of standard platform commands with pre-defined properties.
+///     Derives from XamlUICommand, adding a set of standard platform commands with pre-defined properties.
 /// </summary>
 public class FAStandardUICommand : FAXamlUICommand
 {
-    public FAStandardUICommand() { }
+    /// <summary>
+    ///     Defines the <see cref="Kind" /> property
+    /// </summary>
+    public static readonly StyledProperty<FAStandardUICommandKind> KindProperty =
+        AvaloniaProperty.Register<FAStandardUICommand, FAStandardUICommandKind>(nameof(Kind));
+
+    public FAStandardUICommand()
+    {
+    }
 
     public FAStandardUICommand(FAStandardUICommandKind kind)
     {
@@ -19,14 +27,8 @@ public class FAStandardUICommand : FAXamlUICommand
     }
 
     /// <summary>
-    /// Defines the <see cref="Kind"/> property
-    /// </summary>
-    public static readonly StyledProperty<FAStandardUICommandKind> KindProperty =
-        AvaloniaProperty.Register<FAStandardUICommand, FAStandardUICommandKind>(nameof(Kind));
-
-    /// <summary>
-    /// Gets the platform command (with pre-defined properties such as icon, keyboard accelerator, 
-    /// and description) that can be used with a StandardUICommand.
+    ///     Gets the platform command (with pre-defined properties such as icon, keyboard accelerator,
+    ///     and description) that can be used with a StandardUICommand.
     /// </summary>
     public FAStandardUICommandKind Kind
     {
@@ -37,10 +39,7 @@ public class FAStandardUICommand : FAXamlUICommand
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
-        if (change.Property == KindProperty)
-        {
-            SetupCommand();
-        }
+        if (change.Property == KindProperty) SetupCommand();
     }
 
     private void SetupCommand()

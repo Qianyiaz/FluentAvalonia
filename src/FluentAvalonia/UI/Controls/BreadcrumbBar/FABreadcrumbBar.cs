@@ -18,17 +18,50 @@ namespace FluentAvalonia.UI.Controls;
 // BCB Source is up to date with WinUI as of 5/9/26
 
 /// <summary>
-/// The BreadcrumbBar control provides the direct path of pages or folders to the current location.
+///     The BreadcrumbBar control provides the direct path of pages or folders to the current location.
 /// </summary>
-[TemplatePart(Name = s_tpItemsRepeater, Type=typeof(FAItemsRepeater))]
+[TemplatePart(Name = s_tpItemsRepeater, Type = typeof(FAItemsRepeater))]
 public class FABreadcrumbBar : TemplatedControl
 {
+    private const string s_tpItemsRepeater = "PART_ItemsRepeater";
+
+    private const string SR_AutomationNameEllipsisBreadcrumbBarItem = "AutomationNameEllipsisBreadcrumbBarItem";
+
+    /// <summary>
+    ///     Defines the <see cref="ItemsSource" /> property
+    /// </summary>
+    public static readonly StyledProperty<IEnumerable> ItemsSourceProperty =
+        ItemsControl.ItemsSourceProperty.AddOwner<FABreadcrumbBar>();
+
+    /// <summary>
+    ///     Defines the <see cref="ItemTemplate" /> property
+    /// </summary>
+    public static readonly StyledProperty<IDataTemplate> ItemTemplateProperty =
+        ItemsControl.ItemTemplateProperty.AddOwner<FABreadcrumbBar>();
+
+    /// <summary>
+    ///     Defines the <see cref="IsLastItemClickEnabled" /> property
+    /// </summary>
+    public static readonly StyledProperty<bool> IsLastItemClickEnabledProperty =
+        AvaloniaProperty.Register<FABreadcrumbBar, bool>(nameof(IsLastItemClickEnabled));
+
+    private FAItemsSourceView _breadcrumbItemsSourceView;
+
+    private FABreadcrumbBarItem _ellipsisBreadcrumBarItem;
+    private int _focusedIndex;
+    private BreadcrumbIterable _itemsIterable;
+
+    private FAItemsRepeater _itemsRepeater;
+    private BreadcrumbElementFactory _itemsRepeaterElementFactory;
+    private BreadcrumbLayout _itemsRepeaterLayout;
+    private FABreadcrumbBarItem _lastBreadcrumbBarItem;
+
     public FABreadcrumbBar()
     {
         _itemsRepeaterElementFactory = new BreadcrumbElementFactory();
         _itemsRepeaterLayout = new BreadcrumbLayout(this);
         _itemsIterable = new BreadcrumbIterable(null);
-        
+
         // Note WinUI sets these in OnApplyTemplate
         AddHandler(KeyDownEvent, OnChildPreviewKeyDown, RoutingStrategies.Tunnel);
         //AccessKeyInvoked - Avalonia use override method instead
@@ -37,25 +70,7 @@ public class FABreadcrumbBar : TemplatedControl
     }
 
     /// <summary>
-    /// Defines the <see cref="ItemsSource"/> property
-    /// </summary>
-    public static readonly StyledProperty<IEnumerable> ItemsSourceProperty =
-        ItemsControl.ItemsSourceProperty.AddOwner<FABreadcrumbBar>();
-
-    /// <summary>
-    /// Defines the <see cref="ItemTemplate"/> property
-    /// </summary>
-    public static readonly StyledProperty<IDataTemplate> ItemTemplateProperty =
-        ItemsControl.ItemTemplateProperty.AddOwner<FABreadcrumbBar>();
-
-    /// <summary>
-    /// Defines the <see cref="IsLastItemClickEnabled"/> property
-    /// </summary>
-    public static readonly StyledProperty<bool> IsLastItemClickEnabledProperty =
-        AvaloniaProperty.Register<FABreadcrumbBar, bool>(nameof(IsLastItemClickEnabled));
-
-    /// <summary>
-    /// Gets or sets an object source used to generate the content of the BreadcrumbBar.
+    ///     Gets or sets an object source used to generate the content of the BreadcrumbBar.
     /// </summary>
     public IEnumerable ItemsSource
     {
@@ -64,7 +79,7 @@ public class FABreadcrumbBar : TemplatedControl
     }
 
     /// <summary>
-    /// Gets or sets the data template for the BreadcrumbBarItem.
+    ///     Gets or sets the data template for the BreadcrumbBarItem.
     /// </summary>
     public IDataTemplate ItemTemplate
     {
@@ -73,7 +88,7 @@ public class FABreadcrumbBar : TemplatedControl
     }
 
     /// <summary>
-    /// Gets or sets whether the last item can be clicked
+    ///     Gets or sets whether the last item can be clicked
     /// </summary>
     public bool IsLastItemClickEnabled
     {
@@ -82,7 +97,7 @@ public class FABreadcrumbBar : TemplatedControl
     }
 
     /// <summary>
-    /// Occurs when an item is clicked in the BreadcrumbBar.
+    ///     Occurs when an item is clicked in the BreadcrumbBar.
     /// </summary>
     public event TypedEventHandler<FABreadcrumbBar, FABreadcrumbBarItemClickedEventArgs> ItemClicked;
 
@@ -148,9 +163,7 @@ public class FABreadcrumbBar : TemplatedControl
     private void UpdateItemsRepeaterItemsSource()
     {
         if (_breadcrumbItemsSourceView != null)
-        {
             _breadcrumbItemsSourceView.CollectionChanged -= OnBreadcrumbBarItemsSourceCollectionChanged;
-        }
 
         _breadcrumbItemsSourceView = null;
         var src = ItemsSource;
@@ -162,10 +175,9 @@ public class FABreadcrumbBar : TemplatedControl
                 _itemsIterable = new BreadcrumbIterable(src);
                 _itemsRepeater.ItemsSource = _itemsIterable;
             }
+
             if (_breadcrumbItemsSourceView != null)
-            {
                 _breadcrumbItemsSourceView.CollectionChanged += OnBreadcrumbBarItemsSourceCollectionChanged;
-            }
         }
     }
 
@@ -247,14 +259,10 @@ public class FABreadcrumbBar : TemplatedControl
                 {
                     var itemCount = isv.Count;
                     if (itemIndex == itemCount)
-                    {
                         UpdateLastElement(item);
-                    }
                     else
-                    {
                         // Any other element just resets the visual properties
                         item.ResetVisualProperties();
-                    }
                 }
             }
         }
@@ -266,10 +274,7 @@ public class FABreadcrumbBar : TemplatedControl
         {
             var newIndex = args.NewIndex;
 
-            if (args.Element is FABreadcrumbBarItem item)
-            {
-                item.SetIndex(newIndex);
-            }
+            if (args.Element is FABreadcrumbBarItem item) item.SetIndex(newIndex);
 
             FocusElementAt(newIndex);
         }
@@ -295,12 +300,9 @@ public class FABreadcrumbBar : TemplatedControl
     {
         var l = new PooledList<object>();
         if (_breadcrumbItemsSourceView != null)
-        {
             for (var i = 0; i < firstShownElement - 1; i++)
-            {
                 l.Add(_breadcrumbItemsSourceView.GetAt(i));
-            }
-        }
+
         return l;
     }
 
@@ -308,9 +310,7 @@ public class FABreadcrumbBar : TemplatedControl
     {
         if (_itemsRepeater != null && _itemsRepeaterLayout != null &&
             _itemsRepeaterLayout.EllipsisIsRendered)
-        {
             return GetHiddenElementsList(_itemsRepeaterLayout.FirstRenderedItemIndexAfterEllipsis);
-        }
 
         return null;
     }
@@ -338,20 +338,17 @@ public class FABreadcrumbBar : TemplatedControl
             // accessibilityIndex is the index to be assigned to each item
             // itemToIndex is the real index and it may differ from accessibilityIndex as we must only index the visible items
             for (int accIdx = 1, itemToIndex = firstItemToIndex; accIdx <= visibleCount; accIdx++, itemToIndex++)
-            {
                 if (repeater.TryGetElement(itemToIndex) is Control c)
                 {
                     c.SetValue(AutomationProperties.PositionInSetProperty, accIdx);
                     c.SetValue(AutomationProperties.SizeOfSetProperty, visibleCount);
                 }
-            }
         }
     }
 
     private void OnGettingFocus(object sender, FocusChangingEventArgs args)
     {
         if (_itemsRepeater is FAItemsRepeater repeater)
-        {
             // WinUI checks args InputDevice for Keyboard
             if (args.NavigationMethod == NavigationMethod.Directional || args.NavigationMethod == NavigationMethod.Tab)
             {
@@ -362,24 +359,16 @@ public class FABreadcrumbBar : TemplatedControl
                     if (_itemsRepeaterLayout != null)
                     {
                         if (_itemsRepeaterLayout.EllipsisIsRendered)
-                        {
                             _focusedIndex = 0;
-                        }
                         else
-                        {
                             _focusedIndex = 1;
-                        }
 
                         FocusElementAt(_focusedIndex);
                     }
 
                     if (repeater.TryGetElement(_focusedIndex) is Control selectedItem)
-                    {
                         if (args.TrySetNewFocusedElement(selectedItem))
-                        {
                             args.Handled = true;
-                        }
-                    }
                 }
                 // Focus was already in the repeater: in RS3+ Selection follows focus unless control is held down.
                 else if ((ctrl & args.KeyModifiers) != KeyModifiers.Control)
@@ -391,7 +380,6 @@ public class FABreadcrumbBar : TemplatedControl
                     }
                 }
             }
-        }
     }
 
     private void FocusElementAt(int index)
@@ -418,13 +406,12 @@ public class FABreadcrumbBar : TemplatedControl
                     {
                         var item = ir.TryGetElement(index);
                         if (item != null)
-                        {
                             if (item.Focus())
                             {
                                 FocusElementAt(index);
                                 return true;
                             }
-                        }
+
                         index += indexIncrement;
                     }
                 }
@@ -446,14 +433,10 @@ public class FABreadcrumbBar : TemplatedControl
             if (layout != null)
             {
                 if (_focusedIndex == 1)
-                {
                     movementPrevious = 0;
-                }
                 else if (layout.EllipsisIsRendered &&
-                    _focusedIndex == layout.FirstRenderedItemIndexAfterEllipsis)
-                {
+                         _focusedIndex == layout.FirstRenderedItemIndexAfterEllipsis)
                     movementPrevious = -_focusedIndex;
-                }
             }
         }
 
@@ -463,7 +446,7 @@ public class FABreadcrumbBar : TemplatedControl
     private bool MoveFocusNext()
     {
         var movementNext = 1;
-        
+
         if (_focusedIndex == 0)
         {
             var ir = _itemsRepeater;
@@ -527,19 +510,4 @@ public class FABreadcrumbBar : TemplatedControl
 
         _breadcrumbItemsSourceView?.CollectionChanged -= OnBreadcrumbBarItemsSourceCollectionChanged;
     }
-
-    private FAItemsSourceView _breadcrumbItemsSourceView;
-    private BreadcrumbIterable _itemsIterable;
-
-    private FAItemsRepeater _itemsRepeater;
-    private BreadcrumbElementFactory _itemsRepeaterElementFactory;
-    private BreadcrumbLayout _itemsRepeaterLayout;
-
-    private FABreadcrumbBarItem _ellipsisBreadcrumBarItem;
-    private FABreadcrumbBarItem _lastBreadcrumbBarItem;
-    private int _focusedIndex;
-
-    private const string s_tpItemsRepeater = "PART_ItemsRepeater";
-
-    private const string SR_AutomationNameEllipsisBreadcrumbBarItem = "AutomationNameEllipsisBreadcrumbBarItem";
 }

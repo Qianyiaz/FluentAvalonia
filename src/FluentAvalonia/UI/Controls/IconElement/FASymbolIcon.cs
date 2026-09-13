@@ -6,10 +6,26 @@ using Avalonia.Media.TextFormatting;
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Represents an icon that uses a glyph from the SymbolThemeFontFamily resource as its content.
+///     Represents an icon that uses a glyph from the SymbolThemeFontFamily resource as its content.
 /// </summary>
 public class FASymbolIcon : FAIconElement
 {
+    /// <summary>
+    ///     Defines the <see cref="Symbol" /> property
+    /// </summary>
+    public static readonly StyledProperty<FASymbol> SymbolProperty =
+        AvaloniaProperty.Register<FASymbolIcon, FASymbol>(nameof(Symbol));
+
+    /// <summary>
+    ///     Defines the <see cref="FontSize" /> property
+    /// </summary>
+    public static readonly StyledProperty<double> FontSizeProperty =
+        TextElement.FontSizeProperty.AddOwner<FASymbolIcon>();
+
+    private static FontFamily _symbolFontFamily;
+
+    private TextLayout _textLayout;
+
     static FASymbolIcon()
     {
         FontSizeProperty.OverrideDefaultValue<FASymbolIcon>(18d);
@@ -17,19 +33,7 @@ public class FASymbolIcon : FAIconElement
     }
 
     /// <summary>
-    /// Defines the <see cref="Symbol"/> property
-    /// </summary>
-    public static readonly StyledProperty<FASymbol> SymbolProperty =
-        AvaloniaProperty.Register<FASymbolIcon, FASymbol>(nameof(Symbol));
-
-    /// <summary>
-    /// Defines the <see cref="FontSize"/> property
-    /// </summary>
-    public static readonly StyledProperty<double> FontSizeProperty =
-        TextElement.FontSizeProperty.AddOwner<FASymbolIcon>();
-
-    /// <summary>
-    /// Gets or sets the <see cref="Controls.FASymbol"/> this icon displays
+    ///     Gets or sets the <see cref="Controls.FASymbol" /> this icon displays
     /// </summary>
     public FASymbol Symbol
     {
@@ -38,7 +42,7 @@ public class FASymbolIcon : FAIconElement
     }
 
     /// <summary>
-    /// Gets or sets the font size this icon uses when rendering
+    ///     Gets or sets the font size this icon uses when rendering
     /// </summary>
     public double FontSize
     {
@@ -57,7 +61,7 @@ public class FASymbolIcon : FAIconElement
         }
         else if (change.Property == TextElement.ForegroundProperty)
         {
-            _textLayout = null;  
+            _textLayout = null;
             // FAIconElement calls InvalidateVisual
         }
     }
@@ -88,7 +92,7 @@ public class FASymbolIcon : FAIconElement
         using (context.PushClip(dstRect))
         {
             var pt = new Point(dstRect.Center.X - _textLayout.Width * 0.5,
-                               dstRect.Center.Y - _textLayout.Height * 0.5);
+                dstRect.Center.Y - _textLayout.Height * 0.5);
             _textLayout.Draw(context, pt);
         }
     }
@@ -99,9 +103,6 @@ public class FASymbolIcon : FAIconElement
 
         _textLayout = new TextLayout(glyph,
             new Typeface(_symbolFontFamily),
-           FontSize, Foreground, TextAlignment.Left);
+            FontSize, Foreground, TextAlignment.Left);
     }
-
-    private TextLayout _textLayout;
-    private static FontFamily _symbolFontFamily;
 }

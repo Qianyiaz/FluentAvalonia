@@ -5,11 +5,23 @@ namespace FluentAvalonia.UI.Controls;
 
 internal class BreadcrumbLayout : FANonVirtualizingLayout
 {
-    public BreadcrumbLayout() { }
+    private Size _availableSize;
+
+    private WeakReference<FABreadcrumbBar>
+        _breadcrumb; // weak_ref because the BreadcrumbBar already points to us via m_itemsRepeaterLayout
+
+    private FABreadcrumbBarItem _ellipsisButton;
+    private bool _ellipsisIsRendered;
+    private int _firstRenderedItemIndexAfterEllipsis;
+    private int _visibleItemsCount;
+
+    public BreadcrumbLayout()
+    {
+    }
 
     public BreadcrumbLayout(FABreadcrumbBar breadcrumb)
     {
-        _breadcrumb = new WeakReference<FABreadcrumbBar>(breadcrumb);        
+        _breadcrumb = new WeakReference<FABreadcrumbBar>(breadcrumb);
     }
 
     internal ref readonly bool EllipsisIsRendered => ref _ellipsisIsRendered;
@@ -22,12 +34,10 @@ internal class BreadcrumbLayout : FANonVirtualizingLayout
 
     protected internal override void InitializeForContextCore(FALayoutContext context)
     {
-
     }
 
     protected internal override void UninitializeForContextCore(FALayoutContext context)
     {
-
     }
 
     public int GetItemCount(FANonVirtualizingLayoutContext context) =>
@@ -58,21 +68,13 @@ internal class BreadcrumbLayout : FANonVirtualizingLayout
 
         // Save a reference to the ellipsis button to avoid querying for it multiple times
         if (GetItemCount(context) > 0)
-        {
             if (GetElementAt(context, 0) is FABreadcrumbBarItem eb)
-            {
                 _ellipsisButton = eb;
-            }
-        }
 
         if (accumWidth > availableSize.Width)
-        {
             _ellipsisIsRendered = true;
-        }
         else
-        {
             _ellipsisIsRendered = false;
-        }
 
         return new Size(accumWidth, accumHeight);
     }
@@ -104,19 +106,14 @@ internal class BreadcrumbLayout : FANonVirtualizingLayout
             var eb = _ellipsisButton;
 
             if (_ellipsisIsRendered)
-            {
                 ArrangeItem(eb, ref accumWid, maxElementHeight);
-            }
             else
-            {
                 HideItem(eb);
-            }
         }
 
         // For each item, if the item has an equal or larger index to the first element to render, then
         // render it, otherwise, hide it and add it to the list of hidden items
         for (var i = 1; i < itemCount; i++)
-        {
             if (i < firstElementToRender)
             {
                 HideItem(context, i);
@@ -126,12 +123,8 @@ internal class BreadcrumbLayout : FANonVirtualizingLayout
                 ArrangeItem(context, i, ref accumWid, maxElementHeight);
                 ++_visibleItemsCount;
             }
-        }
 
-        if (_breadcrumb.TryGetTarget(out var target))
-        {
-            target.ReIndexVisibleElementsForAccessibility();
-        }
+        if (_breadcrumb.TryGetTarget(out var target)) target.ReIndexVisibleElementsForAccessibility();
 
         return finalSize;
     }
@@ -145,7 +138,8 @@ internal class BreadcrumbLayout : FANonVirtualizingLayout
         accumWidth += elementSize.Width;
     }
 
-    private void ArrangeItem(FANonVirtualizingLayoutContext context, int index, ref double accumWidth, double maxElementHeight)
+    private void ArrangeItem(FANonVirtualizingLayoutContext context, int index, ref double accumWidth,
+        double maxElementHeight)
     {
         var element = GetElementAt(context, index);
         ArrangeItem(element, ref accumWidth, maxElementHeight);
@@ -153,7 +147,7 @@ internal class BreadcrumbLayout : FANonVirtualizingLayout
 
     private void HideItem(Control item)
     {
-        item.Arrange(default(Rect));
+        item.Arrange(default);
     }
 
     private void HideItem(FANonVirtualizingLayoutContext context, int index)
@@ -171,10 +165,7 @@ internal class BreadcrumbLayout : FANonVirtualizingLayout
         for (var i = itemCount - 2; i >= 0; i--)
         {
             var newAccumLength = accumLength + GetElementAt(context, i).DesiredSize.Width;
-            if (newAccumLength > _availableSize.Width)
-            {
-                return i + 1;
-            }
+            if (newAccumLength > _availableSize.Width) return i + 1;
 
             accumLength = newAccumLength;
         }
@@ -186,23 +177,11 @@ internal class BreadcrumbLayout : FANonVirtualizingLayout
     {
         double maxHeight = 0;
 
-        if (_ellipsisIsRendered)
-        {
-            maxHeight = _ellipsisButton.DesiredSize.Height;
-        }
+        if (_ellipsisIsRendered) maxHeight = _ellipsisButton.DesiredSize.Height;
 
         for (var i = firstItemToRender; i < GetItemCount(context); i++)
-        {
             maxHeight = Math.Max(maxHeight, GetElementAt(context, i).DesiredSize.Height);
-        }
 
         return maxHeight;
     }
-
-    private Size _availableSize;
-    private FABreadcrumbBarItem _ellipsisButton;
-    private WeakReference<FABreadcrumbBar> _breadcrumb; // weak_ref because the BreadcrumbBar already points to us via m_itemsRepeaterLayout
-    private bool _ellipsisIsRendered;
-    private int _firstRenderedItemIndexAfterEllipsis;
-    private int _visibleItemsCount;
 }

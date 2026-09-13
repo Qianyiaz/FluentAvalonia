@@ -1,7 +1,7 @@
 ﻿namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Provides data for the <see cref="FABreadcrumbBar.ItemClicked"/> event
+///     Provides data for the <see cref="FABreadcrumbBar.ItemClicked" /> event
 /// </summary>
 public class FABreadcrumbBarItemClickedEventArgs : EventArgs
 {
@@ -12,12 +12,12 @@ public class FABreadcrumbBarItemClickedEventArgs : EventArgs
     }
 
     /// <summary>
-    /// Gets the index of the item that was clicked.
+    ///     Gets the index of the item that was clicked.
     /// </summary>
     public int Index { get; }
 
     /// <summary>
-    /// Gets the Content property value of the BreadcrumbBarItem that is clicked.
+    ///     Gets the Content property value of the BreadcrumbBarItem that is clicked.
     /// </summary>
     public object Item { get; }
 }

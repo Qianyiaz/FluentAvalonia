@@ -1,6 +1,5 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:sty="using:FluentAvalonia.Styling">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <Design.PreviewWith>
         <Border Width="400" Height="400">
@@ -17,7 +16,7 @@
             </TabbedPage>
         </Border>
     </Design.PreviewWith>
-    
+
 
     <!-- TabbedPage TabControl theme -->
     <ControlTheme x:Key="TabbedPageTabControlTheme" TargetType="TabControl">
@@ -58,7 +57,8 @@
             </ControlTemplate>
         </Setter>
 
-        <Style Selector="^[TabStripPlacement=Left] /template/ ItemsPresenter#PART_ItemsPresenter > UniformGrid,
+        <Style
+            Selector="^[TabStripPlacement=Left] /template/ ItemsPresenter#PART_ItemsPresenter > UniformGrid,
            ^[TabStripPlacement=Right] /template/ ItemsPresenter#PART_ItemsPresenter > UniformGrid">
             <Setter Property="Rows" Value="0" />
             <Setter Property="Columns" Value="1" />
@@ -179,12 +179,14 @@
 
         <!-- Pointer-over -->
         <Style Selector="^:pointerover /template/ Border#PART_LayoutRoot">
-            <Setter Property="Background" Value="{DynamicResource TabbedPageTabItemHeaderBackgroundUnselectedPointerOver}" />
+            <Setter Property="Background"
+                    Value="{DynamicResource TabbedPageTabItemHeaderBackgroundUnselectedPointerOver}" />
         </Style>
 
         <!-- Selected + pointer-over -->
         <Style Selector="^:selected:pointerover /template/ Border#PART_LayoutRoot">
-            <Setter Property="Background" Value="{DynamicResource TabbedPageTabItemHeaderBackgroundSelectedPointerOver}" />
+            <Setter Property="Background"
+                    Value="{DynamicResource TabbedPageTabItemHeaderBackgroundSelectedPointerOver}" />
         </Style>
 
         <!-- Pressed -->
@@ -200,7 +202,8 @@
         <!-- Disabled -->
         <Style Selector="^:disabled /template/ Border#PART_LayoutRoot">
             <Setter Property="Background" Value="{DynamicResource TabbedPageTabItemHeaderBackgroundDisabled}" />
-            <Setter Property="TextElement.Foreground" Value="{DynamicResource TabbedPageTabItemHeaderForegroundDisabled}" />
+            <Setter Property="TextElement.Foreground"
+                    Value="{DynamicResource TabbedPageTabItemHeaderForegroundDisabled}" />
         </Style>
 
         <!-- Focus visible -->
@@ -224,5 +227,5 @@
             </ControlTemplate>
         </Setter>
     </ControlTheme>
-    
+
 </ResourceDictionary>

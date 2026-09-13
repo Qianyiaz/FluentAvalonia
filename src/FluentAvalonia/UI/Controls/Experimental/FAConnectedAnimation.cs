@@ -5,6 +5,7 @@ using System.Numerics;
 using Avalonia;
 using Avalonia.Animation.Easings;
 using Avalonia.Rendering.Composition;
+using Avalonia.Rendering.Composition.Animations;
 using Avalonia.VisualTree;
 using FluentAvalonia.Core.Attributes;
 
@@ -12,6 +13,13 @@ namespace FluentAvalonia.UI.Controls.Experimental;
 
 public class FAConnectedAnimation
 {
+    private Vector3 _initialOffset;
+    private float _initialOpacity;
+    private Vector2 _initialSize;
+
+    private FAConnectedAnimationService _owningService;
+    private Visual _sourceElement;
+
     internal FAConnectedAnimation(Visual source, FAConnectedAnimationService service)
     {
         Configuration = new FAGravityConnectedAnimationConfiguration();
@@ -42,7 +50,9 @@ public class FAConnectedAnimation
     internal DateTime CreationTime { get; }
 
     [FANotImplemented]
-    public void Cancel() { }
+    public void Cancel()
+    {
+    }
 
     public bool TryStart(Visual destination)
     {
@@ -73,11 +83,13 @@ public class FAConnectedAnimation
 
         // TODO: Gravity should respect the default easing and timings with 
         // the gravity step having a special easing to simulate the gravity effect
-        var easing = Configuration is FAGravityConnectedAnimationConfiguration ?
-            new QuarticEaseInOut() : _owningService.DefaultEasingFunction;
+        var easing = Configuration is FAGravityConnectedAnimationConfiguration
+            ? new QuarticEaseInOut()
+            : _owningService.DefaultEasingFunction;
 
-        var duration = Configuration is FAGravityConnectedAnimationConfiguration ?
-            TimeSpan.FromMilliseconds(750) : _owningService.DefaultDuration;
+        var duration = Configuration is FAGravityConnectedAnimationConfiguration
+            ? TimeSpan.FromMilliseconds(750)
+            : _owningService.DefaultDuration;
 
         var comp = destVis.Compositor;
 
@@ -109,7 +121,7 @@ public class FAConnectedAnimation
         var offsetAnim = comp.CreateVector3KeyFrameAnimation();
         offsetAnim.Target = "Offset";
         offsetAnim.Duration = duration;
-        
+
         var offset = new Vector3((float)destVis.Offset.X, (float)destVis.Offset.Y, (float)destVis.Offset.Z);
         offsetAnim.SetVector3Parameter("StartValue", offset + delta);
         offsetAnim.SetVector3Parameter("FinalValue", offset);
@@ -144,12 +156,8 @@ public class FAConnectedAnimation
         }
 
         if (coordinatedVisuals != null)
-        {
             for (var i = 0; i < coordinatedVisuals.Count; i++)
-            {
                 CreateCoordinatedAnimation(coordinatedVisuals[i], duration, easing);
-            }
-        }
 
         destVis.StartAnimationGroup(group);
     }
@@ -178,7 +186,7 @@ public class FAConnectedAnimation
         var opacAnim = comp.CreateScalarKeyFrameAnimation();
         opacAnim.Target = "Opacity";
         opacAnim.Duration = duration;
-        opacAnim.DelayBehavior = Avalonia.Rendering.Composition.Animations.AnimationDelayBehavior.SetInitialValueBeforeDelay;
+        opacAnim.DelayBehavior = AnimationDelayBehavior.SetInitialValueBeforeDelay;
         //opacAnim.De
         opacAnim.SetScalarParameter("StartValue", 0);
         opacAnim.SetScalarParameter("FinalValue", finalOpacity);
@@ -189,7 +197,7 @@ public class FAConnectedAnimation
 
         var offsetAnim = comp.CreateVector3KeyFrameAnimation();
         var offset = new Vector3((float)destVis.Offset.X, (float)destVis.Offset.Y, (float)destVis.Offset.Z);
-        
+
         offsetAnim.Target = "Offset";
         offsetAnim.Duration = duration;
         offsetAnim.SetVector3Parameter("StartValue", offset + delta);
@@ -202,10 +210,4 @@ public class FAConnectedAnimation
 
         destVis.StartAnimationGroup(group);
     }
-
-    private FAConnectedAnimationService _owningService;
-    private Visual _sourceElement;
-    private float _initialOpacity;
-    private Vector3 _initialOffset;
-    private Vector2 _initialSize;
 }

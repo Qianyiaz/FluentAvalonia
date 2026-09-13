@@ -10,6 +10,54 @@ namespace FluentAvalonia.UI.Controls;
 
 internal class ViewportManager
 {
+    // Pixel delta by which to inflate the cache buffer on each side.  Rather than fill the entire
+    // cache buffer all at once, we chunk the work to make the UI thread more responsive.  We inflate
+    // the cache buffer from 0 to a max value determined by the Maximum[Horizontal,Vertical]CacheLength
+    // properties.
+    private const double CacheBufferPerSideInflationPixelDelta = 40.0;
+
+    private Action _cacheBuildAction;
+    private bool _effectiveViewportChangedRevoker;
+
+    private bool _ensuredScroller;
+
+    // This is the expected shift by the layout.
+    private Point _expectedViewportShift;
+    private double _horizontalCacheBufferPerSide;
+    private bool _isAnchorOutsideRealizedRange;
+    private Rect _layoutExtent;
+
+    private bool _layoutUpdatedRevoker;
+    private Control _makeAnchorElement;
+
+    //private bool _isBringIntoViewInProgress = false;
+    // For non-virtualizing layouts, we do not need to keep
+    // updating viewports and invalidating measure often. So when
+    // a non virtualizing layout is used, we stop doing all that work.
+    private bool _managingViewportDisabled;
+
+    private double _maximumHorizontalCacheLength = 2;
+    private double _maximumVerticalCacheLength = 2;
+
+    private FAItemsRepeater _owner;
+
+    // This is what is pending and not been accounted for. 
+    // Sometimes the scrolling surface cannot service a shift (for example
+    // it is already at the top and cannot shift anymore.)
+    private Point _pendingViewportShift;
+    private bool _renderingToken;
+
+    private IScrollAnchorProvider _scroller;
+
+    // Unshiftable shift amount that this view manager can
+    // handle on its own to fake it to the layout as if the shift
+    // actually happened. This can happen in cases where no scrollviewer
+    // in the parent chain can scroll in the shift direction.
+    private Point _unshiftableShift;
+    private double _verticalCacheBufferPerSide;
+
+    private Rect _visibleWindow;
+
     public ViewportManager(FAItemsRepeater owner)
     {
         _owner = owner;
@@ -79,18 +127,16 @@ internal class ViewportManager
     public Control MadeAnchor => _makeAnchorElement;
 
     private bool HasScroller => _scroller != null;
-        
+
     public Rect GetLayoutVisibleWindowDiscardAnchor()
     {
         var visibleWindow = _visibleWindow;
 
         if (HasScroller)
-        {
             visibleWindow = visibleWindow.WithX(
-                visibleWindow.X + _layoutExtent.X + _expectedViewportShift.X + _unshiftableShift.X)
+                    visibleWindow.X + _layoutExtent.X + _expectedViewportShift.X + _unshiftableShift.X)
                 .WithY(
-                visibleWindow.Y + _layoutExtent.Y + _expectedViewportShift.Y + _unshiftableShift.Y);
-        }
+                    visibleWindow.Y + _layoutExtent.Y + _expectedViewportShift.Y + _unshiftableShift.Y);
 
         return visibleWindow;
     }
@@ -100,26 +146,20 @@ internal class ViewportManager
         var visibleWindow = _visibleWindow;
 
         if (_makeAnchorElement != null && _isAnchorOutsideRealizedRange)
-        {
             // The anchor is not necessarily laid out yet. Its position should default
             // to zero and the layout origin is expected to change once layout is done.
             // Until then, we need a window that's going to protect the anchor from
             // getting recycled.
-
             // Also, we only want to mess with the realization rect iff the anchor is not inside it.
             // If we fiddle with an anchor that is already inside the realization rect,
             // shifting the realization rect results in repeater, layout and scroller thinking that it needs to act upon StartBringIntoView.
             // We do NOT want that!
-
             visibleWindow = new Rect(default, visibleWindow.Size);
-        }
         else if (HasScroller)
-        {
             visibleWindow = visibleWindow.WithX(
-                visibleWindow.X + _layoutExtent.X + _expectedViewportShift.X + _unshiftableShift.X)
+                    visibleWindow.X + _layoutExtent.X + _expectedViewportShift.X + _unshiftableShift.X)
                 .WithY(
-                visibleWindow.Y + _layoutExtent.Y + _expectedViewportShift.Y + _unshiftableShift.Y);
-        }
+                    visibleWindow.Y + _layoutExtent.Y + _expectedViewportShift.Y + _unshiftableShift.Y);
 
         return visibleWindow;
     }
@@ -129,13 +169,11 @@ internal class ViewportManager
         var realizationWindow = GetLayoutVisibleWindow();
 
         if (HasScroller)
-        {
             realizationWindow = new Rect(
                 realizationWindow.X - _horizontalCacheBufferPerSide,
                 realizationWindow.Y - _verticalCacheBufferPerSide,
                 realizationWindow.Width + _horizontalCacheBufferPerSide * 2,
                 realizationWindow.Height + _verticalCacheBufferPerSide * 2);
-        }
 
         return realizationWindow;
     }
@@ -175,10 +213,7 @@ internal class ViewportManager
 
         // We just finished a measure pass and have a new extent.
         // Let's make sure the scrollers will run its arrange so that they track the anchor.
-        if (_scroller != null)
-        {
-            (_scroller as Control).InvalidateArrange();
-        }
+        if (_scroller != null) (_scroller as Control).InvalidateArrange();
     }
 
     public void OnLayoutChanged(bool isVirtualizing)
@@ -234,12 +269,10 @@ internal class ViewportManager
         _expectedViewportShift = default;
 
         if (!_managingViewportDisabled)
-        {
             // This is because of a bug that causes effective viewport to not 
             // fire if you register during arrange.
             // Bug 17411076: EffectiveViewport: registering for effective viewport in arrange should invalidate viewport
             // EnsureScroller();
-
             if (HasScroller)
             {
                 var maximumHorizontalCacheBufferPerSide = _maximumHorizontalCacheLength * _visibleWindow.Width / 2;
@@ -254,15 +287,16 @@ internal class ViewportManager
                     _horizontalCacheBufferPerSide += CacheBufferPerSideInflationPixelDelta;
                     _verticalCacheBufferPerSide += CacheBufferPerSideInflationPixelDelta;
 
-                    _horizontalCacheBufferPerSide = Math.Min(_horizontalCacheBufferPerSide, maximumHorizontalCacheBufferPerSide);
-                    _verticalCacheBufferPerSide = Math.Min(_verticalCacheBufferPerSide, maximumVerticalCacheBufferPerSide);
+                    _horizontalCacheBufferPerSide =
+                        Math.Min(_horizontalCacheBufferPerSide, maximumHorizontalCacheBufferPerSide);
+                    _verticalCacheBufferPerSide =
+                        Math.Min(_verticalCacheBufferPerSide, maximumVerticalCacheBufferPerSide);
 
                     // Since we grow the cache buffer at the end of the arrange pass,
                     // we need to register work even if we just reached cache potential.
                     RegisterCacheBuildWork();
                 }
             }
-        }
     }
 
     private void OnLayoutUpdated(object sender, EventArgs e)
@@ -422,17 +456,15 @@ internal class ViewportManager
 #if DEBUG && REPEATER_TRACE
         Debug.Assert(!_managingViewportDisabled);
         Log.Debug("{Layout}: EffectiveViewportChanged event callback", GetLayoutId());
-#endif 
+#endif
 
         UpdateViewport(args.EffectiveViewport);
 
         _pendingViewportShift = default;
         _unshiftableShift = default;
         if (_visibleWindow == default)
-        {
             // We got cleared
             _layoutExtent = default;
-        }
 
         // We got a new viewport, we dont need to wait for layout updated anymore to 
         // see if our request for a pending shift was handled.
@@ -509,10 +541,8 @@ internal class ViewportManager
         _verticalCacheBufferPerSide = 0;
 
         if (!_managingViewportDisabled)
-        {
             // We need to start building the realization buffer again.
             RegisterCacheBuildWork();
-        }
     }
 
     private void ValidateCacheLength(double cacheLength)
@@ -552,48 +582,5 @@ internal class ViewportManager
         }
     }
 
-    string GetLayoutId() => _owner?.Layout?.LayoutId ?? string.Empty;
-
-    private FAItemsRepeater _owner;
-    private bool _ensuredScroller;
-    private IScrollAnchorProvider _scroller;
-    private Control _makeAnchorElement;
-    private bool _isAnchorOutsideRealizedRange;
-
-    private Action _cacheBuildAction;
-
-    private Rect _visibleWindow;
-    private Rect _layoutExtent;
-    // This is the expected shift by the layout.
-    private Point _expectedViewportShift;
-    // This is what is pending and not been accounted for. 
-    // Sometimes the scrolling surface cannot service a shift (for example
-    // it is already at the top and cannot shift anymore.)
-    private Point _pendingViewportShift;
-    // Unshiftable shift amount that this view manager can
-    // handle on its own to fake it to the layout as if the shift
-    // actually happened. This can happen in cases where no scrollviewer
-    // in the parent chain can scroll in the shift direction.
-    private Point _unshiftableShift;
-
-    private double _maximumHorizontalCacheLength = 2;
-    private double _maximumVerticalCacheLength = 2;
-    private double _horizontalCacheBufferPerSide;
-    private double _verticalCacheBufferPerSide;
-
-    //private bool _isBringIntoViewInProgress = false;
-    // For non-virtualizing layouts, we do not need to keep
-    // updating viewports and invalidating measure often. So when
-    // a non virtualizing layout is used, we stop doing all that work.
-    private bool _managingViewportDisabled;
-
-    private bool _layoutUpdatedRevoker;
-    private bool _effectiveViewportChangedRevoker;
-    private bool _renderingToken;
-
-    // Pixel delta by which to inflate the cache buffer on each side.  Rather than fill the entire
-    // cache buffer all at once, we chunk the work to make the UI thread more responsive.  We inflate
-    // the cache buffer from 0 to a max value determined by the Maximum[Horizontal,Vertical]CacheLength
-    // properties.
-    private const double CacheBufferPerSideInflationPixelDelta = 40.0;
+    private string GetLayoutId() => _owner?.Layout?.LayoutId ?? string.Empty;
 }

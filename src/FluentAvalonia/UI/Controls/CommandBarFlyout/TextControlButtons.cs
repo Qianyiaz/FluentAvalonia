@@ -1,8 +1,8 @@
 ﻿namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Defines constants to define which commands should be available
-/// in a <see cref="FATextCommandBarFlyout"/>
+///     Defines constants to define which commands should be available
+///     in a <see cref="FATextCommandBarFlyout" />
 /// </summary>
 internal enum TextControlButtons
 {

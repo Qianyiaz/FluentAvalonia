@@ -43,7 +43,7 @@
                                      Height="20" UseLayoutRounding="False"
                                      Stroke="{DynamicResource RadioButtonOuterEllipseStroke}"
                                      Fill="{DynamicResource RadioButtonOuterEllipseFill}"
-                                     StrokeThickness="{DynamicResource RadioButtonBorderThemeThickness}"/>
+                                     StrokeThickness="{DynamicResource RadioButtonBorderThemeThickness}" />
 
                             <!-- A seperate element is added since the two orthogonal state groups that cannot touch the same property -->
                             <Ellipse Name="CheckOuterEllipse" Width="20" Height="20"
@@ -61,7 +61,8 @@
                                      RenderTransform="scaleX(0.86) scaleY(0.86)">
                                 <Ellipse.Transitions>
                                     <Transitions>
-                                        <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.167" Easing="0.0,0.0 0.0,1.0" />
+                                        <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.167"
+                                                                       Easing="0.0,0.0 0.0,1.0" />
                                     </Transitions>
                                 </Ellipse.Transitions>
                             </Ellipse>
@@ -75,7 +76,8 @@
                                     RenderTransform="scaleX(0.86) scaleY(0.86)">
                                 <Border.Transitions>
                                     <Transitions>
-                                        <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.167" Easing="0,0 0,1" />
+                                        <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.167"
+                                                                       Easing="0,0 0,1" />
                                     </Transitions>
                                 </Border.Transitions>
                             </Border>
@@ -88,7 +90,7 @@
                                           Margin="{TemplateBinding Padding}"
                                           HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                           VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                          RecognizesAccessKey="True"/>
+                                          RecognizesAccessKey="True" />
 
                     </Grid>
 

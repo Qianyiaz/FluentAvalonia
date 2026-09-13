@@ -9,6 +9,8 @@ namespace FluentAvalonia.UI.Controls;
 
 public class FARecyclingElementFactory : FAElementFactory
 {
+    private FASelectTemplateEventArgs _args;
+
     public FARecyclingElementFactory()
     {
         Templates = new Dictionary<string, IDataTemplate>();
@@ -32,7 +34,8 @@ public class FARecyclingElementFactory : FAElementFactory
 
         var templateKey = _args.TemplateKey;
         if (string.IsNullOrEmpty(templateKey))
-            throw new InvalidOperationException("Please provide a valid template identifier in the handler for the SelectTemplateKey event.");
+            throw new InvalidOperationException(
+                "Please provide a valid template identifier in the handler for the SelectTemplateKey event.");
 
         return templateKey;
     }
@@ -43,17 +46,13 @@ public class FARecyclingElementFactory : FAElementFactory
             throw new InvalidOperationException("Templates property cannot be null or empty.");
 
         var winrtOwner = args.Parent;
-        var templateKey = Templates.Count == 1 ?
-            Templates.First().Key :
-            OnSelectTemplateKeyCore(args.Data, winrtOwner);
+        var templateKey = Templates.Count == 1 ? Templates.First().Key : OnSelectTemplateKeyCore(args.Data, winrtOwner);
 
         if (string.IsNullOrEmpty(templateKey))
-        {
             // Note: We could allow null/whitespace, which would work as long as
             // the recycle pool is not shared. in order to make this work in all cases
             // currently we validate that a valid template key is provided.
             throw new InvalidOperationException("Template key cannot be empty or null.");
-        }
 
         var element = RecyclePool.TryGetElement(templateKey, winrtOwner);
 
@@ -79,6 +78,4 @@ public class FARecyclingElementFactory : FAElementFactory
         var key = FARecyclePool.GetReuseKey(element);
         RecyclePool.PutElement(element, key, args.Parent);
     }
-
-    private FASelectTemplateEventArgs _args;
 }

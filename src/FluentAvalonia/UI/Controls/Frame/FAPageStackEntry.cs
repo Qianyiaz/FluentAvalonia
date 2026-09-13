@@ -5,18 +5,19 @@ using FluentAvalonia.UI.Media.Animation;
 namespace FluentAvalonia.UI.Navigation;
 
 /// <summary>
-/// Represents an entry in the BackStack or ForwardStack of a Frame.
+///     Represents an entry in the BackStack or ForwardStack of a Frame.
 /// </summary>
 public class FAPageStackEntry
 {
     /// <summary>
-    /// Initializes a new instance of the PageStackEntry class.
+    ///     Initializes a new instance of the PageStackEntry class.
     /// </summary>
     /// <param name="sourcePageType">The type of page associated with the navigation entry, as a type reference</param>
     /// <param name="parameter">The navigation parameter associated with the navigation entry.</param>
     /// <param name="navigationTransitionInfo">Info about the animated transition associated with the navigation entry.</param>
     public FAPageStackEntry(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type sourcePageType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+        Type sourcePageType,
         object parameter,
         FANavigationTransitionInfo navigationTransitionInfo
     )
@@ -27,24 +28,24 @@ public class FAPageStackEntry
     }
 
     /// <summary>
-    /// Gets the type of page associated with this navigation entry.
+    ///     Gets the type of page associated with this navigation entry.
     /// </summary>
     [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
     public Type SourcePageType { get; set; }
 
     /// <summary>
-    /// Gets a value that indicates the animated transition associated with the navigation entry.
+    ///     Gets a value that indicates the animated transition associated with the navigation entry.
     /// </summary>
     public FANavigationTransitionInfo NavigationTransitionInfo { get; internal set; }
 
     /// <summary>
-    /// Gets the navigation parameter associated with this navigation entry.
+    ///     Gets the navigation parameter associated with this navigation entry.
     /// </summary>
     public object Parameter { get; set; }
 
     /// <summary>
-    /// Gets the navigation context used for this page when called from 
-    /// <see cref="FluentAvalonia.UI.Controls.FAFrame.NavigateFromObject"/>
+    ///     Gets the navigation context used for this page when called from
+    ///     <see cref="FluentAvalonia.UI.Controls.FAFrame.NavigateFromObject" />
     /// </summary>
     public object Context { get; internal set; }
 

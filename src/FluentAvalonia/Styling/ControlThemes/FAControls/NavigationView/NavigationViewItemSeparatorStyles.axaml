@@ -13,7 +13,7 @@
                     <Rectangle Name="SeparatorLine"
                                Height="{DynamicResource NavigationViewItemSeparatorHeight}"
                                Fill="{DynamicResource NavigationViewItemSeparatorForeground}"
-                               Margin="{DynamicResource NavigationViewItemSeparatorMargin}"/>
+                               Margin="{DynamicResource NavigationViewItemSeparatorMargin}" />
                 </Panel>
             </ControlTemplate>
         </Setter>

@@ -1,6 +1,6 @@
-﻿using Avalonia.Media;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Globalization;
+using Avalonia.Media;
 
 namespace FluentAvalonia.UI.Media;
 
@@ -14,13 +14,13 @@ internal enum ColorType
 }
 
 /// <summary>
-/// Represents a color in RGB, HSV, HSL, or CMYK colorspace
+///     Represents a color in RGB, HSV, HSL, or CMYK colorspace
 /// </summary>
 [TypeConverter(typeof(Color2ToColorConverter))]
 public struct Color2 : IEquatable<Color2>
 {
     /// <summary>
-    /// Creates a RGB color 2 from the given RGBA values
+    ///     Creates a RGB color 2 from the given RGBA values
     /// </summary>
     /// <param name="r">Red, [0,255]</param>
     /// <param name="g">Green, [0,255]</param>
@@ -37,7 +37,7 @@ public struct Color2 : IEquatable<Color2>
     }
 
     /// <summary>
-    /// Creates a RGB Color2 from an <see cref="Avalonia.Media.Color"/>
+    ///     Creates a RGB Color2 from an <see cref="Avalonia.Media.Color" />
     /// </summary>
     /// <param name="avColor"></param>
     public Color2(Color avColor)
@@ -52,404 +52,329 @@ public struct Color2 : IEquatable<Color2>
 
 
     /// <summary>
-    /// Gets the Alpha channel of the color, [0,255]
+    ///     Gets the Alpha channel of the color, [0,255]
     /// </summary>
     public byte A
     {
-        get
-        {
-            return (byte)Math.Round(_alpha * 255);
-        }
+        get { return (byte)Math.Round(_alpha * 255); }
     }
 
     /// <summary>
-    /// Gets the Red channel of the color. If color is not an RGB color, it is converted to one. [0,255]
+    ///     Gets the Red channel of the color. If color is not an RGB color, it is converted to one. [0,255]
     /// </summary>
     public byte R
     {
         get
         {
-            if (_cType != ColorType.RGB)
-            {
-                return ToRGB().R;
-            }
+            if (_cType != ColorType.RGB) return ToRGB().R;
 
             return (byte)Math.Round(_c1 * 255);
         }
     }
 
     /// <summary>
-    /// Gets the Green channel of the color. If color is not an RGB color, it is converted to one. [0,255]
+    ///     Gets the Green channel of the color. If color is not an RGB color, it is converted to one. [0,255]
     /// </summary>
     public byte G
     {
         get
         {
-            if (_cType != ColorType.RGB)
-            {
-                return ToRGB().G;
-            }
+            if (_cType != ColorType.RGB) return ToRGB().G;
 
             return (byte)Math.Round(_c2 * 255);
         }
     }
 
     /// <summary>
-    /// Gets the Blue channel of the color. If color is not an RGB color, it is converted to one. [0,255]
+    ///     Gets the Blue channel of the color. If color is not an RGB color, it is converted to one. [0,255]
     /// </summary>
     public byte B
     {
         get
         {
-            if (_cType != ColorType.RGB)
-            {
-                return ToRGB().B;
-            }
+            if (_cType != ColorType.RGB) return ToRGB().B;
 
             return (byte)Math.Round(_c3 * 255);
         }
     }
 
     /// <summary>
-    /// Gets the Alpha channel of the color. [0,1]
+    ///     Gets the Alpha channel of the color. [0,1]
     /// </summary>
     public float Af => _alpha;
 
     /// <summary>
-    /// Gets the Red channel of the color. If color is not an RGB color, it is converted to one. [0,1]
+    ///     Gets the Red channel of the color. If color is not an RGB color, it is converted to one. [0,1]
     /// </summary>
     public float Rf
     {
         get
         {
-            if (_cType != ColorType.RGB)
-            {
-                return ToRGB().Rf;
-            }
+            if (_cType != ColorType.RGB) return ToRGB().Rf;
 
             return _c1;
         }
     }
 
     /// <summary>
-    /// Gets the Green channel of the color. If color is not an RGB color, it is converted to one. [0,1]
+    ///     Gets the Green channel of the color. If color is not an RGB color, it is converted to one. [0,1]
     /// </summary>
     public float Gf
     {
         get
         {
-            if (_cType != ColorType.RGB)
-            {
-                return ToRGB().Gf;
-            }
+            if (_cType != ColorType.RGB) return ToRGB().Gf;
 
             return _c2;
         }
     }
 
     /// <summary>
-    /// Gets the Blue channel of the color. If color is not an RGB color, it is converted to one. [0,1]
+    ///     Gets the Blue channel of the color. If color is not an RGB color, it is converted to one. [0,1]
     /// </summary>
     public float Bf
     {
         get
         {
-            if (_cType != ColorType.RGB)
-            {
-                return ToRGB().Bf;
-            }
+            if (_cType != ColorType.RGB) return ToRGB().Bf;
 
             return _c3;
         }
     }
 
     /// <summary>
-    /// Gets the HSL or HSV Hue of the color. HSL and HSV hue is the same, so if the color type is neither HSV
-    /// or HSL, it is converted to HSV first. [0,360)
+    ///     Gets the HSL or HSV Hue of the color. HSL and HSV hue is the same, so if the color type is neither HSV
+    ///     or HSL, it is converted to HSV first. [0,360)
     /// </summary>
     public int Hue
     {
         get
         {
             //HSL & HSV Hue is the same, so it doesn't matter which we refer to
-            if (_cType != ColorType.HSV && _cType != ColorType.HSL)
-            {
-                return ToHSV().Hue;
-            }
+            if (_cType != ColorType.HSV && _cType != ColorType.HSL) return ToHSV().Hue;
 
             return (int)Math.Round(_c1);
         }
     }
 
     /// <summary>
-    /// Gets the HSL or HSV Hue of the color. HSL and HSV hue is the same, so if the color type is neither HSV
-    /// or HSL, it is converted to HSV first. [0,360)
+    ///     Gets the HSL or HSV Hue of the color. HSL and HSV hue is the same, so if the color type is neither HSV
+    ///     or HSL, it is converted to HSV first. [0,360)
     /// </summary>
     public float Huef
     {
         get
         {
             //HSL & HSV Hue is the same, so it doesn't matter which we refer to
-            if (_cType != ColorType.HSV && _cType != ColorType.HSL)
-            {
-                return ToHSV().Huef;
-            }
+            if (_cType != ColorType.HSV && _cType != ColorType.HSL) return ToHSV().Huef;
 
             return _c1;
         }
     }
 
     /// <summary>
-    /// Gets the HSV Saturation of the color. If the color is not an HSV color, it is converted first. [0,100]
+    ///     Gets the HSV Saturation of the color. If the color is not an HSV color, it is converted first. [0,100]
     /// </summary>
     public int Saturation
     {
         get
         {
-            if (_cType != ColorType.HSV)
-            {
-                return ToHSV().Saturation;
-            }
+            if (_cType != ColorType.HSV) return ToHSV().Saturation;
 
             return (int)Math.Round(_c2 * 100);
         }
     }
 
     /// <summary>
-    /// Gets the HSV Saturation of the color. If the color is not an HSV color, it is converted first. [0,1]
+    ///     Gets the HSV Saturation of the color. If the color is not an HSV color, it is converted first. [0,1]
     /// </summary>
     public float Saturationf
     {
         get
         {
-            if (_cType != ColorType.HSV)
-            {
-                return ToHSV().Saturationf;
-            }
+            if (_cType != ColorType.HSV) return ToHSV().Saturationf;
 
             return _c2;
         }
     }
 
     /// <summary>
-    /// Gets the Value of the color. If the color is not an HSV color, it is converted first. [0,100]
+    ///     Gets the Value of the color. If the color is not an HSV color, it is converted first. [0,100]
     /// </summary>
     public int Value
     {
         get
         {
-            if (_cType != ColorType.HSV)
-            {
-                return ToHSV().Value;
-            }
+            if (_cType != ColorType.HSV) return ToHSV().Value;
 
             return (int)Math.Round(_c3 * 100);
         }
     }
 
     /// <summary>
-    /// Gets the HSV Value of the color. If the color is not an HSV color, it is converted first. [0,1]
+    ///     Gets the HSV Value of the color. If the color is not an HSV color, it is converted first. [0,1]
     /// </summary>
     public float Valuef
     {
         get
         {
-            if (_cType != ColorType.HSV)
-            {
-                return ToHSV().Valuef;
-            }
+            if (_cType != ColorType.HSV) return ToHSV().Valuef;
 
             return _c3;
         }
     }
 
     /// <summary>
-    /// Gets the HSL Saturation of the color. If the color is not an HSL color, it is converted first. [0,100]
+    ///     Gets the HSL Saturation of the color. If the color is not an HSL color, it is converted first. [0,100]
     /// </summary>
     public int HSLSaturation
     {
         get
         {
-            if (_cType != ColorType.HSL)
-            {
-                return ToHSL().HSLSaturation;
-            }
+            if (_cType != ColorType.HSL) return ToHSL().HSLSaturation;
 
             return (int)Math.Round(_c2 * 100);
         }
     }
 
     /// <summary>
-    /// Gets the HSL Saturation of the color. If the color is not an HSL color, it is converted first. [0,1]
+    ///     Gets the HSL Saturation of the color. If the color is not an HSL color, it is converted first. [0,1]
     /// </summary>
     public float HSLSaturationf
     {
         get
         {
-            if (_cType != ColorType.HSL)
-            {
-                return ToHSL().HSLSaturationf;
-            }
+            if (_cType != ColorType.HSL) return ToHSL().HSLSaturationf;
 
             return _c2;
         }
     }
 
     /// <summary>
-    /// Gets the HSL Lightness of the color. If the color is not an HSL color, it is converted first. [0,100]
+    ///     Gets the HSL Lightness of the color. If the color is not an HSL color, it is converted first. [0,100]
     /// </summary>
     public int Lightness
     {
         get
         {
-            if (_cType != ColorType.HSL)
-            {
-                return ToHSL().Lightness;
-            }
+            if (_cType != ColorType.HSL) return ToHSL().Lightness;
 
             return (int)Math.Round(_c3 * 100);
         }
     }
 
     /// <summary>
-    /// Gets the HSL Lightness of the color. If the color is not an HSL color, it is converted first. [0,1]
+    ///     Gets the HSL Lightness of the color. If the color is not an HSL color, it is converted first. [0,1]
     /// </summary>
     public float Lightnessf
     {
         get
         {
-            if (_cType != ColorType.HSL)
-            {
-                return ToHSL().Lightnessf;
-            }
+            if (_cType != ColorType.HSL) return ToHSL().Lightnessf;
 
             return _c3;
         }
     }
 
     /// <summary>
-    /// Gets the CMYK Cyan of the color. If the color is not an CMYK color, it is converted first. [0,100]
+    ///     Gets the CMYK Cyan of the color. If the color is not an CMYK color, it is converted first. [0,100]
     /// </summary>
     public int CMYKCyan
     {
         get
         {
-            if (_cType != ColorType.CMYK)
-            {
-                return ToCMYK().CMYKCyan;
-            }
+            if (_cType != ColorType.CMYK) return ToCMYK().CMYKCyan;
 
             return (int)Math.Round(_c1 * 100);
         }
     }
 
     /// <summary>
-    /// Gets the CMYK Cyan of the color. If the color is not an CMYK color, it is converted first. [0,1]
+    ///     Gets the CMYK Cyan of the color. If the color is not an CMYK color, it is converted first. [0,1]
     /// </summary>
     public float CMYKCyanf
     {
         get
         {
-            if (_cType != ColorType.CMYK)
-            {
-                return ToCMYK().CMYKCyanf;
-            }
+            if (_cType != ColorType.CMYK) return ToCMYK().CMYKCyanf;
 
             return _c1;
         }
     }
 
     /// <summary>
-    /// Gets the CMYK Magenta of the color. If the color is not an CMYK color, it is converted first. [0,100]
+    ///     Gets the CMYK Magenta of the color. If the color is not an CMYK color, it is converted first. [0,100]
     /// </summary>
     public int CMYKMagenta
     {
         get
         {
-            if (_cType != ColorType.CMYK)
-            {
-                return ToCMYK().CMYKMagenta;
-            }
+            if (_cType != ColorType.CMYK) return ToCMYK().CMYKMagenta;
 
             return (int)Math.Round(_c2 * 100);
         }
     }
 
     /// <summary>
-    /// Gets the CMYK Magenta of the color. If the color is not an CMYK color, it is converted first. [0,1]
+    ///     Gets the CMYK Magenta of the color. If the color is not an CMYK color, it is converted first. [0,1]
     /// </summary>
     public float CMYKMagentaf
     {
         get
         {
-            if (_cType != ColorType.CMYK)
-            {
-                return ToCMYK().CMYKMagentaf;
-            }
+            if (_cType != ColorType.CMYK) return ToCMYK().CMYKMagentaf;
 
             return _c2;
         }
     }
 
     /// <summary>
-    /// Gets the CMYK Yellow of the color. If the color is not an CMYK color, it is converted first. [0,100]
+    ///     Gets the CMYK Yellow of the color. If the color is not an CMYK color, it is converted first. [0,100]
     /// </summary>
     public int CMYKYellow
     {
         get
         {
-            if (_cType != ColorType.CMYK)
-            {
-                return ToCMYK().CMYKYellow;
-            }
+            if (_cType != ColorType.CMYK) return ToCMYK().CMYKYellow;
 
             return (int)Math.Round(_c3 * 100);
         }
     }
 
     /// <summary>
-    /// Gets the CMYK Yellow of the color. If the color is not an CMYK color, it is converted first. [0,1]
+    ///     Gets the CMYK Yellow of the color. If the color is not an CMYK color, it is converted first. [0,1]
     /// </summary>
     public float CMYKYellowf
     {
         get
         {
-            if (_cType != ColorType.CMYK)
-            {
-                return ToCMYK().CMYKYellowf;
-            }
+            if (_cType != ColorType.CMYK) return ToCMYK().CMYKYellowf;
 
             return _c3;
         }
     }
 
     /// <summary>
-    /// Gets the CMYK Black of the color. If the color is not an CMYK color, it is converted first. [0,100]
+    ///     Gets the CMYK Black of the color. If the color is not an CMYK color, it is converted first. [0,100]
     /// </summary>
     public int CMYKBlack
     {
         get
         {
-            if (_cType != ColorType.CMYK)
-            {
-                return ToCMYK().CMYKBlack;
-            }
+            if (_cType != ColorType.CMYK) return ToCMYK().CMYKBlack;
 
             return (int)Math.Round(_c4 * 100);
         }
     }
 
     /// <summary>
-    /// Gets the CMYK Black of the color. If the color is not an CMYK color, it is converted first. [0,1]
+    ///     Gets the CMYK Black of the color. If the color is not an CMYK color, it is converted first. [0,1]
     /// </summary>
     public float CMYKBlackf
     {
         get
         {
-            if (_cType != ColorType.CMYK)
-            {
-                return ToCMYK().CMYKBlackf;
-            }
+            if (_cType != ColorType.CMYK) return ToCMYK().CMYKBlackf;
 
             return _c4;
         }
@@ -457,7 +382,7 @@ public struct Color2 : IEquatable<Color2>
 
 
     /// <summary>
-    /// Gets all RGBA components of the color. If not RGB, color is converted first
+    ///     Gets all RGBA components of the color. If not RGB, color is converted first
     /// </summary>
     /// <param name="r">Red, [0,255]</param>
     /// <param name="g">Green, [0,255]</param>
@@ -478,7 +403,7 @@ public struct Color2 : IEquatable<Color2>
     }
 
     /// <summary>
-    /// Gets all RGBA components of the color as floating point numbers. If not RGB, color is converted first
+    ///     Gets all RGBA components of the color as floating point numbers. If not RGB, color is converted first
     /// </summary>
     /// <param name="r">Red, [0,1]</param>
     /// <param name="g">Green, [0,1]</param>
@@ -499,7 +424,7 @@ public struct Color2 : IEquatable<Color2>
     }
 
     /// <summary>
-    /// Gets all HSV components of the color as floating point numbers. If not HSV, color is converted first
+    ///     Gets all HSV components of the color as floating point numbers. If not HSV, color is converted first
     /// </summary>
     /// <param name="h">Hue, [0,360)</param>
     /// <param name="s">Saturation, [0,1]</param>
@@ -520,7 +445,7 @@ public struct Color2 : IEquatable<Color2>
     }
 
     /// <summary>
-    /// Gets all HSV components of the color. If not HSV, color is converted first
+    ///     Gets all HSV components of the color. If not HSV, color is converted first
     /// </summary>
     /// <param name="h">Hue, [0,360)</param>
     /// <param name="s">Saturation, [0,100]</param>
@@ -541,7 +466,7 @@ public struct Color2 : IEquatable<Color2>
     }
 
     /// <summary>
-    /// Gets all HSL components of the color as floating point numbers. If not HSL, color is converted first
+    ///     Gets all HSL components of the color as floating point numbers. If not HSL, color is converted first
     /// </summary>
     /// <param name="h">Hue, [0,360)</param>
     /// <param name="s">Saturation, [0,1]</param>
@@ -562,7 +487,7 @@ public struct Color2 : IEquatable<Color2>
     }
 
     /// <summary>
-    /// Gets all HSL components of the color. If not HSL, color is converted first
+    ///     Gets all HSL components of the color. If not HSL, color is converted first
     /// </summary>
     /// <param name="h">Hue, [0,360)</param>
     /// <param name="s">Saturation, [0,100]</param>
@@ -583,7 +508,7 @@ public struct Color2 : IEquatable<Color2>
     }
 
     /// <summary>
-    /// Gets all CMYK components of the color as floating point numbers. If not CMYK, color is converted first
+    ///     Gets all CMYK components of the color as floating point numbers. If not CMYK, color is converted first
     /// </summary>
     /// <param name="c">Cyan, [0,1]</param>
     /// <param name="m">Magenta, [0,1]</param>
@@ -606,7 +531,7 @@ public struct Color2 : IEquatable<Color2>
     }
 
     /// <summary>
-    /// Gets all CMYK components of the color. If not CMYK, color is converted first
+    ///     Gets all CMYK components of the color. If not CMYK, color is converted first
     /// </summary>
     /// <param name="c">Cyan, [0,100]</param>
     /// <param name="m">Magenta, [0,100]</param>
@@ -629,9 +554,9 @@ public struct Color2 : IEquatable<Color2>
     }
 
     /// <summary>
-    /// Converts the current color to RGB color space
+    ///     Converts the current color to RGB color space
     /// </summary>
-    /// <returns>RGB <see cref="Color2"/></returns>
+    /// <returns>RGB <see cref="Color2" /></returns>
     public Color2 ToRGB()
     {
         if (_cType == ColorType.RGB)
@@ -666,9 +591,9 @@ public struct Color2 : IEquatable<Color2>
     }
 
     /// <summary>
-    /// Converts the current color to HSV color space
+    ///     Converts the current color to HSV color space
     /// </summary>
-    /// <returns>HSV <see cref="Color2"/></returns>
+    /// <returns>HSV <see cref="Color2" /></returns>
     public Color2 ToHSV()
     {
         if (_cType == ColorType.HSV)
@@ -705,9 +630,9 @@ public struct Color2 : IEquatable<Color2>
     }
 
     /// <summary>
-    /// Converts the current color to HSL color space
+    ///     Converts the current color to HSL color space
     /// </summary>
-    /// <returns>HSL <see cref="Color2"/></returns>
+    /// <returns>HSL <see cref="Color2" /></returns>
     public Color2 ToHSL()
     {
         if (_cType == ColorType.HSL)
@@ -744,9 +669,9 @@ public struct Color2 : IEquatable<Color2>
     }
 
     /// <summary>
-    /// Converts the current color to CMYK color space
+    ///     Converts the current color to CMYK color space
     /// </summary>
-    /// <returns>CMYK <see cref="Color2"/></returns>
+    /// <returns>CMYK <see cref="Color2" /></returns>
     public Color2 ToCMYK()
     {
         if (_cType == ColorType.CMYK)
@@ -796,10 +721,8 @@ public struct Color2 : IEquatable<Color2>
             return false;
 
         if (_cType == ColorType.CMYK)
-        {
             if (Math.Abs(other._c4 - _c4) > EPSILON)
                 return false;
-        }
 
         if (Math.Abs(other._alpha - _alpha) > EPSILON)
             return false;
@@ -847,7 +770,7 @@ public struct Color2 : IEquatable<Color2>
     }
 
     /// <summary>
-    /// Return the equivalent hex string representing the color.
+    ///     Return the equivalent hex string representing the color.
     /// </summary>
     /// <param name="includeAlpha">Whether to include the alpha channel or not</param>
     /// <returns>Hex string of the color</returns>
@@ -860,7 +783,7 @@ public struct Color2 : IEquatable<Color2>
     }
 
     /// <summary>
-    /// Returns the rgb, and a, if specified, of the color in html rgb notation
+    ///     Returns the rgb, and a, if specified, of the color in html rgb notation
     /// </summary>
     /// <param name="includeAlpha">Whether to include the alpha channel or not</param>
     /// <returns>HTML formatted rgb(r,g,b) or rgba(r,g,b,a)</returns>
@@ -883,8 +806,8 @@ public struct Color2 : IEquatable<Color2>
     }
 
     /// <summary>
-    /// Parses the string representing a Hex value or HTML notation to a color. If parsing fails
-    /// <see cref="Color2.Empty"/> is returned
+    ///     Parses the string representing a Hex value or HTML notation to a color. If parsing fails
+    ///     <see cref="Color2.Empty" /> is returned
     /// </summary>
     /// <param name="value"></param>
     /// <returns></returns>
@@ -897,7 +820,7 @@ public struct Color2 : IEquatable<Color2>
     }
 
     /// <summary>
-    /// Attempts to parse a string as a <see cref="ReadOnlySpan{T}"/> of <see cref="char"/>  into a color
+    ///     Attempts to parse a string as a <see cref="ReadOnlySpan{T}" /> of <see cref="char" />  into a color
     /// </summary>
     /// <param name="value">Value to parse</param>
     /// <param name="ec">The color, if successful</param>
@@ -914,10 +837,7 @@ public struct Color2 : IEquatable<Color2>
             {
                 Span<char> normal = stackalloc char[v.Length * 2];
 
-                for (var i = 0; i < v.Length; i++)
-                {
-                    normal[i * 2] = normal[i * 2 + 1] = v[i];
-                }
+                for (var i = 0; i < v.Length; i++) normal[i * 2] = normal[i * 2 + 1] = v[i];
 
                 if (uint.TryParse(normal, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var result))
                 {
@@ -1076,38 +996,39 @@ public struct Color2 : IEquatable<Color2>
     }
 
     /// <summary>
-    /// Creates an RGB <see cref="Color2"/> from the specified R,G,B values. The alpha is set to 255
+    ///     Creates an RGB <see cref="Color2" /> from the specified R,G,B values. The alpha is set to 255
     /// </summary>
     /// <param name="r">Red, [0,255]</param>
     /// <param name="g">Green, [0,255]</param>
     /// <param name="b">Blue, [0,255]</param>
-    /// <returns>RGB <see cref="Color2"/></returns>
+    /// <returns>RGB <see cref="Color2" /></returns>
     public static Color2 FromRGB(byte r, byte g, byte b)
     {
         return new Color2(r, g, b);
     }
 
     /// <summary>
-    /// Creates an RGB <see cref="Color2"/> from the specified A,R,G,B values.
+    ///     Creates an RGB <see cref="Color2" /> from the specified A,R,G,B values.
     /// </summary>
     /// <param name="a">Alpha, [0,255]</param>
     /// <param name="r">Red, [0,255]</param>
     /// <param name="g">Green, [0,255]</param>
     /// <param name="b">Blue, [0,255]</param>
-    /// <returns>RGB <see cref="Color2"/></returns>
+    /// <returns>RGB <see cref="Color2" /></returns>
     public static Color2 FromARGB(byte a, byte r, byte g, byte b)
     {
         return new Color2(r, g, b, a);
     }
 
     /// <summary>
-    /// Creates an RGB <see cref="Color2"/> from the specified A,R,G,B float values.
+    ///     Creates an RGB <see cref="Color2" /> from the specified A,R,G,B float values.
     /// </summary>
     /// <param name="r">Red, [0,1]</param>
     /// <param name="g">Green, [0,1]</param>
     /// <param name="b">Blue, [0,1]</param>
-    /// /// <param name="a">Alpha, [0,1]</param>
-    /// <returns>RGB <see cref="Color2"/></returns>
+    /// ///
+    /// <param name="a">Alpha, [0,1]</param>
+    /// <returns>RGB <see cref="Color2" /></returns>
     public static Color2 FromRGBf(float r, float g, float b, float a = 1)
     {
         var newColor = new Color2();
@@ -1120,7 +1041,7 @@ public struct Color2 : IEquatable<Color2>
     }
 
     /// <summary>
-    /// Creates an RGB <see cref="Color2"/> from an unsigned integer
+    ///     Creates an RGB <see cref="Color2" /> from an unsigned integer
     /// </summary>
     /// <param name="num"></param>
     /// <returns></returns>
@@ -1135,26 +1056,26 @@ public struct Color2 : IEquatable<Color2>
     }
 
     /// <summary>
-    /// Creates an HSV <see cref="Color2"/> from the given values
+    ///     Creates an HSV <see cref="Color2" /> from the given values
     /// </summary>
     /// <param name="hue">Hue, [0,360)</param>
     /// <param name="sat">Saturation, [0,100]</param>
     /// <param name="val">Value, [0,100]</param>
     /// <param name="alpha">Alpha, [0,255]</param>
-    /// <returns>HSV <see cref="Color2"/></returns>
+    /// <returns>HSV <see cref="Color2" /></returns>
     public static Color2 FromHSV(int hue, int sat, int val, int alpha = 255)
     {
         return FromHSVf(hue, sat / 100f, val / 100f, alpha / 255f);
     }
 
     /// <summary>
-    /// Creates an HSV <see cref="Color2"/> from the given float values
+    ///     Creates an HSV <see cref="Color2" /> from the given float values
     /// </summary>
     /// <param name="hue">Hue, [0,360)</param>
     /// <param name="sat">Saturation, [0,1]</param>
     /// <param name="val">Value, [0,1]</param>
     /// <param name="alpha">Alpha, [0,1]</param>
-    /// <returns>HSV <see cref="Color2"/></returns>
+    /// <returns>HSV <see cref="Color2" /></returns>
     public static Color2 FromHSVf(float hue, float sat, float val, float alpha = 1)
     {
         var newColor = new Color2();
@@ -1167,26 +1088,26 @@ public struct Color2 : IEquatable<Color2>
     }
 
     /// <summary>
-    /// Creates an HSL <see cref="Color2"/> from the given values
+    ///     Creates an HSL <see cref="Color2" /> from the given values
     /// </summary>
     /// <param name="hue">Hue, [0,360)</param>
     /// <param name="sat">Saturation, [0,100]</param>
     /// <param name="light">Value, [0,100]</param>
     /// <param name="alpha">Alpha, [0,255]</param>
-    /// <returns>HSL <see cref="Color2"/></returns>
+    /// <returns>HSL <see cref="Color2" /></returns>
     public static Color2 FromHSL(int hue, int sat, int light, int alpha = 255)
     {
         return FromHSLf(hue, sat / 100f, light / 100f, alpha / 255f);
     }
 
     /// <summary>
-    /// Creates an HSL <see cref="Color2"/> from the given float values
+    ///     Creates an HSL <see cref="Color2" /> from the given float values
     /// </summary>
     /// <param name="hue">Hue, [0,360)</param>
     /// <param name="sat">Saturation, [0,1]</param>
     /// <param name="light">Value, [0,1]</param>
     /// <param name="alpha">Alpha, [0,1]</param>
-    /// <returns>HSL <see cref="Color2"/></returns>
+    /// <returns>HSL <see cref="Color2" /></returns>
     public static Color2 FromHSLf(float hue, float sat, float light, float alpha = 1)
     {
         var newColor = new Color2();
@@ -1199,28 +1120,28 @@ public struct Color2 : IEquatable<Color2>
     }
 
     /// <summary>
-    /// Creates a CMYK <see cref="Color2"/> from the given values
+    ///     Creates a CMYK <see cref="Color2" /> from the given values
     /// </summary>
     /// <param name="c">Cyan, [0,100]</param>
     /// <param name="m">Magenta, [0,100]</param>
     /// <param name="y">Yellow, [0,100]</param>
     /// <param name="k">Black, [0,100]</param>
     /// <param name="alpha">Cyan, [0,255]</param>
-    /// <returns>CMYK <see cref="Color2"/></returns>
+    /// <returns>CMYK <see cref="Color2" /></returns>
     public static Color2 FromCMYK(int c, int m, int y, int k, int alpha = 255)
     {
         return FromCMYKf(c / 100f, m / 100f, y / 100f, k / 100f, alpha / 255f);
     }
 
     /// <summary>
-    /// Creates a CMYK <see cref="Color2"/> from the given float values
+    ///     Creates a CMYK <see cref="Color2" /> from the given float values
     /// </summary>
     /// <param name="c">Cyan, [0,1]</param>
     /// <param name="m">Magenta, [0,1]</param>
     /// <param name="y">Yellow, [0,1]</param>
     /// <param name="k">Black, [0,1]</param>
     /// <param name="alpha">Cyan, [0,1]</param>
-    /// <returns>CMYK <see cref="Color2"/></returns>
+    /// <returns>CMYK <see cref="Color2" /></returns>
     public static Color2 FromCMYKf(float c, float m, float y, float k, float alpha = 1)
     {
         var newColor = new Color2();
@@ -1345,7 +1266,7 @@ public struct Color2 : IEquatable<Color2>
     }
 
     /// <summary>
-    /// Lightens or darkens a color by a specified lightness, converting to an HSL color if necessary
+    ///     Lightens or darkens a color by a specified lightness, converting to an HSL color if necessary
     /// </summary>
     /// <param name="amount">Amount to lighten/darken</param>
     /// <returns>HSL Color2 with the new lightness (old + amount)</returns>
@@ -1361,7 +1282,7 @@ public struct Color2 : IEquatable<Color2>
     }
 
     /// <summary>
-    /// Lightens or darkens a color by a percentage of the current lightness
+    ///     Lightens or darkens a color by a percentage of the current lightness
     /// </summary>
     /// <param name="percent"></param>
     /// <returns>HSL Color2 with the new lightness (old + (old * percent))</returns>
@@ -1370,7 +1291,7 @@ public struct Color2 : IEquatable<Color2>
         if (_cType != ColorType.HSL)
             return ToHSL().LightenPercent(percent);
 
-        var l = _c3 < EPSILON ? percent : _c3 + (_c3 * percent);
+        var l = _c3 < EPSILON ? percent : _c3 + _c3 * percent;
         float.Clamp(l, 0, 1);
 
         return FromHSLf(_c1, _c2, l, _alpha);
@@ -1383,7 +1304,7 @@ public struct Color2 : IEquatable<Color2>
 
         if (hue >= 0 && sat >= EPSILON)
         {
-            hue = (hue / 360f) * 6f;
+            hue = hue / 360f * 6f;
 
             var h = (int)hue;
             var v1 = val * (1f - sat);
@@ -1446,17 +1367,11 @@ public struct Color2 : IEquatable<Color2>
             s = delta / max;
 
             if (MathF.Abs(r - max) < EPSILON)
-            {
-                h = ((g - b) / delta);
-            }
+                h = (g - b) / delta;
             else if (MathF.Abs(g - max) < EPSILON)
-            {
-                h = (2f + (b - r) / delta);
-            }
+                h = 2f + (b - r) / delta;
             else
-            {
-                h = (4f + (r - g) / delta);
-            }
+                h = 4f + (r - g) / delta;
 
             h *= 60;
         }
@@ -1482,7 +1397,7 @@ public struct Color2 : IEquatable<Color2>
             if (l < 0.5f)
                 v2 = l * (1 + s);
             else
-                v2 = (l + s) - (s * l);
+                v2 = l + s - s * l;
 
             var v1 = 2f * l - v2;
 
@@ -1493,18 +1408,18 @@ public struct Color2 : IEquatable<Color2>
                 if (vH > 1)
                     vH -= 1f;
 
-                if ((6f * vH) < 1f)
-                    return (v1 + (v2 - v1) * 6f * vH);
-                if ((2f * vH) < 1f)
-                    return (v2);
-                if ((3f * vH) < 2f)
-                    return (v1 + (v2 - v1) * ((2f / 3f) - vH) * 6f);
-                return (v1);
+                if (6f * vH < 1f)
+                    return v1 + (v2 - v1) * 6f * vH;
+                if (2f * vH < 1f)
+                    return v2;
+                if (3f * vH < 2f)
+                    return v1 + (v2 - v1) * (2f / 3f - vH) * 6f;
+                return v1;
             }
 
-            r = HueToRGB(v1, v2, h + (1f / 3f));
+            r = HueToRGB(v1, v2, h + 1f / 3f);
             g = HueToRGB(v1, v2, h);
-            b = HueToRGB(v1, v2, h - (1f / 3f));
+            b = HueToRGB(v1, v2, h - 1f / 3f);
         }
     }
 
@@ -1526,11 +1441,11 @@ public struct Color2 : IEquatable<Color2>
                 s = delta / (2f - max - min);
 
             if (MathF.Abs(r - max) < EPSILON)
-                h = ((g - b) / delta);
+                h = (g - b) / delta;
             else if (MathF.Abs(g - max) < EPSILON)
-                h = (2 + (b - r) / delta);
+                h = 2 + (b - r) / delta;
             else if (MathF.Abs(b - max) < EPSILON)
-                h = (4 + (r - g) / delta);
+                h = 4 + (r - g) / delta;
 
             h *= 60;
             if (h < 0)
@@ -1545,16 +1460,13 @@ public struct Color2 : IEquatable<Color2>
         l = val * (1 - hsvSat / 2f);
         hslSat = 0;
 
-        if (l > EPSILON && MathF.Abs(1 - l) > EPSILON)
-        {
-            hslSat = 2 * (1 - (l / val));
-        }
+        if (l > EPSILON && MathF.Abs(1 - l) > EPSILON) hslSat = 2 * (1 - l / val);
     }
 
     public static void HSLToHSV(float hslSat, float l, out float hsvSat, out float v)
     {
         v = l + hslSat * MathF.Min(l, 1 - l);
-        hsvSat = v < EPSILON ? 0 : (2 * (1 - l / v));
+        hsvSat = v < EPSILON ? 0 : 2 * (1 - l / v);
     }
 
     public static void RGBToCMYK(float r, float g, float b, out float c, out float m, out float y, out float k)
@@ -1586,11 +1498,11 @@ public struct Color2 : IEquatable<Color2>
     private const float EPSILON = 0.001f;
     private ColorType _cType;
     private float _alpha;
-    private float _c1;//Red, Hue, or CMYK 'C'
-    private float _c2;//Green, Saturation, or CMYK 'M'
-    private float _c3;//Blue, Value, Lightness, or CMYK 'Y'
-    private float _c4;//CMYK 'k' only, unused otherwise
-    public static readonly Color2 Empty = new Color2();
+    private float _c1; //Red, Hue, or CMYK 'C'
+    private float _c2; //Green, Saturation, or CMYK 'M'
+    private float _c3; //Blue, Value, Lightness, or CMYK 'Y'
+    private float _c4; //CMYK 'k' only, unused otherwise
+    public static readonly Color2 Empty = new();
 }
 
 internal static class KnownColorTable
@@ -1601,10 +1513,7 @@ internal static class KnownColorTable
     {
         InitColorTable();
 
-        if (ColorTable.TryGetValue(c, out var value))
-        {
-            return value;
-        }
+        if (ColorTable.TryGetValue(c, out var value)) return value;
 
         return "";
     }
@@ -1612,10 +1521,8 @@ internal static class KnownColorTable
     public static Color2 FromColorName(string name)
     {
         foreach (var kvp in ColorTable)
-        {
             if (name.Equals(kvp.Value, StringComparison.OrdinalIgnoreCase))
                 return kvp.Key;
-        }
 
         return Color2.Empty;
     }
@@ -1785,7 +1692,7 @@ internal enum KnownColor : uint
 }
 
 /// <summary>
-/// Special converter to auto convert Color2 to Avalonia.Media.Color
+///     Special converter to auto convert Color2 to Avalonia.Media.Color
 /// </summary>
 public class Color2ToColorConverter : TypeConverter
 {
@@ -1801,20 +1708,19 @@ public class Color2ToColorConverter : TypeConverter
 
     public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
     {
-        if (value is Color c)
-        {
-            return Color2.FromUInt(c.ToUInt32());
-        }
+        if (value is Color c) return Color2.FromUInt(c.ToUInt32());
         return base.ConvertFrom(context, culture, value);
     }
 
-    public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
+    public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value,
+        Type destinationType)
     {
         if (value is Color2 c)
         {
             c.GetRGB(out var r, out var g, out var b, out var a);
             return new Color(a, r, g, b);
         }
+
         return base.ConvertTo(context, culture, value, destinationType);
     }
 }

@@ -29,12 +29,13 @@
                                   Background="{TemplateBinding Background}"
                                   BorderBrush="{TemplateBinding BorderBrush}"
                                   BorderThickness="{TemplateBinding BorderThickness}"
-                                  CornerRadius="{TemplateBinding CornerRadius}"/>
+                                  CornerRadius="{TemplateBinding CornerRadius}" />
             </ControlTemplate>
         </Setter>
 
         <Style Selector="^:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="{DynamicResource PickerFlyoutPresenterAcceptDismissBackgroundPointerOver}" />
+            <Setter Property="Background"
+                    Value="{DynamicResource PickerFlyoutPresenterAcceptDismissBackgroundPointerOver}" />
         </Style>
         <Style Selector="^:pressed /template/ ContentPresenter">
             <Setter Property="Background" Value="{DynamicResource PickerFlyoutPresenterAcceptDismissBackgroundPressed}" />
@@ -87,16 +88,17 @@
 
                         </Panel>
 
-                        <Rectangle Height="1" Fill="{DynamicResource PickerFlyoutPresenterDivider}" DockPanel.Dock="Bottom" />
+                        <Rectangle Height="1" Fill="{DynamicResource PickerFlyoutPresenterDivider}"
+                                   DockPanel.Dock="Bottom" />
 
                         <ScrollViewer Name="ScrollViewer"
-                                  HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
-                                  VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}">
+                                      HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
+                                      VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}">
                             <ContentPresenter Content="{TemplateBinding Content}"
                                               ContentTemplate="{TemplateBinding ContentTemplate}"
                                               Margin="{TemplateBinding Padding}"
                                               HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
                         </ScrollViewer>
                     </DockPanel>
                 </Border>

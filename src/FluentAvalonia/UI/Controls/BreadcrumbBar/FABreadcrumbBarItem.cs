@@ -8,6 +8,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Templates;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Layout;
 using FluentAvalonia.Collections;
 using FluentAvalonia.Core;
 
@@ -24,6 +25,38 @@ namespace FluentAvalonia.UI.Controls;
 [PseudoClasses(FASharedPseudoclasses.s_pcPressed, s_pcInline, s_pcEllipsis, s_pcInline, s_pcEllipsisDropDown)]
 public class FABreadcrumbBarItem : ContentControl
 {
+    // Template Parts
+    private const string s_ellipsisItemsRepeaterPartName = "PART_EllipsisItemsRepeater";
+    private const string s_itemButtonPartName = "PART_ItemButton";
+    private const string s_itemEllipsisFlyoutPartName = "PART_EllipsisFlyout";
+
+    //private const string s_ellipsisFlyoutAutomationName = "EllisisFlyout";
+    private const string s_ellipsisItemsRepeaterAutomationName = "EllipsisItemsRepeater";
+
+    private const string s_pcInline = ":inline";
+    private const string s_pcEllipsis = ":ellipsis";
+    private const string s_pcLastItem = ":lastItem";
+    private const string s_pcEllipsisDropDown = ":ellipsisDropDown";
+    private bool _allowClickOnLastItem;
+    private Button _button;
+
+    private bool _childPreviewKeyDownToken;
+    private IDataTemplate _ellipsisDropDownItemDataTemplate;
+    private BreadcrumbElementFactory _ellipsisElementFactory;
+    private Flyout _ellipsisFlyout;
+
+    private FABreadcrumbBarItem _ellipsisItem;
+    private FAItemsRepeater _ellipsisItemsRepeater;
+    private int _index;
+    private bool _isEllipsisDropDownItem;
+    private bool _isEllipsisItem;
+    private bool _isLastItem;
+
+    private bool _isPressed;
+
+    private WeakReference<FABreadcrumbBar> _parentBreadcrumb;
+    private int _trackedPointerId;
+
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
     {
         base.OnApplyTemplate(e);
@@ -35,14 +68,12 @@ public class FABreadcrumbBarItem : ContentControl
             var rootGrid = e.NameScope.Get<Grid>("PART_LayoutRoot");
             _ellipsisFlyout = rootGrid.Resources[s_itemEllipsisFlyoutPartName] as Flyout;
             if (_ellipsisFlyout == null)
-                throw new InvalidOperationException("PART_LayoutRoot on BreadcrumbBarItem is missing Flyout in resources");
+                throw new InvalidOperationException(
+                    "PART_LayoutRoot on BreadcrumbBarItem is missing Flyout in resources");
         }
 
         _button = e.NameScope.Find<Button>(s_itemButtonPartName);
-        if (_button != null)
-        {
-            _button.Loaded += OnButtonLoadedEvent;
-        }
+        if (_button != null) _button.Loaded += OnButtonLoadedEvent;
 
         UpdateButtonCommonVisualState();
         UpdateInlineItemTypeVisualState();
@@ -59,30 +90,21 @@ public class FABreadcrumbBarItem : ContentControl
     {
         base.OnPointerEntered(e);
 
-        if (_isEllipsisDropDownItem)
-        {
-            ProcessPointerOver(e);
-        }
+        if (_isEllipsisDropDownItem) ProcessPointerOver(e);
     }
 
     protected override void OnPointerMoved(PointerEventArgs e)
     {
         base.OnPointerMoved(e);
 
-        if (_isEllipsisDropDownItem)
-        {
-            ProcessPointerOver(e);
-        }
+        if (_isEllipsisDropDownItem) ProcessPointerOver(e);
     }
 
     protected override void OnPointerExited(PointerEventArgs e)
     {
         base.OnPointerExited(e);
 
-        if (_isEllipsisDropDownItem)
-        {
-            ProcessPointerCanceled(e);
-        }
+        if (_isEllipsisDropDownItem) ProcessPointerCanceled(e);
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
@@ -91,10 +113,7 @@ public class FABreadcrumbBarItem : ContentControl
 
         if (_isEllipsisDropDownItem)
         {
-            if (IgnorePointerId(e.Pointer))
-            {
-                return;
-            }
+            if (IgnorePointerId(e.Pointer)) return;
 
             if (e.Pointer.Type == PointerType.Mouse)
             {
@@ -106,10 +125,7 @@ public class FABreadcrumbBarItem : ContentControl
                 _isPressed = true;
             }
 
-            if (_isPressed)
-            {
-                UpdateEllipsisDropDownItemCommonVisualState();
-            }
+            if (_isPressed) UpdateEllipsisDropDownItemCommonVisualState();
         }
     }
 
@@ -119,10 +135,7 @@ public class FABreadcrumbBarItem : ContentControl
 
         if (_isEllipsisDropDownItem)
         {
-            if (IgnorePointerId(e.Pointer))
-            {
-                return;
-            }
+            if (IgnorePointerId(e.Pointer)) return;
 
             if (_isPressed)
             {
@@ -137,18 +150,12 @@ public class FABreadcrumbBarItem : ContentControl
     {
         base.OnPointerCaptureLost(e);
 
-        if (_isEllipsisDropDownItem)
-        {
-            ProcessPointerCanceled(null, e.Pointer);
-        }
+        if (_isEllipsisDropDownItem) ProcessPointerCanceled(null, e.Pointer);
     }
 
     private void ProcessPointerOver(PointerEventArgs args)
     {
-        if (IgnorePointerId(args.Pointer))
-        {
-            return;
-        }
+        if (IgnorePointerId(args.Pointer)) return;
 
         // Avalonia captures the pointer automatically and then does not fire
         // PointerExited if the pointer leaves the bounds of the control,
@@ -176,10 +183,7 @@ public class FABreadcrumbBarItem : ContentControl
 
     private void ProcessPointerCanceled(PointerEventArgs args, IPointer p = null)
     {
-        if (IgnorePointerId(args?.Pointer ?? p))
-        {
-            return;
-        }
+        if (IgnorePointerId(args?.Pointer ?? p)) return;
 
         _isPressed = false;
         ResetTrackedPointerId();
@@ -196,26 +200,16 @@ public class FABreadcrumbBarItem : ContentControl
         _button.Loaded -= OnButtonLoadedEvent;
 
         if (_isEllipsisItem)
-        {
             _button.Click += OnEllipsisItemClick;
-        }
         else
-        {
             _button.Click += OnBreadcrumbBarItemClick;
-        }
 
         if (_isEllipsisItem)
-        {
             SetPropertiesForEllipsisItem();
-        }
         else if (_isLastItem)
-        {
             SetPropertiesForLastItem();
-        }
         else
-        {
             ResetVisualProperties();
-        }
     }
 
     internal void SetParentBreadcrumb(FABreadcrumbBar parent)
@@ -226,13 +220,8 @@ public class FABreadcrumbBarItem : ContentControl
     internal void SetEllipsisDropDownItemDataTemplate(object newDataTemplate)
     {
         if (newDataTemplate is IDataTemplate dataTemplate)
-        {
             _ellipsisDropDownItemDataTemplate = dataTemplate;
-        }
-        else if (newDataTemplate == null)
-        {
-            _ellipsisDropDownItemDataTemplate = null;
-        }
+        else if (newDataTemplate == null) _ellipsisDropDownItemDataTemplate = null;
     }
 
     internal void SetIndex(int index) => _index = index;
@@ -246,10 +235,7 @@ public class FABreadcrumbBarItem : ContentControl
 
     internal void RaiseItemClickedEvent(object content, int index)
     {
-        if (_parentBreadcrumb.TryGetTarget(out var target))
-        {
-            target.RaiseItemClickedEvent(content, index);
-        }
+        if (_parentBreadcrumb.TryGetTarget(out var target)) target.RaiseItemClickedEvent(content, index);
     }
 
     private void OnBreadcrumbBarItemClick(object sender, RoutedEventArgs e)
@@ -259,15 +245,13 @@ public class FABreadcrumbBarItem : ContentControl
 
     private void OnFlyoutElementPreparedEvent(FAItemsRepeater sender, FAItemsRepeaterElementPreparedEventArgs args)
     {
-        if (args.Element is FABreadcrumbBarItem ellipsisItem)
-        {
-            ellipsisItem.SetIsEllipsisDropDownItem(true);
-        }
+        if (args.Element is FABreadcrumbBarItem ellipsisItem) ellipsisItem.SetIsEllipsisDropDownItem(true);
 
         UpdateFlyoutIndex(args.Element, args.Index);
     }
 
-    private void OnFlyoutElementIndexChangedEvent(FAItemsRepeater repeater, FAItemsRepeaterElementIndexChangedEventArgs args)
+    private void OnFlyoutElementIndexChangedEvent(FAItemsRepeater repeater,
+        FAItemsRepeaterElementIndexChangedEventArgs args)
     {
         UpdateFlyoutIndex(args.Element, args.NewIndex);
     }
@@ -285,13 +269,9 @@ public class FABreadcrumbBarItem : ContentControl
         else if (args.Key == Key.Enter || args.Key == Key.Space)
         {
             if (_isEllipsisItem)
-            {
                 OnEllipsisItemClick(null, null);
-            }
             else
-            {
                 OnBreadcrumbBarItemClick(null, null);
-            }
 
             args.Handled = true;
         }
@@ -319,18 +299,14 @@ public class FABreadcrumbBarItem : ContentControl
     {
         // The new list contains all the elements in reverse order
         var itemsSourceSize = ellipsisItemsSource.Count();
-        
+
         // A copy of the hidden elements array in BreadcrumbLayout is created
         // to avoid getting a Layout cycle exception
         var newItemsSource = new List<object>(itemsSourceSize);
 
         if (itemsSourceSize > 0)
-        {
             for (var i = itemsSourceSize - 1; i >= 0; i--)
-            {
                 newItemsSource.Add(ellipsisItemsSource.ElementAt(i));
-            }
-        }
 
         return newItemsSource;
     }
@@ -387,14 +363,9 @@ public class FABreadcrumbBarItem : ContentControl
                 pl.Dispose();
 
             if (_ellipsisDropDownItemDataTemplate != null)
-            {
                 _ellipsisElementFactory.UserElementFactory(_ellipsisDropDownItemDataTemplate);
-            }
 
-            if (_ellipsisItemsRepeater != null)
-            {
-                _ellipsisItemsRepeater.ItemsSource = hiddenElements;
-            }
+            if (_ellipsisItemsRepeater != null) _ellipsisItemsRepeater.ItemsSource = hiddenElements;
 
             OpenFlyout();
         }
@@ -405,10 +376,7 @@ public class FABreadcrumbBarItem : ContentControl
         _isEllipsisItem = false;
         _isLastItem = true;
 
-        if (_parentBreadcrumb.TryGetTarget(out var target))
-        {
-            _allowClickOnLastItem = target.IsLastItemClickEnabled;
-        }
+        if (_parentBreadcrumb.TryGetTarget(out var target)) _allowClickOnLastItem = target.IsLastItemClickEnabled;
 
         UpdateButtonCommonVisualState();
         UpdateInlineItemTypeVisualState();
@@ -425,10 +393,7 @@ public class FABreadcrumbBarItem : ContentControl
             _isEllipsisItem = false;
             _isLastItem = false;
 
-            if (_button != null)
-            {
-                _button.Flyout = null;
-            }
+            if (_button != null) _button.Flyout = null;
             _ellipsisFlyout = null;
             _ellipsisItemsRepeater = null;
             _ellipsisElementFactory = null;
@@ -447,7 +412,7 @@ public class FABreadcrumbBarItem : ContentControl
             {
                 Name = s_ellipsisItemsRepeaterPartName,
                 [AutomationProperties.NameProperty] = s_ellipsisItemsRepeaterAutomationName,
-                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch,
+                HorizontalAlignment = HorizontalAlignment.Stretch,
                 Layout = new FAStackLayout()
             };
 
@@ -455,9 +420,7 @@ public class FABreadcrumbBarItem : ContentControl
             repeater.ItemTemplate = _ellipsisElementFactory;
 
             if (_ellipsisDropDownItemDataTemplate != null)
-            {
                 _ellipsisElementFactory.UserElementFactory(_ellipsisDropDownItemDataTemplate);
-            }
 
             repeater.ElementPrepared += OnFlyoutElementPreparedEvent;
             repeater.ElementIndexChanged += OnFlyoutElementIndexChangedEvent;
@@ -554,13 +517,9 @@ public class FABreadcrumbBarItem : ContentControl
         {
             _button.Loaded -= OnButtonLoadedEvent;
             if (_isEllipsisItem)
-            {
                 _button.Click -= OnEllipsisItemClick;
-            }
             else
-            {
                 _button.Click -= OnBreadcrumbBarItemClick;
-            }
         }
 
         if (_ellipsisItemsRepeater != null)
@@ -577,46 +536,9 @@ public class FABreadcrumbBarItem : ContentControl
         var pointerId = pointer.Id;
 
         if (_trackedPointerId == 0)
-        {
             _trackedPointerId = pointerId;
-        }
-        else if (_trackedPointerId != pointerId)
-        {
-            return true;
-        }
+        else if (_trackedPointerId != pointerId) return true;
 
         return false;
     }
-
-    private bool _childPreviewKeyDownToken;
-    private bool _isEllipsisDropDownItem;
-    private bool _isEllipsisItem;
-    private bool _isLastItem;
-    private bool _allowClickOnLastItem;
-    private Flyout _ellipsisFlyout;
-    private Button _button;
-
-    private WeakReference<FABreadcrumbBar> _parentBreadcrumb;
-    private FAItemsRepeater _ellipsisItemsRepeater;
-    private IDataTemplate _ellipsisDropDownItemDataTemplate;
-    private BreadcrumbElementFactory _ellipsisElementFactory;
-
-    private FABreadcrumbBarItem _ellipsisItem;
-    private int _index;
-
-    private bool _isPressed;
-    private int _trackedPointerId;
-
-    // Template Parts
-    private const string s_ellipsisItemsRepeaterPartName = "PART_EllipsisItemsRepeater";
-    private const string s_itemButtonPartName = "PART_ItemButton";
-    private const string s_itemEllipsisFlyoutPartName = "PART_EllipsisFlyout";
-
-    //private const string s_ellipsisFlyoutAutomationName = "EllisisFlyout";
-    private const string s_ellipsisItemsRepeaterAutomationName = "EllipsisItemsRepeater";
-
-    private const string s_pcInline = ":inline";
-    private const string s_pcEllipsis = ":ellipsis";
-    private const string s_pcLastItem = ":lastItem";
-    private const string s_pcEllipsisDropDown = ":ellipsisDropDown";
 }

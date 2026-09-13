@@ -6,9 +6,11 @@ using Avalonia.Automation.Peers;
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
+using Avalonia.Controls.Primitives.PopupPositioning;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
+using Avalonia.Media;
 using Avalonia.Rendering.Composition;
 using Avalonia.Rendering.Composition.Animations;
 using Avalonia.Threading;
@@ -20,6 +22,98 @@ namespace FluentAvalonia.UI.Controls;
 
 public partial class FATeachingTip : ContentControl
 {
+    private static readonly string s_ScaleTargetName = "Scale";
+    // [Unused] private static readonly string s_translationTargetName = "Translation";
+
+    // [Unused] private static readonly string s_teachingTipHighlightBrushName = "TeachingTipTopHighlightBrush";
+
+    //It is possible this should be exposed as a property, but you can adjust what it does with margin.
+    private static readonly float s_untargetedTipWindowEdgeMargin = 24;
+    private static readonly float s_defaultTipHeightAndWidth = 320;
+
+    //Ideally this would be computed from layout but it is difficult to do.
+    private static readonly float s_tailOcclusionAmount = 2;
+    private readonly ScopedBatchHelper _scopedBatch = new();
+
+    private IDisposable _acceleratorKeyActivatedRevoker;
+    private Button _actionButton;
+    private Button _alternateCloseButton;
+    private Button _closeButton;
+
+    private Border _container;
+    private Grid _contentRootGrid;
+    private KeyFrameAnimation _contractAnimation;
+    private TimeSpan _contractAnimationDuration = TimeSpan.FromMilliseconds(200);
+    private IEasing _contractEasingFunction;
+    private bool _createNewPopupOnOpen;
+
+    private Rect _currentBoundsInCoreWindowSpace;
+    private FATeachingTipPlacementMode _currentEffectiveTailPlacementMode;
+
+    private FATeachingTipPlacementMode _currentEffectiveTipPlacementMode;
+    private FATeachingTipHeroContentPlacementMode _currentHeroContentEffectivePlacementMode;
+    private Rect _currentTargetBoundsInCoreWindowSpace;
+
+    private Size _currentXamlRootSize;
+
+    private KeyFrameAnimation _expandAnimation;
+
+    // [Unused] private float _contentElevation = 32f;
+    // [Unused] private float _tailElevation = 0f;
+    // [Unused] private bool _tailShadowTargetsShadowTarget;
+
+    private TimeSpan _expandAnimationDuration = TimeSpan.FromMilliseconds(300);
+
+    // [Unused] private KeyFrameAnimation _expandElevationAnimation;
+    // [Unused] private KeyFrameAnimation _contractElevationAnimation;
+    private IEasing _expandEasingFunction;
+    private Border _heroContentBorder;
+
+    private bool _ignoreNextIsOpenChanged;
+    private bool _isContractAnimationPlaying;
+
+    private bool _isExpandAnimationPlaying;
+
+    private bool _isIdle = true;
+    private bool _isTemplateApplied;
+
+    private FATeachingTipCloseReason _lastCloseReason = FATeachingTipCloseReason.Programmatic;
+    private Popup _lightDismissIndicatorPopup;
+    private Grid _nonHeroContentRootGrid;
+
+    private Popup _popup;
+    // [Unused] private Grid _tailEdgeBorder;
+    // [Unused] private Control _titleTextBlock;
+    // [Unused] private Control _subTitleTextBlock;
+
+    private IInputElement _previouslyFocusedElement;
+
+    // HACK
+    private bool _repositionOnNextOpen;
+
+    // [Unused] private bool _hasF6BeenInvoked;
+
+    // [Unused] private bool _useTextWindowBounds;
+    // [Unused] private Rect _testWindowBoundsInCoreWindowSpace;
+    // [Unused] private bool _useTestScreenBounds;
+    // [Unused] private Rect _testScreenBoundsInCoreWindowSpace;
+
+    // [Unused] private bool _tipShouldHaveShadow = true;
+
+    // [Unused] private bool _tipFollowsTarget;
+    private bool _returnTopForOutOfWindowPlacement = true;
+    // [Unused]  private ContentControl _popupContentControl;
+
+    private Control _rootElement;
+    private Grid _tailOcclusionGrid;
+    private Path _tailPolygon;
+
+    private Control _target;
+
+    // This doesn't appear to be needed anymore?
+    //private EffectiveViewportRevoker _effectiveViewportChangedRevoker;
+    private IDisposable _xamlRootChangedRevoker;
+
     public FATeachingTip()
     {
         Unloaded += ClosePopupOnUnloadEvent;
@@ -194,10 +288,7 @@ public partial class FATeachingTip : ContentControl
         if (_popup != null)
         {
             var name = AutomationProperties.GetName(this);
-            if (string.IsNullOrEmpty(name))
-            {
-                name = Title;
-            }
+            if (string.IsNullOrEmpty(name)) name = Title;
             AutomationProperties.SetName(_popup, name);
 
             AutomationProperties.SetAutomationId(_popup, AutomationProperties.GetAutomationId(this));
@@ -220,7 +311,7 @@ public partial class FATeachingTip : ContentControl
             Child = new Panel
             {
                 Width = 0,
-                Height = 0,
+                Height = 0
             },
             WindowManagerAddShadowHint = false,
             IsLightDismissEnabled = true,
@@ -239,14 +330,9 @@ public partial class FATeachingTip : ContentControl
 
         if (tailVisiblity == FATeachingTipTailVisibility.Collapsed ||
             (_target == null && tailVisiblity != FATeachingTipTailVisibility.Visible))
-        {
             _currentEffectiveTailPlacementMode = FATeachingTipPlacementMode.Auto;
-        }
 
-        if (placement != _currentEffectiveTipPlacementMode)
-        {
-            _currentEffectiveTipPlacementMode = placement;
-        }
+        if (placement != _currentEffectiveTipPlacementMode) _currentEffectiveTipPlacementMode = placement;
 
         var height = _tailOcclusionGrid?.Bounds.Height ?? 0;
         var width = _tailOcclusionGrid?.Bounds.Width ?? 0;
@@ -302,7 +388,8 @@ public partial class FATeachingTip : ContentControl
                 break;
 
             case FATeachingTipPlacementMode.TopLeft:
-                TrySetCenterPoint(_tailOcclusionGrid, width - (nextToLastColumnWidth + lastColumnWidth + 1), height - lastRowHeight);
+                TrySetCenterPoint(_tailOcclusionGrid, width - (nextToLastColumnWidth + lastColumnWidth + 1),
+                    height - lastRowHeight);
                 //TrySetCenterPoint(_tailEdgeBorder, width - (nextToLastColumnWidth + firstColumnWidth + lastColumnWidth), 0);
                 UpdateDynamicHeroContentPlacementToTop();
                 GoToState(FATeachingTipPlacementMode.TopLeft);
@@ -316,15 +403,17 @@ public partial class FATeachingTip : ContentControl
                 break;
 
             case FATeachingTipPlacementMode.BottomLeft:
-                TrySetCenterPoint(_tailOcclusionGrid, width - (nextToLastColumnWidth + lastColumnWidth + 1), firstRowHeight);
+                TrySetCenterPoint(_tailOcclusionGrid, width - (nextToLastColumnWidth + lastColumnWidth + 1),
+                    firstRowHeight);
                 //TrySetCenterPoint(_tailEdgeBorder, width - (nextToLastColumnWidth + firstColumnWidth + lastColumnWidth), 0);
                 UpdateDynamicHeroContentPlacementToBottom();
                 GoToState(FATeachingTipPlacementMode.BottomLeft);
                 break;
 
             case FATeachingTipPlacementMode.LeftTop:
-                TrySetCenterPoint(_tailOcclusionGrid, width - lastColumnWidth, height - (nextToLastRowHeight + lastRowHeight + 1));
-               // TrySetCenterPoint(_tailEdgeBorder, 0, height - (nextToLastRowHeight + firstRowHeight + lastRowHeight));
+                TrySetCenterPoint(_tailOcclusionGrid, width - lastColumnWidth,
+                    height - (nextToLastRowHeight + lastRowHeight + 1));
+                // TrySetCenterPoint(_tailEdgeBorder, 0, height - (nextToLastRowHeight + firstRowHeight + lastRowHeight));
                 UpdateDynamicHeroContentPlacementToTop();
                 GoToState(FATeachingTipPlacementMode.LeftTop);
                 break;
@@ -337,7 +426,8 @@ public partial class FATeachingTip : ContentControl
                 break;
 
             case FATeachingTipPlacementMode.RightTop:
-                TrySetCenterPoint(_tailOcclusionGrid, firstColumnWidth, height - (nextToLastRowHeight + lastRowHeight + 1));
+                TrySetCenterPoint(_tailOcclusionGrid, firstColumnWidth,
+                    height - (nextToLastRowHeight + lastRowHeight + 1));
                 //TrySetCenterPoint(_tailEdgeBorder, 0, height - (nextToLastRowHeight + firstRowHeight + lastRowHeight));
                 UpdateDynamicHeroContentPlacementToTop();
                 GoToState(FATeachingTipPlacementMode.RightTop);
@@ -359,7 +449,6 @@ public partial class FATeachingTip : ContentControl
 
             default:
                 break;
-
         }
 
         return tipDoesNotFit;
@@ -401,7 +490,7 @@ public partial class FATeachingTip : ContentControl
             // We can't just use combinations of pseudoclasses here because we'd have no way to
             // differentiate between LeftTop and TopLeft visual states, for example
             if ((int)mode == -1) // Untargeted, remove all position pseudoclasses
-            {                
+            {
                 PseudoClasses.Set(s_pcTop, false);
                 PseudoClasses.Set(s_pcBottom, false);
                 PseudoClasses.Set(s_pcLeft, false);
@@ -421,237 +510,237 @@ public partial class FATeachingTip : ContentControl
             switch (mode)
             {
                 case FATeachingTipPlacementMode.Top:
-                    {
-                        PseudoClasses.Set(s_pcTop, true);
-                        PseudoClasses.Set(s_pcBottom, false);
-                        PseudoClasses.Set(s_pcLeft, false);
-                        PseudoClasses.Set(s_pcRight, false);
-                        PseudoClasses.Set(s_pcCenter, false);
-                        PseudoClasses.Set(s_pcTopRight, false);
-                        PseudoClasses.Set(s_pcTopLeft, false);
-                        PseudoClasses.Set(s_pcBottomLeft, false);
-                        PseudoClasses.Set(s_pcBottomRight, false);
-                        PseudoClasses.Set(s_pcLeftTop, false);
-                        PseudoClasses.Set(s_pcLeftBottom, false);
-                        PseudoClasses.Set(s_pcRightBottom, false);
-                        PseudoClasses.Set(s_pcRightTop, false);
-                    }
+                {
+                    PseudoClasses.Set(s_pcTop, true);
+                    PseudoClasses.Set(s_pcBottom, false);
+                    PseudoClasses.Set(s_pcLeft, false);
+                    PseudoClasses.Set(s_pcRight, false);
+                    PseudoClasses.Set(s_pcCenter, false);
+                    PseudoClasses.Set(s_pcTopRight, false);
+                    PseudoClasses.Set(s_pcTopLeft, false);
+                    PseudoClasses.Set(s_pcBottomLeft, false);
+                    PseudoClasses.Set(s_pcBottomRight, false);
+                    PseudoClasses.Set(s_pcLeftTop, false);
+                    PseudoClasses.Set(s_pcLeftBottom, false);
+                    PseudoClasses.Set(s_pcRightBottom, false);
+                    PseudoClasses.Set(s_pcRightTop, false);
+                }
                     break;
 
                 case FATeachingTipPlacementMode.Bottom:
-                    {
-                        PseudoClasses.Set(s_pcTop, false);
-                        PseudoClasses.Set(s_pcBottom, true);
-                        PseudoClasses.Set(s_pcLeft, false);
-                        PseudoClasses.Set(s_pcRight, false);
-                        PseudoClasses.Set(s_pcCenter, false);
-                        PseudoClasses.Set(s_pcTopRight, false);
-                        PseudoClasses.Set(s_pcTopLeft, false);
-                        PseudoClasses.Set(s_pcBottomLeft, false);
-                        PseudoClasses.Set(s_pcBottomRight, false);
-                        PseudoClasses.Set(s_pcLeftTop, false);
-                        PseudoClasses.Set(s_pcLeftBottom, false);
-                        PseudoClasses.Set(s_pcRightBottom, false);
-                        PseudoClasses.Set(s_pcRightTop, false);
-                    }
+                {
+                    PseudoClasses.Set(s_pcTop, false);
+                    PseudoClasses.Set(s_pcBottom, true);
+                    PseudoClasses.Set(s_pcLeft, false);
+                    PseudoClasses.Set(s_pcRight, false);
+                    PseudoClasses.Set(s_pcCenter, false);
+                    PseudoClasses.Set(s_pcTopRight, false);
+                    PseudoClasses.Set(s_pcTopLeft, false);
+                    PseudoClasses.Set(s_pcBottomLeft, false);
+                    PseudoClasses.Set(s_pcBottomRight, false);
+                    PseudoClasses.Set(s_pcLeftTop, false);
+                    PseudoClasses.Set(s_pcLeftBottom, false);
+                    PseudoClasses.Set(s_pcRightBottom, false);
+                    PseudoClasses.Set(s_pcRightTop, false);
+                }
                     break;
 
                 case FATeachingTipPlacementMode.Left:
-                    {
-                        PseudoClasses.Set(s_pcTop, false);
-                        PseudoClasses.Set(s_pcBottom, false);
-                        PseudoClasses.Set(s_pcLeft, true);
-                        PseudoClasses.Set(s_pcRight, false);
-                        PseudoClasses.Set(s_pcCenter, false);
-                        PseudoClasses.Set(s_pcTopRight, false);
-                        PseudoClasses.Set(s_pcTopLeft, false);
-                        PseudoClasses.Set(s_pcBottomLeft, false);
-                        PseudoClasses.Set(s_pcBottomRight, false);
-                        PseudoClasses.Set(s_pcLeftTop, false);
-                        PseudoClasses.Set(s_pcLeftBottom, false);
-                        PseudoClasses.Set(s_pcRightBottom, false);
-                        PseudoClasses.Set(s_pcRightTop, false);
-                    }
+                {
+                    PseudoClasses.Set(s_pcTop, false);
+                    PseudoClasses.Set(s_pcBottom, false);
+                    PseudoClasses.Set(s_pcLeft, true);
+                    PseudoClasses.Set(s_pcRight, false);
+                    PseudoClasses.Set(s_pcCenter, false);
+                    PseudoClasses.Set(s_pcTopRight, false);
+                    PseudoClasses.Set(s_pcTopLeft, false);
+                    PseudoClasses.Set(s_pcBottomLeft, false);
+                    PseudoClasses.Set(s_pcBottomRight, false);
+                    PseudoClasses.Set(s_pcLeftTop, false);
+                    PseudoClasses.Set(s_pcLeftBottom, false);
+                    PseudoClasses.Set(s_pcRightBottom, false);
+                    PseudoClasses.Set(s_pcRightTop, false);
+                }
                     break;
 
                 case FATeachingTipPlacementMode.Right:
-                    {
-                        PseudoClasses.Set(s_pcTop, false);
-                        PseudoClasses.Set(s_pcBottom, false);
-                        PseudoClasses.Set(s_pcLeft, false);
-                        PseudoClasses.Set(s_pcRight, true);
-                        PseudoClasses.Set(s_pcCenter, false);
-                        PseudoClasses.Set(s_pcTopRight, false);
-                        PseudoClasses.Set(s_pcTopLeft, false);
-                        PseudoClasses.Set(s_pcBottomLeft, false);
-                        PseudoClasses.Set(s_pcBottomRight, false);
-                        PseudoClasses.Set(s_pcLeftTop, false);
-                        PseudoClasses.Set(s_pcLeftBottom, false);
-                        PseudoClasses.Set(s_pcRightBottom, false);
-                        PseudoClasses.Set(s_pcRightTop, false);
-                    }
+                {
+                    PseudoClasses.Set(s_pcTop, false);
+                    PseudoClasses.Set(s_pcBottom, false);
+                    PseudoClasses.Set(s_pcLeft, false);
+                    PseudoClasses.Set(s_pcRight, true);
+                    PseudoClasses.Set(s_pcCenter, false);
+                    PseudoClasses.Set(s_pcTopRight, false);
+                    PseudoClasses.Set(s_pcTopLeft, false);
+                    PseudoClasses.Set(s_pcBottomLeft, false);
+                    PseudoClasses.Set(s_pcBottomRight, false);
+                    PseudoClasses.Set(s_pcLeftTop, false);
+                    PseudoClasses.Set(s_pcLeftBottom, false);
+                    PseudoClasses.Set(s_pcRightBottom, false);
+                    PseudoClasses.Set(s_pcRightTop, false);
+                }
                     break;
 
                 case FATeachingTipPlacementMode.TopRight:
-                    {
-                        PseudoClasses.Set(s_pcTop, false);
-                        PseudoClasses.Set(s_pcBottom, false);
-                        PseudoClasses.Set(s_pcLeft, false);
-                        PseudoClasses.Set(s_pcRight, false);
-                        PseudoClasses.Set(s_pcCenter, false);
-                        PseudoClasses.Set(s_pcTopRight, true);
-                        PseudoClasses.Set(s_pcTopLeft, false);
-                        PseudoClasses.Set(s_pcBottomLeft, false);
-                        PseudoClasses.Set(s_pcBottomRight, false);
-                        PseudoClasses.Set(s_pcLeftTop, false);
-                        PseudoClasses.Set(s_pcLeftBottom, false);
-                        PseudoClasses.Set(s_pcRightBottom, false);
-                        PseudoClasses.Set(s_pcRightTop, false);
-                    }
+                {
+                    PseudoClasses.Set(s_pcTop, false);
+                    PseudoClasses.Set(s_pcBottom, false);
+                    PseudoClasses.Set(s_pcLeft, false);
+                    PseudoClasses.Set(s_pcRight, false);
+                    PseudoClasses.Set(s_pcCenter, false);
+                    PseudoClasses.Set(s_pcTopRight, true);
+                    PseudoClasses.Set(s_pcTopLeft, false);
+                    PseudoClasses.Set(s_pcBottomLeft, false);
+                    PseudoClasses.Set(s_pcBottomRight, false);
+                    PseudoClasses.Set(s_pcLeftTop, false);
+                    PseudoClasses.Set(s_pcLeftBottom, false);
+                    PseudoClasses.Set(s_pcRightBottom, false);
+                    PseudoClasses.Set(s_pcRightTop, false);
+                }
                     break;
 
                 case FATeachingTipPlacementMode.TopLeft:
-                    {
-                        PseudoClasses.Set(s_pcTop, false);
-                        PseudoClasses.Set(s_pcBottom, false);
-                        PseudoClasses.Set(s_pcLeft, false);
-                        PseudoClasses.Set(s_pcRight, false);
-                        PseudoClasses.Set(s_pcCenter, false);
-                        PseudoClasses.Set(s_pcTopRight, false);
-                        PseudoClasses.Set(s_pcTopLeft, true);
-                        PseudoClasses.Set(s_pcBottomLeft, false);
-                        PseudoClasses.Set(s_pcBottomRight, false);
-                        PseudoClasses.Set(s_pcLeftTop, false);
-                        PseudoClasses.Set(s_pcLeftBottom, false);
-                        PseudoClasses.Set(s_pcRightBottom, false);
-                        PseudoClasses.Set(s_pcRightTop, false);
-                    }
+                {
+                    PseudoClasses.Set(s_pcTop, false);
+                    PseudoClasses.Set(s_pcBottom, false);
+                    PseudoClasses.Set(s_pcLeft, false);
+                    PseudoClasses.Set(s_pcRight, false);
+                    PseudoClasses.Set(s_pcCenter, false);
+                    PseudoClasses.Set(s_pcTopRight, false);
+                    PseudoClasses.Set(s_pcTopLeft, true);
+                    PseudoClasses.Set(s_pcBottomLeft, false);
+                    PseudoClasses.Set(s_pcBottomRight, false);
+                    PseudoClasses.Set(s_pcLeftTop, false);
+                    PseudoClasses.Set(s_pcLeftBottom, false);
+                    PseudoClasses.Set(s_pcRightBottom, false);
+                    PseudoClasses.Set(s_pcRightTop, false);
+                }
                     break;
 
                 case FATeachingTipPlacementMode.BottomRight:
-                    {
-                        PseudoClasses.Set(s_pcTop, false);
-                        PseudoClasses.Set(s_pcBottom, false);
-                        PseudoClasses.Set(s_pcLeft, false);
-                        PseudoClasses.Set(s_pcRight, false);
-                        PseudoClasses.Set(s_pcCenter, false);
-                        PseudoClasses.Set(s_pcTopRight, false);
-                        PseudoClasses.Set(s_pcTopLeft, false);
-                        PseudoClasses.Set(s_pcBottomLeft, false);
-                        PseudoClasses.Set(s_pcBottomRight, true);
-                        PseudoClasses.Set(s_pcLeftTop, false);
-                        PseudoClasses.Set(s_pcLeftBottom, false);
-                        PseudoClasses.Set(s_pcRightBottom, false);
-                        PseudoClasses.Set(s_pcRightTop, false);
-                    }
+                {
+                    PseudoClasses.Set(s_pcTop, false);
+                    PseudoClasses.Set(s_pcBottom, false);
+                    PseudoClasses.Set(s_pcLeft, false);
+                    PseudoClasses.Set(s_pcRight, false);
+                    PseudoClasses.Set(s_pcCenter, false);
+                    PseudoClasses.Set(s_pcTopRight, false);
+                    PseudoClasses.Set(s_pcTopLeft, false);
+                    PseudoClasses.Set(s_pcBottomLeft, false);
+                    PseudoClasses.Set(s_pcBottomRight, true);
+                    PseudoClasses.Set(s_pcLeftTop, false);
+                    PseudoClasses.Set(s_pcLeftBottom, false);
+                    PseudoClasses.Set(s_pcRightBottom, false);
+                    PseudoClasses.Set(s_pcRightTop, false);
+                }
                     break;
 
                 case FATeachingTipPlacementMode.BottomLeft:
-                    {
-                        PseudoClasses.Set(s_pcTop, false);
-                        PseudoClasses.Set(s_pcBottom, false);
-                        PseudoClasses.Set(s_pcLeft, false);
-                        PseudoClasses.Set(s_pcRight, false);
-                        PseudoClasses.Set(s_pcCenter, false);
-                        PseudoClasses.Set(s_pcTopRight, false);
-                        PseudoClasses.Set(s_pcTopLeft, false);
-                        PseudoClasses.Set(s_pcBottomLeft, true);
-                        PseudoClasses.Set(s_pcBottomRight, false);
-                        PseudoClasses.Set(s_pcLeftTop, false);
-                        PseudoClasses.Set(s_pcLeftBottom, false);
-                        PseudoClasses.Set(s_pcRightBottom, false);
-                        PseudoClasses.Set(s_pcRightTop, false);
-                    }
+                {
+                    PseudoClasses.Set(s_pcTop, false);
+                    PseudoClasses.Set(s_pcBottom, false);
+                    PseudoClasses.Set(s_pcLeft, false);
+                    PseudoClasses.Set(s_pcRight, false);
+                    PseudoClasses.Set(s_pcCenter, false);
+                    PseudoClasses.Set(s_pcTopRight, false);
+                    PseudoClasses.Set(s_pcTopLeft, false);
+                    PseudoClasses.Set(s_pcBottomLeft, true);
+                    PseudoClasses.Set(s_pcBottomRight, false);
+                    PseudoClasses.Set(s_pcLeftTop, false);
+                    PseudoClasses.Set(s_pcLeftBottom, false);
+                    PseudoClasses.Set(s_pcRightBottom, false);
+                    PseudoClasses.Set(s_pcRightTop, false);
+                }
                     break;
 
                 case FATeachingTipPlacementMode.LeftTop:
-                    {
-                        PseudoClasses.Set(s_pcTop, false);
-                        PseudoClasses.Set(s_pcBottom, false);
-                        PseudoClasses.Set(s_pcLeft, false);
-                        PseudoClasses.Set(s_pcRight, false);
-                        PseudoClasses.Set(s_pcCenter, false);
-                        PseudoClasses.Set(s_pcTopRight, false);
-                        PseudoClasses.Set(s_pcTopLeft, false);
-                        PseudoClasses.Set(s_pcBottomLeft, false);
-                        PseudoClasses.Set(s_pcBottomRight, false);
-                        PseudoClasses.Set(s_pcLeftTop, true);
-                        PseudoClasses.Set(s_pcLeftBottom, false);
-                        PseudoClasses.Set(s_pcRightBottom, false);
-                        PseudoClasses.Set(s_pcRightTop, false);
-                    }
+                {
+                    PseudoClasses.Set(s_pcTop, false);
+                    PseudoClasses.Set(s_pcBottom, false);
+                    PseudoClasses.Set(s_pcLeft, false);
+                    PseudoClasses.Set(s_pcRight, false);
+                    PseudoClasses.Set(s_pcCenter, false);
+                    PseudoClasses.Set(s_pcTopRight, false);
+                    PseudoClasses.Set(s_pcTopLeft, false);
+                    PseudoClasses.Set(s_pcBottomLeft, false);
+                    PseudoClasses.Set(s_pcBottomRight, false);
+                    PseudoClasses.Set(s_pcLeftTop, true);
+                    PseudoClasses.Set(s_pcLeftBottom, false);
+                    PseudoClasses.Set(s_pcRightBottom, false);
+                    PseudoClasses.Set(s_pcRightTop, false);
+                }
                     break;
 
                 case FATeachingTipPlacementMode.LeftBottom:
-                    {
-                        PseudoClasses.Set(s_pcTop, false);
-                        PseudoClasses.Set(s_pcBottom, false);
-                        PseudoClasses.Set(s_pcLeft, false);
-                        PseudoClasses.Set(s_pcRight, false);
-                        PseudoClasses.Set(s_pcCenter, false);
-                        PseudoClasses.Set(s_pcTopRight, false);
-                        PseudoClasses.Set(s_pcTopLeft, false);
-                        PseudoClasses.Set(s_pcBottomLeft, false);
-                        PseudoClasses.Set(s_pcBottomRight, false);
-                        PseudoClasses.Set(s_pcLeftTop, false);
-                        PseudoClasses.Set(s_pcLeftBottom, true);
-                        PseudoClasses.Set(s_pcRightBottom, false);
-                        PseudoClasses.Set(s_pcRightTop, false);
-                    }
+                {
+                    PseudoClasses.Set(s_pcTop, false);
+                    PseudoClasses.Set(s_pcBottom, false);
+                    PseudoClasses.Set(s_pcLeft, false);
+                    PseudoClasses.Set(s_pcRight, false);
+                    PseudoClasses.Set(s_pcCenter, false);
+                    PseudoClasses.Set(s_pcTopRight, false);
+                    PseudoClasses.Set(s_pcTopLeft, false);
+                    PseudoClasses.Set(s_pcBottomLeft, false);
+                    PseudoClasses.Set(s_pcBottomRight, false);
+                    PseudoClasses.Set(s_pcLeftTop, false);
+                    PseudoClasses.Set(s_pcLeftBottom, true);
+                    PseudoClasses.Set(s_pcRightBottom, false);
+                    PseudoClasses.Set(s_pcRightTop, false);
+                }
                     break;
 
                 case FATeachingTipPlacementMode.RightTop:
-                    {
-                        PseudoClasses.Set(s_pcTop, false);
-                        PseudoClasses.Set(s_pcBottom, false);
-                        PseudoClasses.Set(s_pcLeft, false);
-                        PseudoClasses.Set(s_pcRight, false);
-                        PseudoClasses.Set(s_pcCenter, false);
-                        PseudoClasses.Set(s_pcTopRight, false);
-                        PseudoClasses.Set(s_pcTopLeft, false);
-                        PseudoClasses.Set(s_pcBottomLeft, false);
-                        PseudoClasses.Set(s_pcBottomRight, false);
-                        PseudoClasses.Set(s_pcLeftTop, false);
-                        PseudoClasses.Set(s_pcLeftBottom, false);
-                        PseudoClasses.Set(s_pcRightBottom, false);
-                        PseudoClasses.Set(s_pcRightTop, true);
-                    }
+                {
+                    PseudoClasses.Set(s_pcTop, false);
+                    PseudoClasses.Set(s_pcBottom, false);
+                    PseudoClasses.Set(s_pcLeft, false);
+                    PseudoClasses.Set(s_pcRight, false);
+                    PseudoClasses.Set(s_pcCenter, false);
+                    PseudoClasses.Set(s_pcTopRight, false);
+                    PseudoClasses.Set(s_pcTopLeft, false);
+                    PseudoClasses.Set(s_pcBottomLeft, false);
+                    PseudoClasses.Set(s_pcBottomRight, false);
+                    PseudoClasses.Set(s_pcLeftTop, false);
+                    PseudoClasses.Set(s_pcLeftBottom, false);
+                    PseudoClasses.Set(s_pcRightBottom, false);
+                    PseudoClasses.Set(s_pcRightTop, true);
+                }
                     break;
 
                 case FATeachingTipPlacementMode.RightBottom:
-                    {
-                        PseudoClasses.Set(s_pcTop, false);
-                        PseudoClasses.Set(s_pcBottom, false);
-                        PseudoClasses.Set(s_pcLeft, false);
-                        PseudoClasses.Set(s_pcRight, false);
-                        PseudoClasses.Set(s_pcCenter, false);
-                        PseudoClasses.Set(s_pcTopRight, false);
-                        PseudoClasses.Set(s_pcTopLeft, false);
-                        PseudoClasses.Set(s_pcBottomLeft, false);
-                        PseudoClasses.Set(s_pcBottomRight, false);
-                        PseudoClasses.Set(s_pcLeftTop, false);
-                        PseudoClasses.Set(s_pcLeftBottom, false);
-                        PseudoClasses.Set(s_pcRightBottom, true);
-                        PseudoClasses.Set(s_pcRightTop, false);
-                    }
+                {
+                    PseudoClasses.Set(s_pcTop, false);
+                    PseudoClasses.Set(s_pcBottom, false);
+                    PseudoClasses.Set(s_pcLeft, false);
+                    PseudoClasses.Set(s_pcRight, false);
+                    PseudoClasses.Set(s_pcCenter, false);
+                    PseudoClasses.Set(s_pcTopRight, false);
+                    PseudoClasses.Set(s_pcTopLeft, false);
+                    PseudoClasses.Set(s_pcBottomLeft, false);
+                    PseudoClasses.Set(s_pcBottomRight, false);
+                    PseudoClasses.Set(s_pcLeftTop, false);
+                    PseudoClasses.Set(s_pcLeftBottom, false);
+                    PseudoClasses.Set(s_pcRightBottom, true);
+                    PseudoClasses.Set(s_pcRightTop, false);
+                }
                     break;
 
                 case FATeachingTipPlacementMode.Center:
-                    {
-                        PseudoClasses.Set(s_pcTop, false);
-                        PseudoClasses.Set(s_pcBottom, false);
-                        PseudoClasses.Set(s_pcLeft, false);
-                        PseudoClasses.Set(s_pcRight, false);
-                        PseudoClasses.Set(s_pcCenter, true);
-                        PseudoClasses.Set(s_pcTopRight, false);
-                        PseudoClasses.Set(s_pcTopLeft, false);
-                        PseudoClasses.Set(s_pcBottomLeft, false);
-                        PseudoClasses.Set(s_pcBottomRight, false);
-                        PseudoClasses.Set(s_pcLeftTop, false);
-                        PseudoClasses.Set(s_pcLeftBottom, false);
-                        PseudoClasses.Set(s_pcRightBottom, false);
-                        PseudoClasses.Set(s_pcRightTop, false);
-                    }
+                {
+                    PseudoClasses.Set(s_pcTop, false);
+                    PseudoClasses.Set(s_pcBottom, false);
+                    PseudoClasses.Set(s_pcLeft, false);
+                    PseudoClasses.Set(s_pcRight, false);
+                    PseudoClasses.Set(s_pcCenter, true);
+                    PseudoClasses.Set(s_pcTopRight, false);
+                    PseudoClasses.Set(s_pcTopLeft, false);
+                    PseudoClasses.Set(s_pcBottomLeft, false);
+                    PseudoClasses.Set(s_pcBottomRight, false);
+                    PseudoClasses.Set(s_pcLeftTop, false);
+                    PseudoClasses.Set(s_pcLeftBottom, false);
+                    PseudoClasses.Set(s_pcRightBottom, false);
+                    PseudoClasses.Set(s_pcRightTop, false);
+                }
                     break;
             }
         }
@@ -661,18 +750,11 @@ public partial class FATeachingTip : ContentControl
     {
         var tipDoesNotFit = false;
         if (_target != null)
-        {
             tipDoesNotFit = PositionTargetedPopup();
-        }
         else
-        {
             tipDoesNotFit = PositionUntargetedPopup();
-        }
 
-        if (tipDoesNotFit)
-        {
-            IsOpen = false;
-        }
+        if (tipDoesNotFit) IsOpen = false;
     }
 
     private bool PositionTargetedPopup()
@@ -680,84 +762,113 @@ public partial class FATeachingTip : ContentControl
         var tipDoesNotFit = UpdateTail();
         var offset = PlacementMargin;
 
-        var (tipHeight, tipWidth) = _tailOcclusionGrid != null ?
-            (_tailOcclusionGrid.Bounds.Height, _tailOcclusionGrid.Bounds.Width) : (0, 0);
+        var (tipHeight, tipWidth) = _tailOcclusionGrid != null
+            ? (_tailOcclusionGrid.Bounds.Height, _tailOcclusionGrid.Bounds.Width)
+            : (0, 0);
 
         if (_popup != null)
-        {
             // Depending on the effective placement mode of the tip we use a combination of the tip's size, the target's position within the app, the target's
             // size, and the target offset property to determine the appropriate vertical and horizontal offsets of the popup that the tip is contained in.
             switch (_currentEffectiveTipPlacementMode)
             {
                 case FATeachingTipPlacementMode.Top:
                     _popup.VerticalOffset = _currentTargetBoundsInCoreWindowSpace.Y - tipHeight - offset.Top;
-                    _popup.HorizontalOffset = (((_currentTargetBoundsInCoreWindowSpace.X * 2.0f) + _currentTargetBoundsInCoreWindowSpace.Width - tipWidth) / 2.0);
+                    _popup.HorizontalOffset = (_currentTargetBoundsInCoreWindowSpace.X * 2.0f +
+                        _currentTargetBoundsInCoreWindowSpace.Width - tipWidth) / 2.0;
                     break;
 
                 case FATeachingTipPlacementMode.Bottom:
-                    _popup.VerticalOffset = _currentTargetBoundsInCoreWindowSpace.Y + _currentTargetBoundsInCoreWindowSpace.Height + offset.Bottom;
-                    _popup.HorizontalOffset = (((_currentTargetBoundsInCoreWindowSpace.X * 2.0f) + _currentTargetBoundsInCoreWindowSpace.Width - tipWidth) / 2.0f);
+                    _popup.VerticalOffset = _currentTargetBoundsInCoreWindowSpace.Y +
+                                            _currentTargetBoundsInCoreWindowSpace.Height + offset.Bottom;
+                    _popup.HorizontalOffset = (_currentTargetBoundsInCoreWindowSpace.X * 2.0f +
+                        _currentTargetBoundsInCoreWindowSpace.Width - tipWidth) / 2.0f;
                     break;
 
                 case FATeachingTipPlacementMode.Left:
-                    _popup.VerticalOffset = ((_currentTargetBoundsInCoreWindowSpace.Y * 2.0f) + _currentTargetBoundsInCoreWindowSpace.Height - tipHeight) / 2.0f;
+                    _popup.VerticalOffset = (_currentTargetBoundsInCoreWindowSpace.Y * 2.0f +
+                        _currentTargetBoundsInCoreWindowSpace.Height - tipHeight) / 2.0f;
                     _popup.HorizontalOffset = _currentTargetBoundsInCoreWindowSpace.X - tipWidth - offset.Left;
                     break;
 
                 case FATeachingTipPlacementMode.Right:
-                    _popup.VerticalOffset = ((_currentTargetBoundsInCoreWindowSpace.Y * 2.0f) + _currentTargetBoundsInCoreWindowSpace.Height - tipHeight) / 2.0f;
-                    _popup.HorizontalOffset = _currentTargetBoundsInCoreWindowSpace.X + _currentTargetBoundsInCoreWindowSpace.Width + offset.Right;
+                    _popup.VerticalOffset = (_currentTargetBoundsInCoreWindowSpace.Y * 2.0f +
+                        _currentTargetBoundsInCoreWindowSpace.Height - tipHeight) / 2.0f;
+                    _popup.HorizontalOffset = _currentTargetBoundsInCoreWindowSpace.X +
+                                              _currentTargetBoundsInCoreWindowSpace.Width + offset.Right;
                     break;
 
                 case FATeachingTipPlacementMode.TopRight:
                     _popup.VerticalOffset = _currentTargetBoundsInCoreWindowSpace.Y - tipHeight - offset.Top;
-                    _popup.HorizontalOffset = ((((_currentTargetBoundsInCoreWindowSpace.X * 2.0f) + _currentTargetBoundsInCoreWindowSpace.Width) / 2.0f) - MinimumTipEdgeToTailCenter());
+                    _popup.HorizontalOffset =
+                        (_currentTargetBoundsInCoreWindowSpace.X * 2.0f + _currentTargetBoundsInCoreWindowSpace.Width) /
+                        2.0f - MinimumTipEdgeToTailCenter();
                     break;
 
                 case FATeachingTipPlacementMode.TopLeft:
                     _popup.VerticalOffset = _currentTargetBoundsInCoreWindowSpace.Y - tipHeight - offset.Top;
-                    _popup.HorizontalOffset = ((((_currentTargetBoundsInCoreWindowSpace.X * 2.0f) + _currentTargetBoundsInCoreWindowSpace.Width) / 2.0f) - tipWidth + MinimumTipEdgeToTailCenter());
+                    _popup.HorizontalOffset =
+                        (_currentTargetBoundsInCoreWindowSpace.X * 2.0f + _currentTargetBoundsInCoreWindowSpace.Width) /
+                        2.0f - tipWidth + MinimumTipEdgeToTailCenter();
                     break;
 
                 case FATeachingTipPlacementMode.BottomRight:
-                    _popup.VerticalOffset = _currentTargetBoundsInCoreWindowSpace.Y + _currentTargetBoundsInCoreWindowSpace.Height + offset.Bottom;
-                    _popup.HorizontalOffset = ((((_currentTargetBoundsInCoreWindowSpace.X * 2.0f) + _currentTargetBoundsInCoreWindowSpace.Width) / 2.0f) - MinimumTipEdgeToTailCenter());
+                    _popup.VerticalOffset = _currentTargetBoundsInCoreWindowSpace.Y +
+                                            _currentTargetBoundsInCoreWindowSpace.Height + offset.Bottom;
+                    _popup.HorizontalOffset =
+                        (_currentTargetBoundsInCoreWindowSpace.X * 2.0f + _currentTargetBoundsInCoreWindowSpace.Width) /
+                        2.0f - MinimumTipEdgeToTailCenter();
                     break;
 
                 case FATeachingTipPlacementMode.BottomLeft:
-                    _popup.VerticalOffset = _currentTargetBoundsInCoreWindowSpace.Y + _currentTargetBoundsInCoreWindowSpace.Height + offset.Bottom;
-                    _popup.HorizontalOffset = ((((_currentTargetBoundsInCoreWindowSpace.X * 2.0f) + _currentTargetBoundsInCoreWindowSpace.Width) / 2.0f) - tipWidth + MinimumTipEdgeToTailCenter());
+                    _popup.VerticalOffset = _currentTargetBoundsInCoreWindowSpace.Y +
+                                            _currentTargetBoundsInCoreWindowSpace.Height + offset.Bottom;
+                    _popup.HorizontalOffset =
+                        (_currentTargetBoundsInCoreWindowSpace.X * 2.0f + _currentTargetBoundsInCoreWindowSpace.Width) /
+                        2.0f - tipWidth + MinimumTipEdgeToTailCenter();
                     break;
 
                 case FATeachingTipPlacementMode.LeftTop:
-                    _popup.VerticalOffset = (((_currentTargetBoundsInCoreWindowSpace.Y * 2.0f) + _currentTargetBoundsInCoreWindowSpace.Height) / 2.0f) - tipHeight + MinimumTipEdgeToTailCenter();
+                    _popup.VerticalOffset =
+                        (_currentTargetBoundsInCoreWindowSpace.Y * 2.0f +
+                         _currentTargetBoundsInCoreWindowSpace.Height) / 2.0f - tipHeight +
+                        MinimumTipEdgeToTailCenter();
                     _popup.HorizontalOffset = _currentTargetBoundsInCoreWindowSpace.X - tipWidth - offset.Left;
                     break;
 
                 case FATeachingTipPlacementMode.LeftBottom:
-                    _popup.VerticalOffset = (((_currentTargetBoundsInCoreWindowSpace.Y * 2.0f) + _currentTargetBoundsInCoreWindowSpace.Height) / 2.0f) - MinimumTipEdgeToTailCenter();
+                    _popup.VerticalOffset =
+                        (_currentTargetBoundsInCoreWindowSpace.Y * 2.0f +
+                         _currentTargetBoundsInCoreWindowSpace.Height) / 2.0f - MinimumTipEdgeToTailCenter();
                     _popup.HorizontalOffset = _currentTargetBoundsInCoreWindowSpace.X - tipWidth - offset.Left;
                     break;
 
                 case FATeachingTipPlacementMode.RightTop:
-                    _popup.VerticalOffset = (((_currentTargetBoundsInCoreWindowSpace.Y * 2.0f) + _currentTargetBoundsInCoreWindowSpace.Height) / 2.0f) - tipHeight + MinimumTipEdgeToTailCenter();
-                    _popup.HorizontalOffset = _currentTargetBoundsInCoreWindowSpace.X + _currentTargetBoundsInCoreWindowSpace.Width + offset.Right;
+                    _popup.VerticalOffset =
+                        (_currentTargetBoundsInCoreWindowSpace.Y * 2.0f +
+                         _currentTargetBoundsInCoreWindowSpace.Height) / 2.0f - tipHeight +
+                        MinimumTipEdgeToTailCenter();
+                    _popup.HorizontalOffset = _currentTargetBoundsInCoreWindowSpace.X +
+                                              _currentTargetBoundsInCoreWindowSpace.Width + offset.Right;
                     break;
 
                 case FATeachingTipPlacementMode.RightBottom:
-                    _popup.VerticalOffset = (((_currentTargetBoundsInCoreWindowSpace.Y * 2.0f) + _currentTargetBoundsInCoreWindowSpace.Height) / 2.0f) - MinimumTipEdgeToTailCenter();
-                    _popup.HorizontalOffset = _currentTargetBoundsInCoreWindowSpace.X + _currentTargetBoundsInCoreWindowSpace.Width + offset.Right;
+                    _popup.VerticalOffset =
+                        (_currentTargetBoundsInCoreWindowSpace.Y * 2.0f +
+                         _currentTargetBoundsInCoreWindowSpace.Height) / 2.0f - MinimumTipEdgeToTailCenter();
+                    _popup.HorizontalOffset = _currentTargetBoundsInCoreWindowSpace.X +
+                                              _currentTargetBoundsInCoreWindowSpace.Width + offset.Right;
                     break;
 
                 case FATeachingTipPlacementMode.Center:
-                    _popup.VerticalOffset = _currentTargetBoundsInCoreWindowSpace.Y + (_currentTargetBoundsInCoreWindowSpace.Height / 2.0f) - tipHeight - offset.Top;
-                    _popup.HorizontalOffset = (((_currentTargetBoundsInCoreWindowSpace.X * 2.0f) + _currentTargetBoundsInCoreWindowSpace.Width - tipWidth) / 2.0f);
+                    _popup.VerticalOffset = _currentTargetBoundsInCoreWindowSpace.Y +
+                        _currentTargetBoundsInCoreWindowSpace.Height / 2.0f - tipHeight - offset.Top;
+                    _popup.HorizontalOffset = (_currentTargetBoundsInCoreWindowSpace.X * 2.0f +
+                        _currentTargetBoundsInCoreWindowSpace.Width - tipWidth) / 2.0f;
                     break;
 
                 default:
                     throw new Exception("Invalid TeachingTipPlacementMode");
             }
-        }
 
         return tipDoesNotFit;
     }
@@ -766,8 +877,9 @@ public partial class FATeachingTip : ContentControl
     {
         var windowBoundsInCoreWindowSpace = GetEffectiveWindowBoundsInCoreWindowSpace(GetWindowBounds());
 
-        var (finalTipHeight, finalTipWidth) = _tailOcclusionGrid != null ?
-            (_tailOcclusionGrid.Bounds.Height, _tailOcclusionGrid.Bounds.Width) : (0, 0);
+        var (finalTipHeight, finalTipWidth) = _tailOcclusionGrid != null
+            ? (_tailOcclusionGrid.Bounds.Height, _tailOcclusionGrid.Bounds.Width)
+            : (0, 0);
 
         var tipDoesNotFit = UpdateTail();
 
@@ -776,79 +888,103 @@ public partial class FATeachingTip : ContentControl
         // Depending on the effective placement mode of the tip we use a combination of the tip's size, the window's size, and the target
         // offset property to determine the appropriate vertical and horizontal offsets of the popup that the tip is contained in.
         if (_popup != null)
-        {
             switch (GetFlowDirectionAdjustedPlacement(PreferredPlacement))
             {
                 case FATeachingTipPlacementMode.Auto:
                 case FATeachingTipPlacementMode.Bottom:
-                    _popup.VerticalOffset = UntargetedTipFarPlacementOffset(windowBoundsInCoreWindowSpace.Height, finalTipHeight, offset.Bottom);
-                    _popup.HorizontalOffset = UntargetedTipCenterPlacementOffset(windowBoundsInCoreWindowSpace.X, windowBoundsInCoreWindowSpace.Width, finalTipWidth, offset.Left, offset.Right);
+                    _popup.VerticalOffset = UntargetedTipFarPlacementOffset(windowBoundsInCoreWindowSpace.Height,
+                        finalTipHeight, offset.Bottom);
+                    _popup.HorizontalOffset = UntargetedTipCenterPlacementOffset(windowBoundsInCoreWindowSpace.X,
+                        windowBoundsInCoreWindowSpace.Width, finalTipWidth, offset.Left, offset.Right);
                     break;
 
                 case FATeachingTipPlacementMode.Top:
-                    _popup.VerticalOffset = UntargetedTipNearPlacementOffset(windowBoundsInCoreWindowSpace.Y, offset.Top);
-                    _popup.HorizontalOffset = UntargetedTipCenterPlacementOffset(windowBoundsInCoreWindowSpace.X, windowBoundsInCoreWindowSpace.Width, finalTipWidth, offset.Left, offset.Right);
+                    _popup.VerticalOffset =
+                        UntargetedTipNearPlacementOffset(windowBoundsInCoreWindowSpace.Y, offset.Top);
+                    _popup.HorizontalOffset = UntargetedTipCenterPlacementOffset(windowBoundsInCoreWindowSpace.X,
+                        windowBoundsInCoreWindowSpace.Width, finalTipWidth, offset.Left, offset.Right);
                     break;
 
                 case FATeachingTipPlacementMode.Left:
-                    _popup.VerticalOffset = UntargetedTipCenterPlacementOffset(windowBoundsInCoreWindowSpace.Y, windowBoundsInCoreWindowSpace.Height, finalTipHeight, offset.Top, offset.Bottom);
-                    _popup.HorizontalOffset = UntargetedTipNearPlacementOffset(windowBoundsInCoreWindowSpace.X, offset.Left);
+                    _popup.VerticalOffset = UntargetedTipCenterPlacementOffset(windowBoundsInCoreWindowSpace.Y,
+                        windowBoundsInCoreWindowSpace.Height, finalTipHeight, offset.Top, offset.Bottom);
+                    _popup.HorizontalOffset =
+                        UntargetedTipNearPlacementOffset(windowBoundsInCoreWindowSpace.X, offset.Left);
                     break;
 
                 case FATeachingTipPlacementMode.Right:
-                    _popup.VerticalOffset = UntargetedTipCenterPlacementOffset(windowBoundsInCoreWindowSpace.Y, windowBoundsInCoreWindowSpace.Height, finalTipHeight, offset.Top, offset.Bottom);
-                    _popup.HorizontalOffset = UntargetedTipFarPlacementOffset(windowBoundsInCoreWindowSpace.Width, finalTipWidth, offset.Right);
+                    _popup.VerticalOffset = UntargetedTipCenterPlacementOffset(windowBoundsInCoreWindowSpace.Y,
+                        windowBoundsInCoreWindowSpace.Height, finalTipHeight, offset.Top, offset.Bottom);
+                    _popup.HorizontalOffset = UntargetedTipFarPlacementOffset(windowBoundsInCoreWindowSpace.Width,
+                        finalTipWidth, offset.Right);
                     break;
 
                 case FATeachingTipPlacementMode.TopRight:
-                    _popup.VerticalOffset = UntargetedTipNearPlacementOffset(windowBoundsInCoreWindowSpace.Y, offset.Top);
-                    _popup.HorizontalOffset = UntargetedTipFarPlacementOffset(windowBoundsInCoreWindowSpace.Width, finalTipWidth, offset.Right);
+                    _popup.VerticalOffset =
+                        UntargetedTipNearPlacementOffset(windowBoundsInCoreWindowSpace.Y, offset.Top);
+                    _popup.HorizontalOffset = UntargetedTipFarPlacementOffset(windowBoundsInCoreWindowSpace.Width,
+                        finalTipWidth, offset.Right);
                     break;
 
                 case FATeachingTipPlacementMode.TopLeft:
-                    _popup.VerticalOffset = UntargetedTipNearPlacementOffset(windowBoundsInCoreWindowSpace.Y, offset.Top);
-                    _popup.HorizontalOffset = UntargetedTipNearPlacementOffset(windowBoundsInCoreWindowSpace.X, offset.Left);
+                    _popup.VerticalOffset =
+                        UntargetedTipNearPlacementOffset(windowBoundsInCoreWindowSpace.Y, offset.Top);
+                    _popup.HorizontalOffset =
+                        UntargetedTipNearPlacementOffset(windowBoundsInCoreWindowSpace.X, offset.Left);
                     break;
 
                 case FATeachingTipPlacementMode.BottomRight:
-                    _popup.VerticalOffset = UntargetedTipFarPlacementOffset(windowBoundsInCoreWindowSpace.Height, finalTipHeight, offset.Bottom);
-                    _popup.HorizontalOffset = UntargetedTipFarPlacementOffset(windowBoundsInCoreWindowSpace.Width, finalTipWidth, offset.Right);
+                    _popup.VerticalOffset = UntargetedTipFarPlacementOffset(windowBoundsInCoreWindowSpace.Height,
+                        finalTipHeight, offset.Bottom);
+                    _popup.HorizontalOffset = UntargetedTipFarPlacementOffset(windowBoundsInCoreWindowSpace.Width,
+                        finalTipWidth, offset.Right);
                     break;
 
                 case FATeachingTipPlacementMode.BottomLeft:
-                    _popup.VerticalOffset = UntargetedTipFarPlacementOffset(windowBoundsInCoreWindowSpace.Height, finalTipHeight, offset.Bottom);
-                    _popup.HorizontalOffset = UntargetedTipNearPlacementOffset(windowBoundsInCoreWindowSpace.X, offset.Left);
+                    _popup.VerticalOffset = UntargetedTipFarPlacementOffset(windowBoundsInCoreWindowSpace.Height,
+                        finalTipHeight, offset.Bottom);
+                    _popup.HorizontalOffset =
+                        UntargetedTipNearPlacementOffset(windowBoundsInCoreWindowSpace.X, offset.Left);
                     break;
 
                 case FATeachingTipPlacementMode.LeftTop:
-                    _popup.VerticalOffset = UntargetedTipNearPlacementOffset(windowBoundsInCoreWindowSpace.Y, offset.Top);
-                    _popup.HorizontalOffset = UntargetedTipNearPlacementOffset(windowBoundsInCoreWindowSpace.X, offset.Left);
+                    _popup.VerticalOffset =
+                        UntargetedTipNearPlacementOffset(windowBoundsInCoreWindowSpace.Y, offset.Top);
+                    _popup.HorizontalOffset =
+                        UntargetedTipNearPlacementOffset(windowBoundsInCoreWindowSpace.X, offset.Left);
                     break;
 
                 case FATeachingTipPlacementMode.LeftBottom:
-                    _popup.VerticalOffset = UntargetedTipFarPlacementOffset(windowBoundsInCoreWindowSpace.Height, finalTipHeight, offset.Bottom);
-                    _popup.HorizontalOffset = UntargetedTipNearPlacementOffset(windowBoundsInCoreWindowSpace.X, offset.Left);
+                    _popup.VerticalOffset = UntargetedTipFarPlacementOffset(windowBoundsInCoreWindowSpace.Height,
+                        finalTipHeight, offset.Bottom);
+                    _popup.HorizontalOffset =
+                        UntargetedTipNearPlacementOffset(windowBoundsInCoreWindowSpace.X, offset.Left);
                     break;
 
                 case FATeachingTipPlacementMode.RightTop:
-                    _popup.VerticalOffset = UntargetedTipNearPlacementOffset(windowBoundsInCoreWindowSpace.Y, offset.Top);
-                    _popup.HorizontalOffset = UntargetedTipFarPlacementOffset(windowBoundsInCoreWindowSpace.Width, finalTipWidth, offset.Right);
+                    _popup.VerticalOffset =
+                        UntargetedTipNearPlacementOffset(windowBoundsInCoreWindowSpace.Y, offset.Top);
+                    _popup.HorizontalOffset = UntargetedTipFarPlacementOffset(windowBoundsInCoreWindowSpace.Width,
+                        finalTipWidth, offset.Right);
                     break;
 
                 case FATeachingTipPlacementMode.RightBottom:
-                    _popup.VerticalOffset = UntargetedTipFarPlacementOffset(windowBoundsInCoreWindowSpace.Height, finalTipHeight, offset.Bottom);
-                    _popup.HorizontalOffset = UntargetedTipFarPlacementOffset(windowBoundsInCoreWindowSpace.Width, finalTipWidth, offset.Right);
+                    _popup.VerticalOffset = UntargetedTipFarPlacementOffset(windowBoundsInCoreWindowSpace.Height,
+                        finalTipHeight, offset.Bottom);
+                    _popup.HorizontalOffset = UntargetedTipFarPlacementOffset(windowBoundsInCoreWindowSpace.Width,
+                        finalTipWidth, offset.Right);
                     break;
 
                 case FATeachingTipPlacementMode.Center:
-                    _popup.VerticalOffset = UntargetedTipCenterPlacementOffset(windowBoundsInCoreWindowSpace.Y, windowBoundsInCoreWindowSpace.Height, finalTipHeight, offset.Top, offset.Bottom);
-                    _popup.HorizontalOffset = UntargetedTipCenterPlacementOffset(windowBoundsInCoreWindowSpace.X, windowBoundsInCoreWindowSpace.Width, finalTipWidth, offset.Left, offset.Right);
+                    _popup.VerticalOffset = UntargetedTipCenterPlacementOffset(windowBoundsInCoreWindowSpace.Y,
+                        windowBoundsInCoreWindowSpace.Height, finalTipHeight, offset.Top, offset.Bottom);
+                    _popup.HorizontalOffset = UntargetedTipCenterPlacementOffset(windowBoundsInCoreWindowSpace.X,
+                        windowBoundsInCoreWindowSpace.Width, finalTipWidth, offset.Left, offset.Right);
                     break;
 
                 default:
                     throw new Exception("Invalid TeachingTipPlacementMode");
             }
-        }
 
         return tipDoesNotFit;
     }
@@ -857,8 +993,9 @@ public partial class FATeachingTip : ContentControl
     {
         var templateSettings = TemplateSettings;
 
-        var (width, height) = _contentRootGrid != null ?
-            (_contentRootGrid.Bounds.Width, _contentRootGrid.Bounds.Height) : (0, 0);
+        var (width, height) = _contentRootGrid != null
+            ? (_contentRootGrid.Bounds.Width, _contentRootGrid.Bounds.Height)
+            : (0, 0);
 
         switch (_currentEffectiveTailPlacementMode)
         {
@@ -954,9 +1091,7 @@ public partial class FATeachingTip : ContentControl
     private void UpdateDynamicHeroContentPlacementToTop()
     {
         if (HeroContentPlacement == FATeachingTipHeroContentPlacementMode.Auto)
-        {
             UpdateDynamicHeroContentPlacementToTopImpl();
-        }
     }
 
     private void UpdateDynamicHeroContentPlacementToTopImpl()
@@ -965,17 +1100,13 @@ public partial class FATeachingTip : ContentControl
         PseudoClasses.Set(s_pcHeroContentBottom, false);
 
         if (_currentHeroContentEffectivePlacementMode != FATeachingTipHeroContentPlacementMode.Top)
-        {
             _currentHeroContentEffectivePlacementMode = FATeachingTipHeroContentPlacementMode.Top;
-        }
     }
 
     private void UpdateDynamicHeroContentPlacementToBottom()
     {
         if (HeroContentPlacement == FATeachingTipHeroContentPlacementMode.Auto)
-        {
             UpdateDynamicHeroContentPlacementToBottomImpl();
-        }
     }
 
     private void UpdateDynamicHeroContentPlacementToBottomImpl()
@@ -984,32 +1115,23 @@ public partial class FATeachingTip : ContentControl
         PseudoClasses.Set(s_pcHeroContentBottom, true);
 
         if (_currentHeroContentEffectivePlacementMode != FATeachingTipHeroContentPlacementMode.Bottom)
-        {
             _currentHeroContentEffectivePlacementMode = FATeachingTipHeroContentPlacementMode.Bottom;
-        }
     }
 
     private void OnIsOpenChanged()
     {
         if (_ignoreNextIsOpenChanged)
-        {
             _ignoreNextIsOpenChanged = false;
-        }
         else
-        {
             // SharedHelpers::QueueCallbackForCompositionRendering
             Dispatcher.UIThread.Post(() =>
             {
                 if (_isIdle)
                 {
                     if (IsOpen)
-                    {
                         IsOpenChangedToOpen();
-                    }
                     else
-                    {
                         IsOpenChangedToClose();
-                    }
                 }
                 else
                 {
@@ -1017,7 +1139,6 @@ public partial class FATeachingTip : ContentControl
                     IsOpen = !IsOpen;
                 }
             }, DispatcherPriority.Render);
-        }
     }
 
     private void IsOpenChangedToOpen()
@@ -1025,7 +1146,9 @@ public partial class FATeachingTip : ContentControl
         //Reset the close reason to the default value of programmatic.
         _lastCloseReason = FATeachingTipCloseReason.Programmatic;
 
-        _currentBoundsInCoreWindowSpace = new Rect(Bounds.Size).TransformToAABB(this.TransformToVisual(TopLevel.GetTopLevel(this)) ?? Matrix.Identity);
+        _currentBoundsInCoreWindowSpace =
+            new Rect(Bounds.Size).TransformToAABB(this.TransformToVisual(TopLevel.GetTopLevel(this)) ??
+                                                  Matrix.Identity);
 
         if (_target != null)
         {
@@ -1038,32 +1161,17 @@ public partial class FATeachingTip : ContentControl
             _currentTargetBoundsInCoreWindowSpace = default;
         }
 
-        if (_lightDismissIndicatorPopup == null)
-        {
-            CreateLightDismissIndiatorPopup();
-        }
+        if (_lightDismissIndicatorPopup == null) CreateLightDismissIndiatorPopup();
 
         OnIsLightDismissEnabledChanged();
 
-        if (_contractAnimation == null)
-        {
-            CreateContractAnimation();
-        }
-        if (_expandAnimation == null)
-        {
-            CreateExpandAnimation();
-        }
+        if (_contractAnimation == null) CreateContractAnimation();
+        if (_expandAnimation == null) CreateExpandAnimation();
 
         // If the developer defines their TeachingTip in a resource dictionary it is possible that it's template will have never been applied
-        if (!_isTemplateApplied)
-        {
-            ApplyTemplate();
-        }
+        if (!_isTemplateApplied) ApplyTemplate();
 
-        if (_popup == null || _createNewPopupOnOpen)
-        {
-            CreateNewPopup();
-        }
+        if (_popup == null || _createNewPopupOnOpen) CreateNewPopup();
 
         // If the tip is not going to open because it does not fit we need to make sure that
         // the open, closing, closed life cycle still fires so that we don't cause apps to leak
@@ -1114,18 +1222,15 @@ public partial class FATeachingTip : ContentControl
                 else
                 {
                     // We have become Open but our popup was already open. This can happen when a close is canceled by the closing event, so make sure the idle status is correct.
-                    if (!_isExpandAnimationPlaying && !_isContractAnimationPlaying)
-                    {
-                        SetIsIdle(true);
-                    }
+                    if (!_isExpandAnimationPlaying && !_isContractAnimationPlaying) SetIsIdle(true);
                 }
             }
         }
 
         if (VisualRoot != null)
-        {
-            _acceleratorKeyActivatedRevoker = (TopLevel.GetTopLevel(this) as Interactive).AddDisposableHandler(KeyDownEvent, OnF6PreviewKeyDownClicked, RoutingStrategies.Tunnel);
-        }
+            _acceleratorKeyActivatedRevoker =
+                (TopLevel.GetTopLevel(this) as Interactive).AddDisposableHandler(KeyDownEvent,
+                    OnF6PreviewKeyDownClicked, RoutingStrategies.Tunnel);
 
         // Make sure we are in the correct VSM state after ApplyTemplate and moving the template content from the Control to the Popup:
         OnIsLightDismissEnabledChanged();
@@ -1144,10 +1249,7 @@ public partial class FATeachingTip : ContentControl
             else
             {
                 // We have become not Open but our popup was already not open. Lets make sure the idle status is correct.
-                if (!_isExpandAnimationPlaying && !_isContractAnimationPlaying)
-                {
-                    SetIsIdle(true);
-                }
+                if (!_isExpandAnimationPlaying && !_isContractAnimationPlaying) SetIsIdle(true);
             }
 
             ((ISetLogicalParent)_popup).SetParent(null);
@@ -1173,8 +1275,8 @@ public partial class FATeachingTip : ContentControl
             // Raw Popups in WinUI don't have placement methods like we have and always positioned at <0,0> in the Window
             // so we mimic that here so that the remaining positioning logic elsewhere in this code still works
             Placement = PlacementMode.AnchorAndGravity,
-            PlacementAnchor = Avalonia.Controls.Primitives.PopupPositioning.PopupAnchor.TopLeft,
-            PlacementGravity = Avalonia.Controls.Primitives.PopupPositioning.PopupGravity.BottomRight
+            PlacementAnchor = PopupAnchor.TopLeft,
+            PlacementGravity = PopupGravity.BottomRight
         };
 
         popup.Opened += OnPopupOpened;
@@ -1196,23 +1298,16 @@ public partial class FATeachingTip : ContentControl
         var ico = IconSource;
 
         if (ico != null)
-        {
             ts.IconElement = FAIconHelpers.CreateFromUnknown(ico);
-        }
         else
-        {
             ts.IconElement = null;
-        }
 
         PseudoClasses.Set(FASharedPseudoclasses.s_pcIcon, ico != null);
     }
 
     private void OnPlacementMarginChanged()
     {
-        if (IsOpen)
-        {
-            PositionPopup();
-        }
+        if (IsOpen) PositionPopup();
     }
 
     private void OnIsLightDismissEnabledChanged()
@@ -1246,10 +1341,7 @@ public partial class FATeachingTip : ContentControl
         // If we have opened the tip's popup and then this property changes we will need to discard the old popup
         // and replace it with a new popup.  This variable indicates this state.
 
-        if (_popup != null)
-        {
-            _createNewPopupOnOpen = true;
-        }
+        if (_popup != null) _createNewPopupOnOpen = true;
     }
 
     private void OnHeroContentPlacementChanged()
@@ -1272,10 +1364,7 @@ public partial class FATeachingTip : ContentControl
         // algorithm. If we did not do this and the popup was opened the algorithm would maintain the current effective placement mode, which we don't want
         // since the hero content placement contributes to the choice of tip placement mode.
         _currentEffectiveTipPlacementMode = FATeachingTipPlacementMode.Auto;
-        if (IsOpen)
-        {
-            PositionPopup();
-        }
+        if (IsOpen) PositionPopup();
     }
 
     private void OnContentSizeChanged(object sender, SizeChangedEventArgs args)
@@ -1284,10 +1373,7 @@ public partial class FATeachingTip : ContentControl
         // Reset the currentEffectivePlacementMode so that the tail will be updated for the new size as well.
         _currentEffectiveTipPlacementMode = FATeachingTipPlacementMode.Auto;
 
-        if (IsOpen)
-        {
-            PositionPopup();
-        }
+        if (IsOpen) PositionPopup();
 
         var width = (float)args.NewSize.Width;
         var height = (float)args.NewSize.Height;
@@ -1296,6 +1382,7 @@ public partial class FATeachingTip : ContentControl
             _expandAnimation.SetScalarParameter("Width", width);
             _expandAnimation.SetScalarParameter("Height", height);
         }
+
         if (_contractAnimation != null)
         {
             _contractAnimation.SetScalarParameter("Width", width);
@@ -1305,10 +1392,7 @@ public partial class FATeachingTip : ContentControl
 
     private void OnF6PreviewKeyDownClicked(object sender, KeyEventArgs args)
     {
-        if (!args.Handled && IsOpen && args.Key == Key.F6)
-        {
-            args.Handled = HandleF6Clicked();
-        }
+        if (!args.Handled && IsOpen && args.Key == Key.F6) args.Handled = HandleF6Clicked();
     }
 
     private bool HandleF6Clicked(bool fromPopup = false)
@@ -1346,19 +1430,11 @@ public partial class FATeachingTip : ContentControl
             var (firstButton, secondButton) = (_closeButton, _alternateCloseButton);
             Button f6Button = null;
             //Prefer the close button to the alternate, except when there is no content.
-            if (CloseButtonContent == null)
-            {
-                (firstButton, secondButton) = (_alternateCloseButton, _closeButton);
-            }
+            if (CloseButtonContent == null) (firstButton, secondButton) = (_alternateCloseButton, _closeButton);
 
             if (firstButton != null && firstButton.IsVisible)
-            {
                 f6Button = firstButton;
-            }
-            else if (secondButton != null && secondButton.IsVisible)
-            {
-                f6Button = secondButton;
-            }
+            else if (secondButton != null && secondButton.IsVisible) f6Button = secondButton;
 
             if (f6Button != null)
             {
@@ -1405,10 +1481,8 @@ public partial class FATeachingTip : ContentControl
             _xamlRootChangedRevoker = xamlRoot.GetObservable(BoundsProperty).Subscribe(XamlRootChanged);
 
             if (ControlAutomationPeer.FromElement(this) is FATeachingTipAutomationPeer p)
-            {
                 //var notificationString = Application.Current.Name;
                 //var local = FALocalizationHelper.Instance;
-
                 //if (!string.IsNullOrEmpty(notificationString))
                 //{
                 //    notificationString =
@@ -1421,9 +1495,7 @@ public partial class FATeachingTip : ContentControl
                 //        $"{local.GetLocalizedStringResource(SR_TeachingTipNotificationWithoutAppName)} " +
                 //        $"{AutomationProperties.GetName(_popup)}";
                 //}
-
-                p.RaiseWindowOpenedEvent(/*notificationString*/);
-            }
+                p.RaiseWindowOpenedEvent( /*notificationString*/);
         }
 
         if (IsLightDismissEnabled)
@@ -1447,15 +1519,10 @@ public partial class FATeachingTip : ContentControl
         //If we were closed by the close button and we have tracked a previously focused element because F6 was used
         //To give the tip focus, then we return focus when the popup closes.
         if (_lastCloseReason == FATeachingTipCloseReason.CloseButton)
-        {
             _previouslyFocusedElement?.Focus(NavigationMethod.Unspecified);
-        }
         _previouslyFocusedElement = null;
 
-        if (ControlAutomationPeer.FromElement(this) is FATeachingTipAutomationPeer p)
-        {
-            p.RaiseWindowClosedEvent();
-        }
+        if (ControlAutomationPeer.FromElement(this) is FATeachingTipAutomationPeer p) p.RaiseWindowClosedEvent();
     }
 
     private void ClosePopupOnUnloadEvent(object sender, RoutedEventArgs e)
@@ -1466,13 +1533,10 @@ public partial class FATeachingTip : ContentControl
 
     private void OnLightDismissIndicatorPopupClosed(object sender, EventArgs e)
     {
-        if (IsOpen)
-        {
-            _lastCloseReason = FATeachingTipCloseReason.LightDismiss;
-        }
+        if (IsOpen) _lastCloseReason = FATeachingTipCloseReason.LightDismiss;
         IsOpen = false;
     }
-   
+
     private void RaiseClosingEvent(bool attachDeferralCompletedHandler)
     {
         var args = new FATeachingTipClosingEventArgs(_lastCloseReason);
@@ -1483,15 +1547,11 @@ public partial class FATeachingTip : ContentControl
             {
                 Dispatcher.UIThread.VerifyAccess();
                 if (!args.Cancel)
-                {
                     ClosePopupWithAnimationIfAvailable();
-                }
                 else
-                {
                     // The developer has changed the Cancel property to true, indicating that they wish to Cancel the
                     // closing of this tip, so we need to revert the IsOpen property to true.
                     IsOpen = true;
-                }
             });
 
             args.SetDeferral(deferral);
@@ -1517,10 +1577,7 @@ public partial class FATeachingTip : ContentControl
 
             // Under normal circumstances we would have launched an animation just now, if we did not then we should make sure
             // that the idle state is correct.
-            if (!_isContractAnimationPlaying && !_isExpandAnimationPlaying)
-            {
-                SetIsIdle(true);
-            }
+            if (!_isContractAnimationPlaying && !_isExpandAnimationPlaying) SetIsIdle(true);
         }
     }
 
@@ -1543,10 +1600,7 @@ public partial class FATeachingTip : ContentControl
 
     private FATeachingTipPlacementMode GetFlowDirectionAdjustedPlacement(FATeachingTipPlacementMode pm)
     {
-        if (FlowDirection == Avalonia.Media.FlowDirection.LeftToRight)
-        {
-            return pm;
-        }
+        if (FlowDirection == FlowDirection.LeftToRight) return pm;
 
         switch (pm)
         {
@@ -1614,13 +1668,11 @@ public partial class FATeachingTip : ContentControl
 
                 SetViewportChangedEvent(_target);
             }
+
             PositionPopup();
 
             // if we have a target that is not yet loaded, skip positioning the flayout for now, that will happen once the target loads.
-            if (_target == null || (_target != null && isTargetLoaded))
-            {
-                PositionPopup();
-            }
+            if (_target == null || (_target != null && isTargetLoaded)) PositionPopup();
         }
         else
         {
@@ -1666,10 +1718,14 @@ public partial class FATeachingTip : ContentControl
     {
         if (IsOpen)
         {
-            var newTargetBounds = _target != null ?
-                new Rect(_target.Bounds.Size).TransformToAABB(_target.TransformToVisual(TopLevel.GetTopLevel(this) as Visual).Value) : default;
+            var newTargetBounds = _target != null
+                ? new Rect(_target.Bounds.Size).TransformToAABB(_target
+                    .TransformToVisual(TopLevel.GetTopLevel(this) as Visual).Value)
+                : default;
 
-            var newCurrentBounds = new Rect(Bounds.Size).TransformToAABB(this.TransformToVisual(TopLevel.GetTopLevel(this) as Visual).Value);
+            var newCurrentBounds =
+                new Rect(Bounds.Size).TransformToAABB(
+                    this.TransformToVisual(TopLevel.GetTopLevel(this) as Visual).Value);
 
             if (newTargetBounds != _currentTargetBoundsInCoreWindowSpace ||
                 newCurrentBounds != _currentBoundsInCoreWindowSpace)
@@ -1710,10 +1766,11 @@ public partial class FATeachingTip : ContentControl
             _expandAnimation.SetScalarParameter("Width", s_defaultTipHeightAndWidth);
             _expandAnimation.SetScalarParameter("Height", s_defaultTipHeightAndWidth);
         }
-        
+
         _expandEasingFunction = new SplineEasing(0.1, 0.9, 0.2, 1);
 
-        _expandAnimation.InsertExpressionKeyFrame(0.0f, "Vector3(Min(0.01, 20.0 / Width), Min(0.01, 20.0 / Height), 1.0)");
+        _expandAnimation.InsertExpressionKeyFrame(0.0f,
+            "Vector3(Min(0.01, 20.0 / Width), Min(0.01, 20.0 / Height), 1.0)");
         (_expandAnimation as Vector3KeyFrameAnimation).InsertKeyFrame(1f, Vector3.One, _expandEasingFunction);
         _expandAnimation.Duration = _expandAnimationDuration;
         _expandAnimation.Target = s_ScaleTargetName;
@@ -1751,7 +1808,8 @@ public partial class FATeachingTip : ContentControl
         }
 
         (_contractAnimation as Vector3KeyFrameAnimation).InsertKeyFrame(0f, Vector3.One);
-        _contractAnimation.InsertExpressionKeyFrame(1.0f, "Vector3(20.0 / Width, 20.0 / Height, 1.0)", (Easing)_contractEasingFunction);        
+        _contractAnimation.InsertExpressionKeyFrame(1.0f, "Vector3(20.0 / Width, 20.0 / Height, 1.0)",
+            (Easing)_contractEasingFunction);
         _contractAnimation.Duration = _contractAnimationDuration;
         _contractAnimation.Target = s_ScaleTargetName;
 
@@ -1766,10 +1824,7 @@ public partial class FATeachingTip : ContentControl
 
     private void StartExpandToOpen()
     {
-        if (_expandAnimation == null)
-        {
-            CreateExpandAnimation();
-        }
+        if (_expandAnimation == null) CreateExpandAnimation();
 
         // TODO: We really need ScopedBatch animations to do this right
 
@@ -1779,19 +1834,16 @@ public partial class FATeachingTip : ContentControl
         UpdateTail();
 
         if (_expandAnimation != null)
-        {
             if (_tailOcclusionGrid != null)
             {
                 ElementComposition.GetElementVisual(_tailOcclusionGrid)?.StartAnimationGroup(_expandAnimation);
                 _isExpandAnimationPlaying = true;
             }
-            //if (_tailEdgeBorder != null)
-            //{
-            //    ElementComposition.GetElementVisual(_tailEdgeBorder)?.StartAnimationGroup(_expandAnimation);
-            //    _isExpandAnimationPlaying = true;
-            //}
-        }
-
+        //if (_tailEdgeBorder != null)
+        //{
+        //    ElementComposition.GetElementVisual(_tailEdgeBorder)?.StartAnimationGroup(_expandAnimation);
+        //    _isExpandAnimationPlaying = true;
+        //}
         //if (_expandElevationAnimation != null)
         //{
         //    if (_contentRootGrid != null)
@@ -1814,35 +1866,27 @@ public partial class FATeachingTip : ContentControl
         // animation to finish before we continue
         if (_isExpandAnimationPlaying)
             _scopedBatch.Start(_expandAnimationDuration);
-        
+
         // Under normal circumstances we would have launched an animation just now, if we did not then we should make sure that the idle state is correct
-        if (!_isExpandAnimationPlaying && !_isContractAnimationPlaying)
-        {
-            SetIsIdle(true);
-        }
+        if (!_isExpandAnimationPlaying && !_isContractAnimationPlaying) SetIsIdle(true);
     }
 
     private void StartContractToClose()
     {
-        if (_contractAnimation == null)
-        {
-            CreateContractAnimation();
-        }
-        
+        if (_contractAnimation == null) CreateContractAnimation();
+
         // TODO: Need ScopedBatch to do this right
         if (_contractAnimation != null)
-        {
             if (_tailOcclusionGrid != null)
             {
                 ElementComposition.GetElementVisual(_tailOcclusionGrid)?.StartAnimationGroup(_contractAnimation);
                 _isContractAnimationPlaying = true;
             }
-            //if (_tailEdgeBorder != null)
-            //{
-            //    ElementComposition.GetElementVisual(_tailEdgeBorder)?.StartAnimationGroup(_contractAnimation);
-            //    _isContractAnimationPlaying = true;
-            //}
-        }
+        //if (_tailEdgeBorder != null)
+        //{
+        //    ElementComposition.GetElementVisual(_tailEdgeBorder)?.StartAnimationGroup(_contractAnimation);
+        //    _isContractAnimationPlaying = true;
+        //}
         //if (_contractElevationAnimation != null)
         //{
         //    if (_contentRootGrid != null)
@@ -1866,12 +1910,9 @@ public partial class FATeachingTip : ContentControl
         // animation to finish before we continue
         if (_isContractAnimationPlaying)
             _scopedBatch.Start(_contractAnimationDuration);
-                
+
         // Under normal circumstances we would have launched an animation just now, if we did not then we should make sure that the idle state is correct
-        if (!_isExpandAnimationPlaying && !_isContractAnimationPlaying)
-        {
-            SetIsIdle(true);
-        }
+        if (!_isExpandAnimationPlaying && !_isContractAnimationPlaying) SetIsIdle(true);
     }
 
     private (FATeachingTipPlacementMode, bool) DetermineEffectivePlacement()
@@ -1884,31 +1925,25 @@ public partial class FATeachingTip : ContentControl
         if (!ShouldConstrainToRootBounds && _returnTopForOutOfWindowPlacement)
         {
             var placement = GetFlowDirectionAdjustedPlacement(PreferredPlacement);
-            if (placement == FATeachingTipPlacementMode.Auto)
-            {
-                return (FATeachingTipPlacementMode.Top, false);
-            }
+            if (placement == FATeachingTipPlacementMode.Auto) return (FATeachingTipPlacementMode.Top, false);
 
             return (placement, false);
         }
 
         if (IsOpen && _currentEffectiveTipPlacementMode != FATeachingTipPlacementMode.Auto)
-        {
             return (_currentEffectiveTipPlacementMode, false);
-        }
 
-        var (contentHeight, contentWidth) = _tailOcclusionGrid != null ?
-            (_tailOcclusionGrid.Bounds.Height, _tailOcclusionGrid.Bounds.Width) : (0, 0);
+        var (contentHeight, contentWidth) = _tailOcclusionGrid != null
+            ? (_tailOcclusionGrid.Bounds.Height, _tailOcclusionGrid.Bounds.Width)
+            : (0, 0);
 
-        if (_target != null)
-        {
-            return DetermineEffectivePlacementTargeted(contentHeight, contentWidth);
-        }
+        if (_target != null) return DetermineEffectivePlacementTargeted(contentHeight, contentWidth);
 
         return DetermineEffectivePlacementUntargeted(contentHeight, contentWidth);
     }
 
-    private (FATeachingTipPlacementMode, bool) DetermineEffectivePlacementTargeted(double contentHeight, double contentWidth)
+    private (FATeachingTipPlacementMode, bool) DetermineEffectivePlacementTargeted(double contentHeight,
+        double contentWidth)
     {
         // These variables will track which positions the tip will fit in. They all start true and are
         // flipped to false when we find a display condition that is not met.
@@ -1928,7 +1963,7 @@ public partial class FATeachingTip : ContentControl
             true, /*LeftButtom*/
             true, /*RightTop*/
             true, /*RightBottom*/
-            true, /*Center*/
+            true /*Center*/
         };
 
         var tipHeight = contentHeight + TailShortSideLength();
@@ -1938,16 +1973,13 @@ public partial class FATeachingTip : ContentControl
         if (HeroContent != null)
         {
             if (_heroContentBorder != null)
-            {
                 if (_nonHeroContentRootGrid != null)
-                {
-                    if (_heroContentBorder.Bounds.Height > _nonHeroContentRootGrid.Bounds.Height - TailLongSideActualLength())
+                    if (_heroContentBorder.Bounds.Height >
+                        _nonHeroContentRootGrid.Bounds.Height - TailLongSideActualLength())
                     {
                         availability[(int)FATeachingTipPlacementMode.Left] = false;
                         availability[(int)FATeachingTipPlacementMode.Right] = false;
                     }
-                }
-            }
 
             switch (HeroContentPlacement)
             {
@@ -1981,6 +2013,7 @@ public partial class FATeachingTip : ContentControl
             availability[(int)FATeachingTipPlacementMode.Left] = false;
             availability[(int)FATeachingTipPlacementMode.LeftTop] = false;
         }
+
         // If the right edge of the target isn't in the window.
         if (clippedTargetBounds.Right < 0)
         {
@@ -1988,6 +2021,7 @@ public partial class FATeachingTip : ContentControl
             availability[(int)FATeachingTipPlacementMode.Right] = false;
             availability[(int)FATeachingTipPlacementMode.RightTop] = false;
         }
+
         // If the top edge of the target isn't in the window.
         if (clippedTargetBounds.Top < 0)
         {
@@ -1995,6 +2029,7 @@ public partial class FATeachingTip : ContentControl
             availability[(int)FATeachingTipPlacementMode.Top] = false;
             availability[(int)FATeachingTipPlacementMode.TopRight] = false;
         }
+
         // If the bottom edge of the target isn't in the window
         if (clippedTargetBounds.Bottom < 0)
         {
@@ -2036,30 +2071,36 @@ public partial class FATeachingTip : ContentControl
             availability[(int)FATeachingTipPlacementMode.TopRight] = false;
             availability[(int)FATeachingTipPlacementMode.TopLeft] = false;
         }
+
         // If the total tip is too tall to fit between the center of the target and the top of the window.
-        if (tipHeight > availableBoundsAroundTarget.Top + (_currentTargetBoundsInCoreWindowSpace.Height / 2.0f))
-        {
+        if (tipHeight > availableBoundsAroundTarget.Top + _currentTargetBoundsInCoreWindowSpace.Height / 2.0f)
             availability[(int)FATeachingTipPlacementMode.Center] = false;
-        }
         // If the tip is too tall to fit between the center of the target and the top edge of the window.
-        if (contentHeight - MinimumTipEdgeToTailCenter() > availableBoundsAroundTarget.Top + (_currentTargetBoundsInCoreWindowSpace.Height / 2.0))
+        if (contentHeight - MinimumTipEdgeToTailCenter() >
+            availableBoundsAroundTarget.Top + _currentTargetBoundsInCoreWindowSpace.Height / 2.0)
         {
             availability[(int)FATeachingTipPlacementMode.RightTop] = false;
             availability[(int)FATeachingTipPlacementMode.LeftTop] = false;
         }
+
         // If the tip is too tall to fit in the window when the tail is centered vertically on the target and the tip.
-        if (contentHeight / 2.0f > availableBoundsAroundTarget.Top + (_currentTargetBoundsInCoreWindowSpace.Height / 2.0f) ||
-            contentHeight / 2.0f > availableBoundsAroundTarget.Bottom + (_currentTargetBoundsInCoreWindowSpace.Height / 2.0f))
+        if (contentHeight / 2.0f >
+            availableBoundsAroundTarget.Top + _currentTargetBoundsInCoreWindowSpace.Height / 2.0f ||
+            contentHeight / 2.0f >
+            availableBoundsAroundTarget.Bottom + _currentTargetBoundsInCoreWindowSpace.Height / 2.0f)
         {
             availability[(int)FATeachingTipPlacementMode.Right] = false;
             availability[(int)FATeachingTipPlacementMode.Left] = false;
         }
+
         // If the tip is too tall to fit between the center of the target and the bottom edge of the window.
-        if (contentHeight - MinimumTipEdgeToTailCenter() > availableBoundsAroundTarget.Bottom + (_currentTargetBoundsInCoreWindowSpace.Height / 2.0))
+        if (contentHeight - MinimumTipEdgeToTailCenter() >
+            availableBoundsAroundTarget.Bottom + _currentTargetBoundsInCoreWindowSpace.Height / 2.0)
         {
             availability[(int)FATeachingTipPlacementMode.RightBottom] = false;
             availability[(int)FATeachingTipPlacementMode.LeftBottom] = false;
         }
+
         // If the tip is too tall to fit between the bottom of the target and the bottom edge of the window.
         if (tipHeight > availableBoundsAroundTarget.Bottom)
         {
@@ -2075,26 +2116,34 @@ public partial class FATeachingTip : ContentControl
             availability[(int)FATeachingTipPlacementMode.LeftTop] = false;
             availability[(int)FATeachingTipPlacementMode.LeftBottom] = false;
         }
+
         // If the tip is too wide to fit between the center of the target and the left edge of the window.
-        if (contentWidth - MinimumTipEdgeToTailCenter() > availableBoundsAroundTarget.Left + (_currentTargetBoundsInCoreWindowSpace.Width / 2.0f))
+        if (contentWidth - MinimumTipEdgeToTailCenter() >
+            availableBoundsAroundTarget.Left + _currentTargetBoundsInCoreWindowSpace.Width / 2.0f)
         {
             availability[(int)FATeachingTipPlacementMode.TopLeft] = false;
             availability[(int)FATeachingTipPlacementMode.BottomLeft] = false;
         }
+
         // If the tip is too wide to fit in the window when the tail is centered horizontally on the target and the tip.
-        if (contentWidth / 2.0f > availableBoundsAroundTarget.Left + (_currentTargetBoundsInCoreWindowSpace.Width / 2.0f) ||
-            contentWidth / 2.0f > availableBoundsAroundTarget.Right + (_currentTargetBoundsInCoreWindowSpace.Width / 2.0f))
+        if (contentWidth / 2.0f >
+            availableBoundsAroundTarget.Left + _currentTargetBoundsInCoreWindowSpace.Width / 2.0f ||
+            contentWidth / 2.0f >
+            availableBoundsAroundTarget.Right + _currentTargetBoundsInCoreWindowSpace.Width / 2.0f)
         {
             availability[(int)FATeachingTipPlacementMode.Top] = false;
             availability[(int)FATeachingTipPlacementMode.Bottom] = false;
             availability[(int)FATeachingTipPlacementMode.Center] = false;
         }
+
         // If the tip is too wide to fit between the center of the target and the right edge of the window.
-        if (contentWidth - MinimumTipEdgeToTailCenter() > availableBoundsAroundTarget.Right + (_currentTargetBoundsInCoreWindowSpace.Width / 2.0f))
+        if (contentWidth - MinimumTipEdgeToTailCenter() >
+            availableBoundsAroundTarget.Right + _currentTargetBoundsInCoreWindowSpace.Width / 2.0f)
         {
             availability[(int)FATeachingTipPlacementMode.TopRight] = false;
             availability[(int)FATeachingTipPlacementMode.BottomRight] = false;
         }
+
         // If the tip is too wide to fit between the right edge of the target and the right edge of the window.
         if (tipWidth > availableBoundsAroundTarget.Right)
         {
@@ -2108,35 +2157,28 @@ public partial class FATeachingTip : ContentControl
         GetPlacementFallbackOrder(wantedDirection, ref priorities);
 
         foreach (var mode in priorities)
-        {
             if (availability[mode])
-            {
                 return ((FATeachingTipPlacementMode)mode, false);
-            }
-        }
 
         // The teaching tip wont fit anywhere, set tipDoesNotFit to indicate that we should not open.
         return (FATeachingTipPlacementMode.Top, true);
     }
 
-    private (FATeachingTipPlacementMode, bool) DetermineEffectivePlacementUntargeted(double contentHeight, double contentWidth)
+    private (FATeachingTipPlacementMode, bool) DetermineEffectivePlacementUntargeted(double contentHeight,
+        double contentWidth)
     {
         var windowBounds = GetWindowBounds();
         if (!ShouldConstrainToRootBounds)
         {
             var screenBoundsInCoreWindowSpace = GetEffectiveScreenBoundsInCoreWindowSpace(windowBounds);
-            if (screenBoundsInCoreWindowSpace.Height > contentHeight && screenBoundsInCoreWindowSpace.Width > contentWidth)
-            {
-                return (FATeachingTipPlacementMode.Bottom, false);
-            }
+            if (screenBoundsInCoreWindowSpace.Height > contentHeight &&
+                screenBoundsInCoreWindowSpace.Width > contentWidth) return (FATeachingTipPlacementMode.Bottom, false);
         }
         else
         {
             var windowBoundsInCoreWindowSpace = GetEffectiveWindowBoundsInCoreWindowSpace(windowBounds);
-            if (windowBoundsInCoreWindowSpace.Height > contentHeight && windowBoundsInCoreWindowSpace.Width > contentWidth)
-            {
-                return (FATeachingTipPlacementMode.Bottom, false);
-            }
+            if (windowBoundsInCoreWindowSpace.Height > contentHeight &&
+                windowBoundsInCoreWindowSpace.Width > contentWidth) return (FATeachingTipPlacementMode.Bottom, false);
         }
 
         // The teaching tip doesn't fit in the window/screen set tipDoesNotFit to indicate that we should not open.
@@ -2150,34 +2192,35 @@ public partial class FATeachingTip : ContentControl
         var windowBounds = GetWindowBounds();
         var (windowBoundsInCoreWindowSpace, screenBoundsInCoreWindowSpace) =
             (GetEffectiveWindowBoundsInCoreWindowSpace(windowBounds),
-             GetEffectiveScreenBoundsInCoreWindowSpace(windowBounds));
+                GetEffectiveScreenBoundsInCoreWindowSpace(windowBounds));
 
         var windowSpaceAroundTarget = new Thickness(
-            _currentTargetBoundsInCoreWindowSpace.X - /* 0 except with test window bounds */ windowBoundsInCoreWindowSpace.X,
-            _currentTargetBoundsInCoreWindowSpace.Y - /* 0 except with test window bounds */ windowBoundsInCoreWindowSpace.Y,
+            _currentTargetBoundsInCoreWindowSpace.X - /* 0 except with test window bounds */
+            windowBoundsInCoreWindowSpace.X,
+            _currentTargetBoundsInCoreWindowSpace.Y - /* 0 except with test window bounds */
+            windowBoundsInCoreWindowSpace.Y,
             // Window.Right - Target.Right
-            (windowBoundsInCoreWindowSpace.X + windowBoundsInCoreWindowSpace.Width) - (_currentTargetBoundsInCoreWindowSpace.X + _currentTargetBoundsInCoreWindowSpace.Width),
+            windowBoundsInCoreWindowSpace.X + windowBoundsInCoreWindowSpace.Width -
+            (_currentTargetBoundsInCoreWindowSpace.X + _currentTargetBoundsInCoreWindowSpace.Width),
             // Screen.Right - Target.Right
-            (windowBoundsInCoreWindowSpace.Y + windowBoundsInCoreWindowSpace.Height) - (_currentTargetBoundsInCoreWindowSpace.Y + _currentTargetBoundsInCoreWindowSpace.Height));
+            windowBoundsInCoreWindowSpace.Y + windowBoundsInCoreWindowSpace.Height -
+            (_currentTargetBoundsInCoreWindowSpace.Y + _currentTargetBoundsInCoreWindowSpace.Height));
 
         Thickness screenSpaceAroundTarget;
         if (!shouldConstrainToRootBounds)
-        {
             screenSpaceAroundTarget = new Thickness(
                 // Target.Left - Screen.Left
                 _currentTargetBoundsInCoreWindowSpace.X - screenBoundsInCoreWindowSpace.X,
                 // Target.Top - Screen.Top
                 _currentTargetBoundsInCoreWindowSpace.Y - screenBoundsInCoreWindowSpace.Y,
                 // Screen.Right - Target.Right
-                (screenBoundsInCoreWindowSpace.X + screenBoundsInCoreWindowSpace.Width) - (_currentTargetBoundsInCoreWindowSpace.X + _currentTargetBoundsInCoreWindowSpace.Width),
+                screenBoundsInCoreWindowSpace.X + screenBoundsInCoreWindowSpace.Width -
+                (_currentTargetBoundsInCoreWindowSpace.X + _currentTargetBoundsInCoreWindowSpace.Width),
                 // Screen.Bottom - Target.Bottom
-                (screenBoundsInCoreWindowSpace.Y + screenBoundsInCoreWindowSpace.Height) - (_currentTargetBoundsInCoreWindowSpace.Y + _currentTargetBoundsInCoreWindowSpace.Height));
-
-        }
+                screenBoundsInCoreWindowSpace.Y + screenBoundsInCoreWindowSpace.Height -
+                (_currentTargetBoundsInCoreWindowSpace.Y + _currentTargetBoundsInCoreWindowSpace.Height));
         else
-        {
             screenSpaceAroundTarget = windowSpaceAroundTarget;
-        }
 
         return (windowSpaceAroundTarget, screenSpaceAroundTarget);
     }
@@ -2190,7 +2233,6 @@ public partial class FATeachingTip : ContentControl
     private Rect GetEffectiveScreenBoundsInCoreWindowSpace(Rect windowBounds)
     {
         if (!ShouldConstrainToRootBounds)
-        {
             // For Avalonia, screen only matters for windowed systems. Since WinUI doesn't have this concept
             // we'll return a normal rect like GetEffectiveWindowBoundsInCoreWindowSpace does
             if (TopLevel.GetTopLevel(this) is Window w)
@@ -2202,7 +2244,6 @@ public partial class FATeachingTip : ContentControl
                     displayInfo.Bounds.Height / scaleFactor,
                     displayInfo.Bounds.Width / scaleFactor);
             }
-        }
 
         return new Rect(windowBounds.Size);
     }
@@ -2265,18 +2306,13 @@ public partial class FATeachingTip : ContentControl
         //Switch the preferred placement to first.
         var pivot = -1;
         for (var i = 0; i < priorityList.Length; i++)
-        {
             if (priorityList[i] == (byte)preferredPlacement)
             {
                 pivot = i;
                 break;
             }
-        }
 
-        for (var i = pivot; i > 0; i--)
-        {
-            priorityList[i] = priorityList[i - 1];
-        }
+        for (var i = pivot; i > 0; i--) priorityList[i] = priorityList[i - 1];
         priorityList[0] = (byte)preferredPlacement;
     }
 
@@ -2291,109 +2327,19 @@ public partial class FATeachingTip : ContentControl
         visual?.CenterPoint = new Vector3((float)x, (float)y, 1);
     }
 
-    private IDisposable _acceleratorKeyActivatedRevoker;
-    // This doesn't appear to be needed anymore?
-    //private EffectiveViewportRevoker _effectiveViewportChangedRevoker;
-    private IDisposable _xamlRootChangedRevoker;
-
-    private Border _container;
-    private Popup _popup;
-    private Popup _lightDismissIndicatorPopup;
-    // [Unused]  private ContentControl _popupContentControl;
-
-    private Control _rootElement;
-    private Grid _tailOcclusionGrid;
-    private Grid _contentRootGrid;
-    private Grid _nonHeroContentRootGrid;
-    private Border _heroContentBorder;
-    private Button _actionButton;
-    private Button _alternateCloseButton;
-    private Button _closeButton;
-    private Path _tailPolygon;
-    // [Unused] private Grid _tailEdgeBorder;
-    // [Unused] private Control _titleTextBlock;
-    // [Unused] private Control _subTitleTextBlock;
-
-    private IInputElement _previouslyFocusedElement;
-
-    private KeyFrameAnimation _expandAnimation;
-    private KeyFrameAnimation _contractAnimation;
-    // [Unused] private KeyFrameAnimation _expandElevationAnimation;
-    // [Unused] private KeyFrameAnimation _contractElevationAnimation;
-    private IEasing _expandEasingFunction;
-    private IEasing _contractEasingFunction;
-    private readonly ScopedBatchHelper _scopedBatch = new ScopedBatchHelper();
-
-    private FATeachingTipPlacementMode _currentEffectiveTipPlacementMode;
-    private FATeachingTipPlacementMode _currentEffectiveTailPlacementMode;
-    private FATeachingTipHeroContentPlacementMode _currentHeroContentEffectivePlacementMode;
-
-    private Rect _currentBoundsInCoreWindowSpace;
-    private Rect _currentTargetBoundsInCoreWindowSpace;
-
-    private Size _currentXamlRootSize;
-
-    private bool _ignoreNextIsOpenChanged;
-    private bool _isTemplateApplied;
-    private bool _createNewPopupOnOpen;
-
-    // HACK
-    private bool _repositionOnNextOpen;
-
-    private bool _isExpandAnimationPlaying;
-    private bool _isContractAnimationPlaying;
-
-    // [Unused] private bool _hasF6BeenInvoked;
-
-    // [Unused] private bool _useTextWindowBounds;
-    // [Unused] private Rect _testWindowBoundsInCoreWindowSpace;
-    // [Unused] private bool _useTestScreenBounds;
-    // [Unused] private Rect _testScreenBoundsInCoreWindowSpace;
-
-    // [Unused] private bool _tipShouldHaveShadow = true;
-
-    // [Unused] private bool _tipFollowsTarget;
-    private bool _returnTopForOutOfWindowPlacement = true;
-
-    // [Unused] private float _contentElevation = 32f;
-    // [Unused] private float _tailElevation = 0f;
-    // [Unused] private bool _tailShadowTargetsShadowTarget;
-
-    private TimeSpan _expandAnimationDuration = TimeSpan.FromMilliseconds(300);
-    private TimeSpan _contractAnimationDuration = TimeSpan.FromMilliseconds(200);
-
-    private FATeachingTipCloseReason _lastCloseReason = FATeachingTipCloseReason.Programmatic;
-
-    private bool _isIdle = true;
-    private Control _target;
-
-    private static readonly string s_ScaleTargetName = "Scale";
-    // [Unused] private static readonly string s_translationTargetName = "Translation";
-
-    // [Unused] private static readonly string s_teachingTipHighlightBrushName = "TeachingTipTopHighlightBrush";
-
-    //It is possible this should be exposed as a property, but you can adjust what it does with margin.
-    private static readonly float s_untargetedTipWindowEdgeMargin = 24;
-    private static readonly float s_defaultTipHeightAndWidth = 320;
-
-    //Ideally this would be computed from layout but it is difficult to do.
-    private static readonly float s_tailOcclusionAmount = 2;
-
     // These will just use the s_pc[] naming, but preserve these for reference from upstream
     // private static readonly string s_TitleTextVisibleStateName = ":showTitle";
     // private static readonly string s_SubTitleTextVisibleStateName = ":showSubtitle";
-    
+
 
     private class ScopedBatchHelper
     {
+        private DispatcherTimer _timer;
         public Action Completed { get; set; }
 
         public void Start(TimeSpan duration)
         {
-            if (_timer == null)
-            {
-                _timer = new DispatcherTimer(duration, DispatcherPriority.Background, Tick);
-            }
+            if (_timer == null) _timer = new DispatcherTimer(duration, DispatcherPriority.Background, Tick);
 
             _timer.Start();
         }
@@ -2404,7 +2350,5 @@ public partial class FATeachingTip : ContentControl
             Completed?.Invoke();
             Completed = null;
         }
-
-        private DispatcherTimer _timer;
     }
 }

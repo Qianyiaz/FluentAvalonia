@@ -1,4 +1,5 @@
-﻿using Avalonia;
+﻿using System.Collections;
+using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
@@ -6,12 +7,236 @@ using Avalonia.Layout;
 using Avalonia.VisualTree;
 using FluentAvalonia.Core;
 using FluentAvalonia.UI.Media.Animation;
-using System.Collections;
 
 namespace FluentAvalonia.UI.Controls;
 
 public partial class FANavigationView : HeaderedContentControl
 {
+    private const int _backButtonHeight = 40;
+    private const int _backButtonWidth = 40;
+    private const int _paneToggleButtonHeight = 40;
+    private const int _paneToggleButtonWidth = 40;
+    private const int _backButtonRowDefinition = 1;
+    private const float paneElevationTranslationZ = 32;
+    private const int c_toggleButtonHeightWithNoBackButton = 56;
+
+    private const int _mainMenuBlockIndex = 0;
+    private const int _footerMenuBlockIndex = 1;
+
+    private const int _itemNotFound = -1;
+
+    // Localization String Resources
+    private const string SR_SettingsButtonName = "SettingsButtonName";
+    private const string SR_NavigationOverflowButtonToolTip = "NavigationOverflowButtonToolTip";
+    private const string SR_NavigationViewSearchButtonName = "NavigationViewSearchButtonName";
+    private const string SR_NavigationBackButtonToolTip = "NavigationBackButtonToolTip";
+    private const string SR_NavigationButtonOpenName = "NavigationButtonOpenName";
+    private const string SR_NavigationButtonClosedName = "NavigationButtonClosedName";
+    private const string SR_NavigationOverflowButtonName = "NavigationOverflowButtonName";
+
+    private static readonly FASymbolIconSource _settingsIconSource = new() { Symbol = FASymbol.Settings };
+
+    // A threshold to stop recovery from overflow to normal happens immediately on resize.
+    private readonly float _topNavigationRecoveryGracePeriodWidth = 5f;
+    private Control _activeIndicator;
+
+    //private ItemsSourceView _menuItemsSource;
+    //private ItemsSourceView _footerItemsSource;
+
+    private bool _appliedTemplate;
+    private Button _backButton;
+
+    private bool _blockNextClosingEvent;
+    private Button _closeButton;
+
+    //private IControl _togglePaneTopPadding;
+    //private IControl _contentPaneTopPadding;
+    private Control _contentLeftPadding;
+    private ScrollViewer _footerItemsScrollViewer;
+    private ItemsSourceView _footerItemsSource;
+
+    // Identifies whenever a call is the result of OnApplyTemplate
+    private bool _fromOnApplyTemplate;
+
+    private bool _initialNonForcedModeUpdate = true;
+
+    private bool _isClosedCompact;
+
+    //bool _initialListSizeStateSet;
+    private bool _isLeftPaneTitleEmpty;
+
+    // There are three ways to change IsPaneOpen:
+    // 1, customer call IsPaneOpen=true/false directly or nav.IsPaneOpen is binding with a variable and the value is changed.
+    // 2, customer click ToggleButton or splitView.IsPaneOpen->nav.IsPaneOpen changed because of window resize
+    // 3, customer changed PaneDisplayMode.
+    // 2 and 3 are internal implementation and will call by ClosePane/OpenPane. the flag is to indicate 1 if it's false
+    private bool _isOpenPaneForInteraction;
+
+    // Added in WinUI1.5
+    private bool _isSelectionChangedPending;
+    private Control _itemsContainer;
+    private RowDefinition _itemsContainerRow;
+    private IDisposable _itemsContainerSizeRevoker;
+
+    private NavigationViewItemsFactory _itemsFactory;
+
+    private FANavigationViewItem _lastItemExpandedIntoFlyout;
+    private object _lastSelectedItemPendingAnimationInTopNav;
+
+    //Titlebar
+
+    private ContentControl _leftNavAutoSuggestBoxPresenter;
+    private ContentControl _leftNavFooterContentBorder;
+    private FAItemsRepeater _leftNavFooterMenuRepeater;
+    private ContentControl _leftNavPaneCustomContentBorder;
+
+    private ContentControl _leftNavPaneHeaderContentBorder;
+    private FAItemsRepeater _leftNavRepeater;
+    private ScrollViewer _menuItemsScrollViewer;
+    private ItemsSourceView _menuItemsSource;
+
+    private bool _moveTopNavOverflowItemOnFlyoutClose;
+    private Control _nextIndicator;
+
+    private double _openPaneWidth = 320; //WinUI #5800
+
+    private bool _orientationChangedPendingAnimation;
+    private Grid _paneContentGrid;
+    private ContentControl _paneCustomContentOnTopPane;
+    private ContentControl _paneFooterOnTopPane;
+
+    private ColumnDefinition _paneHeaderCloseButtonColumn;
+    private RowDefinition _paneHeaderContentBorderRow;
+
+    private ContentControl _paneHeaderOnTopPane;
+
+    private ColumnDefinition _paneHeaderToggleButtonColumn;
+
+    //private IControl _visualItemsSeparator;
+    private Button _paneSearchButton;
+
+    private Control _paneTitleFrameworkElement;
+
+    //private ColumnDefinition _paneToggleButtonIconGridColumn;
+    private Control _paneTitleHolderFrameworkElement;
+    private IDisposable _paneTitleHolderRevoker;
+    private ContentControl _paneTitleOnTopPane;
+    private ContentControl _paneTitlePresenter;
+
+    //Template Items
+    private Button _paneToggleButton;
+    private NavigationRecommendedTransitionDirection _pendingSelectionChangedDirection;
+    private object _pendingSelectionChangedItem;
+
+    //Indicator animations
+    private Control _prevIndicator;
+
+    // A flag to track that the selectionchange is caused by selection a item in topnav overflow menu
+    private bool _selectionChangeFromOverflowMenu;
+
+    private SelectionModel _selectionModel;
+    private AvaloniaList<IEnumerable> _selectionModelSource;
+
+
+    // flag is used to stop recursive call. eg:
+    // Customer select an item from SelectedItem property->ChangeSelection update ListView->LIstView raise OnSelectChange(we want stop here)->change property do do animation again.
+    // Customer clicked listview->listview raised OnSelectChange->SelectedItem property changed->ChangeSelection->Undo the selection by SelectedItem(prevItem) (we want it stop here)->ChangeSelection again ->...
+    private bool _shouldIgnoreNextSelectionChange;
+
+    private bool _shouldIgnoreUIASelectionRaiseAsExpandCollapseWillRaise;
+
+    // Flag indicating whether selection change should raise item invoked. This is needed to be able to raise ItemInvoked before SelectionChanged while SelectedItem should point to the clicked item
+    private bool _shouldRaiseItemInvokedAfterSelection;
+    private IDisposable _sizeChangedRevoker;
+    private SplitView _splitView;
+
+    private IDisposable _splitViewRevokers;
+
+    private bool _tabKeyPrecedesFocusChange;
+
+    private TopNavigationViewDataProvider _topDataProvider;
+    private ContentControl _topNavAutoSuggestBoxPresenter;
+    private Border _topNavContentOverlayAreaGrid;
+    private FAItemsRepeater _topNavFooterMenuRepeater;
+    private Grid _topNavGrid;
+    private Button _topNavOverflowButton;
+    private FAItemsRepeater _topNavRepeater;
+    private FAItemsRepeater _topNavRepeaterOverflowView;
+
+    private TopNavigationViewLayoutState _topNavigationMode = TopNavigationViewLayoutState.Uninitialized;
+
+    // Used to defer updating the SplitView displaymode property
+    private bool _updateVisualStateForDisplayModeFromOnLoaded;
+
+    private bool _wasForceClosed;
+
+    //Helpers
+
+    private int SelectedItemIndex => _topDataProvider.IndexOf(SelectedItem);
+
+    internal bool IsTopNavigationView => PaneDisplayMode == FANavigationViewPaneDisplayMode.Top;
+
+    private bool IsTopPrimaryListVisible => _topNavRepeater != null && TemplateSettings.TopPaneVisibility;
+
+    internal bool IsOverlay => _splitView != null && _splitView.DisplayMode == SplitViewDisplayMode.Overlay;
+
+    private bool IsLightDismissable => _splitView != null && _splitView.DisplayMode != SplitViewDisplayMode.Inline &&
+                                       _splitView.DisplayMode != SplitViewDisplayMode.CompactInline;
+
+    internal bool ShouldShowBackButton
+    {
+        get
+        {
+            if (DisplayMode == FANavigationViewDisplayMode.Minimal && IsPaneOpen)
+                return false;
+
+            return ShouldShowBackOrCloseButton;
+        }
+    }
+
+    internal bool ShouldShowCloseButton
+    {
+        get
+        {
+            if (_backButton != null && _closeButton != null)
+            {
+                if (!IsPaneOpen) return false;
+
+                var pdm = PaneDisplayMode;
+
+                if (pdm != FANavigationViewPaneDisplayMode.LeftMinimal &&
+                    (pdm != FANavigationViewPaneDisplayMode.Auto ||
+                     DisplayMode != FANavigationViewDisplayMode.Minimal))
+                    return false;
+
+                return ShouldShowBackOrCloseButton;
+            }
+
+            return false;
+        }
+    }
+
+    internal bool ShouldShowBackOrCloseButton
+    {
+        get
+        {
+            var vis = IsBackButtonVisible;
+            return vis;
+        }
+    }
+
+    private int GetNavigationViewItemCountInPrimaryList =>
+        _topDataProvider?.NavigationViewItemCountInPrimaryList ?? 0;
+
+    private int GetNavigationViewItemCountInTopNav =>
+        _topDataProvider?.NavigationViewItemCountInTopNav ?? 0;
+
+    private double GetTopNavigationViewActualWidth => _topNavGrid.Bounds.Width;
+
+    internal NavigationViewItemsFactory ItemsFactory => _itemsFactory;
+
+    internal SplitView GetSplitView => _splitView;
+
     //Con't logic for pane arrow key navigation
     private bool VerifyInPane(Visual focus, Visual parent)
     {
@@ -36,6 +261,7 @@ public partial class FANavigationView : HeaderedContentControl
 
             focus = focus.GetVisualParent();
         }
+
         return false;
     }
 
@@ -45,83 +271,18 @@ public partial class FANavigationView : HeaderedContentControl
         {
             var ct = start.GetRepeater.ItemsSourceView.Count;
             for (var j = ct - 1; j >= 0; j--)
-            {
                 if (start.GetRepeater.TryGetElement(j) is FANavigationViewItem nvi)
-                {
                     return SearchTreeForLowestFocusItem(nvi);
-                }
-            }
         }
 
         return start;
     }
-
-    //Helpers
-
-    private int SelectedItemIndex => _topDataProvider.IndexOf(SelectedItem);
-
-    internal bool IsTopNavigationView => PaneDisplayMode == FANavigationViewPaneDisplayMode.Top;
-
-    private bool IsTopPrimaryListVisible => _topNavRepeater != null && TemplateSettings.TopPaneVisibility;
 
     private double GetPaneToggleButtonWidth() =>
         this.TryFindResource(s_resPaneToggleButtonWidth, out var value) ? (double)value : 40;
 
     private double GetPaneToggleButtonHeight() =>
         this.TryFindResource(s_resPaneToggleButtonHeight, out var value) ? (double)value : 40;
-
-    internal bool IsOverlay => _splitView != null && _splitView.DisplayMode == SplitViewDisplayMode.Overlay;
-
-    private bool IsLightDismissable => _splitView != null && (
-        _splitView.DisplayMode != SplitViewDisplayMode.Inline &&
-        _splitView.DisplayMode != SplitViewDisplayMode.CompactInline);
-
-    internal bool ShouldShowBackButton
-    {
-        get
-        {
-            if (DisplayMode == FANavigationViewDisplayMode.Minimal && IsPaneOpen)
-                return false;
-
-            return ShouldShowBackOrCloseButton;
-        }
-    }
-
-    internal bool ShouldShowCloseButton
-    {
-        get
-        {
-            if (_backButton != null && _closeButton != null)
-            {
-                if (!IsPaneOpen)
-                {
-                    return false;
-                }
-
-                var pdm = PaneDisplayMode;
-
-                if (pdm != FANavigationViewPaneDisplayMode.LeftMinimal &&
-                    (pdm != FANavigationViewPaneDisplayMode.Auto ||
-                    DisplayMode != FANavigationViewDisplayMode.Minimal))
-                {
-                    return false;
-                }
-
-                return ShouldShowBackOrCloseButton;
-            }
-
-            return false;
-        }
-    }
-
-    internal bool ShouldShowBackOrCloseButton
-    {
-        get
-        {
-            var vis = IsBackButtonVisible;
-            return vis;
-        }
-    }
 
     private bool IsTopLevelItem(FANavigationViewItemBase nvib)
     {
@@ -132,20 +293,14 @@ public partial class FANavigationView : HeaderedContentControl
     private bool DoesNavigationViewItemHaveChildren(FANavigationViewItem nvi)
     {
         var miSource = nvi?.MenuItemsSource;
-        if (miSource != null)
-        {
-            return miSource.Count() > 0;
-        }
+        if (miSource != null) return miSource.Count() > 0;
         return nvi != null &&
-            ((nvi.MenuItems != null && nvi.MenuItems.Count() > 0) || nvi.HasUnrealizedChildren);
+               ((nvi.MenuItems != null && nvi.MenuItems.Count() > 0) || nvi.HasUnrealizedChildren);
     }
 
     private bool IsSelectionSuppressed(object item)
     {
-        if (item != null)
-        {
-            return !NavigationViewItemOrSettingsContentFromData(item)?.SelectsOnInvoked ?? false;
-        }
+        if (item != null) return !NavigationViewItemOrSettingsContentFromData(item)?.SelectsOnInvoked ?? false;
 
         return false;
     }
@@ -153,11 +308,11 @@ public partial class FANavigationView : HeaderedContentControl
     private bool IsRootItemsRepeater(object ir)
     {
         return ir != null &&
-            (ir == _topNavRepeater ||
-            ir == _leftNavRepeater ||
-            ir == _topNavRepeaterOverflowView ||
-            ir == _leftNavFooterMenuRepeater ||
-            ir == _topNavFooterMenuRepeater);
+               (ir == _topNavRepeater ||
+                ir == _leftNavRepeater ||
+                ir == _topNavRepeaterOverflowView ||
+                ir == _leftNavFooterMenuRepeater ||
+                ir == _topNavFooterMenuRepeater);
     }
 
     private bool IsRootGridOfFlyout(object item)
@@ -173,10 +328,7 @@ public partial class FANavigationView : HeaderedContentControl
         while (!IsRootItemsRepeater(parentIR))
         {
             nvib = GetParentNavigationViewItemForContainer(nvib);
-            if (nvib == null)
-            {
-                return null;
-            }
+            if (nvib == null) return null;
 
             parentIR = GetParentItemsRepeaterForContainer(nvib);
         }
@@ -195,10 +347,7 @@ public partial class FANavigationView : HeaderedContentControl
         // if item if first loaded straight in the flyout. Fix.This logic can be merged with the
         // 'GetIndexPathForContainer' logic below.
         var parent = GetParentItemsRepeaterForContainer(nvib);
-        if (!IsRootItemsRepeater(parent))
-        {
-            return parent.FindAncestorOfType<FANavigationViewItem>();
-        }
+        if (!IsRootItemsRepeater(parent)) return parent.FindAncestorOfType<FANavigationViewItem>();
 
         return null;
     }
@@ -210,31 +359,23 @@ public partial class FANavigationView : HeaderedContentControl
 
         Control child = nvib;
         var parent = nvib.GetVisualParent();
-        if (parent == null)
-        {
-            return IndexPath.CreateFromIndices(path);
-        }
+        if (parent == null) return IndexPath.CreateFromIndices(path);
 
         // Search through VisualTree for a root ItemsRepeater
         while (parent != null && !IsRootItemsRepeater(parent) && !IsRootGridOfFlyout(parent))
         {
-            if (parent is FAItemsRepeater ir)
-            {
-                path.Insert(0, ir.GetElementIndex(child));
-            }
+            if (parent is FAItemsRepeater ir) path.Insert(0, ir.GetElementIndex(child));
             child = (Control)parent;
             parent = parent.GetVisualParent();
         }
 
         // If the item is in a flyout, then we need to final index of its parent
         if (IsRootGridOfFlyout(parent))
-        {
             if (_lastItemExpandedIntoFlyout != null)
             {
                 child = _lastItemExpandedIntoFlyout;
                 parent = IsTopNavigationView ? _topNavRepeater : _leftNavRepeater;
             }
-        }
 
         // If item is in one of the disconnected ItemRepeaters, account for that in IndexPath calculations
         if (parent == _topNavRepeaterOverflowView)
@@ -294,19 +435,11 @@ public partial class FANavigationView : HeaderedContentControl
         return NavigationViewItemBaseOrSettingsContentFromData(item);
     }
 
-    private int GetNavigationViewItemCountInPrimaryList =>
-        _topDataProvider?.NavigationViewItemCountInPrimaryList ?? 0;
-
-    private int GetNavigationViewItemCountInTopNav =>
-        _topDataProvider?.NavigationViewItemCountInTopNav ?? 0;
-
     private double MeasureTopNavigationViewDesiredWidth(Size availableSize) =>
         LayoutHelper.MeasureChild(_topNavGrid, availableSize, new Thickness()).Width;
 
     private double MeasureTopNavMenuItemsHostDesiredWidth(Size availableSize) =>
         LayoutHelper.MeasureChild(_topNavRepeater, availableSize, new Thickness()).Width;
-
-    private double GetTopNavigationViewActualWidth => _topNavGrid.Bounds.Width;
 
     private bool HasTopNavigationViewItemNotInPrimaryList() =>
         _topDataProvider.PrimaryListSize != _topDataProvider.Size;
@@ -316,14 +449,11 @@ public partial class FANavigationView : HeaderedContentControl
         TemplateSettings.OverflowButtonVisibility = vis;
     }
 
-    private bool NeedTopPadding() => false;//TitleBar stuff
+    private bool NeedTopPadding() => false; //TitleBar stuff
 
     private int GetContainerCountInRepeater(FAItemsRepeater ir)
     {
-        if (ir != null && ir.ItemsSourceView != null)
-        {
-            return ir.ItemsSourceView.Count;
-        }
+        if (ir != null && ir.ItemsSourceView != null) return ir.ItemsSourceView.Count;
 
         return -1;
     }
@@ -335,30 +465,21 @@ public partial class FANavigationView : HeaderedContentControl
 
     private int GetIndexFromItem(FAItemsRepeater ir, object data)
     {
-        if (ir != null && ir.ItemsSourceView != null)
-        {
-            return ir.ItemsSourceView.IndexOf(data);
-        }
+        if (ir != null && ir.ItemsSourceView != null) return ir.ItemsSourceView.IndexOf(data);
 
         return -1;
     }
 
     private object GetItemFromIndex(FAItemsRepeater ir, int index)
     {
-        if (ir != null && ir.ItemsSourceView != null)
-        {
-            return ir.ItemsSourceView.GetAt(index);
-        }
+        if (ir != null && ir.ItemsSourceView != null) return ir.ItemsSourceView.GetAt(index);
 
         return null;
     }
 
     private IndexPath GetIndexPathOfItem(object item)
     {
-        if (item is FANavigationViewItemBase nvib)
-        {
-            return GetIndexPathForContainer(nvib);
-        }
+        if (item is FANavigationViewItemBase nvib) return GetIndexPathForContainer(nvib);
 
         // In the databinding scenario, we need to conduct a search where we go through every item,
         // realizing it if necessary.
@@ -366,38 +487,23 @@ public partial class FANavigationView : HeaderedContentControl
         {
             // First search through primary list
             var ip = SearchEntireTreeForIndexPath(_topNavRepeater, item, false);
-            if (ip != IndexPath.Unselected)
-            {
-                return ip;
-            }
+            if (ip != IndexPath.Unselected) return ip;
 
             // If item was not located in primary list, search through overflow
             ip = SearchEntireTreeForIndexPath(_topNavRepeaterOverflowView, item, false);
-            if (ip != IndexPath.Unselected)
-            {
-                return ip;
-            }
+            if (ip != IndexPath.Unselected) return ip;
 
             // If item was not located in primary list and overflow, search through footer
             ip = SearchEntireTreeForIndexPath(_topNavFooterMenuRepeater, item, true);
-            if (ip != IndexPath.Unselected)
-            {
-                return ip;
-            }
+            if (ip != IndexPath.Unselected) return ip;
         }
         else
         {
             var ip = SearchEntireTreeForIndexPath(_leftNavFooterMenuRepeater, item, true);
-            if (ip != IndexPath.Unselected)
-            {
-                return ip;
-            }
+            if (ip != IndexPath.Unselected) return ip;
 
             ip = SearchEntireTreeForIndexPath(_leftNavFooterMenuRepeater, item, true);
-            if (ip != IndexPath.Unselected)
-            {
-                return ip;
-            }
+            if (ip != IndexPath.Unselected) return ip;
         }
 
         return IndexPath.Unselected;
@@ -411,10 +517,7 @@ public partial class FANavigationView : HeaderedContentControl
             return false;
 
         var selItemCont = selItem as FANavigationViewItemBase;
-        if (selItemCont == null)
-        {
-            selItemCont = GetContainerForIndexPath(_selectionModel.SelectedIndex);
-        }
+        if (selItemCont == null) selItemCont = GetContainerForIndexPath(_selectionModel.SelectedIndex);
 
         return selItemCont == nvib;
     }
@@ -424,10 +527,7 @@ public partial class FANavigationView : HeaderedContentControl
         if (SelectedItem == null)
             return null;
 
-        if (SelectedItem is FANavigationViewItem nvi)
-        {
-            return nvi;
-        }
+        if (SelectedItem is FANavigationViewItem nvi) return nvi;
 
         return NavigationViewItemOrSettingsContentFromData(SelectedItem);
     }
@@ -439,10 +539,7 @@ public partial class FANavigationView : HeaderedContentControl
 
     private FAItemsRepeater GetChildRepeaterForIndexPath(IndexPath ip)
     {
-        if (GetContainerForIndexPath(ip) is FANavigationViewItem nvi)
-        {
-            return nvi.GetRepeater;
-        }
+        if (GetContainerForIndexPath(ip) is FANavigationViewItem nvi) return nvi.GetRepeater;
 
         return null;
     }
@@ -480,24 +577,19 @@ public partial class FANavigationView : HeaderedContentControl
     {
         // In current implementation, if click is from overflow item, just recommend FromRight Slide animation.
         if (recDir == NavigationRecommendedTransitionDirection.FromOverflow)
-        {
             recDir = NavigationRecommendedTransitionDirection.FromRight;
-        }
 
-        if ((recDir == NavigationRecommendedTransitionDirection.FromLeft ||
-            recDir == NavigationRecommendedTransitionDirection.FromRight))
-        {
+        if (recDir == NavigationRecommendedTransitionDirection.FromLeft ||
+            recDir == NavigationRecommendedTransitionDirection.FromRight)
             return new FASlideNavigationTransitionInfo
             {
-                Effect = recDir == NavigationRecommendedTransitionDirection.FromRight ?
-                 FASlideNavigationTransitionEffect.FromRight : FASlideNavigationTransitionEffect.FromLeft
+                Effect = recDir == NavigationRecommendedTransitionDirection.FromRight
+                    ? FASlideNavigationTransitionEffect.FromRight
+                    : FASlideNavigationTransitionEffect.FromLeft
             };
-        }
 
         return new FAEntranceNavigationTransitionInfo();
     }
-
-    internal NavigationViewItemsFactory ItemsFactory => _itemsFactory;
 
     private void UnhookEventsAndClearFields()
     {
@@ -590,157 +682,4 @@ public partial class FANavigationView : HeaderedContentControl
         // Skip selectionChangedRevoker, .net will kill that for us
         // autoSuggestBoxQuerySubmitted
     }
-
-    private NavigationViewItemsFactory _itemsFactory;
-    internal SplitView GetSplitView => _splitView;
-
-    //Template Items
-    private Button _paneToggleButton;
-    private SplitView _splitView;
-    private RowDefinition _itemsContainerRow;
-    private ScrollViewer _menuItemsScrollViewer;
-    private ScrollViewer _footerItemsScrollViewer;
-    private Grid _paneContentGrid;
-    //private ColumnDefinition _paneToggleButtonIconGridColumn;
-    private Control _paneTitleHolderFrameworkElement;
-    private Control _paneTitleFrameworkElement;
-    //private IControl _visualItemsSeparator;
-    private Button _paneSearchButton;
-    private Button _backButton;
-    private Button _closeButton;
-    private FAItemsRepeater _leftNavRepeater;
-    private FAItemsRepeater _topNavRepeater;
-    private FAItemsRepeater _leftNavFooterMenuRepeater;
-    private FAItemsRepeater _topNavFooterMenuRepeater;
-    private Button _topNavOverflowButton;
-    private FAItemsRepeater _topNavRepeaterOverflowView;
-    private Grid _topNavGrid;
-    private Border _topNavContentOverlayAreaGrid;
-    private Control _itemsContainer;
-
-    //Indicator animations
-    private Control _prevIndicator;
-    private Control _nextIndicator;
-    private Control _activeIndicator;
-    private object _lastSelectedItemPendingAnimationInTopNav;
-
-    //private IControl _togglePaneTopPadding;
-    //private IControl _contentPaneTopPadding;
-    private Control _contentLeftPadding;
-
-    //Titlebar
-
-    private ContentControl _leftNavAutoSuggestBoxPresenter;
-    private ContentControl _topNavAutoSuggestBoxPresenter;
-
-    private ContentControl _leftNavPaneHeaderContentBorder;
-    private ContentControl _leftNavPaneCustomContentBorder;
-    private ContentControl _leftNavFooterContentBorder;
-
-    private ContentControl _paneHeaderOnTopPane;
-    private ContentControl _paneTitleOnTopPane;
-    private ContentControl _paneCustomContentOnTopPane;
-    private ContentControl _paneFooterOnTopPane;
-    private ContentControl _paneTitlePresenter;
-
-    private ColumnDefinition _paneHeaderCloseButtonColumn;
-    private ColumnDefinition _paneHeaderToggleButtonColumn;
-    private RowDefinition _paneHeaderContentBorderRow;
-
-    private FANavigationViewItem _lastItemExpandedIntoFlyout;
-
-    private IDisposable _splitViewRevokers;
-    private IDisposable _sizeChangedRevoker;
-    private IDisposable _paneTitleHolderRevoker;
-    private IDisposable _itemsContainerSizeRevoker;
-
-    bool _wasForceClosed;
-    bool _isClosedCompact;
-    bool _blockNextClosingEvent;
-    //bool _initialListSizeStateSet;
-    bool _isLeftPaneTitleEmpty;
-
-    private TopNavigationViewDataProvider _topDataProvider;
-
-    private SelectionModel _selectionModel;
-    private AvaloniaList<IEnumerable> _selectionModelSource;
-    private ItemsSourceView _menuItemsSource;
-    private ItemsSourceView _footerItemsSource;
-
-    //private ItemsSourceView _menuItemsSource;
-    //private ItemsSourceView _footerItemsSource;
-
-    private bool _appliedTemplate;
-
-    // Identifies whenever a call is the result of OnApplyTemplate
-    private bool _fromOnApplyTemplate;
-
-    // Used to defer updating the SplitView displaymode property
-    private bool _updateVisualStateForDisplayModeFromOnLoaded;
-
-
-    // flag is used to stop recursive call. eg:
-    // Customer select an item from SelectedItem property->ChangeSelection update ListView->LIstView raise OnSelectChange(we want stop here)->change property do do animation again.
-    // Customer clicked listview->listview raised OnSelectChange->SelectedItem property changed->ChangeSelection->Undo the selection by SelectedItem(prevItem) (we want it stop here)->ChangeSelection again ->...
-    private bool _shouldIgnoreNextSelectionChange;
-
-    // A flag to track that the selectionchange is caused by selection a item in topnav overflow menu
-    private bool _selectionChangeFromOverflowMenu;
-
-    // Flag indicating whether selection change should raise item invoked. This is needed to be able to raise ItemInvoked before SelectionChanged while SelectedItem should point to the clicked item
-    private bool _shouldRaiseItemInvokedAfterSelection;
-
-    private TopNavigationViewLayoutState _topNavigationMode = TopNavigationViewLayoutState.Uninitialized;
-
-    // A threshold to stop recovery from overflow to normal happens immediately on resize.
-    private readonly float _topNavigationRecoveryGracePeriodWidth = 5f;
-
-    // There are three ways to change IsPaneOpen:
-    // 1, customer call IsPaneOpen=true/false directly or nav.IsPaneOpen is binding with a variable and the value is changed.
-    // 2, customer click ToggleButton or splitView.IsPaneOpen->nav.IsPaneOpen changed because of window resize
-    // 3, customer changed PaneDisplayMode.
-    // 2 and 3 are internal implementation and will call by ClosePane/OpenPane. the flag is to indicate 1 if it's false
-    private bool _isOpenPaneForInteraction;
-
-    private bool _moveTopNavOverflowItemOnFlyoutClose;
-
-    private bool _shouldIgnoreUIASelectionRaiseAsExpandCollapseWillRaise;
-
-    private bool _orientationChangedPendingAnimation;
-
-    private bool _tabKeyPrecedesFocusChange;
-
-    private bool _initialNonForcedModeUpdate = true;
-
-    private static readonly FASymbolIconSource _settingsIconSource = new FASymbolIconSource { Symbol = FASymbol.Settings };
-
-
-    private const int _backButtonHeight = 40;
-    private const int _backButtonWidth = 40;
-    private const int _paneToggleButtonHeight = 40;
-    private const int _paneToggleButtonWidth = 40;
-    private const int _backButtonRowDefinition = 1;
-    private const float paneElevationTranslationZ = 32;
-    private const int c_toggleButtonHeightWithNoBackButton = 56;
-
-    private const int _mainMenuBlockIndex = 0;
-    private const int _footerMenuBlockIndex = 1;
-
-    private const int _itemNotFound = -1;
-
-    private double _openPaneWidth = 320; //WinUI #5800
-
-    // Added in WinUI1.5
-    private bool _isSelectionChangedPending;
-    private object _pendingSelectionChangedItem;
-    private NavigationRecommendedTransitionDirection _pendingSelectionChangedDirection;
-
-    // Localization String Resources
-    private const string SR_SettingsButtonName = "SettingsButtonName";
-    private const string SR_NavigationOverflowButtonToolTip = "NavigationOverflowButtonToolTip";
-    private const string SR_NavigationViewSearchButtonName = "NavigationViewSearchButtonName";
-    private const string SR_NavigationBackButtonToolTip = "NavigationBackButtonToolTip";
-    private const string SR_NavigationButtonOpenName = "NavigationButtonOpenName";
-    private const string SR_NavigationButtonClosedName = "NavigationButtonClosedName";
-    private const string SR_NavigationOverflowButtonName = "NavigationOverflowButtonName";
 }

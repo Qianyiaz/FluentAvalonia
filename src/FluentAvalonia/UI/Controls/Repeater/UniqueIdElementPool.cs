@@ -1,10 +1,14 @@
-﻿using Avalonia.Controls;
-using System.Diagnostics;
+﻿using System.Diagnostics;
+using Avalonia.Controls;
 
 namespace FluentAvalonia.UI.Controls;
 
 internal class UniqueIdElementPool
 {
+    private readonly Dictionary<string, Control> _elementMap = new();
+
+    private readonly FAItemsRepeater _owner;
+
     public UniqueIdElementPool(FAItemsRepeater ir)
     {
         _owner = ir;
@@ -18,10 +22,7 @@ internal class UniqueIdElementPool
         var virtInfo = FAItemsRepeater.GetVirtualizationInfo(element);
         var key = virtInfo.UniqueId;
 
-        if (_elementMap.ContainsKey(key))
-        {
-            throw new InvalidOperationException("The ID is not unique");
-        }
+        if (_elementMap.ContainsKey(key)) throw new InvalidOperationException("The ID is not unique");
 
         _elementMap.Add(key, element);
     }
@@ -32,10 +33,7 @@ internal class UniqueIdElementPool
 
         Control element = null;
         var key = _owner.ItemsSourceView.KeyFromIndex(index);
-        if (_elementMap.TryGetValue(key, out element))
-        {
-            _elementMap.Remove(key);
-        }
+        if (_elementMap.TryGetValue(key, out element)) _elementMap.Remove(key);
 
         return element;
     }
@@ -43,7 +41,4 @@ internal class UniqueIdElementPool
     public void Clear() => _elementMap.Clear();
 
     public IEnumerator<KeyValuePair<string, Control>> GetEnumerator() => _elementMap.GetEnumerator();
-
-    private readonly FAItemsRepeater _owner;
-    private readonly Dictionary<string, Control> _elementMap = new Dictionary<string, Control>();
 }

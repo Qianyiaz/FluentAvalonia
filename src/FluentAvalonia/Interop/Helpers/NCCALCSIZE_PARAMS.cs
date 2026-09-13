@@ -10,7 +10,7 @@ namespace FluentAvalonia.Interop.Win32;
 internal unsafe struct NCCALCSIZE_PARAMS
 {
     public _rgrc_e__FixedBuffer rgrc;
-     
+
     public WINDOWPOS* lppos;
 
     public struct _rgrc_e__FixedBuffer

@@ -1,27 +1,19 @@
-﻿using Avalonia.Controls;
-using Avalonia;
-using Avalonia.Data;
+﻿using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
+using Avalonia.Data;
 using FluentAvalonia.Core;
 
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Represents a menu item that is mutually exclusive with other radio menu items in its group.
+///     Represents a menu item that is mutually exclusive with other radio menu items in its group.
 /// </summary>
 [PseudoClasses(FASharedPseudoclasses.s_pcChecked)]
 public class FARadioMenuFlyoutItem : FAMenuFlyoutItem
 {
-    static FARadioMenuFlyoutItem()
-    {
-        if (SelectionMap == null)
-        {
-            SelectionMap = new SortedDictionary<string, WeakReference<FARadioMenuFlyoutItem>>();
-        }
-    }
-
     /// <summary>
-    /// Defines the <see cref="GroupName"/> property
+    ///     Defines the <see cref="GroupName" /> property
     /// </summary>
     public static readonly StyledProperty<string> GroupNameProperty =
         RadioButton.GroupNameProperty.AddOwner<FARadioMenuFlyoutItem>(
@@ -29,14 +21,23 @@ public class FARadioMenuFlyoutItem : FAMenuFlyoutItem
                 coerce: (_, x) => x ?? string.Empty));
 
     /// <summary>
-    /// Defines the <see cref="IsChecked"/> property
+    ///     Defines the <see cref="IsChecked" /> property
     /// </summary>
     public static readonly StyledProperty<bool> IsCheckedProperty =
         AvaloniaProperty.Register<FARadioMenuFlyoutItem, bool>(nameof(IsChecked),
             defaultBindingMode: BindingMode.TwoWay);
 
+    internal static readonly SortedDictionary<string, WeakReference<FARadioMenuFlyoutItem>> SelectionMap;
+
+    private bool _isSafeUncheck;
+
+    static FARadioMenuFlyoutItem()
+    {
+        if (SelectionMap == null) SelectionMap = new SortedDictionary<string, WeakReference<FARadioMenuFlyoutItem>>();
+    }
+
     /// <summary>
-    /// Gets or sets the name that specifies which RadioMenuFlyoutItem controls are mutually exclusive.
+    ///     Gets or sets the name that specifies which RadioMenuFlyoutItem controls are mutually exclusive.
     /// </summary>
     public string GroupName
     {
@@ -45,7 +46,7 @@ public class FARadioMenuFlyoutItem : FAMenuFlyoutItem
     }
 
     /// <summary>
-    /// Gets or sets whether this RadioMenuFlyoutItem is checked
+    ///     Gets or sets whether this RadioMenuFlyoutItem is checked
     /// </summary>
     public bool IsChecked
     {
@@ -115,9 +116,4 @@ public class FARadioMenuFlyoutItem : FAMenuFlyoutItem
         base.OnClick();
         IsChecked = !IsChecked;
     }
-
-    private bool _isSafeUncheck;
-
-    internal static readonly SortedDictionary<string, WeakReference<FARadioMenuFlyoutItem>> SelectionMap;
 }
-

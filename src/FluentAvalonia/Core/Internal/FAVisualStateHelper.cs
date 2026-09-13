@@ -5,23 +5,23 @@ using FluentAvalonia.Core.Internal;
 namespace FluentAvalonia.Core;
 
 /// <summary>
-/// Visual State Helper
+///     Visual State Helper
 /// </summary>
 public sealed class FAVisualStateHelper
 {
+    /// <summary>
+    ///     Forced Classes
+    /// </summary>
+    public static readonly AttachedProperty<string> ForcedClassesProperty =
+        AvaloniaProperty.RegisterAttached<FAVisualStateHelper, StyledElement, string>("ForcedClasses");
+
     static FAVisualStateHelper()
     {
         ForcedClassesProperty.Changed.Subscribe(OnForcedClassesPropertyChanged);
     }
 
     /// <summary>
-    /// Forced Classes 
-    /// </summary>
-    public static readonly AttachedProperty<string> ForcedClassesProperty =
-        AvaloniaProperty.RegisterAttached<FAVisualStateHelper, StyledElement, string>("ForcedClasses");
-
-    /// <summary>
-    /// Get value of <see cref="ForcedClassesProperty"/> property.
+    ///     Get value of <see cref="ForcedClassesProperty" /> property.
     /// </summary>
     /// <param name="element"></param>
     /// <returns></returns>
@@ -29,7 +29,7 @@ public sealed class FAVisualStateHelper
         element.GetValue(ForcedClassesProperty);
 
     /// <summary>
-    /// Set value of <see cref="ForcedClassesProperty"/> property.
+    ///     Set value of <see cref="ForcedClassesProperty" /> property.
     /// </summary>
     /// <param name="element"></param>
     /// <param name="classes"></param>

@@ -1,20 +1,25 @@
-﻿using Avalonia;
+﻿using System.Collections;
+using System.Collections.Specialized;
+using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
+using Avalonia.Controls.Primitives.PopupPositioning;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.VisualTree;
-using System.Collections;
-using System.Collections.Specialized;
 
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Represents a menu item that displays a sub-menu in a <see cref="FAMenuFlyout"/> control.
+///     Represents a menu item that displays a sub-menu in a <see cref="FAMenuFlyout" /> control.
 /// </summary>
 public partial class FAMenuFlyoutSubItem : FAMenuFlyoutItemBase
 {
+    private FAMenuFlyoutPresenter _presenter;
+
+    private Popup _subMenu;
+
     public FAMenuFlyoutSubItem()
     {
         TemplateSettings = new FAMenuFlyoutItemTemplateSettings();
@@ -34,16 +39,11 @@ public partial class FAMenuFlyoutSubItem : FAMenuFlyoutItemBase
         else if (change.Property == ItemsSourceProperty)
         {
             if (Items.Count > 0)
-            {
                 throw new InvalidOperationException("Items collection must be empty before using ItemsSource.");
-            }
 
             var newV = change.GetNewValue<IEnumerable>();
 
-            if (_presenter != null)
-            {
-                _presenter.ItemsSource = newV ?? Items;
-            }
+            if (_presenter != null) _presenter.ItemsSource = newV ?? Items;
         }
     }
 
@@ -66,7 +66,7 @@ public partial class FAMenuFlyoutSubItem : FAMenuFlyoutItemBase
     internal void Open(bool fromKeyboard = false)
     {
         InitPopup();
-        
+
         _subMenu.IsOpen = true;
         _presenter.MenuOpened(fromKeyboard);
     }
@@ -79,12 +79,8 @@ public partial class FAMenuFlyoutSubItem : FAMenuFlyoutItemBase
         // This ensures any open submenus are closed with this
         // This seems to only be needed with OverlayPopups
         foreach (var item in _presenter.GetRealizedContainers())
-        {
             if (item is FAMenuFlyoutSubItem mfsi)
-            {
                 mfsi.Close();
-            }
-        }
 
         if (_subMenu != null)
         {
@@ -105,7 +101,7 @@ public partial class FAMenuFlyoutSubItem : FAMenuFlyoutItemBase
     {
         if (_subMenu == null)
         {
-            _presenter = new FAMenuFlyoutPresenter()
+            _presenter = new FAMenuFlyoutPresenter
             {
                 ItemsSource = ItemsSource ?? Items,
                 [!ItemContainerThemeProperty] = this[!ItemContainerThemeProperty],
@@ -118,8 +114,8 @@ public partial class FAMenuFlyoutSubItem : FAMenuFlyoutItemBase
                 HorizontalOffset = -4,
                 WindowManagerAddShadowHint = false,
                 Placement = PlacementMode.AnchorAndGravity,
-                PlacementAnchor = Avalonia.Controls.Primitives.PopupPositioning.PopupAnchor.TopRight,
-                PlacementGravity = Avalonia.Controls.Primitives.PopupPositioning.PopupGravity.BottomRight,
+                PlacementAnchor = PopupAnchor.TopRight,
+                PlacementGravity = PopupGravity.BottomRight,
                 PlacementTarget = this
             };
 
@@ -141,13 +137,7 @@ public partial class FAMenuFlyoutSubItem : FAMenuFlyoutItemBase
     }
 
     private void ItemsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-    {  
-        if (ItemsSource != null)
-        {
-            throw new InvalidOperationException("Cannot edit Items when ItemsSource is set");
-        }
+    {
+        if (ItemsSource != null) throw new InvalidOperationException("Cannot edit Items when ItemsSource is set");
     }
-
-    private Popup _subMenu;
-    private FAMenuFlyoutPresenter _presenter;
 }

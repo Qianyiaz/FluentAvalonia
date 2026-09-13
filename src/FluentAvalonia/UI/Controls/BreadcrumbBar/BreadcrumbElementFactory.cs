@@ -5,20 +5,15 @@ namespace FluentAvalonia.UI.Controls;
 
 internal class BreadcrumbElementFactory : FAElementFactory
 {
+    private IFAElementFactory _itemTemplateWrapper;
+
     public void UserElementFactory(object newValue)
     {
         if (newValue is IDataTemplate template)
-        {
             _itemTemplateWrapper = new FAItemTemplateWrapper(template);
-        }
         else if (newValue is FADataTemplateSelector dts)
-        {
             _itemTemplateWrapper = new FAItemTemplateWrapper(dts);
-        }
-        else if (newValue is IFAElementFactory ef)
-        {
-            _itemTemplateWrapper = ef;
-        }
+        else if (newValue is IFAElementFactory ef) _itemTemplateWrapper = ef;
     }
 
     protected override Control GetElementCore(FAElementFactoryGetArgs args)
@@ -41,24 +36,15 @@ internal class BreadcrumbElementFactory : FAElementFactory
 
         // If a user provided item template exists, we pass the template down
         // to the ContentPresenter of the BreadcrumbBarItem.
-        if (_itemTemplateWrapper is FAItemTemplateWrapper wrapper)
-        {
-            newItem.ContentTemplate = wrapper.Template;
-        }
+        if (_itemTemplateWrapper is FAItemTemplateWrapper wrapper) newItem.ContentTemplate = wrapper.Template;
 
         return newItem;
 
         static object GetNewContent(IFAElementFactory factory, FAElementFactoryGetArgs args0)
         {
-            if (args0.Data is FABreadcrumbBarItem item)
-            {
-                return item;
-            }
+            if (args0.Data is FABreadcrumbBarItem item) return item;
 
-            if (factory != null)
-            {
-                return factory.GetElement(args0);
-            }
+            if (factory != null) return factory.GetElement(args0);
 
             return args0.Data;
         }
@@ -77,12 +63,7 @@ internal class BreadcrumbElementFactory : FAElementFactory
                 isEllipsisDropDownItem = bcbItem.IsEllipsisDropDownItem();
             }
 
-            if (_itemTemplateWrapper != null && isEllipsisDropDownItem)
-            {
-                _itemTemplateWrapper.RecycleElement(args);
-            }
+            if (_itemTemplateWrapper != null && isEllipsisDropDownItem) _itemTemplateWrapper.RecycleElement(args);
         }
     }
-
-    private IFAElementFactory _itemTemplateWrapper;
 }

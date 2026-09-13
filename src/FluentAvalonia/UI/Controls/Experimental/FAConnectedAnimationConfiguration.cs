@@ -3,8 +3,14 @@
 
 namespace FluentAvalonia.UI.Controls.Experimental;
 
-public abstract class FAConnectedAnimationConfiguration { }
+public abstract class FAConnectedAnimationConfiguration
+{
+}
 
-public class FADirectConnectedAnimationConfiguration : FAConnectedAnimationConfiguration { }
+public class FADirectConnectedAnimationConfiguration : FAConnectedAnimationConfiguration
+{
+}
 
-public class FAGravityConnectedAnimationConfiguration : FAConnectedAnimationConfiguration { }
+public class FAGravityConnectedAnimationConfiguration : FAConnectedAnimationConfiguration
+{
+}

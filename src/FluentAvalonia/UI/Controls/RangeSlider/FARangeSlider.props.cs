@@ -15,62 +15,68 @@ namespace FluentAvalonia.UI.Controls;
 [TemplatePart(s_tpToolTipText, typeof(TextBlock))]
 public partial class FARangeSlider
 {
+    private const string s_tpActiveRectangle = "ActiveRectangle";
+    private const string s_tpMinThumb = "MinThumb";
+    private const string s_tpMaxThumb = "MaxThumb";
+    private const string s_tpContainerCanvas = "ContainerCanvas";
+    private const string s_tpToolTipText = "ToolTipText";
+
     /// <summary>
-    /// Defines the <see cref="Minimum"/> property
+    ///     Defines the <see cref="Minimum" /> property
     /// </summary>
-    public static readonly StyledProperty<double> MinimumProperty = 
+    public static readonly StyledProperty<double> MinimumProperty =
         RangeBase.MinimumProperty.AddOwner<FARangeSlider>(
             new StyledPropertyMetadata<double>(0d));
 
     /// <summary>
-    /// Defines the <see cref="Maximum"/> property
+    ///     Defines the <see cref="Maximum" /> property
     /// </summary>
-    public static readonly StyledProperty<double> MaximumProperty = 
+    public static readonly StyledProperty<double> MaximumProperty =
         RangeBase.MaximumProperty.AddOwner<FARangeSlider>(
             new StyledPropertyMetadata<double>(100d));
 
     /// <summary>
-    /// Defines the <see cref="RangeStart"/> property
+    ///     Defines the <see cref="RangeStart" /> property
     /// </summary>
-    public static readonly StyledProperty<double> RangeStartProperty = 
+    public static readonly StyledProperty<double> RangeStartProperty =
         AvaloniaProperty.Register<FARangeSlider, double>(nameof(RangeStart),
-            defaultValue: 0, defaultBindingMode: BindingMode.TwoWay);
+            0, defaultBindingMode: BindingMode.TwoWay);
 
     /// <summary>
-    /// Defines the <see cref="RangeEnd"/> property
+    ///     Defines the <see cref="RangeEnd" /> property
     /// </summary>
-    public static readonly StyledProperty<double> RangeEndProperty = 
-        AvaloniaProperty.Register<FARangeSlider, double>(nameof(RangeEnd), 
-            defaultValue: 100, defaultBindingMode: BindingMode.TwoWay);
+    public static readonly StyledProperty<double> RangeEndProperty =
+        AvaloniaProperty.Register<FARangeSlider, double>(nameof(RangeEnd),
+            100, defaultBindingMode: BindingMode.TwoWay);
 
     /// <summary>
-    /// Defines the <see cref="StepFrequency"/> property
+    ///     Defines the <see cref="StepFrequency" /> property
     /// </summary>
-    public static readonly StyledProperty<double> StepFrequencyProperty = 
-        AvaloniaProperty.Register<FARangeSlider, double>(nameof(StepFrequency), 
-            defaultValue: 1);
+    public static readonly StyledProperty<double> StepFrequencyProperty =
+        AvaloniaProperty.Register<FARangeSlider, double>(nameof(StepFrequency),
+            1);
 
     /// <summary>
-    /// Defines the <see cref="ToolTipStringFormat"/> property
+    ///     Defines the <see cref="ToolTipStringFormat" /> property
     /// </summary>
     public static readonly StyledProperty<string> ToolTipStringFormatProperty =
         AvaloniaProperty.Register<FARangeSlider, string>(nameof(ToolTipStringFormat));
 
     /// <summary>
-    /// Defines the <see cref="MinimumRange"/> property
+    ///     Defines the <see cref="MinimumRange" /> property
     /// </summary>
-    public static readonly StyledProperty<double> MinimumRangeProperty = 
-        AvaloniaProperty.Register<FARangeSlider, double>(nameof(MinimumRange), defaultValue: 0d);
-    
+    public static readonly StyledProperty<double> MinimumRangeProperty =
+        AvaloniaProperty.Register<FARangeSlider, double>(nameof(MinimumRange), 0d);
+
 
     /// <summary>
-    /// Defines the <see cref="ShowValueToolTip"/> property
+    ///     Defines the <see cref="ShowValueToolTip" /> property
     /// </summary>
-    public static readonly StyledProperty<bool> ShowValueToolTipProperty = 
-        AvaloniaProperty.Register<FARangeSlider, bool>(nameof(ShowValueToolTip), defaultValue: true);
+    public static readonly StyledProperty<bool> ShowValueToolTipProperty =
+        AvaloniaProperty.Register<FARangeSlider, bool>(nameof(ShowValueToolTip), true);
 
     /// <summary>
-    /// Gets or sets the minimum allowed value for the RangeSlider
+    ///     Gets or sets the minimum allowed value for the RangeSlider
     /// </summary>
     public double Minimum
     {
@@ -79,7 +85,7 @@ public partial class FARangeSlider
     }
 
     /// <summary>
-    /// Gets or sets the maximum allowed value for the RangeSlider
+    ///     Gets or sets the maximum allowed value for the RangeSlider
     /// </summary>
     public double Maximum
     {
@@ -88,7 +94,7 @@ public partial class FARangeSlider
     }
 
     /// <summary>
-    /// Gets or sets the start of the selected range
+    ///     Gets or sets the start of the selected range
     /// </summary>
     public double RangeStart
     {
@@ -97,7 +103,7 @@ public partial class FARangeSlider
     }
 
     /// <summary>
-    /// Gets or sets the end of the selected range
+    ///     Gets or sets the end of the selected range
     /// </summary>
     public double RangeEnd
     {
@@ -106,7 +112,7 @@ public partial class FARangeSlider
     }
 
     /// <summary>
-    /// Gets or sets the frequency of ticks when dragging the slider
+    ///     Gets or sets the frequency of ticks when dragging the slider
     /// </summary>
     public double StepFrequency
     {
@@ -115,7 +121,7 @@ public partial class FARangeSlider
     }
 
     /// <summary>
-    /// Gets or sets the string format used in the value ToolTip when dragging
+    ///     Gets or sets the string format used in the value ToolTip when dragging
     /// </summary>
     public string ToolTipStringFormat
     {
@@ -124,14 +130,14 @@ public partial class FARangeSlider
     }
 
     /// <summary>
-    /// Gets or sets the smallest acceptable range between <see cref="RangeStart"/> and <see cref="RangeEnd"/>
-    /// when dragging the thumb
+    ///     Gets or sets the smallest acceptable range between <see cref="RangeStart" /> and <see cref="RangeEnd" />
+    ///     when dragging the thumb
     /// </summary>
     /// <remarks>
-    /// Use this property to set a minimum distance (in data units) the slider thumbs can get during a drag operation
-    /// to prevent them from overlapping. NOTE: This property does NOT have any effect if the RangeStart or RangeEnd
-    /// is set programmatically, i.e., Start = 30, End = 50, MinimumRange=15, you cannot drag the RangeStart thumb to 40,
-    /// but you can still programmatically set RangeStart to 40.
+    ///     Use this property to set a minimum distance (in data units) the slider thumbs can get during a drag operation
+    ///     to prevent them from overlapping. NOTE: This property does NOT have any effect if the RangeStart or RangeEnd
+    ///     is set programmatically, i.e., Start = 30, End = 50, MinimumRange=15, you cannot drag the RangeStart thumb to 40,
+    ///     but you can still programmatically set RangeStart to 40.
     /// </remarks>
     public double MinimumRange
     {
@@ -140,7 +146,7 @@ public partial class FARangeSlider
     }
 
     /// <summary>
-    /// Gets or sets whether the Value ToolTip is shown when dragging a thumb
+    ///     Gets or sets whether the Value ToolTip is shown when dragging a thumb
     /// </summary>
     public bool ShowValueToolTip
     {
@@ -153,24 +159,17 @@ public partial class FARangeSlider
     internal double DragWidth => _containerCanvas.Bounds.Width - _maxThumb.Bounds.Width;
 
     /// <summary>
-    /// Fired when a thumb drag begins
+    ///     Fired when a thumb drag begins
     /// </summary>
     public event EventHandler<VectorEventArgs> ThumbDragStarted;
 
     /// <summary>
-    /// Fired when a thumb drag completes
+    ///     Fired when a thumb drag completes
     /// </summary>
     public event EventHandler<VectorEventArgs> ThumbDragCompleted;
 
     /// <summary>
-    /// Fired when either RangeStart or RangeEnd is changed
+    ///     Fired when either RangeStart or RangeEnd is changed
     /// </summary>
     public event EventHandler<FARangeChangedEventArgs> ValueChanged;
-
-    private const string s_tpActiveRectangle = "ActiveRectangle";
-    private const string s_tpMinThumb = "MinThumb";
-    private const string s_tpMaxThumb = "MaxThumb";
-    private const string s_tpContainerCanvas = "ContainerCanvas";
-    private const string s_tpToolTipText = "ToolTipText";
 }
-

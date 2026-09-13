@@ -5,6 +5,10 @@ namespace FluentAvalonia.UI.Data;
 
 internal class RefreshDeferer : IDisposable
 {
+    private readonly object _currentItem;
+
+    private readonly Action<object> _releaseAction;
+
     public RefreshDeferer(Action<object> release, object currentItem)
     {
         _currentItem = currentItem;
@@ -15,7 +19,4 @@ internal class RefreshDeferer : IDisposable
     {
         _releaseAction(_currentItem);
     }
-
-    private readonly Action<object> _releaseAction;
-    private readonly object _currentItem;
 }

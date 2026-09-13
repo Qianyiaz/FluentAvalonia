@@ -1,10 +1,12 @@
-﻿using Avalonia.Controls;
-using System.Collections;
+﻿using System.Collections;
+using Avalonia.Controls;
 
 namespace FluentAvalonia.UI.Controls;
 
 internal class ChildrenInTabFocusOrderIterable : IEnumerable<Control>
 {
+    private FAItemsRepeater _repeater;
+
     public ChildrenInTabFocusOrderIterable(FAItemsRepeater owner)
     {
         _repeater = owner;
@@ -14,8 +16,6 @@ internal class ChildrenInTabFocusOrderIterable : IEnumerable<Control>
         new ChildrenInTabFocusOrderIterator(_repeater);
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-    private FAItemsRepeater _repeater;
 
     private struct ChildrenInTabFocusOrderIterator : IEnumerator<Control>
     {
@@ -28,10 +28,7 @@ internal class ChildrenInTabFocusOrderIterable : IEnumerable<Control>
             {
                 var element = children[i];
                 var vInfo = FAItemsRepeater.GetVirtualizationInfo(element);
-                if (vInfo.IsRealized)
-                {
-                    _realizedChildren.Add(new KeyValuePair<int, Control>(vInfo.Index, element));
-                }
+                if (vInfo.IsRealized) _realizedChildren.Add(new KeyValuePair<int, Control>(vInfo.Index, element));
             }
         }
 
@@ -48,7 +45,9 @@ internal class ChildrenInTabFocusOrderIterable : IEnumerable<Control>
 
         object IEnumerator.Current => Current;
 
-        public void Dispose() { }
+        public void Dispose()
+        {
+        }
 
         public bool MoveNext()
         {

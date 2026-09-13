@@ -13,7 +13,16 @@ namespace FluentAvalonia.UI.Controls;
 // InfoBar up to date with WinUI as of 5/9/26
 
 public partial class FAInfoBar : ContentControl
-{    
+{
+    private bool _appliedTemplate;
+
+    private Button _closeButton;
+    private bool _isVisible;
+
+    private FAInfoBarCloseReason _lastCloseReason;
+    private bool _notifyOpen;
+    private FAFontIcon _standardIcon;
+
     /// <inheritdoc />
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
     {
@@ -23,16 +32,10 @@ public partial class FAInfoBar : ContentControl
         base.OnApplyTemplate(e);
 
         _closeButton = e.NameScope.Find<Button>(s_tpCloseButton);
-        if (_closeButton != null)
-        {
-            _closeButton.Click += OnCloseButtonClick;
-        }
+        if (_closeButton != null) _closeButton.Click += OnCloseButtonClick;
 
         var iconTextBlock = e.NameScope.Find<FAFontIcon>(s_tpStandardIcon);
-        if (iconTextBlock != null)
-        {
-            _standardIcon = iconTextBlock;
-        }
+        if (iconTextBlock != null) _standardIcon = iconTextBlock;
 
         _appliedTemplate = true;
 
@@ -251,7 +254,7 @@ public partial class FAInfoBar : ContentControl
         var message = Message;
         var ab = ActionButton;
         PseudoClasses.Set(s_pcNoBannerContent, string.IsNullOrEmpty(title) &&
-            string.IsNullOrEmpty(message) && ab == null);
+                                               string.IsNullOrEmpty(message) && ab == null);
     }
 
     private static string GetSeverityLevelResourceName(FAInfoBarSeverity severity)
@@ -261,7 +264,7 @@ public partial class FAInfoBar : ContentControl
             FAInfoBarSeverity.Success => SR_InfoBarSeveritySuccessName,
             FAInfoBarSeverity.Warning => SR_InfoBarSeverityWarningName,
             FAInfoBarSeverity.Error => SR_InfoBarSeverityErrorName,
-            _ => SR_InfoBarSeverityInformationalName,
+            _ => SR_InfoBarSeverityInformationalName
         };
     }
 
@@ -272,16 +275,7 @@ public partial class FAInfoBar : ContentControl
             FAInfoBarSeverity.Success => SR_InfoBarIconSeveritySuccessName,
             FAInfoBarSeverity.Warning => SR_InfoBarIconSeverityWarningName,
             FAInfoBarSeverity.Error => SR_InfoBarIconSeverityErrorName,
-            _ => SR_InfoBarIconSeverityInformationalName,
+            _ => SR_InfoBarIconSeverityInformationalName
         };
     }
-
-    private Button _closeButton;
-    private FAFontIcon _standardIcon;
-
-    private bool _appliedTemplate;
-    private bool _notifyOpen;
-    private bool _isVisible;
-
-    private FAInfoBarCloseReason _lastCloseReason;
 }

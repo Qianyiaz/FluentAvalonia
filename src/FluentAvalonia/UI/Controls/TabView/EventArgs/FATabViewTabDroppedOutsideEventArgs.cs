@@ -1,7 +1,7 @@
 ﻿namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Provides data for the <see cref="FATabView.TabDroppedOutside"/> event
+///     Provides data for the <see cref="FATabView.TabDroppedOutside" /> event
 /// </summary>
 public class FATabViewTabDroppedOutsideEventArgs : EventArgs
 {
@@ -12,12 +12,12 @@ public class FATabViewTabDroppedOutsideEventArgs : EventArgs
     }
 
     /// <summary>
-    /// Gets the item that was dropped outside of the TabStrip
+    ///     Gets the item that was dropped outside of the TabStrip
     /// </summary>
     public object Item { get; }
 
     /// <summary>
-    /// Gets the TabViewItem that was dropped outside of the TabStrip
+    ///     Gets the TabViewItem that was dropped outside of the TabStrip
     /// </summary>
     public FATabViewItem Tab { get; }
 }

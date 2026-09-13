@@ -4,24 +4,26 @@ using FluentAvalonia.Core;
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Provides data for the button click events.
+///     Provides data for the button click events.
 /// </summary>
 public class FAContentDialogButtonClickEventArgs : EventArgs
 {
+    private FADeferral _deferral;
+    private int _deferralCount;
+
     internal FAContentDialogButtonClickEventArgs()
     {
-
     }
 
     /// <summary>
-    /// Gets or sets a value that can cancel the button click. 
-    /// A true value for Cancel cancels the default behavior.
+    ///     Gets or sets a value that can cancel the button click.
+    ///     A true value for Cancel cancels the default behavior.
     /// </summary>
     public bool Cancel { get; set; }
 
     /// <summary>
-    /// Gets a <see cref="FADeferral"/> that the app can use to 
-    /// respond asynchronously to the closing event.
+    ///     Gets a <see cref="FADeferral" /> that the app can use to
+    ///     respond asynchronously to the closing event.
     /// </summary>
     public FADeferral GetDeferral()
     {
@@ -47,12 +49,6 @@ public class FAContentDialogButtonClickEventArgs : EventArgs
     internal void DecrementDeferralCount()
     {
         _deferralCount--;
-        if (_deferralCount == 0)
-        {
-            _deferral.Complete();
-        }
+        if (_deferralCount == 0) _deferral.Complete();
     }
-
-    private FADeferral _deferral;
-    private int _deferralCount;
 }

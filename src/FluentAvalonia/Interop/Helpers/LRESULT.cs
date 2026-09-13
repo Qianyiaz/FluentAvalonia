@@ -23,59 +23,56 @@ internal readonly unsafe struct LRESULT : IComparable, IEquatable<LRESULT>
 
     public static bool operator >=(LRESULT left, LRESULT right) => left.Value >= right.Value;
 
-    public static implicit operator LRESULT(byte value) => new LRESULT(value);
+    public static implicit operator LRESULT(byte value) => new(value);
 
-    public static explicit operator byte(LRESULT value) => (byte)(value.Value);
+    public static explicit operator byte(LRESULT value) => (byte)value.Value;
 
-    public static implicit operator LRESULT(short value) => new LRESULT(value);
+    public static implicit operator LRESULT(short value) => new(value);
 
-    public static explicit operator short(LRESULT value) => (short)(value.Value);
+    public static explicit operator short(LRESULT value) => (short)value.Value;
 
-    public static implicit operator LRESULT(int value) => new LRESULT(value);
+    public static implicit operator LRESULT(int value) => new(value);
 
-    public static explicit operator int(LRESULT value) => (int)(value.Value);
+    public static explicit operator int(LRESULT value) => (int)value.Value;
 
-    public static explicit operator LRESULT(long value) => new LRESULT((nint)(value));
+    public static explicit operator LRESULT(long value) => new((nint)value);
 
     public static implicit operator long(LRESULT value) => value.Value;
 
-    public static implicit operator LRESULT(nint value) => new LRESULT(value);
+    public static implicit operator LRESULT(nint value) => new(value);
 
     public static implicit operator nint(LRESULT value) => value.Value;
 
-    public static implicit operator LRESULT(sbyte value) => new LRESULT(value);
+    public static implicit operator LRESULT(sbyte value) => new(value);
 
-    public static explicit operator sbyte(LRESULT value) => (sbyte)(value.Value);
+    public static explicit operator sbyte(LRESULT value) => (sbyte)value.Value;
 
-    public static implicit operator LRESULT(ushort value) => new LRESULT(value);
+    public static implicit operator LRESULT(ushort value) => new(value);
 
-    public static explicit operator ushort(LRESULT value) => (ushort)(value.Value);
+    public static explicit operator ushort(LRESULT value) => (ushort)value.Value;
 
-    public static explicit operator LRESULT(uint value) => new LRESULT((nint)(value));
+    public static explicit operator LRESULT(uint value) => new((nint)value);
 
-    public static explicit operator uint(LRESULT value) => (uint)(value.Value);
+    public static explicit operator uint(LRESULT value) => (uint)value.Value;
 
-    public static explicit operator LRESULT(ulong value) => new LRESULT((nint)(value));
+    public static explicit operator LRESULT(ulong value) => new((nint)value);
 
-    public static explicit operator ulong(LRESULT value) => (ulong)(value.Value);
+    public static explicit operator ulong(LRESULT value) => (ulong)value.Value;
 
-    public static explicit operator LRESULT(nuint value) => new LRESULT((nint)(value));
+    public static explicit operator LRESULT(nuint value) => new((nint)value);
 
-    public static explicit operator nuint(LRESULT value) => (nuint)(value.Value);
+    public static explicit operator nuint(LRESULT value) => (nuint)value.Value;
 
     public int CompareTo(object obj)
     {
-        if (obj is LRESULT other)
-        {
-            return CompareTo(other);
-        }
+        if (obj is LRESULT other) return CompareTo(other);
 
-        return (obj is null) ? 1 : throw new ArgumentException("obj is not an instance of LRESULT.");
+        return obj is null ? 1 : throw new ArgumentException("obj is not an instance of LRESULT.");
     }
 
     //public int CompareTo(LRESULT other) => Value.CompareTo(other.Value);
 
-    public override bool Equals(object obj) => (obj is LRESULT other) && Equals(other);
+    public override bool Equals(object obj) => obj is LRESULT other && Equals(other);
 
     public bool Equals(LRESULT other) => Value.Equals(other.Value);
 
@@ -85,13 +82,13 @@ internal readonly unsafe struct LRESULT : IComparable, IEquatable<LRESULT>
 
     //public string ToString(string? format, IFormatProvider? formatProvider) => Value.ToString(format, formatProvider);
 
-    public static explicit operator LRESULT(void* value) => new LRESULT((nint)(value));
+    public static explicit operator LRESULT(void* value) => new((nint)value);
 
-    public static implicit operator void*(LRESULT value) => (void*)(value.Value);
+    public static implicit operator void*(LRESULT value) => (void*)value.Value;
 
-    public static explicit operator LRESULT(BOOL value) => new LRESULT(value.Value);
+    public static explicit operator LRESULT(BOOL value) => new(value.Value);
 
-    public static explicit operator BOOL(LRESULT value) => new BOOL((int)(value.Value));
+    public static explicit operator BOOL(LRESULT value) => new((int)value.Value);
 
     //public static explicit operator LRESULT(HANDLE value) => new LRESULT((nint)(value.Value));
 
@@ -119,15 +116,15 @@ internal readonly unsafe struct LRESULT : IComparable, IEquatable<LRESULT>
 
     //public static explicit operator LRESULT(HGDIOBJ value) => new LRESULT((nint)(value.Value));
 
-   // public static explicit operator HGDIOBJ(LRESULT value) => new HGDIOBJ((void*)(value.Value));
+    // public static explicit operator HGDIOBJ(LRESULT value) => new HGDIOBJ((void*)(value.Value));
 
     //public static explicit operator LRESULT(HGLOBAL value) => new LRESULT((nint)(value.Value));
 
     //public static explicit operator HGLOBAL(LRESULT value) => new HGLOBAL((void*)(value.Value));
 
-   // public static explicit operator LRESULT(HICON value) => new LRESULT((nint)(value.Value));
+    // public static explicit operator LRESULT(HICON value) => new LRESULT((nint)(value.Value));
 
-   // public static explicit operator HICON(LRESULT value) => new HICON((void*)(value.Value));
+    // public static explicit operator HICON(LRESULT value) => new HICON((void*)(value.Value));
 
     //public static explicit operator LRESULT(HINSTANCE value) => new LRESULT((nint)(value.Value));
 
@@ -137,9 +134,9 @@ internal readonly unsafe struct LRESULT : IComparable, IEquatable<LRESULT>
 
     //public static explicit operator HLOCAL(LRESULT value) => new HLOCAL((void*)(value.Value));
 
-    public static explicit operator LRESULT(HMENU value) => new LRESULT((nint)(value.Value));
+    public static explicit operator LRESULT(HMENU value) => new((nint)value.Value);
 
-    public static explicit operator HMENU(LRESULT value) => new HMENU((void*)(value.Value));
+    public static explicit operator HMENU(LRESULT value) => new((void*)value.Value);
 
     //public static explicit operator LRESULT(HMODULE value) => new LRESULT((nint)(value.Value));
 
@@ -157,11 +154,11 @@ internal readonly unsafe struct LRESULT : IComparable, IEquatable<LRESULT>
 
     //public static explicit operator HRGN(LRESULT value) => new HRGN((void*)(value.Value));
 
-    public static explicit operator LRESULT(HWND value) => new LRESULT((nint)(value.Value));
+    public static explicit operator LRESULT(HWND value) => new((nint)value.Value);
 
-    public static explicit operator HWND(LRESULT value) => new HWND((void*)(value.Value));
+    public static explicit operator HWND(LRESULT value) => new((void*)value.Value);
 
-    public static explicit operator LRESULT(LPARAM value) => new LRESULT(value.Value);
+    public static explicit operator LRESULT(LPARAM value) => new(value.Value);
 
-    public static explicit operator LRESULT(WPARAM value) => new LRESULT((nint)(value.Value));
+    public static explicit operator LRESULT(WPARAM value) => new((nint)value.Value);
 }

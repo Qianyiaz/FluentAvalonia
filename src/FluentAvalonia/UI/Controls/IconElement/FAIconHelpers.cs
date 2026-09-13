@@ -7,6 +7,8 @@ namespace FluentAvalonia.UI.Controls;
 
 public static class FAIconHelpers
 {
+    private static Dictionary<Type, Func<FAIconSource, FAIconElement>> _customConverters;
+
     internal static FAFontIcon CreateFontIconFromFontIconSource(FAFontIconSource fis)
     {
         var fi = new FAFontIcon
@@ -19,15 +21,11 @@ public static class FAIconHelpers
         };
 
         if (fis.IsSet(FAIconSource.ForegroundProperty))
-        {
             fi.Bind(TextElement.ForegroundProperty, fis.GetBindingObservable(FAIconSource.ForegroundProperty),
-                priority: BindingPriority.LocalValue);
-        }
+                BindingPriority.LocalValue);
         else
-        {
             fi.Bind(TextElement.ForegroundProperty, fis.GetBindingObservable(FAIconSource.ForegroundProperty).Skip(1),
-                priority: BindingPriority.LocalValue);
-        }
+                BindingPriority.LocalValue);
 
         return fi;
     }
@@ -42,15 +40,11 @@ public static class FAIconHelpers
         };
 
         if (pis.IsSet(FAIconSource.ForegroundProperty))
-        {
             pi.Bind(TextElement.ForegroundProperty, pis.GetBindingObservable(FAIconSource.ForegroundProperty),
-                priority: BindingPriority.LocalValue);
-        }
+                BindingPriority.LocalValue);
         else
-        {
             pi.Bind(TextElement.ForegroundProperty, pis.GetBindingObservable(FAIconSource.ForegroundProperty).Skip(1),
-                priority: BindingPriority.LocalValue);
-        }
+                BindingPriority.LocalValue);
 
         return pi;
     }
@@ -64,15 +58,11 @@ public static class FAIconHelpers
         };
 
         if (sis.IsSet(FAIconSource.ForegroundProperty))
-        {
             si.Bind(TextElement.ForegroundProperty, sis.GetBindingObservable(FAIconSource.ForegroundProperty),
-                priority: BindingPriority.LocalValue);
-        }
+                BindingPriority.LocalValue);
         else
-        {
             si.Bind(TextElement.ForegroundProperty, sis.GetBindingObservable(FAIconSource.ForegroundProperty).Skip(1),
-                priority: BindingPriority.LocalValue);
-        }
+                BindingPriority.LocalValue);
 
         return si;
     }
@@ -86,15 +76,11 @@ public static class FAIconHelpers
         bi.LinkToBitmapIconSource(bis);
 
         if (bis.IsSet(FAIconSource.ForegroundProperty))
-        {
             bi.Bind(TextElement.ForegroundProperty, bis.GetBindingObservable(FAIconSource.ForegroundProperty),
-                priority: BindingPriority.LocalValue);
-        }
+                BindingPriority.LocalValue);
         else
-        {
             bi.Bind(TextElement.ForegroundProperty, bis.GetBindingObservable(FAIconSource.ForegroundProperty).Skip(1),
-                priority: BindingPriority.LocalValue);
-        }
+                BindingPriority.LocalValue);
 
         return bi;
     }
@@ -107,65 +93,43 @@ public static class FAIconHelpers
         };
 
         if (iis.IsSet(FAIconSource.ForegroundProperty))
-        {
             ii.Bind(TextElement.ForegroundProperty, iis.GetBindingObservable(FAIconSource.ForegroundProperty),
-                priority: BindingPriority.LocalValue);
-        }
+                BindingPriority.LocalValue);
         else
-        {
             ii.Bind(TextElement.ForegroundProperty, iis.GetBindingObservable(FAIconSource.ForegroundProperty).Skip(1),
-                priority: BindingPriority.LocalValue);
-        }
+                BindingPriority.LocalValue);
 
         return ii;
     }
 
     internal static FAIconElement CreateFromUnknown(FAIconSource src)
     {
-        if (src is FABitmapIconSource bis)
-        {
-            return CreateBitmapIconFromBitmapIconSource(bis);
-        }
+        if (src is FABitmapIconSource bis) return CreateBitmapIconFromBitmapIconSource(bis);
 
-        if (src is FAFontIconSource fis)
-        {
-            return CreateFontIconFromFontIconSource(fis);
-        }
+        if (src is FAFontIconSource fis) return CreateFontIconFromFontIconSource(fis);
 
-        if (src is FAPathIconSource pis)
-        {
-            return CreatePathIconFromPathIconSource(pis);
-        }
+        if (src is FAPathIconSource pis) return CreatePathIconFromPathIconSource(pis);
 
-        if (src is FASymbolIconSource sis)
-        {
-            return CreateSymbolIconFromSymbolIconSource(sis);
-        }
+        if (src is FASymbolIconSource sis) return CreateSymbolIconFromSymbolIconSource(sis);
 
-        if (src is FAImageIconSource iis)
-        {
-            return CreateImageIconFromImageIconSource(iis);
-        }
+        if (src is FAImageIconSource iis) return CreateImageIconFromImageIconSource(iis);
 
         if (_customConverters != null)
         {
             var type = src.GetType();
-            if (_customConverters.TryGetValue(type, out var value))
-            {
-                return value(src);
-            }
+            if (_customConverters.TryGetValue(type, out var value)) return value(src);
         }
 
         return null;
     }
 
     /// <summary>
-    /// Registers a <see cref="FAIconElement"/> creation factory for custom <see cref="FAIconSource"/> types
+    ///     Registers a <see cref="FAIconElement" /> creation factory for custom <see cref="FAIconSource" /> types
     /// </summary>
     /// <remarks>
-    /// When creating a custom IconSource, you will also need to create a matching FAIconElement type that
-    /// will actually be used for display. Just as the built-in icons do, you will need to handle the mapping
-    /// between the custom IconSource and related FAIconElement.
+    ///     When creating a custom IconSource, you will also need to create a matching FAIconElement type that
+    ///     will actually be used for display. Just as the built-in icons do, you will need to handle the mapping
+    ///     between the custom IconSource and related FAIconElement.
     /// </remarks>
     public static void RegisterCustomIconSourceFactory(Type typeOfIconSource, Func<FAIconSource, FAIconElement> factory)
     {
@@ -173,6 +137,4 @@ public static class FAIconHelpers
 
         _customConverters.Add(typeOfIconSource, factory);
     }
-
-    private static Dictionary<Type, Func<FAIconSource, FAIconElement>> _customConverters;
 }

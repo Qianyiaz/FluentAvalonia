@@ -69,10 +69,10 @@
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center">
                     <ui:FASymbolIcon Symbol="ChevronRight"
-                                   Foreground="{TemplateBinding Foreground}"
-                                   FontSize="14"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center" />
+                                     Foreground="{TemplateBinding Foreground}"
+                                     FontSize="14"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Center" />
                 </Border>
             </ControlTemplate>
         </Setter>
@@ -113,7 +113,7 @@
                                        RadiusX="2"
                                        RadiusY="2"
                                        IsVisible="False"
-                                       Fill="{DynamicResource TreeViewItemSelectionIndicatorForeground}"/>
+                                       Fill="{DynamicResource TreeViewItemSelectionIndicatorForeground}" />
 
                             <Grid Name="PART_Header"
                                   ColumnDefinitions="Auto, *"
@@ -175,7 +175,7 @@
             <Style Selector="^ /template/ Rectangle#SelectionIndicator">
                 <Setter Property="IsVisible" Value="True" />
             </Style>
-            
+
             <Style Selector="^ /template/ Border#PART_LayoutRoot">
                 <Setter Property="Background" Value="{DynamicResource TreeViewItemBackgroundSelected}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource TreeViewItemBorderBrushSelected}" />
@@ -198,7 +198,8 @@
                 <Setter Property="Background" Value="{DynamicResource TreeViewItemBackgroundSelectedPressed}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource TreeViewItemBorderBrushSelectedPressed}" />
             </Style>
-            <Style Selector="^:pressed /template/ Border#PART_LayoutRoot:pointerover > ContentPresenter#PART_HeaderPresenter">
+            <Style
+                Selector="^:pressed /template/ Border#PART_LayoutRoot:pointerover > ContentPresenter#PART_HeaderPresenter">
                 <Setter Property="Foreground" Value="{DynamicResource TreeViewItemForegroundSelectedPressed}" />
             </Style>
 

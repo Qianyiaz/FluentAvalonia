@@ -6,7 +6,7 @@
         <Border Padding="50" ClipToBounds="False">
             <DockPanel LastChildFill="True" ClipToBounds="False">
                 <StackPanel Spacing="10" DockPanel.Dock="Top" ClipToBounds="False">
-                    <Slider Value="100" TickPlacement="Outside" TickFrequency="10"/>
+                    <Slider Value="100" TickPlacement="Outside" TickFrequency="10" />
                     <Slider IsEnabled="False" Value="50" />
                 </StackPanel>
                 <StackPanel Spacing="10" Orientation="Horizontal">
@@ -53,7 +53,8 @@
                                  RenderTransform="scaleX(0.86) scaleY(0.86)">
                             <Ellipse.Transitions>
                                 <Transitions>
-                                    <TransformOperationsTransition Property="RenderTransform" Duration="00:00:00.167" Easing="0,0 0,1" />
+                                    <TransformOperationsTransition Property="RenderTransform" Duration="00:00:00.167"
+                                                                   Easing="0,0 0,1" />
                                 </Transitions>
                             </Ellipse.Transitions>
                         </Ellipse>
@@ -130,9 +131,10 @@
                                         <TickBar Name="BottomTickBar"
                                                  Placement="Bottom"
                                                  Height="{DynamicResource SliderOutsideTickBarThemeHeight}"
-                                                 VerticalAlignment="Top" Margin="0,4,0,0" Grid.Row="2" Grid.ColumnSpan="3" />
+                                                 VerticalAlignment="Top" Margin="0,4,0,0" Grid.Row="2"
+                                                 Grid.ColumnSpan="3" />
 
-                                       
+
                                         <Track Name="PART_Track" Grid.Row="1"
                                                Grid.ColumnSpan="3" Orientation="Horizontal"
                                                Minimum="{TemplateBinding Minimum}"
@@ -159,7 +161,9 @@
                                                 </RepeatButton>
                                             </Track.DecreaseButton>
                                             <Track.IncreaseButton>
-                                                <RepeatButton Name="PART_IncreaseButton" Background="{TemplateBinding Background}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                                <RepeatButton Name="PART_IncreaseButton"
+                                                              Background="{TemplateBinding Background}"
+                                                              HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                                                     <RepeatButton.Template>
                                                         <ControlTemplate>
                                                             <Grid>
@@ -219,7 +223,7 @@
                                     Added a 2px Vertical margin here otherwise the thumb gets clipped
                                     Despite EVERY...SINGLE...ITEM having ClipToBounds=False
                                     -->
-                                    <Grid x:Name="VerticalTemplate" RowDefinitions="*,Auto,Auto" 
+                                    <Grid x:Name="VerticalTemplate" RowDefinitions="*,Auto,Auto"
                                           MinWidth="{DynamicResource SliderVerticalWidth}"
                                           Margin="0 2">
                                         <Grid.ColumnDefinitions>
@@ -240,7 +244,7 @@
                                                  HorizontalAlignment="Left"
                                                  Margin="4,0,0,0" Grid.Column="2" Grid.RowSpan="3" />
 
-                                        
+
                                         <Track Name="PART_Track"
                                                Grid.Column="1" Grid.ColumnSpan="1"
                                                Grid.RowSpan="3" Orientation="Vertical"
@@ -248,24 +252,38 @@
                                                Maximum="{TemplateBinding Maximum}"
                                                Value="{TemplateBinding Value, Mode=TwoWay}">
                                             <Track.DecreaseButton>
-                                                <RepeatButton Name="PART_DecreaseButton" Background="{TemplateBinding Foreground}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                                                <RepeatButton Name="PART_DecreaseButton"
+                                                              Background="{TemplateBinding Foreground}"
+                                                              VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
                                                     <RepeatButton.Template>
                                                         <ControlTemplate>
                                                             <Grid>
-                                                                <Border Name="FocusTarget" Background="Transparent" Margin="0,-10" />
-                                                                <Border Name="TrackBackground" Background="{TemplateBinding Background}" CornerRadius="{DynamicResource ControlCornerRadius}" Width="{DynamicResource SliderTrackThemeHeight}" HorizontalAlignment="Center" />
+                                                                <Border Name="FocusTarget" Background="Transparent"
+                                                                        Margin="0,-10" />
+                                                                <Border Name="TrackBackground"
+                                                                        Background="{TemplateBinding Background}"
+                                                                        CornerRadius="{DynamicResource ControlCornerRadius}"
+                                                                        Width="{DynamicResource SliderTrackThemeHeight}"
+                                                                        HorizontalAlignment="Center" />
                                                             </Grid>
                                                         </ControlTemplate>
                                                     </RepeatButton.Template>
                                                 </RepeatButton>
                                             </Track.DecreaseButton>
                                             <Track.IncreaseButton>
-                                                <RepeatButton Name="PART_IncreaseButton" Background="{TemplateBinding Background}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                                                <RepeatButton Name="PART_IncreaseButton"
+                                                              Background="{TemplateBinding Background}"
+                                                              VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
                                                     <RepeatButton.Template>
                                                         <ControlTemplate>
                                                             <Grid>
-                                                                <Border Name="FocusTarget" Background="Transparent" Margin="0,-10" />
-                                                                <Border Name="TrackBackground" Background="{TemplateBinding Background}" CornerRadius="{DynamicResource ControlCornerRadius}" Width="{DynamicResource SliderTrackThemeHeight}" HorizontalAlignment="Center" />
+                                                                <Border Name="FocusTarget" Background="Transparent"
+                                                                        Margin="0,-10" />
+                                                                <Border Name="TrackBackground"
+                                                                        Background="{TemplateBinding Background}"
+                                                                        CornerRadius="{DynamicResource ControlCornerRadius}"
+                                                                        Width="{DynamicResource SliderTrackThemeHeight}"
+                                                                        HorizontalAlignment="Center" />
                                                             </Grid>
                                                         </ControlTemplate>
                                                     </RepeatButton.Template>
@@ -297,22 +315,26 @@
             <Setter Property="IsDirectionReversed" Value="{TemplateBinding IsDirectionReversed}" />
         </Style>
 
-        <Style Selector="^[TickPlacement=TopLeft] /template/ TickBar#LeftTickBar, 
+        <Style
+            Selector="^[TickPlacement=TopLeft] /template/ TickBar#LeftTickBar, 
                          ^[TickPlacement=Outside] /template/ TickBar#LeftTickBar">
             <Setter Property="IsVisible" Value="True" />
         </Style>
 
-        <Style Selector="^[TickPlacement=TopLeft] /template/ TickBar#TopTickBar,
+        <Style
+            Selector="^[TickPlacement=TopLeft] /template/ TickBar#TopTickBar,
                          ^[TickPlacement=Outside] /template/ TickBar#TopTickBar">
             <Setter Property="IsVisible" Value="True" />
         </Style>
 
-        <Style Selector="^[TickPlacement=BottomRight] /template/ TickBar#BottomTickBar,
+        <Style
+            Selector="^[TickPlacement=BottomRight] /template/ TickBar#BottomTickBar,
                          ^[TickPlacement=Outside] /template/ TickBar#BottomTickBar">
             <Setter Property="IsVisible" Value="True" />
         </Style>
 
-        <Style Selector="^[TickPlacement=BottomRight] /template/ TickBar#RightTickBar,
+        <Style
+            Selector="^[TickPlacement=BottomRight] /template/ TickBar#RightTickBar,
                          ^[TickPlacement=Outside] /template/ TickBar#RightTickBar">
             <Setter Property="IsVisible" Value="True" />
         </Style>

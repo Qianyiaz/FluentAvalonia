@@ -1,7 +1,6 @@
 ﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:ui="using:FluentAvalonia.UI.Controls"
-                    xmlns:core="using:FluentAvalonia.Core"
                     xmlns:uip="using:FluentAvalonia.UI.Controls.Primitives"
                     x:CompileBindings="True">
 
@@ -44,13 +43,13 @@
                             <TextBlock Text="{Binding Text}"
                                        FontWeight="SemiBold"
                                        Name="Text"
-                                       Foreground="{DynamicResource TaskDialogCommandTextForeground}"/>
+                                       Foreground="{DynamicResource TaskDialogCommandTextForeground}" />
                             <TextBlock Text="{Binding Description}"
                                        FontSize="12"
                                        TextWrapping="Wrap"
                                        Name="Description"
                                        Foreground="{DynamicResource TaskDialogCommandDescriptionForeground}"
-                                       IsVisible="{Binding Description, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                                       IsVisible="{Binding Description, Converter={x:Static ObjectConverters.IsNotNull}}" />
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -69,7 +68,8 @@
                 <Setter Property="Foreground" Value="{DynamicResource TaskDialogCommandTextForegroundPointerOver}" />
             </Style>
             <Style Selector="^ /template/ TextBlock#Description">
-                <Setter Property="Foreground" Value="{DynamicResource TaskDialogCommandDescriptionForegroundPointerOver}" />
+                <Setter Property="Foreground"
+                        Value="{DynamicResource TaskDialogCommandDescriptionForegroundPointerOver}" />
             </Style>
         </Style>
 

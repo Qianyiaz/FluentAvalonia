@@ -3,7 +3,7 @@
                     xmlns:ui="using:FluentAvalonia.UI.Controls">
 
     <x:Double x:Key="DataGridSortIconMinWidth">32</x:Double>
-    
+
     <ControlTheme x:Key="{x:Type DataGridColumnHeader}" TargetType="DataGridColumnHeader">
         <Setter Property="Foreground" Value="{DynamicResource DataGridColumnHeaderForegroundBrush}" />
         <Setter Property="Background" Value="{DynamicResource DataGridColumnHeaderBackgroundBrush}" />
@@ -21,7 +21,7 @@
                         BorderBrush="{TemplateBinding BorderBrush}"
                         BorderThickness="{TemplateBinding BorderThickness}"
                         CornerRadius="{TemplateBinding CornerRadius}">
-                    <Grid Name="PART_ColumnHeaderRoot" 
+                    <Grid Name="PART_ColumnHeaderRoot"
                           ColumnDefinitions="*,Auto">
 
                         <Grid Margin="{TemplateBinding Padding}"
@@ -36,12 +36,12 @@
                                               ContentTemplate="{TemplateBinding ContentTemplate}" />
 
                             <ui:FAFontIcon Name="SortIcon"
-                                         Grid.Column="1"
-                                         HorizontalAlignment="Center"
-                                         VerticalAlignment="Center"
-                                         FontSize="18"
-                                         FontFamily="{StaticResource SymbolThemeFontFamily}"
-                                         IsVisible="False"/>
+                                           Grid.Column="1"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           FontSize="18"
+                                           FontFamily="{StaticResource SymbolThemeFontFamily}"
+                                           IsVisible="False" />
                         </Grid>
 
                         <Rectangle Name="VerticalSeparator"

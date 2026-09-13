@@ -1,20 +1,40 @@
-﻿using Avalonia;
+﻿using System.Collections.Specialized;
+using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using FluentAvalonia.Core;
-using System.Collections.Specialized;
 
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Represents a specialized command bar that provides layout for CommandBarButton and related command elements.
+///     Represents a specialized command bar that provides layout for CommandBarButton and related command elements.
 /// </summary>
 public partial class FACommandBar : ContentControl
 {
+    private bool _appliedTemplate;
+    private ContentControl _contentHost;
+
+    private int _hasOrderedOverflow;
+    private double _minRecoverWidth;
+    private Button _moreButton;
+    private int _numInOverflow;
+    private AvaloniaList<IFACommandBarElement> _overflowItems;
+    private FACommandBarOverflowPresenter _overflowItemsHost;
+
+    private FACommandBarSeparator _overflowSeparator;
+
+    // These are the actual lists sent to the Items Controls
+    // We don't want to move items in the actual lists to not
+    // interfere with what user specified
+    private AvaloniaList<IFACommandBarElement> _primaryItems;
+
+    private ItemsControl _primaryItemsHost;
+    private Dictionary<IFACommandBarElement, double> _widthCache;
+
     /// <summary>
-    /// Initializes a new instance of the <see cref="FACommandBar"/> class.
+    ///     Initializes a new instance of the <see cref="FACommandBar" /> class.
     /// </summary>
     public FACommandBar()
     {
@@ -31,15 +51,12 @@ public partial class FACommandBar : ContentControl
         PseudoClasses.Add(s_pcLabelBottom);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
     {
         _appliedTemplate = false;
 
-        if (_moreButton != null)
-        {
-            _moreButton.Click -= OnMoreButtonClick;
-        }
+        if (_moreButton != null) _moreButton.Click -= OnMoreButtonClick;
 
         base.OnApplyTemplate(e);
 
@@ -49,17 +66,14 @@ public partial class FACommandBar : ContentControl
         _overflowItemsHost = e.NameScope.Find<FACommandBarOverflowPresenter>(s_tpSecondaryItemsControl);
 
         _moreButton = e.NameScope.Find<Button>(s_tpMoreButton);
-        if (_moreButton != null)
-        {
-            _moreButton.Click += OnMoreButtonClick;
-        }
-        
+        if (_moreButton != null) _moreButton.Click += OnMoreButtonClick;
+
         _appliedTemplate = true;
 
         AttachItems();
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
@@ -89,7 +103,7 @@ public partial class FACommandBar : ContentControl
         }
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     protected override Size MeasureOverride(Size availableSize)
     {
         var isDynamic = IsDynamicOverflowEnabled;
@@ -113,8 +127,8 @@ public partial class FACommandBar : ContentControl
 
             // 5px is to give us just a little more space
             var availWidForItems = availableSize.Width -
-                (_contentHost != null ? _contentHost.DesiredSize.Width : 0) -
-                _moreButton.DesiredSize.Width - 5;
+                                   (_contentHost != null ? _contentHost.DesiredSize.Width : 0) -
+                                   _moreButton.DesiredSize.Width - 5;
 
             if (_minRecoverWidth < availWidForItems && _numInOverflow > 0)
             {
@@ -154,7 +168,6 @@ public partial class FACommandBar : ContentControl
                 {
                     var items = GetNextItemsToOverflow();
                     if (items != null)
-                    {
                         for (var i = 0; i < items.Count; i++)
                         {
                             var itemAsIControl = items[i] as Control;
@@ -170,15 +183,15 @@ public partial class FACommandBar : ContentControl
                             if (items[i] is FACommandBarSeparator sep)
                                 sep.IsVisible = false;
                         }
-                    }
                     else
                         break;
                 }
-                _minRecoverWidth = _primaryItemsHost.DesiredSize.Width;// + trackWid;
+
+                _minRecoverWidth = _primaryItemsHost.DesiredSize.Width; // + trackWid;
             }
 
             if (_overflowSeparator != null)
-            { 
+            {
                 _overflowSeparator.IsVisible = _numInOverflow > 0 && SecondaryCommands.Count > 0;
 
                 var idx = _numInOverflow;
@@ -189,19 +202,17 @@ public partial class FACommandBar : ContentControl
 
         var overflowVis = OverflowButtonVisibility;
         if (overflowVis == FACommandBarOverflowButtonVisibility.Auto)
-        {
-            _moreButton.IsVisible = _overflowItems != null && (isDynamic ? _overflowItems.Count > 1 : _overflowItems.Count > 0);
-        }
+            _moreButton.IsVisible = _overflowItems != null &&
+                                    (isDynamic ? _overflowItems.Count > 1 : _overflowItems.Count > 0);
         else
-        {
             _moreButton.IsVisible = overflowVis == FACommandBarOverflowButtonVisibility.Visible;
-        }
 
         return base.MeasureOverride(availableSize);
     }
 
     /// <summary>
-    /// Invoked when the <see cref="FACommandBar"/> starts to change from hidden to visible, or starts to be first displayed.
+    ///     Invoked when the <see cref="FACommandBar" /> starts to change from hidden to visible, or starts to be first
+    ///     displayed.
     /// </summary>
     protected virtual void OnOpening()
     {
@@ -209,7 +220,7 @@ public partial class FACommandBar : ContentControl
     }
 
     /// <summary>
-    /// Invoked when the <see cref="FACommandBar"/> starts to change from visible to hidden.
+    ///     Invoked when the <see cref="FACommandBar" /> starts to change from visible to hidden.
     /// </summary>
     protected virtual void OnClosing()
     {
@@ -217,24 +228,20 @@ public partial class FACommandBar : ContentControl
     }
 
     /// <summary>
-    /// Invoked when the <see cref="FACommandBar"/> changes from hidden to visible, or is first displayed.
+    ///     Invoked when the <see cref="FACommandBar" /> changes from hidden to visible, or is first displayed.
     /// </summary>
     protected virtual void OnOpened()
     {
         if (_overflowItems != null)
-        {
             // TODO: Focus via keyboard
             if (_overflowItems.Count > 0)
-            {
                 (_overflowItems[0] as Control).Focus();
-            }
-        }
 
         Opened?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>
-    /// Invoked when the <see cref="FACommandBar"/> changes from visible to hidden.
+    ///     Invoked when the <see cref="FACommandBar" /> changes from visible to hidden.
     /// </summary>
     protected virtual void OnClosed()
     {
@@ -270,44 +277,36 @@ public partial class FACommandBar : ContentControl
             return;
 
         if (_primaryItems == null)
-        { 
+        {
             AttachItems();
             goto SetState;
         }
 
         if (IsDynamicOverflowEnabled)
-        {
             // While not the most performant or best solution, we return all Overflowed items back
             // to the primary list. This probably isn't a huge deal since you probably aren't 
             // modifying these items too often, but it avoid a lot of complexities with items in
             // both lists b/c of DynamicOverflow. The number of items should be fairly small too
             // so it really shouldn't matter.
             ReturnOverflowToPrimary();
-        }
 
         switch (e.Action)
         {
             case NotifyCollectionChangedAction.Add:
                 for (var i = 0; i < e.NewItems.Count; i++)
-                {
                     if (e.NewItems[i] is IFACommandBarElement ele)
-                    {
                         if (ele.DynamicOverflowOrder != 0)
                             _hasOrderedOverflow++;
-                    }
-                }
+
                 _primaryItems.InsertRange(e.NewStartingIndex, e.NewItems.Cast<IFACommandBarElement>());
                 break;
 
             case NotifyCollectionChangedAction.Remove:
                 for (var i = 0; i < e.OldItems.Count; i++)
-                {
                     if (e.OldItems[i] is IFACommandBarElement ele)
-                    {
                         if (ele.DynamicOverflowOrder != 0)
                             _hasOrderedOverflow--;
-                    }
-                }
+
                 _primaryItems.RemoveAll(e.OldItems.Cast<IFACommandBarElement>());
                 break;
 
@@ -318,23 +317,17 @@ public partial class FACommandBar : ContentControl
 
             case NotifyCollectionChangedAction.Replace:
                 for (var i = 0; i < e.OldItems.Count; i++)
-                {
                     if (e.OldItems[i] is IFACommandBarElement ele)
-                    {
                         if (ele.DynamicOverflowOrder != 0)
                             _hasOrderedOverflow--;
-                    }
-                }
+
                 _primaryItems.RemoveRange(e.OldStartingIndex, e.OldItems.Count);
                 _primaryItems.InsertRange(e.NewStartingIndex, e.NewItems.Cast<IFACommandBarElement>());
                 for (var i = 0; i < e.NewItems.Count; i++)
-                {
                     if (e.NewItems[i] is IFACommandBarElement ele)
-                    {
                         if (ele.DynamicOverflowOrder != 0)
                             _hasOrderedOverflow++;
-                    }
-                }
+
                 break;
 
             case NotifyCollectionChangedAction.Move:
@@ -342,7 +335,7 @@ public partial class FACommandBar : ContentControl
                 break;
         }
 
-SetState:
+        SetState:
         PseudoClasses.Set(s_pcPrimaryOnly, _primaryCommands.Count > 0 && _secondaryCommands.Count == 0);
         PseudoClasses.Set(s_pcSecondaryOnly, _primaryCommands.Count == 0 && _secondaryCommands.Count > 0);
         InvalidateMeasure();
@@ -365,16 +358,11 @@ SetState:
         {
             case NotifyCollectionChangedAction.Add:
                 for (var i = 0; i < e.NewItems.Count; i++)
-                {
                     _overflowItems.Insert(e.NewStartingIndex + i + startIndex, e.NewItems[i] as IFACommandBarElement);
-                }
                 break;
 
             case NotifyCollectionChangedAction.Remove:
-                for (var i = 0; i < e.OldItems.Count; i++)
-                {
-                    _overflowItems.RemoveAt(e.OldStartingIndex + i + startIndex);
-                }
+                for (var i = 0; i < e.OldItems.Count; i++) _overflowItems.RemoveAt(e.OldStartingIndex + i + startIndex);
                 break;
 
             case NotifyCollectionChangedAction.Reset:
@@ -383,18 +371,13 @@ SetState:
 
             case NotifyCollectionChangedAction.Replace:
             case NotifyCollectionChangedAction.Move:
-                for (var i = 0; i < e.OldItems.Count; i++)
-                {
-                    _overflowItems.RemoveAt(e.OldStartingIndex + i + startIndex);
-                }
+                for (var i = 0; i < e.OldItems.Count; i++) _overflowItems.RemoveAt(e.OldStartingIndex + i + startIndex);
                 for (var i = 0; i < e.NewItems.Count; i++)
-                {
                     _overflowItems.Insert(e.NewStartingIndex + i + startIndex, e.NewItems[i] as IFACommandBarElement);
-                }
                 break;
         }
 
-SetState:
+        SetState:
         PseudoClasses.Set(s_pcPrimaryOnly, _primaryCommands.Count > 0 && _secondaryCommands.Count == 0);
         PseudoClasses.Set(s_pcSecondaryOnly, _primaryCommands.Count == 0 && _secondaryCommands.Count > 0);
 
@@ -414,13 +397,9 @@ SetState:
             _primaryItems.AddRange(_primaryCommands);
 
             if (IsDynamicOverflowEnabled)
-            {
                 for (var i = 0; i < _primaryItems.Count; i++)
-                {
                     if (_primaryItems[i].DynamicOverflowOrder != 0)
                         _hasOrderedOverflow++;
-                }
-            }
 
             _primaryItemsHost.ItemsSource = _primaryItems;
         }
@@ -451,37 +430,31 @@ SetState:
         switch (e.Action)
         {
             case NotifyCollectionChangedAction.Add:
-                {
-                    var items = e.NewItems;
-                    for (var i = 0; i < items.Count; i++)
+            {
+                var items = e.NewItems;
+                for (var i = 0; i < items.Count; i++)
+                    if (items[i] is Control c && c.Classes is IPseudoClasses pc)
                     {
-                        if (items[i] is Control c && c.Classes is IPseudoClasses pc)
-                        {
-                            pc.Set(s_pcLabelCollapsed, pos == FACommandBarDefaultLabelPosition.Collapsed);
-                            pc.Set(s_pcLabelRight, pos == FACommandBarDefaultLabelPosition.Right);
-                            pc.Set(s_pcLabelBottom, pos == FACommandBarDefaultLabelPosition.Bottom);
-                        }
+                        pc.Set(s_pcLabelCollapsed, pos == FACommandBarDefaultLabelPosition.Collapsed);
+                        pc.Set(s_pcLabelRight, pos == FACommandBarDefaultLabelPosition.Right);
+                        pc.Set(s_pcLabelBottom, pos == FACommandBarDefaultLabelPosition.Bottom);
                     }
-                }
+            }
                 break;
 
             case NotifyCollectionChangedAction.Remove:
             case NotifyCollectionChangedAction.Reset:
-                {
-                    var items = e.OldItems;
-                    if (items != null)
-                    {
-                        for (var i = 0; i < items.Count; i++)
+            {
+                var items = e.OldItems;
+                if (items != null)
+                    for (var i = 0; i < items.Count; i++)
+                        if (items[i] is Control c && c.Classes is IPseudoClasses pc)
                         {
-                            if (items[i] is Control c && c.Classes is IPseudoClasses pc)
-                            {
-                                pc.Set(s_pcLabelCollapsed, false);
-                                pc.Set(s_pcLabelRight, false);
-                                pc.Set(s_pcLabelBottom, false);
-                            }
+                            pc.Set(s_pcLabelCollapsed, false);
+                            pc.Set(s_pcLabelRight, false);
+                            pc.Set(s_pcLabelBottom, false);
                         }
-                    }
-                }
+            }
                 break;
         }
     }
@@ -494,6 +467,7 @@ SetState:
             _overflowItems.RemoveAt(i);
             _primaryItems.Insert(Math.Min(_primaryItems.Count, _primaryCommands.IndexOf(item)), item);
         }
+
         _numInOverflow = 0;
     }
 
@@ -525,12 +499,8 @@ SetState:
             if (hasAnotherOrder)
             {
                 for (var i = 0; i < _primaryItems.Count; i++)
-                {
                     if (_primaryItems[i].DynamicOverflowOrder == nextOverflowOrder)
-                    {
                         l.Add(_primaryItems[i]);
-                    }
-                }
 
                 return l;
             }
@@ -559,6 +529,7 @@ SetState:
                 count++;
                 continue;
             }
+
             break;
         }
 
@@ -582,31 +553,7 @@ SetState:
             return;
 
         for (int i = 0, ct = _primaryItems.Count; i < ct; i++)
-        {
             if (_primaryItems[i] is Control c && c.Classes is IPseudoClasses pc)
-            {
                 pc.Set(FASharedPseudoclasses.s_pcOpen, open);
-            }
-        }
     }
-
-    private bool _appliedTemplate;
-
-    // These are the actual lists sent to the Items Controls
-    // We don't want to move items in the actual lists to not
-    // interfere with what user specified
-    private AvaloniaList<IFACommandBarElement> _primaryItems;
-    private AvaloniaList<IFACommandBarElement> _overflowItems;
-
-    private ItemsControl _primaryItemsHost;
-    private FACommandBarOverflowPresenter _overflowItemsHost;
-    private ContentControl _contentHost;
-    private Button _moreButton;
-
-    private FACommandBarSeparator _overflowSeparator;
-
-    private int _hasOrderedOverflow;
-    private Dictionary<IFACommandBarElement, double> _widthCache;
-    private int _numInOverflow;
-    private double _minRecoverWidth;
 }

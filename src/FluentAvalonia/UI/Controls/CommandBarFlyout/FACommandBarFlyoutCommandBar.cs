@@ -7,15 +7,23 @@ using Avalonia.Threading;
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// CommandBar used for a <see cref="FACommandBarFlyout"/>
+///     CommandBar used for a <see cref="FACommandBarFlyout" />
 /// </summary>
 /// <remarks>
-/// This class should be treated as internal to FluentAvalonia and not used outside of 
-/// the CommandBarFlyout implementations.
+///     This class should be treated as internal to FluentAvalonia and not used outside of
+///     the CommandBarFlyout implementations.
 /// </remarks>
 [TemplatePart(s_tpMoreButton, typeof(Button))]
 public class FACommandBarFlyoutCommandBar : FACommandBar
 {
+    private const string s_tpMoreButton = "MoreButton";
+
+    private List<Control> _horizontallyAccessibleControls;
+
+    private Button _moreButton;
+    private FACommandBarFlyout _owningFlyout;
+
+    private List<Control> _verticallyAccessibleControls;
     // As said in the Template, this is a modified version of whats in WinUI b/c the WinUI version
     // is stupid. They have two popups that are blended to make this control - one for the flyout,
     // and one with the CommandBar. Instead of doing that, which would just be a giant headache,
@@ -38,10 +46,10 @@ public class FACommandBarFlyoutCommandBar : FACommandBar
             // This ensures that even in Transient ShowMode, focus is still directed into the Flyout, which technically
             // goes against the description of Transient mode, but it's what WinUI does, so whatever
             // Logic is modified...
-            var commands = PrimaryCommands.Count > 0 ? PrimaryCommands : (SecondaryCommands.Count > 0 ? SecondaryCommands : null);
+            var commands = PrimaryCommands.Count > 0 ? PrimaryCommands :
+                SecondaryCommands.Count > 0 ? SecondaryCommands : null;
 
             if (commands != null)
-            {
                 // post this to the dispatcher so it's delayed, otherwise we'll take focus before we actually open
                 // In case of TextCommandBarFlyout, this will end up clearing the Textbox selection because the 
                 // flyout isn't open yet, but we pulled focus
@@ -51,56 +59,36 @@ public class FACommandBarFlyoutCommandBar : FACommandBar
                     {
                         var handled = false;
                         for (var i = 0; i < PrimaryCommands.Count; i++)
-                        {
                             if (IsControlFocusable(PrimaryCommands[i] as Control, false))
                             {
                                 (PrimaryCommands[i] as InputElement).Focus(NavigationMethod.Unspecified);
                                 handled = true;
                                 break;
                             }
-                        }
 
                         if (!handled)
-                        {
                             if (_moreButton != null && _moreButton.IsVisible)
-                            {
                                 _moreButton.Focus(NavigationMethod.Unspecified);
-                            }
-                        }
                     }
                     else
                     {
                         if (_moreButton != null && _moreButton.IsVisible)
-                        {
                             _moreButton.Focus(NavigationMethod.Unspecified);
-                        }
                     }
-
                 }, DispatcherPriority.Loaded);
-            }
         };
 
         Closing += (_, __) =>
         {
             if (_owningFlyout != null && _owningFlyout.IsOpen)
-            {
                 if (_owningFlyout.AlwaysExpanded)
-                {
                     // Don't close the secondary commands list when the flyout is AlwaysExpanded
                     IsOpen = true;
-                }
-            }
         };
 
-        PrimaryCommands.CollectionChanged += (_, __) =>
-        {
-            PopulateAccessibleControls();
-        };
+        PrimaryCommands.CollectionChanged += (_, __) => { PopulateAccessibleControls(); };
 
-        SecondaryCommands.CollectionChanged += (_, __) =>
-        {
-            PopulateAccessibleControls();
-        };
+        SecondaryCommands.CollectionChanged += (_, __) => { PopulateAccessibleControls(); };
     }
 
     protected override Type StyleKeyOverride => typeof(FACommandBarFlyoutCommandBar);
@@ -128,13 +116,11 @@ public class FACommandBarFlyoutCommandBar : FACommandBar
         }
 
         for (var i = 0; i < PrimaryCommands.Count; i++)
-        {
             if (PrimaryCommands[i] is Control c)
             {
                 _horizontallyAccessibleControls.Add(c);
                 _verticallyAccessibleControls.Add(c);
             }
-        }
 
         if (_moreButton != null)
         {
@@ -143,12 +129,8 @@ public class FACommandBarFlyoutCommandBar : FACommandBar
         }
 
         for (var i = 0; i < SecondaryCommands.Count; i++)
-        {
             if (SecondaryCommands[i] is Control c)
-            {
                 _verticallyAccessibleControls.Add(c);
-            }
-        }
     }
 
     protected override void OnKeyDown(KeyEventArgs args)
@@ -164,42 +146,34 @@ public class FACommandBarFlyoutCommandBar : FACommandBar
                 if (current == _moreButton)
                 {
                     if (SecondaryCommands.Count > 0 && !IsOpen)
-                    {
                         // Ensure the secondary commands flyout is open ...
                         IsOpen = true;
-                    }
 
                     for (var i = 0; i < SecondaryCommands.Count; i++)
-                    {
                         if (IsControlFocusable(SecondaryCommands[i] as Control, false))
                         {
                             (SecondaryCommands[i] as InputElement).Focus(NavigationMethod.Tab);
                             args.Handled = true;
                             break;
                         }
-                    }
                 }
 
                 if (!args.Handled && current != null)
                 {
                     if (PrimaryCommands.Contains(current as IFACommandBarElement))
                     {
-
                         // Despite calling IsOpen above, apparently the SecondaryCommands aren't yet visible
                         // and added to the tree, which means the below will fail to move focus and it will take
                         // two tabs to actually move the focus on the first time. So we use this workaround
 
                         var neededOpen = !IsOpen;
                         if (SecondaryCommands.Count > 0 && !IsOpen)
-                        {
                             // Ensure the secondary commands flyout is open ...
                             IsOpen = true;
-                        }
 
                         void FocusFirstSecondary()
                         {
                             for (var i = 0; i < SecondaryCommands.Count; i++)
-                            {
                                 if (IsControlFocusable(SecondaryCommands[i] as Control, false))
                                 {
                                     (SecondaryCommands[i] as InputElement).Focus(NavigationMethod.Tab);
@@ -207,38 +181,29 @@ public class FACommandBarFlyoutCommandBar : FACommandBar
                                     //Debug.Assert(FocusManager.Instance.Current == SecondaryCommands[i]);
                                     break;
                                 }
-                            }
                         }
 
                         if (neededOpen)
-                        {
                             Dispatcher.UIThread.Post(FocusFirstSecondary, DispatcherPriority.Render);
-                        }
                         else
-                        {
                             FocusFirstSecondary();
-                        }
                     }
                     else if (SecondaryCommands.Contains(current as IFACommandBarElement))
                     {
                         for (var i = 0; i < PrimaryCommands.Count; i++)
-                        {
                             if (IsControlFocusable(PrimaryCommands[i] as Control, false))
                             {
                                 (PrimaryCommands[i] as InputElement).Focus(NavigationMethod.Tab);
                                 args.Handled = true;
                                 break;
                             }
-                        }
 
                         if (!args.Handled)
-                        {
                             if (_moreButton != null && _moreButton.IsVisible)
                             {
                                 _moreButton.Focus(NavigationMethod.Tab);
                                 args.Handled = true;
                             }
-                        }
                     }
                 }
 
@@ -261,28 +226,26 @@ public class FACommandBarFlyoutCommandBar : FACommandBar
                 var isUp = args.Key == Key.Up;
                 var isDown = args.Key == Key.Down;
 
-                var accessibleCotnrols = (isUp || isDown) ? _verticallyAccessibleControls : _horizontallyAccessibleControls;
-                var startIndex = (isLeft || isUp) ? accessibleCotnrols.Count - 1 : 0;
-                var endIndex = (isLeft || isUp) ? -1 : accessibleCotnrols.Count;
-                var deltaIndex = (isLeft || isUp) ? -1 : 1;
-                var shouldLoop = (isUp || isDown);
+                var accessibleCotnrols =
+                    isUp || isDown ? _verticallyAccessibleControls : _horizontallyAccessibleControls;
+                var startIndex = isLeft || isUp ? accessibleCotnrols.Count - 1 : 0;
+                var endIndex = isLeft || isUp ? -1 : accessibleCotnrols.Count;
+                var deltaIndex = isLeft || isUp ? -1 : 1;
+                var shouldLoop = isUp || isDown;
                 Control focused = null;
                 var focusedIndex = -1;
 
                 for (var i = startIndex;
-                    (i != endIndex || shouldLoop) ||
-                    (focusedIndex > 0 && i == focusedIndex); i += deltaIndex)
+                     i != endIndex || shouldLoop ||
+                     (focusedIndex > 0 && i == focusedIndex);
+                     i += deltaIndex)
                 {
                     if (i == endIndex)
                     {
                         if (focused != null)
-                        {
                             i = startIndex;
-                        }
                         else
-                        {
                             break;
-                        }
                     }
 
                     var control = accessibleCotnrols[i];
@@ -298,12 +261,8 @@ public class FACommandBarFlyoutCommandBar : FACommandBar
                     else if (IsControlFocusable(control, false))
                     {
                         if (control is IFACommandBarElement ele)
-                        {
                             if (SecondaryCommands.Contains(ele) && !IsOpen)
-                            {
                                 IsOpen = true;
-                            }
-                        }
 
                         control.Focus(NavigationMethod.Directional);
                         args.Handled = true;
@@ -311,10 +270,7 @@ public class FACommandBarFlyoutCommandBar : FACommandBar
                     }
                 }
 
-                if (!args.Handled)
-                {
-                    args.Handled = true;
-                }
+                if (!args.Handled) args.Handled = true;
                 break;
         }
 
@@ -324,20 +280,12 @@ public class FACommandBarFlyoutCommandBar : FACommandBar
     private bool IsControlFocusable(Control control, bool checkTabStop)
     {
         return control != null &&
-            control.IsVisible && control.IsEnabled &&
-            control.Focusable;// && (checkTabStop && KeyboardNavigation.GetIsTabStop(control as InputElement));
+               control.IsVisible && control.IsEnabled &&
+               control.Focusable; // && (checkTabStop && KeyboardNavigation.GetIsTabStop(control as InputElement));
     }
 
     internal void SetOwningFlyout(FACommandBarFlyout f)
     {
         _owningFlyout = f;
     }
-
-    private List<Control> _horizontallyAccessibleControls;
-    private List<Control> _verticallyAccessibleControls;
-
-    private Button _moreButton;
-    private FACommandBarFlyout _owningFlyout;
-
-    private const string s_tpMoreButton = "MoreButton";
 }

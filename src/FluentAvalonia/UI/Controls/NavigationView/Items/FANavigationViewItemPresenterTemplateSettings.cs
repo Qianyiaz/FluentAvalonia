@@ -3,32 +3,34 @@
 namespace FluentAvalonia.UI.Controls.Primitives;
 
 /// <summary>
-/// Provides settings used in the template of a <see cref="FANavigationViewItemPresenter"/>
+///     Provides settings used in the template of a <see cref="FANavigationViewItemPresenter" />
 /// </summary>
 public class FANavigationViewItemPresenterTemplateSettings : AvaloniaObject
 {
-    internal FANavigationViewItemPresenterTemplateSettings() { }
-
     /// <summary>
-    /// Defines the <see cref="IconWidth"/> property
+    ///     Defines the <see cref="IconWidth" /> property
     /// </summary>
     public static readonly StyledProperty<double> IconWidthProperty =
         AvaloniaProperty.Register<FANavigationViewItemPresenterTemplateSettings, double>(nameof(IconWidth));
 
     /// <summary>
-    /// Defines the <see cref="SmallerIconWidth"/> property
+    ///     Defines the <see cref="SmallerIconWidth" /> property
     /// </summary>
     public static readonly StyledProperty<double> SmallerIconWidthProperty =
         AvaloniaProperty.Register<FANavigationViewItemPresenterTemplateSettings, double>(nameof(SmallerIconWidth));
 
     /// <summary>
-    /// Defines the <see cref="Icon"/> property
+    ///     Defines the <see cref="Icon" /> property
     /// </summary>
     public static readonly StyledProperty<FAIconElement> IconProperty =
         FAMenuFlyoutItemTemplateSettings.IconProperty.AddOwner<FANavigationViewItemPresenterTemplateSettings>();
 
+    internal FANavigationViewItemPresenterTemplateSettings()
+    {
+    }
+
     /// <summary>
-    /// TODO: Get docs from MS - relatively new setting
+    ///     TODO: Get docs from MS - relatively new setting
     /// </summary>
     public double IconWidth
     {
@@ -37,7 +39,7 @@ public class FANavigationViewItemPresenterTemplateSettings : AvaloniaObject
     }
 
     /// <summary>
-    /// TODO: Get docs from MS - relatively new setting
+    ///     TODO: Get docs from MS - relatively new setting
     /// </summary>
     public double SmallerIconWidth
     {
@@ -46,7 +48,7 @@ public class FANavigationViewItemPresenterTemplateSettings : AvaloniaObject
     }
 
     /// <summary>
-    /// Gets the <see cref="FAIconElement"/> used in the NavigationViewItem
+    ///     Gets the <see cref="FAIconElement" /> used in the NavigationViewItem
     /// </summary>
     public FAIconElement Icon
     {

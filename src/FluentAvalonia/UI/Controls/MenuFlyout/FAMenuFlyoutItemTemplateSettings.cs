@@ -3,18 +3,18 @@
 namespace FluentAvalonia.UI.Controls;
 
 /// <summary>
-/// Defines objects used in the template of a <see cref="FAMenuFlyoutItem"/> and related classes
+///     Defines objects used in the template of a <see cref="FAMenuFlyoutItem" /> and related classes
 /// </summary>
 public sealed class FAMenuFlyoutItemTemplateSettings : AvaloniaObject
 {
     /// <summary>
-    /// Defines the <see cref="Icon"/> property
+    ///     Defines the <see cref="Icon" /> property
     /// </summary>
     public static readonly StyledProperty<FAIconElement> IconProperty =
         AvaloniaProperty.Register<FAMenuFlyoutItemTemplateSettings, FAIconElement>(nameof(Icon));
 
     /// <summary>
-    /// Represents the FAIconElement for the MenuFlyoutItem
+    ///     Represents the FAIconElement for the MenuFlyoutItem
     /// </summary>
     public FAIconElement Icon
     {

@@ -1,13 +1,12 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:ui="using:FluentAvalonia.UI.Controls"
                     x:CompileBindings="True">
     <Design.PreviewWith>
         <Border Padding="50">
             <StackPanel Spacing="10">
                 <ToggleButton Content="Toggle" />
                 <ToggleButton Content="Toggle" IsChecked="False"
-                              Theme="{DynamicResource TransparentToggleButton}"/>
+                              Theme="{DynamicResource TransparentToggleButton}" />
             </StackPanel>
         </Border>
     </Design.PreviewWith>
@@ -115,7 +114,8 @@
 
             <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
                 <Setter Property="Background" Value="{DynamicResource ToggleButtonBackgroundIndeterminatePointerOver}" />
-                <Setter Property="BorderBrush" Value="{DynamicResource ToggleButtonBorderBrushIndeterminatePointerOver}" />
+                <Setter Property="BorderBrush"
+                        Value="{DynamicResource ToggleButtonBorderBrushIndeterminatePointerOver}" />
                 <Setter Property="Foreground" Value="{DynamicResource ToggleButtonForegroundIndeterminatePointerOver}" />
             </Style>
 
@@ -130,11 +130,10 @@
                 <Setter Property="BorderBrush" Value="{DynamicResource ToggleButtonBorderBrushIndeterminateDisabled}" />
                 <Setter Property="Foreground" Value="{DynamicResource ToggleButtonForegroundIndeterminateDisabled}" />
             </Style>
-        </Style> 
+        </Style>
     </ControlTheme>
 
-    
-    
+
     <ControlTheme TargetType="ToggleButton" x:Key="TransparentToggleButton">
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
