@@ -374,7 +374,7 @@ public class ControlsPageBase : UserControl
         }
     }
 
-    private async void LaunchLink(Uri link)
+    private static async void LaunchLink(Uri link)
     {
         try
         {

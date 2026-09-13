@@ -131,7 +131,7 @@ public class FAFlowLayout : FAVirtualizingLayout, IOrientationBasedMeasures, IFl
                 anchorIndex = (int)(lineIndex * averageItemsPerLine);
 
                 // Clamp it to be within valid range
-                anchorIndex = FAMathHelpers.Clamp(anchorIndex, 0, itemsCount - 1);
+                anchorIndex = Math.Clamp(anchorIndex, 0, itemsCount - 1);
                 offset = lineIndex * averageLineSize + this.MajorStart(lastExtent);
             }
         }
@@ -329,7 +329,7 @@ public class FAFlowLayout : FAVirtualizingLayout, IOrientationBasedMeasures, IFl
         InvalidateLayout();
     }
 
-    private FlowLayoutState GetAsFlowState(object state) =>
+    private static FlowLayoutState GetAsFlowState(object state) =>
         state as FlowLayoutState;
 
     private void InvalidateLayout() => InvalidateMeasure();

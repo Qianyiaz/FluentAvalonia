@@ -37,7 +37,6 @@
                                    Header="Header Here"
                                    SubHeader="SubHeader"
                                    Content="This is some sample text, but you can put more advanced content here if you like"
-                                   core:FAVisualStateHelper.ForcedClassesProperty=":open,:hosted,:hidden!"
                                    FooterVisibility="{Binding ((ComboBoxItem)SelectedItem).Content, ElementName=FooterVisCB}">
                         <ui:FATaskDialog.Commands>
                             <ui:FATaskDialogCommand Text="{Binding #CommandText.Text}"

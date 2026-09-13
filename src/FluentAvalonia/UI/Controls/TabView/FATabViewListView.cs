@@ -344,7 +344,7 @@ public sealed class FATabViewListView : ListBox
 
         if (canDrag)
         {
-            dragItems = new object[] { ItemsView.GetAt(_dragIndex) };
+            dragItems = [ItemsView.GetAt(_dragIndex)];
             dragArgs = new DragItemsStartingEventArgs { Items = dragItems, Data = package };
             DragItemsStarting?.Invoke(this, dragArgs);
 
@@ -648,7 +648,7 @@ public sealed class FATabViewListView : ListBox
             }
 
             // Disable if we're right up on the edge
-            if (FAMathHelpers.IsClose(bound, offset.X, 0.05)) hVelocity = 0;
+            if (Math.Abs(bound - offset.X) < 0.05) hVelocity = 0;
         }
 
         if (isVerticalEnabled && hVelocity == 0)
@@ -665,7 +665,7 @@ public sealed class FATabViewListView : ListBox
             }
 
             // Disable if we're right up on the edge
-            if (FAMathHelpers.IsClose(bound, offset.Y, 0.05)) vVelocity = 0;
+            if (Math.Abs(bound - offset.Y) < 0.05) hVelocity = 0;
         }
 
         pVelocity = new Vector(hVelocity, vVelocity);
@@ -743,7 +743,7 @@ public sealed class FATabViewListView : ListBox
     }
 
     private static bool IsStationary(Vector v) =>
-        FAMathHelpers.IsZero(v.X) && FAMathHelpers.IsZero(v.Y);
+        Math.Abs(v.X) < 1e-5 && Math.Abs(v.Y) < 1e-5;
 
     internal Orientation? GetLogicalOrientation()
     {

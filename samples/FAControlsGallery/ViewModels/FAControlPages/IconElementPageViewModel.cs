@@ -7,7 +7,7 @@ public class IconElementPageViewModel : ViewModelBase
 {
     public Task<List<SymbolItem>> Symbols => GetSymbols();
 
-    private async Task<List<SymbolItem>> GetSymbols()
+    private static async Task<List<SymbolItem>> GetSymbols()
     {
         return await Task.Run(() =>
         {

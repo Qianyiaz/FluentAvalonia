@@ -15,8 +15,8 @@ internal class ElementManager
 {
     private FAVirtualizingLayoutContext _context;
     private int _firstRealizedDataIndex = -1;
-    private List<Rect> _realizedElementLayoutBounds = new();
-    private List<Control> _realizedElements = new();
+    private List<Rect> _realizedElementLayoutBounds = [];
+    private List<Control> _realizedElements = [];
 
     private bool _useLayoutBounds;
 

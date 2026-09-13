@@ -31,7 +31,7 @@ internal class PooledList<T> : IList<T>, IList, IDisposable
     // internal constant copied from Array.MaxArrayLength
     private const int MaxArrayLength = 0x7FEFFFFF;
     private const int DefaultCapacity = 4;
-    private static readonly T[] s_emptyArray = Array.Empty<T>();
+    private static readonly T[] s_emptyArray = [];
     private readonly bool _clearOnFree;
 
     private T[] _items; // Do not rename (binary serialization)
@@ -914,7 +914,7 @@ internal class PooledList<T> : IList<T>, IList, IDisposable
     {
         if (_size == 0) return s_emptyArray;
 
-        return Span.ToArray();
+        return [.. Span];
     }
 
     /// <summary>

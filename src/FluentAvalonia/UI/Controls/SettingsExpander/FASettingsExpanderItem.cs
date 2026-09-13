@@ -231,7 +231,7 @@ public partial class FASettingsExpanderItem : ContentControl, ICommandSource
         TemplateSettings.Icon = FAIconHelpers.CreateFromUnknown(newIcon);
 
         var se = this.FindAncestorOfType<FASettingsExpander>();
-        if (se != null) se.InvalidateIcons(this);
+        se?.InvalidateIcons(this);
     }
 
     private void OnActionIconSourceChanged(AvaloniaPropertyChangedEventArgs args)

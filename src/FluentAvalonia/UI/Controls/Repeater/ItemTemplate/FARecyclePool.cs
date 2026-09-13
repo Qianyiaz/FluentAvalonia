@@ -86,8 +86,7 @@ public class FARecyclePool
                 if (elementInfo.Owner != null && elementInfo.Owner != owner)
                 {
                     // Element is still under its parent. remove it from its parent.
-                    var panel = elementInfo.Owner as Panel;
-                    if (panel != null)
+                    if (elementInfo.Owner is Panel panel)
                     {
                         var foundE = panel.Children.Remove(elementInfo.Element);
                         if (!foundE)
@@ -101,7 +100,7 @@ public class FARecyclePool
         return null;
     }
 
-    private void EnsureOwnerIsPanelOrNull(Control owner)
+    private static void EnsureOwnerIsPanelOrNull(Control owner)
     {
         if (owner == null || (owner != null && owner is Panel))
             return;

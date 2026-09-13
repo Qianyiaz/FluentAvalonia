@@ -92,7 +92,7 @@ public class FAMenuFlyout : PopupFlyoutBase
     ///     Sets the Classes used for styling the MenuFlyoutPresenter. This property
     ///     takes the place of WinUI's MenuFlyoutPresenterStyle
     /// </summary>
-    public Classes FlyoutPresenterClasses => _classes ??= new Classes();
+    public Classes FlyoutPresenterClasses => _classes ??= [];
 
     /// <summary>
     ///     Gets or sets the ControlTheme for the flyout presenter
@@ -132,7 +132,7 @@ public class FAMenuFlyout : PopupFlyoutBase
 
             var newV = change.GetNewValue<IEnumerable>();
 
-            if (_presenter != null) _presenter.ItemsSource = newV ?? Items;
+            _presenter?.ItemsSource = newV ?? Items;
         }
     }
 

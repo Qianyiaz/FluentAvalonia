@@ -49,7 +49,7 @@ public partial class TabViewPage : ControlsPageBase
         }
     }
 
-    private FATabViewItem CreateNewTab(int index)
+    private static FATabViewItem CreateNewTab(int index)
     {
         var tvi = new FATabViewItem
         {

@@ -66,7 +66,6 @@ public partial class FATabView : TemplatedControl
     private RepeatButton _scrollIncreaseButton;
     private ScrollViewer _scrollViewer;
     private double _startingPaneSize;
-    private string _tabCloseButtonTooltipText;
     private ColumnDefinition _tabColumn;
     private Grid _tabContainerGrid;
     private ContentPresenter _tabContentPresenter;
@@ -290,7 +289,7 @@ public partial class FATabView : TemplatedControl
             loc == FATabViewTabStripLocation.Top || loc == FATabViewTabStripLocation.Bottom;
     }
 
-    private void OnListViewDraggingPropertyChanged()
+    private static void OnListViewDraggingPropertyChanged()
     {
         //UpdateListViewItemContainerTransitions();
     }
@@ -364,12 +363,10 @@ public partial class FATabView : TemplatedControl
         PseudoClasses.Set(s_pcSingleBorder, _isDragging);
 
         // Update border lines in the inner TabViewListView
-        if (_listView != null)
-            (_listView.Classes as IPseudoClasses).Set(FASharedPseudoclasses.s_pcNoBorder, _isDragging);
+        (_listView?.Classes as IPseudoClasses)?.Set(FASharedPseudoclasses.s_pcNoBorder, _isDragging);
 
         // Update border lines in the ScrollViewer
-        if (_scrollViewer != null)
-            (_scrollViewer.Classes as IPseudoClasses).Set(FASharedPseudoclasses.s_pcNoBorder, _isDragging);
+        (_scrollViewer?.Classes as IPseudoClasses)?.Set(FASharedPseudoclasses.s_pcNoBorder, _isDragging);
     }
 
     private void OnSelectedItemPropertyChanged(AvaloniaPropertyChangedEventArgs change)
@@ -382,11 +379,11 @@ public partial class FATabView : TemplatedControl
         UpdateListViewItemContainerTransitions();
     }
 
-    private void UpdateListViewItemContainerTransitions()
+    private static void UpdateListViewItemContainerTransitions()
     {
     }
 
-    private void OnCanTearOutTabsPropertyChanged(AvaloniaPropertyChangedEventArgs args)
+    private static void OnCanTearOutTabsPropertyChanged(AvaloniaPropertyChangedEventArgs args)
     {
         //UpdateTabViewWithTearOutList();
         //AttachMoveSizeLoopEvents();
@@ -650,10 +647,8 @@ public partial class FATabView : TemplatedControl
 
                         do
                         {
-                            var nextitem = ContainerFromIndex(index) as FATabViewItem;
-
-                            if (nextitem != null && nextitem.IsEffectivelyEnabled
-                                                 && nextitem.IsEffectivelyVisible)
+                            if (ContainerFromIndex(index) is FATabViewItem nextitem && nextitem.IsEffectivelyEnabled
+                                                                                    && nextitem.IsEffectivelyVisible)
                             {
                                 SelectedItem = ItemFromContainer(nextitem);
                                 break;
@@ -1131,9 +1126,9 @@ public partial class FATabView : TemplatedControl
                 _scrollViewer?.MaxHeight = double.Clamp(maxSpace - height, 0, double.PositiveInfinity);
             }
         }
-        else if (_scrollViewer != null)
+        else
         {
-            _scrollViewer.MaxHeight = double.PositiveInfinity;
+            _scrollViewer?.MaxHeight = double.PositiveInfinity;
         }
 
         if (shouldUpdateWidths || TabWidthMode != FATabViewWidthMode.Equal)
@@ -1146,8 +1141,7 @@ public partial class FATabView : TemplatedControl
 
     private void UpdateSelectedItem()
     {
-        if (_listView != null)
-            _listView.SelectedItem = SelectedItem;
+        _listView?.SelectedItem = SelectedItem;
     }
 
     private void UpdateSelectedIndex()
@@ -1252,10 +1246,8 @@ public partial class FATabView : TemplatedControl
     {
         if (TopLevel.GetTopLevel(this) is { } tl)
         {
-            var focusedControl = tl.FocusManager.GetFocusedElement() as Control;
-
             // If there's no focused control, then we have nothing to do.
-            if (focusedControl == null)
+            if (tl.FocusManager.GetFocusedElement() is not Control focusedControl)
                 return false;
 
             // Focus goes in this order:
@@ -1386,11 +1378,8 @@ public partial class FATabView : TemplatedControl
 
     // Note that the parameter is a DependencyObject for convenience to allow us to call this on the return value of ContainerFromIndex.
     // There are some non-control elements that can take focus - e.g. a hyperlink in a RichTextBlock - but those aren't relevant for our purposes here.
-    private bool IsFocusable(InputElement obj, bool checkTabStop = false)
+    private static bool IsFocusable(InputElement obj, bool checkTabStop = false)
     {
-        if (obj == null)
-            return false;
-
         if (obj is Control c)
             return c.IsEffectivelyVisible &&
                    c.IsEffectivelyEnabled &&
@@ -1522,9 +1511,6 @@ public partial class FATabView : TemplatedControl
             _ => s_pcTop
         };
     }
-
-    internal string GetTabCloseButtonTooltipText() =>
-        _tabCloseButtonTooltipText;
 
 
     private class TabViewCommand : ICommand

@@ -56,7 +56,7 @@ public class FAComboBoxAutomationPeer : SelectingItemsControlAutomationPeer,
         // peer to represent the unrealized item.
         if (Owner.SelectedItem is { } selection)
         {
-            _selection ??= new[] { new UnrealizedSelectionPeer(this) };
+            _selection ??= [new UnrealizedSelectionPeer(this)];
             _selection[0].Item = selection;
             return _selection;
         }

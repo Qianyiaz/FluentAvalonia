@@ -23,7 +23,7 @@ internal class FACompositeDisposable : ICollection<IDisposable>, IEnumerable<IDi
 
     public FACompositeDisposable()
     {
-        _list = new List<IDisposable>();
+        _list = [];
     }
 
     public FACompositeDisposable(int capacity)
@@ -33,12 +33,12 @@ internal class FACompositeDisposable : ICollection<IDisposable>, IEnumerable<IDi
 
     public FACompositeDisposable(params IDisposable[] disposables)
     {
-        _list = new List<IDisposable>(disposables);
+        _list = [.. disposables];
     }
 
     public FACompositeDisposable(IEnumerable<IDisposable> disposables)
     {
-        _list = new List<IDisposable>(disposables);
+        _list = [.. disposables];
     }
 
     public int Count => _list.Count;

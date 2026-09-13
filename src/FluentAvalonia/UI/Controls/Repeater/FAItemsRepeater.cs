@@ -109,22 +109,17 @@ public partial class FAItemsRepeater : Panel
 
         var layout = GetEffectiveLayout();
 
-        if (layout != null)
+        if (layout is FAStackLayout stackLayout && ++_stackLayoutMeasureCounter >= _maxStackLayoutIterations)
         {
-            var stackLayout = layout as FAStackLayout;
-
-            if (stackLayout != null && ++_stackLayoutMeasureCounter >= _maxStackLayoutIterations)
-            {
 #if DEBUG && REPEATER_TRACE
                 //Log.Debug("MeasureOverride shortcut - {Counter}", _stackLayoutMeasureCounter);
 #endif
-                // Shortcut the apparent layout cycle by returning the previous desired size.
-                // This can occur when children have variable sizes that prevent the ItemsPresenter's desired size from settling.
-                var layoutExtent = _viewportManager.LayoutExtent;
-                var desiredSize = new Size(layoutExtent.Width - layoutExtent.X,
-                    layoutExtent.Height - layoutExtent.Y);
-                return desiredSize;
-            }
+            // Shortcut the apparent layout cycle by returning the previous desired size.
+            // This can occur when children have variable sizes that prevent the ItemsPresenter's desired size from settling.
+            var layoutExtent = _viewportManager.LayoutExtent;
+            var desiredSize = new Size(layoutExtent.Width - layoutExtent.X,
+                layoutExtent.Height - layoutExtent.Y);
+            return desiredSize;
         }
 
         _viewportManager.OnOwnerMeasuring();
@@ -294,10 +289,10 @@ public partial class FAItemsRepeater : Panel
         GetElementFromIndexImpl(index);
 
     public void PinElement(Control element) =>
-        _viewManager.UpdatePin(element, true);
+        ViewManager.UpdatePin(element, true);
 
     public void UnpinElement(Control element) =>
-        _viewManager.UpdatePin(element, false);
+        ViewManager.UpdatePin(element, false);
 
     public Control GetOrCreateElement(int index) =>
         GetOrCreateElementImpl(index);
@@ -374,7 +369,7 @@ public partial class FAItemsRepeater : Panel
         if (parent == this)
         {
             var virtInfo = TryGetVirtualizationInfo(element);
-            return _viewManager.GetElementIndex(virtInfo);
+            return ViewManager.GetElementIndex(virtInfo);
         }
 
         return -1;
@@ -424,7 +419,7 @@ public partial class FAItemsRepeater : Panel
         return element;
     }
 
-    private int Indent()
+    private static int Indent()
     {
         // Debug thing...Ignore for now...
         return 4;
@@ -694,7 +689,7 @@ public partial class FAItemsRepeater : Panel
         return GetDefaultLayout();
     }
 
-    private FALayout GetDefaultLayout()
+    private static FALayout GetDefaultLayout()
     {
         // Default to StackLayout if the Layout property was not set.
         // We use thread_local here to get a unique instance per thread, since Layout objects

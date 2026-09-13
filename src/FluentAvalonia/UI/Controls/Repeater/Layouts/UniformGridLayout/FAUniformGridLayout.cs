@@ -460,7 +460,7 @@ public class FAUniformGridLayout : FAVirtualizingLayout, IOrientationBasedMeasur
         return bounds;
     }
 
-    private UniformGridLayoutState GetAsGridState(object state) =>
+    private static UniformGridLayoutState GetAsGridState(object state) =>
         state as UniformGridLayoutState;
 
     private FlowLayoutAlgorithm GetFlowAlgorithm(FAVirtualizingLayoutContext context) =>

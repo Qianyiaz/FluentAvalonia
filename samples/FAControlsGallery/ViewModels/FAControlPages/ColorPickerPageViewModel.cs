@@ -80,7 +80,7 @@ public class ColorPickerPageViewModel : ViewModelBase
         return cols;
     }
 
-    private Color AdjustColor(Color c, float factor)
+    private static Color AdjustColor(Color c, float factor)
     {
         float r = c.R;
         float g = c.G;

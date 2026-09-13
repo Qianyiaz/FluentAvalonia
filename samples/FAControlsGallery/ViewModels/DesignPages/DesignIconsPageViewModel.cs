@@ -35,7 +35,7 @@ public class DesignIconsPageViewModel : ViewModelBase
 
     public Task<List<FontIconInfo>> Icons => GetIcons();
 
-    private async Task<List<FontIconInfo>> GetIcons()
+    private static async Task<List<FontIconInfo>> GetIcons()
     {
         return await Task.Run(() =>
         {

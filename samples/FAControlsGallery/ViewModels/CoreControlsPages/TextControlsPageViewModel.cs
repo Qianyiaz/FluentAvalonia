@@ -45,7 +45,7 @@ public class TextControlsPageViewModel : ViewModelBase
         }
     }
 
-    private StateData[] GetStates()
+    private static StateData[] GetStates()
     {
         return new StateData[]
         {

@@ -32,8 +32,8 @@ public abstract class FAItemCollectionTransitionProvider
 
     public void QueueTransition(FAItemCollectionTransition transition)
     {
-        _transitions ??= new List<FAItemCollectionTransition>();
-        _transitionsWithAnimations ??= new List<FAItemCollectionTransition>();
+        _transitions ??= [];
+        _transitionsWithAnimations ??= [];
 
         if (FAUISettings.AreAnimationsEnabled() && ShouldAnimate(transition))
             _transitionsWithAnimations.Add(transition);

@@ -20,7 +20,7 @@ internal class Phaser
 
     public void PhaseElement(Control element, VirtualizationInfo virtInfo, FAContainerContentChangingEventArgs cArgs)
     {
-        _pendingElements ??= new List<ElementInfo>();
+        _pendingElements ??= [];
 
         // Insert at the top since we remove from bottom during DoPhasedWorkCallback. This keeps the ordering of items
         // the same as the order in which items are realized.

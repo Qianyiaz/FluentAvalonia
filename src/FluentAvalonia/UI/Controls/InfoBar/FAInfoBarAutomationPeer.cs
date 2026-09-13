@@ -18,12 +18,12 @@ public sealed class FAInfoBarAutomationPeer : ControlAutomationPeer
 
     protected override string GetClassNameCore() => nameof(FAInfoBar);
 
-    internal void RaiseOpenedEvent(FAInfoBarSeverity severity, string displayString)
+    internal static void RaiseOpenedEvent(FAInfoBarSeverity severity, string displayString)
     {
         // Not sure how WinUI translates here
     }
 
-    internal void RaiseClosedEvent(FAInfoBarSeverity severity, string displayString)
+    internal static void RaiseClosedEvent(FAInfoBarSeverity severity, string displayString)
     {
         // Not sure how WinUI translates here
     }

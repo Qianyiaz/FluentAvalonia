@@ -27,9 +27,7 @@ internal static class IEnumerableExtensions
     /// </summary>
     public static int IndexOf(this IEnumerable items, object item)
     {
-        var list = items as IList;
-
-        if (list != null) return list.IndexOf(item);
+        if (items is IList list) return list.IndexOf(item);
 
         var index = 0;
 

@@ -8,7 +8,7 @@ public class ViewModelBase : INotifyPropertyChanged
 {
     public event PropertyChangedEventHandler PropertyChanged;
 
-    protected string GetAssemblyResource(string name)
+    protected static string GetAssemblyResource(string name)
     {
         using (var stream = AssetLoader.Open(new Uri(name)))
         using (var reader = new StreamReader(stream))

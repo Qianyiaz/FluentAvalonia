@@ -295,7 +295,7 @@ public class FABreadcrumbBarItem : ContentControl
         }
     }
 
-    private IList<object> CloneEllipsisItemSource(IEnumerable<object> ellipsisItemsSource)
+    private static IList<object> CloneEllipsisItemSource(IEnumerable<object> ellipsisItemsSource)
     {
         // The new list contains all the elements in reverse order
         var itemsSourceSize = ellipsisItemsSource.Count();
@@ -365,7 +365,7 @@ public class FABreadcrumbBarItem : ContentControl
             if (_ellipsisDropDownItemDataTemplate != null)
                 _ellipsisElementFactory.UserElementFactory(_ellipsisDropDownItemDataTemplate);
 
-            if (_ellipsisItemsRepeater != null) _ellipsisItemsRepeater.ItemsSource = hiddenElements;
+            _ellipsisItemsRepeater?.ItemsSource = hiddenElements;
 
             OpenFlyout();
         }
@@ -393,7 +393,7 @@ public class FABreadcrumbBarItem : ContentControl
             _isEllipsisItem = false;
             _isLastItem = false;
 
-            if (_button != null) _button.Flyout = null;
+            _button?.Flyout = null;
             _ellipsisFlyout = null;
             _ellipsisItemsRepeater = null;
             _ellipsisElementFactory = null;

@@ -65,20 +65,20 @@ public sealed class ItemsRepeaterPageViewModel : ViewModelBase
 
     public ObservableCollection<int> Numbers { get; }
 
-    private ObservableCollection<string> GetFruits()
+    private static ObservableCollection<string> GetFruits()
     {
         return new ObservableCollection<string> { "Apricots", "Bananas", "Grapes", "Strawberries", "Watermelon", "Plums", "Blueberries" };
     }
 
-    private ObservableCollection<string> GetVegetables()
+    private static ObservableCollection<string> GetVegetables()
     {
         return new ObservableCollection<string> { "Broccoli", "Spinach", "Sweet potato", "Cauliflower", "Onion", "Brussels sprouts", "Carrots" };
     }
-    private ObservableCollection<string> GetGrains()
+    private static ObservableCollection<string> GetGrains()
     {
         return new ObservableCollection<string> { "Rice", "Quinoa", "Pasta", "Bread", "Farro", "Oats", "Barley" };
     }
-    private ObservableCollection<string> GetProteins()
+    private static ObservableCollection<string> GetProteins()
     {
         return new ObservableCollection<string> { "Steak", "Chicken", "Tofu", "Salmon", "Pork", "Chickpeas", "Eggs" };
     }

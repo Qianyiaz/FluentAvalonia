@@ -43,7 +43,7 @@ public partial class FAMenuFlyoutSubItem : FAMenuFlyoutItemBase
 
             var newV = change.GetNewValue<IEnumerable>();
 
-            if (_presenter != null) _presenter.ItemsSource = newV ?? Items;
+            _presenter?.ItemsSource = newV ?? Items;
         }
     }
 

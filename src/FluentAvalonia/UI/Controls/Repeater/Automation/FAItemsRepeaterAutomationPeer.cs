@@ -31,7 +31,7 @@ public class FAItemsRepeaterAutomationPeer : ControlAutomationPeer
 
         realizedPeers.Sort((lhs, rhs) => lhs.Item1 < rhs.Item1 ? 1 : -1);
 
-        return realizedPeers.Select(x => x.Item2).ToArray();
+        return [.. realizedPeers.Select(x => x.Item2)];
     }
 
     protected override AutomationControlType GetAutomationControlTypeCore() =>

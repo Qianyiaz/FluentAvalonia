@@ -22,9 +22,9 @@ public sealed class FATabViewAutomationPeer : ControlAutomationPeer, ISelectionP
     {
         if (Owner is FATabView tv)
             if (tv.ContainerFromIndex(tv.SelectedIndex) is FATabViewItem tvi)
-                return new AutomationPeer[] { CreatePeerForElement(tvi) };
+                return [CreatePeerForElement(tvi)];
 
-        return Array.Empty<AutomationPeer>();
+        return [];
     }
 
     protected override string GetClassNameCore() => nameof(FATabView);

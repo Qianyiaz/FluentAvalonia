@@ -287,7 +287,7 @@ public partial class FANumberBox : TemplatedControl
     }
 
     //Replaces INumberParser in winrt
-    private double? ParseDouble(string txt)
+    private static double? ParseDouble(string txt)
     {
         if (double.TryParse(txt, NumberStyles.Any, CultureInfo.CurrentCulture, out var result)) return result;
 

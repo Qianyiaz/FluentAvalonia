@@ -40,10 +40,10 @@ internal class BreadcrumbLayout : FANonVirtualizingLayout
     {
     }
 
-    public int GetItemCount(FANonVirtualizingLayoutContext context) =>
+    public static int GetItemCount(FANonVirtualizingLayoutContext context) =>
         context.Children.Count;
 
-    public Control GetElementAt(FANonVirtualizingLayoutContext context, int index) =>
+    public static Control GetElementAt(FANonVirtualizingLayoutContext context, int index) =>
         context.Children[index];
 
     // Measuring is performed in a single step, every element is measured, including the ellipsis
@@ -129,7 +129,7 @@ internal class BreadcrumbLayout : FANonVirtualizingLayout
         return finalSize;
     }
 
-    private void ArrangeItem(Control breadcrumbItem, ref double accumWidth, double maxElementHeight)
+    private static void ArrangeItem(Control breadcrumbItem, ref double accumWidth, double maxElementHeight)
     {
         var elementSize = breadcrumbItem.DesiredSize;
         var rect = new Rect(accumWidth, 0, elementSize.Width, maxElementHeight);
@@ -145,7 +145,7 @@ internal class BreadcrumbLayout : FANonVirtualizingLayout
         ArrangeItem(element, ref accumWidth, maxElementHeight);
     }
 
-    private void HideItem(Control item)
+    private static void HideItem(Control item)
     {
         item.Arrange(default);
     }

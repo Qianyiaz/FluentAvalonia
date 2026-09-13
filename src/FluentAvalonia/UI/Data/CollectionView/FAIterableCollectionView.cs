@@ -72,8 +72,8 @@ public sealed class FAIterableCollectionView : IFACollectionView, IFAAdvancedCol
             _filter = filter;
             if (isLiveShaping)
                 _filterProperties = filterProperties != null
-                    ? new HashSet<string>(filterProperties)
-                    : new HashSet<string>();
+                    ? [.. filterProperties]
+                    : [];
 
             if (sortDescriptions != null)
             {
@@ -564,7 +564,7 @@ public sealed class FAIterableCollectionView : IFACollectionView, IFAAdvancedCol
     {
         // If user doesn't specify Filter in the constructor _view is still null
         // here, so let's initialize it now
-        _view ??= new List<object>();
+        _view ??= [];
 
         if (_filter != null)
         {
@@ -684,7 +684,7 @@ public sealed class FAIterableCollectionView : IFACollectionView, IFAAdvancedCol
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
-    private object EvaluateBinding(BindingBase binding, object item)
+    private static object EvaluateBinding(BindingBase binding, object item)
     {
         _bindingHelper ??= new BindingEvaluator<object>();
         _bindingHelper.UpdateBinding(binding);

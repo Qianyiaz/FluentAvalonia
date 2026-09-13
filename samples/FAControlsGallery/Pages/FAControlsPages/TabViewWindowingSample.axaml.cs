@@ -63,7 +63,7 @@ public partial class TabViewWindowingSample : FAAppWindow
         }
     }
 
-    private void TabView_TabItemsChanged(FATabView sender, NotifyCollectionChangedEventArgs args)
+    private static void TabView_TabItemsChanged(FATabView sender, NotifyCollectionChangedEventArgs args)
     {
         //// If TabItem count hits zero - close the window
         //// Note that this event ONLY fires based on a INCC change action and not when changing the
@@ -76,7 +76,7 @@ public partial class TabViewWindowingSample : FAAppWindow
         //}
     }
 
-    private void AddTabButtonClick(FATabView sender, EventArgs args)
+    private static void AddTabButtonClick(FATabView sender, EventArgs args)
     {
         (sender.TabItemsSource as IList).Add(
             new FATabViewItem
@@ -87,12 +87,12 @@ public partial class TabViewWindowingSample : FAAppWindow
             });
     }
 
-    private void TabCloseRequested(FATabView sender, FATabViewTabCloseRequestedEventArgs args)
+    private static void TabCloseRequested(FATabView sender, FATabViewTabCloseRequestedEventArgs args)
     {
         (sender.TabItems as IList).Remove(args.Tab);
     }
 
-    private void TabDragStarting(FATabView sender, FATabViewTabDragStartingEventArgs args)
+    private static void TabDragStarting(FATabView sender, FATabViewTabDragStartingEventArgs args)
     {
         //// Set the data payload to the drag args
         //args.Data.SetData(DataIdentifier, args.Tab);
@@ -160,7 +160,7 @@ public partial class TabViewWindowingSample : FAAppWindow
         //}
     }
 
-    private void TabDroppedOutside(FATabView sender, FATabViewTabDroppedOutsideEventArgs args)
+    private static void TabDroppedOutside(FATabView sender, FATabViewTabDroppedOutsideEventArgs args)
     {
         // In this case, the tab was dropped outside of any tabstrip, let's move it to
         // a new window

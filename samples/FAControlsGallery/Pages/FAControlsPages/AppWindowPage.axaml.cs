@@ -66,7 +66,7 @@ public partial class AppWindowPage : ControlsPageBase
         }
     }
 
-    private Stream GetResource(string loc)
+    private static Stream GetResource(string loc)
     {
         return AssetLoader.Open(new Uri(loc));
     }
@@ -117,7 +117,7 @@ internal class DemoSplashScreen : IFAApplicationSplashScreen
 
     // Place your loading tasks here. NOTE, this is already called on a background thread, so
     // if any UI thread work needs to be done, use Dispatcher.UIThread.Post or .InvokeAsync
-    public Task RunTasks(CancellationToken token)
+    public static Task RunTasks(CancellationToken token)
     {
         return Task.CompletedTask;
     }

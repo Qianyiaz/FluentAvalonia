@@ -45,7 +45,7 @@ public sealed class SettingsPageViewModel : MainPageViewModelBase
         }
     }
 
-    private ThemeVariant GetThemeVariant(string value)
+    private static ThemeVariant GetThemeVariant(string value)
     {
         switch (value)
         {
@@ -157,10 +157,10 @@ public sealed class SettingsPageViewModel : MainPageViewModelBase
 
     public List<Color> PredefinedColors { get; private set; }
 
-    public string CurrentVersion =>
+    public static string CurrentVersion =>
         typeof(FluentAvalonia.UI.Controls.FANavigationView).Assembly.GetName().Version?.ToString();
 
-    public string CurrentAvaloniaVersion =>
+    public static string CurrentAvaloniaVersion =>
         typeof(Application).Assembly.GetName().Version?.ToString();
 
     private void GetPredefColors()

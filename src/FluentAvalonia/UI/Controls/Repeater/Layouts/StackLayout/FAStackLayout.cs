@@ -303,7 +303,7 @@ public class FAStackLayout : FAVirtualizingLayout, IFlowLayoutAlgorithmDelegates
         InvalidateLayout();
     }
 
-    private double GetAverageElementSize(Size availableSize, FAVirtualizingLayoutContext context,
+    private static double GetAverageElementSize(Size availableSize, FAVirtualizingLayoutContext context,
         StackLayoutState state)
     {
         double averageElementSize = 0;
@@ -336,7 +336,7 @@ public class FAStackLayout : FAVirtualizingLayout, IFlowLayoutAlgorithmDelegates
     private FlowLayoutAlgorithm GetFlowAlgorithm(FAVirtualizingLayoutContext context) =>
         GetAsStackState(context.LayoutState).FlowAlgorithm;
 
-    private StackLayoutState GetAsStackState(object state) =>
+    private static StackLayoutState GetAsStackState(object state) =>
         state as StackLayoutState;
 
     // !!! WARNING !!!

@@ -83,7 +83,7 @@ public partial class FATeachingTip
         new(width - (MinimumTipEdgeToTailEdgeMargin() + 1f), 0, TopRightCornerRadius() - 1f, 0);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private Thickness OtherPlacementTopRightHighlightMargin(double width, double height) => new();
+    private static Thickness OtherPlacementTopRightHighlightMargin(double width, double height) => new();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private Thickness BottomPlacementTopLeftHighlightMargin(double width, double height) =>

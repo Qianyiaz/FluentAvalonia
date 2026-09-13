@@ -217,7 +217,7 @@ public partial class FAInfoBar : ContentControl
         }
     }
 
-    private void UpdateIcon()
+    private static void UpdateIcon()
     {
         // Skip this logic - used an IconSourceElement in the template instead
         // which automatically handles IconSource -> IconElement for us

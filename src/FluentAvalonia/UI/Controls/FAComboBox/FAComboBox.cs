@@ -399,7 +399,7 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
             item.BringIntoView();
 
             var oldContainer = ContainerFromIndex(_dropDownSelectedIndex);
-            if (oldContainer != null) ((IPseudoClasses)oldContainer.Classes).Set(s_pcSelected, false);
+            ((IPseudoClasses)oldContainer?.Classes)?.Set(s_pcSelected, false);
 
             var changeType = SelectionChangedTrigger;
             if (changeType == FAComboBoxSelectionChangedTrigger.Always)
@@ -552,7 +552,7 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
         if (_dropDownSelectedIndex != SelectedIndex)
         {
             var container = ContainerFromIndex(_dropDownSelectedIndex);
-            if (container != null) ((IPseudoClasses)container.Classes).Set(s_pcSelected, false);
+            ((IPseudoClasses)container?.Classes)?.Set(s_pcSelected, false);
         }
 
         _dropDownSelectedIndex = -1;
@@ -573,7 +573,7 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
         {
             var container = ContainerFromIndex(sIdx);
 
-            if (container == null && sIdx != -1)
+            if (container == null)
             {
                 ScrollIntoView(Selection.SelectedIndex);
                 container = ContainerFromIndex(sIdx);
@@ -584,7 +584,7 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
         }
     }
 
-    private bool CanFocus(Control control) =>
+    private static bool CanFocus(Control control) =>
         control.Focusable && control.IsEffectivelyEnabled && control.IsVisible;
 
     private void UpdateSelectionBoxItem(object item)
@@ -593,13 +593,9 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
 
         if (IsEditable && item != null) UpdateTextValue(FormatValue(item), false);
 
-        var contentControl = item as ContentControl;
+        if (item is ContentControl contentControl) item = contentControl.Content;
 
-        if (contentControl != null) item = contentControl.Content;
-
-        var control = item as Control;
-
-        if (control != null)
+        if (item is Control control)
         {
             control.Measure(Size.Infinity);
 
@@ -875,7 +871,7 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
         {
             var sp1 = text1.AsSpan().Slice(0, minLength);
             var sp2 = text2.AsSpan().Slice(0, minLength);
-            return MemoryExtensions.Equals(sp1, sp2, StringComparison.OrdinalIgnoreCase);
+            return sp1.Equals(sp2, StringComparison.OrdinalIgnoreCase);
         }
     }
 

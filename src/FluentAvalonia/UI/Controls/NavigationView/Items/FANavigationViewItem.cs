@@ -60,15 +60,11 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
         ReparentRepeater();
 
         // We can't set the Flyout position in Styles, so we change the position here
-        if (_rootGrid != null)
-        {
-            var flyout = _rootGrid.GetValue(FlyoutBase.AttachedFlyoutProperty) as PopupFlyoutBase;
-            if (flyout != null)
-                flyout.Placement = Position == NavigationViewRepeaterPosition.TopPrimary ||
-                                   Position == NavigationViewRepeaterPosition.TopFooter
-                    ? PlacementMode.BottomEdgeAlignedLeft
-                    : PlacementMode.RightEdgeAlignedTop;
-        }
+        var flyout = _rootGrid?.GetValue(FlyoutBase.AttachedFlyoutProperty) as PopupFlyoutBase;
+        flyout?.Placement = Position == NavigationViewRepeaterPosition.TopPrimary ||
+                            Position == NavigationViewRepeaterPosition.TopFooter
+            ? PlacementMode.BottomEdgeAlignedLeft
+            : PlacementMode.RightEdgeAlignedTop;
     }
 
     /// <inheritdoc />
@@ -196,7 +192,7 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
             var paneLength = splitView.CompactPaneLength;
             CompactPaneLength = paneLength;
 
-            if (_presenter != null) _presenter.UpdateCompactPaneLength(paneLength, IsOnLeftNav);
+            _presenter?.UpdateCompactPaneLength(paneLength, IsOnLeftNav);
         }
     }
 
@@ -215,7 +211,7 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
 
     private void UpdateVisualStateForClosedCompact()
     {
-        if (_presenter != null) _presenter.UpdateClosedCompactVisualState(IsTopLevelItem, _isClosedCompact);
+        _presenter?.UpdateClosedCompactVisualState(IsTopLevelItem, _isClosedCompact);
     }
 
     private void UpdateNavigationViewItemToolTip()
@@ -303,7 +299,7 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
 
     private void ShowSelectionIndicator(bool vis)
     {
-        if (SelectionIndicator != null) SelectionIndicator.Opacity = vis ? 1.0 : 0.0;
+        SelectionIndicator?.Opacity = vis ? 1.0 : 0.0;
     }
 
     private void UpdateVisualStateForIconAndContent(bool showIcon, bool showContent)
@@ -383,7 +379,7 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
         if (!_appliedTemplate)
             return;
 
-        if (_presenter != null) ((IPseudoClasses)_presenter.Classes).Set(s_pcSelected, IsSelected);
+        ((IPseudoClasses)_presenter?.Classes)?.Set(s_pcSelected, IsSelected);
 
         UpdateVisualStateForNavigationViewPositionChange();
 
@@ -392,15 +388,12 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
 
         if (IsOnLeftNav)
         {
-            if (_presenter != null)
-                //This is supposed to be for backwards compatibility with RS4-, but
-                //is apparently still used in the NVIPresenterWhenOnLeftPane style
-                ((IPseudoClasses)_presenter.Classes).Set(s_pcIconCollapsed, !showIcon);
+            ((IPseudoClasses)_presenter?.Classes)?.Set(s_pcIconCollapsed, !showIcon);
             //Only using IconCollapsed, IconVisible is default
         }
         else
         {
-            if (_presenter != null) ((IPseudoClasses)_presenter.Classes).Set(s_pcIconCollapsed, false);
+            ((IPseudoClasses)_presenter?.Classes)?.Set(s_pcIconCollapsed, false);
         }
 
         UpdateVisualStateForToolTip();
@@ -514,15 +507,14 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
 
     internal void RotateExpandCollapseChevron(bool isExpanded)
     {
-        if (_presenter != null) _presenter.RotateExpandCollapseChevron(isExpanded);
+        _presenter?.RotateExpandCollapseChevron(isExpanded);
     }
 
     private void UnhookEventsAndClearFields()
     {
         if (_rootGrid != null)
         {
-            var flyout = FlyoutBase.GetAttachedFlyout(_rootGrid) as PopupFlyoutBase;
-            if (flyout != null) flyout.Closing -= OnFlyoutClosing;
+            if (FlyoutBase.GetAttachedFlyout(_rootGrid) is PopupFlyoutBase flyout) flyout.Closing -= OnFlyoutClosing;
             _rootGrid = null;
         }
 
@@ -547,8 +539,7 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
 
     private void UpdateVisualStateForInfoBadge()
     {
-        if (_presenter != null)
-            ((IPseudoClasses)_presenter.Classes).Set(s_pcInfoBadge, InfoBadge != null);
+        ((IPseudoClasses)_presenter?.Classes)?.Set(s_pcInfoBadge, InfoBadge != null);
     }
 
     public override string ToString()

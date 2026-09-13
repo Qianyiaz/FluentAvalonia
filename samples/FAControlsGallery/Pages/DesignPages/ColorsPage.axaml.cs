@@ -42,7 +42,7 @@ public partial class ColorsPage : ControlsPageBase
         _oldIndex = idx;
     }
 
-    private FASlideNavigationTransitionEffect GetEffect(int oldIndex, int index)
+    private static FASlideNavigationTransitionEffect GetEffect(int oldIndex, int index)
     {
         if (oldIndex < 0)
             return FASlideNavigationTransitionEffect.FromBottom;

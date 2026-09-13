@@ -18,15 +18,10 @@ namespace FluentAvalonia.Styling;
 /// </summary>
 public partial class FluentAvaloniaTheme : Styles, IResourceProvider
 {
-    public const string LightModeString = "Light";
-    public const string DarkModeString = "Dark";
-    public const string HighContrastModeString = "HighContrast";
-
     /// <summary>
     ///     High Contrast Theme
     /// </summary>
-    public static readonly ThemeVariant HighContrastTheme = new(HighContrastModeString,
-        ThemeVariant.Light);
+    public static readonly ThemeVariant HighContrastTheme = new("HighContrast", ThemeVariant.Light);
 
     private ResourceDictionary _accentColorsDictionary;
     private Color? _customAccentColor;
@@ -39,7 +34,7 @@ public partial class FluentAvaloniaTheme : Styles, IResourceProvider
     /// </summary>
     public FluentAvaloniaTheme()
     {
-        MergedDictionaries = new AvaloniaList<IResourceDictionary>();
+        MergedDictionaries = [];
         MergedDictionaries.CollectionChanged += MergedDictionariesCollectionChanged;
         Init();
     }
@@ -100,7 +95,7 @@ public partial class FluentAvaloniaTheme : Styles, IResourceProvider
                 LoadCustomAccentColor();
             }
         }
-    }
+    } = true;
 
     /// <summary>
     ///     Gets or sets a <see cref="Color" /> to use as the SystemAccentColor for the app. Note this takes precedence over
@@ -126,20 +121,6 @@ public partial class FluentAvaloniaTheme : Styles, IResourceProvider
             }
         }
     }
-
-    /// <summary>
-    ///     Gets or sets a value that determines if/when style overrides should be used to alleviate issues
-    ///     with text alignment in some controls caused when Segoe UI or Segoe UI Variable font
-    ///     families do not exist. The default value is <see cref="TextVerticalAlignmentOverride.EnabledNonWindows" />
-    /// </summary>
-    /// <remarks>
-    ///     These overrides apply to controls like RadioButton, CheckBox, ComboBox where the first line of text
-    ///     is explicitly aligned with the control. Adding the overrides modify the styles to use VerticalAlignment=Center
-    ///     to get a consistent experience, at the (small) expense of breaking Fluent design principles. If your controls
-    ///     never use multi-line text, you'll never see the effect of this property.
-    /// </remarks>
-    public TextVerticalAlignmentOverride TextVerticalAlignmentOverrideBehavior { get; set; } =
-        TextVerticalAlignmentOverride.EnabledNonWindows;
 
     public AvaloniaList<IResourceDictionary> MergedDictionaries { get; }
 
@@ -181,8 +162,6 @@ public partial class FluentAvaloniaTheme : Styles, IResourceProvider
             // Load this in all cases since with ThemeDictionaries, we always have a ref to the 
             // HighContrast dictionary
             TryLoadHighContrastThemeColors();
-
-        SetTextAlignmentOverrides();
 
         _hasLoaded = true;
     }
@@ -297,7 +276,7 @@ public partial class FluentAvaloniaTheme : Styles, IResourceProvider
         return theme;
     }
 
-    private ThemeVariant GetThemeFromIPlatformSettings(IPlatformSettings platformSettings)
+    private static ThemeVariant GetThemeFromIPlatformSettings(IPlatformSettings platformSettings)
     {
         var platformColors = platformSettings.GetColorValues();
         var isSystemInHighContrast = platformColors.ContrastPreference == ColorContrastPreference.High;
@@ -305,53 +284,6 @@ public partial class FluentAvaloniaTheme : Styles, IResourceProvider
             return platformColors.ThemeVariant == PlatformThemeVariant.Light ? ThemeVariant.Light : ThemeVariant.Dark;
 
         return HighContrastTheme;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void SetTextAlignmentOverrides()
-    {
-        if (TextVerticalAlignmentOverrideBehavior == TextVerticalAlignmentOverride.Disabled ||
-            (TextVerticalAlignmentOverrideBehavior == TextVerticalAlignmentOverride.EnabledNonWindows &&
-             OperatingSystem.IsWindows()))
-            return;
-
-        // The following resources are added to remove the larger bottom margin/padding value
-        // on some controls added to accomodate Segoe UI - this will allow vertical centering
-        // These are added to the internal _themeResources dictionary, so user can still
-        // override these elsewhere if desired
-
-        Resources.Add("CheckBoxPadding", new Thickness(8, 5, 0, 5));
-        Resources.Add("ComboBoxPadding", new Thickness(12, 5, 0, 5));
-        Resources.Add("ComboBoxItemThemePadding", new Thickness(11, 5, 11, 5));
-        // Note that this is a theme resource, but as of now is the same for all three themes
-        Resources.Add("TextControlThemePadding", new Thickness(10, 5, 6, 5));
-
-        // Now we add some style overrides to adjust some properties
-        // Yes, I'm doing this in C# rather than Xaml - I don't want to create a Xaml file
-        // because that will get compiled into AvaloniaXamlResource even if never used or I
-        // could use a normal file and us the AvaloniaXamlLoader but that's still an additional
-        // AvaloniaResource that's not necessary. Plus, not using Xaml is fun =D
-
-        // Set VerticalContentAlignment on CheckBox to center the content
-        var s = new Style(x => { return x.OfType(typeof(CheckBox)); });
-        s.Setters.Add(new Setter(ContentControl.VerticalContentAlignmentProperty, VerticalAlignment.Center));
-        Add(s);
-
-        // Set Padding & VCA on RadioButton to center the content
-        var s2 = new Style(x => { return x.OfType(typeof(RadioButton)); });
-        s2.Setters.Add(new Setter(ContentControl.VerticalContentAlignmentProperty, VerticalAlignment.Center));
-        s2.Setters.Add(new Setter(Decorator.PaddingProperty, new Thickness(8, 6, 0, 6)));
-        Add(s2);
-
-        // Center the TextBlock in ComboBox
-        // This is special - we only want to do this if the content is a string - otherwise custom content
-        // may get messed up b/c of the centered alignment
-        var s3 = new Style(x =>
-        {
-            return x.OfType<ComboBox>().Template().OfType<ContentControl>().Child().OfType<TextBlock>();
-        });
-        s3.Setters.Add(new Setter(Layoutable.VerticalAlignmentProperty, VerticalAlignment.Center));
-        Add(s3);
     }
 
     private void LoadCustomAccentColor()
@@ -447,10 +379,7 @@ public partial class FluentAvaloniaTheme : Styles, IResourceProvider
 
     private void AddOrUpdateSystemResource(object key, object value)
     {
-        if (Resources.ContainsKey(key))
-            Resources[key] = value;
-        else
-            Resources.Add(key, value);
+        Resources[key] = value;
     }
 
     private void UpdateAccentColors(Color accent,

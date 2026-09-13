@@ -16,7 +16,7 @@ public class FANavigationViewPaneClosingEventArgs : EventArgs
         set
         {
             field = value;
-            if (SplitViewClosingArgs != null) SplitViewClosingArgs.Cancel = value;
+            SplitViewClosingArgs?.Cancel = value;
         }
     }
 

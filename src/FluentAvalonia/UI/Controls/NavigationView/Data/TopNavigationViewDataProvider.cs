@@ -140,8 +140,7 @@ internal class TopNavigationViewDataProvider : SplitDataSourceBase<object, Navig
 
     public override object GetAt(int index)
     {
-        if (_dataSource != null) return _dataSource.GetAt(index);
-        return null;
+        return _dataSource?.GetAt(index);
     }
 
     public void MoveAllItemsToPrimaryList()
@@ -262,7 +261,7 @@ internal class TopNavigationViewDataProvider : SplitDataSourceBase<object, Navig
         _dataChangedCallback?.Invoke(args);
     }
 
-    public bool IsValidWidth(double width)
+    public static bool IsValidWidth(double width)
     {
         return width >= 0 && width < double.MaxValue;
     }
@@ -284,9 +283,8 @@ internal class TopNavigationViewDataProvider : SplitDataSourceBase<object, Navig
         if (oldValue != newValue)
         {
             //update to new datasource
-            if (oldValue != null)
-                if (oldValue is INotifyCollectionChanged nc)
-                    nc.CollectionChanged -= OnDataSourceChanged;
+            if (oldValue is INotifyCollectionChanged nc)
+                nc.CollectionChanged -= OnDataSourceChanged;
 
             Clear();
 

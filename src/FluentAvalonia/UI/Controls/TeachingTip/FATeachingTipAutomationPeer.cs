@@ -15,9 +15,9 @@ public class FATeachingTipAutomationPeer : ContentControlAutomationPeer
 
     private FATeachingTip TeachingTip => Unsafe.As<FATeachingTip>(Owner);
 
-    public bool Maximizable => false;
+    public static bool Maximizable => false;
 
-    public bool Minimizable => false;
+    public static bool Minimizable => false;
 
     protected override AutomationControlType GetAutomationControlTypeCore()
     {
@@ -40,14 +40,14 @@ public class FATeachingTipAutomationPeer : ContentControlAutomationPeer
 
     // public void SetVisualState(WindowVisualState state);
 
-    public bool WaitForInputIdle(int milliseconds) => true;
+    public static bool WaitForInputIdle(int milliseconds) => true;
 
-    public void RaiseWindowClosedEvent()
+    public static void RaiseWindowClosedEvent()
     {
         // Don't have automation events
     }
 
-    public void RaiseWindowOpenedEvent()
+    public static void RaiseWindowOpenedEvent()
     {
         // Don't have automation events
     }

@@ -76,5 +76,5 @@ public class CustomContentDialogViewModel : ViewModelBase
         "Hide"
     };
 
-    public string[] AvailableKeyWords => _AvailableKeyWords;
+    public static string[] AvailableKeyWords => _AvailableKeyWords;
 }

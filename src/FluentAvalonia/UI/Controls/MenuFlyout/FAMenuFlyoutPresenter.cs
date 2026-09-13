@@ -338,7 +338,7 @@ public class FAMenuFlyoutPresenter : ItemsControl
                 .Where(x => x.Focusable && x.IsEffectivelyEnabled)
                 .FirstOrDefault();
 
-            if (item != null) item.Focus(fromKeyboard ? NavigationMethod.Directional : NavigationMethod.Unspecified);
+            item?.Focus(fromKeyboard ? NavigationMethod.Directional : NavigationMethod.Unspecified);
         }, DispatcherPriority.Render);
     }
 
@@ -348,7 +348,7 @@ public class FAMenuFlyoutPresenter : ItemsControl
         _openingItem = null;
     }
 
-    private FAMenuFlyoutItemBase GetMenuItem(object src)
+    private static FAMenuFlyoutItemBase GetMenuItem(object src)
     {
         return ((Visual)src).FindAncestorOfType<FAMenuFlyoutItemBase>(true);
     }

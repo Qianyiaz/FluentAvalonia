@@ -265,7 +265,7 @@ public partial class FATeachingTip : ContentControl
         return base.RegisterContentPresenter(presenter);
     }
 
-    private void UpdateButtonAutomationProperties(Button button, object obj)
+    private static void UpdateButtonAutomationProperties(Button button, object obj)
     {
         if (button == null)
             return;
@@ -1495,7 +1495,7 @@ public partial class FATeachingTip : ContentControl
                 //        $"{local.GetLocalizedStringResource(SR_TeachingTipNotificationWithoutAppName)} " +
                 //        $"{AutomationProperties.GetName(_popup)}";
                 //}
-                p.RaiseWindowOpenedEvent( /*notificationString*/);
+                FATeachingTipAutomationPeer.RaiseWindowOpenedEvent( /*notificationString*/);
         }
 
         if (IsLightDismissEnabled)
@@ -1522,7 +1522,8 @@ public partial class FATeachingTip : ContentControl
             _previouslyFocusedElement?.Focus(NavigationMethod.Unspecified);
         _previouslyFocusedElement = null;
 
-        if (ControlAutomationPeer.FromElement(this) is FATeachingTipAutomationPeer p) p.RaiseWindowClosedEvent();
+        if (ControlAutomationPeer.FromElement(this) is FATeachingTipAutomationPeer p)
+            FATeachingTipAutomationPeer.RaiseWindowClosedEvent();
     }
 
     private void ClosePopupOnUnloadEvent(object sender, RoutedEventArgs e)
@@ -1684,7 +1685,7 @@ public partial class FATeachingTip : ContentControl
         }
     }
 
-    private void SetViewportChangedEvent(Control target)
+    private static void SetViewportChangedEvent(Control target)
     {
         // This seems to only be used in the TeachingTipTestHooks stuff from WinUI so this is always false
         // in normal operation I guess??
@@ -1948,8 +1949,8 @@ public partial class FATeachingTip : ContentControl
         // These variables will track which positions the tip will fit in. They all start true and are
         // flipped to false when we find a display condition that is not met.
         // Not porting enum_array, instead indices of Span will match the TeachingTipPlacementMode enum
-        Span<bool> availability = stackalloc[]
-        {
+        Span<bool> availability =
+        [
             false, /*Auto*/
             true, /*Top*/
             true, /*Bottom*/
@@ -1964,7 +1965,7 @@ public partial class FATeachingTip : ContentControl
             true, /*RightTop*/
             true, /*RightBottom*/
             true /*Center*/
-        };
+        ];
 
         var tipHeight = contentHeight + TailShortSideLength();
         var tipWidth = contentWidth + TailShortSideLength();
@@ -2225,7 +2226,7 @@ public partial class FATeachingTip : ContentControl
         return (windowSpaceAroundTarget, screenSpaceAroundTarget);
     }
 
-    private Rect GetEffectiveWindowBoundsInCoreWindowSpace(Rect windowBounds)
+    private static Rect GetEffectiveWindowBoundsInCoreWindowSpace(Rect windowBounds)
     {
         return new Rect(windowBounds.Size);
     }
@@ -2253,7 +2254,7 @@ public partial class FATeachingTip : ContentControl
         return new Rect((TopLevel.GetTopLevel(this) as Visual)?.Bounds.Size ?? default);
     }
 
-    private void GetPlacementFallbackOrder(FATeachingTipPlacementMode preferredPlacement,
+    private static void GetPlacementFallbackOrder(FATeachingTipPlacementMode preferredPlacement,
         ref Span<byte> priorityList)
     {
         priorityList[0] = (byte)FATeachingTipPlacementMode.Top;
@@ -2318,7 +2319,7 @@ public partial class FATeachingTip : ContentControl
 
     // Skip EstablishShadows
 
-    private void TrySetCenterPoint(Control element, double x, double y)
+    private static void TrySetCenterPoint(Control element, double x, double y)
     {
         if (element == null)
             return;

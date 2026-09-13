@@ -12,8 +12,7 @@
                                  SubHeader="Dialog SubHeader"
                                  Content="Dialog Content goes here"
                                  FooterVisibility="Auto"
-                                 ShowProgressBar="True"
-                                 core:VisualStateHelper.ForcedClassesProperty=":open,:progressSuspend:hosted">
+                                 ShowProgressBar="True">
                     <ui:FATaskDialog.Buttons>
                         <ui:FATaskDialogButton Text="OK" IconSource="Checkmark" IsDefault="True" />
                         <ui:FATaskDialogButton Text="Cancel" IconSource="Dismiss" IsEnabled="False" />

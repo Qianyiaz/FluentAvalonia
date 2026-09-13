@@ -55,7 +55,7 @@
                 <MergeResourceInclude
                     Source="/Styling/ControlThemes/BasicControls/TransitioningContentControlStyles.axaml" />
                 <MergeResourceInclude Source="/Styling/ControlThemes/BasicControls/ColorPicker/ColorPickerStyles.axaml" />
-                <MergeResourceInclude Source="/Styling/ControlThemes/BasicControls/DataGrid/DataGridStyles.axaml" />
+                <MergeResourceInclude Source="/Styling/ControlThemes/BasicControls/TableView.axaml" />
                 <MergeResourceInclude Source="/Styling/ControlThemes/BasicControls/RefreshControlStyles.axaml" />
                 <MergeResourceInclude Source="/Styling/ControlThemes/BasicControls/PathIcon.axaml" />
                 <MergeResourceInclude Source="/Styling/ControlThemes/BasicControls/HyperlinkButtonStyles.axaml" />

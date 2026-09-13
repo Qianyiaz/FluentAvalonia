@@ -21,7 +21,6 @@ namespace FluentAvalonia.UI.Controls;
 ///     Pages are created exclusively by <see cref="IFANavigationPageFactory" />; reflection-based
 ///     page creation is not supported.
 ///     <para>
-///         <see cref="GoBack" /> and <see cref="GoForward" /> require caching to be enabled
 ///         (<see cref="CacheSize" /> &gt; 0); otherwise they throw <see cref="InvalidOperationException" />.
 ///     </para>
 /// </remarks>
@@ -89,71 +88,6 @@ public partial class FAFrame : ContentControl, IFAFrame
 
         NavigateCore(_forwardStack[^1], FANavigationMode.Forward);
     }
-
-    /// <summary>
-    ///     Causes the Frame to load content represented by the specified page type.
-    /// </summary>
-    /// <typeparam name="T">
-    ///     The page control type to navigate to. Must derive from <see cref="Control" />.
-    ///     <see cref="NavigationPageFactory" /> must be set and able to resolve this type.
-    /// </typeparam>
-    /// <returns>
-    ///     <c>false</c> if a <see cref="NavigationFailed" /> event handler has set Handled to true;
-    ///     otherwise, <c>true</c>.
-    /// </returns>
-    public bool Navigate<T>() where T : Control => Navigate<T>(null, null);
-
-    /// <summary>
-    ///     Causes the Frame to load content represented by the specified page type, also passing a parameter
-    ///     to be interpreted by the target of the navigation.
-    /// </summary>
-    /// <typeparam name="T">The page control type to navigate to.</typeparam>
-    /// <param name="parameter">
-    ///     The navigation parameter to pass to the target page; must have a basic type
-    ///     (string, char, numeric, or GUID) to support parameter serialization using GetNavigationState.
-    /// </param>
-    /// <returns>
-    ///     <c>false</c> if a <see cref="NavigationFailed" /> event handler has set Handled to true;
-    ///     otherwise, <c>true</c>.
-    /// </returns>
-    public bool Navigate<T>(object parameter) where T : Control => Navigate<T>(parameter, null);
-
-    /// <summary>
-    ///     Causes the Frame to load content represented by the specified page type, also passing a parameter
-    ///     to be interpreted by the target of the navigation, and a value indicating the animated transition to use.
-    /// </summary>
-    /// <typeparam name="T">The page control type to navigate to.</typeparam>
-    /// <param name="parameter">
-    ///     The navigation parameter to pass to the target page; must have a basic type
-    ///     (string, char, numeric, or GUID) to support parameter serialization using GetNavigationState.
-    /// </param>
-    /// <param name="infoOverride">Info about the animated transition.</param>
-    /// <returns>
-    ///     <c>false</c> if a <see cref="NavigationFailed" /> event handler has set Handled to true;
-    ///     otherwise, <c>true</c>.
-    /// </returns>
-    public bool Navigate<T>(object parameter, FANavigationTransitionInfo infoOverride) where T : Control =>
-        Navigate(typeof(T), parameter, infoOverride);
-
-    /// <summary>
-    ///     Causes the Frame to load content represented by the specified page type, with the specified
-    ///     navigation options.
-    /// </summary>
-    /// <typeparam name="T">The page control type to navigate to.</typeparam>
-    /// <param name="parameter">
-    ///     The navigation parameter to pass to the target page; must have a basic type
-    ///     (string, char, numeric, or GUID) to support parameter serialization using GetNavigationState.
-    /// </param>
-    /// <param name="navOptions">
-    ///     Options for the navigation, including whether it is recorded in the navigation stack
-    ///     and what transition animation is used.
-    /// </param>
-    /// <returns>
-    ///     <c>false</c> if a <see cref="NavigationFailed" /> event handler has set Handled to true;
-    ///     otherwise, <c>true</c>.
-    /// </returns>
-    public bool NavigateToType<T>(object parameter, FAFrameNavigationOptions navOptions) where T : Control =>
-        NavigateToType(typeof(T), parameter, navOptions);
 
     public bool Navigate(Type sourcePageType)
         => Navigate(sourcePageType, null, null);
@@ -250,7 +184,6 @@ public partial class FAFrame : ContentControl, IFAFrame
     }
 
     /// <summary>
-    ///     Non-generic page resolution. Mirrors <see cref="GetOrCreatePage{T}" /> but
     ///     dispatches through <see cref="IFANavigationPageFactory.GetPage(Type)" />.
     /// </summary>
     private Control GetOrCreatePage(Type pageType)

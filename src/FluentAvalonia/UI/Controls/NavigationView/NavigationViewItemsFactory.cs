@@ -49,7 +49,7 @@ internal class NavigationViewItemsFactory : FAElementFactory
         //If no template is provided _navViewPool will never initialize
         //check here in case
         if (_navViewPool == null)
-            _navViewPool = new List<FANavigationViewItem>();
+            _navViewPool = [];
 
         // Get or create a wrapping container for the data
         FANavigationViewItem nvi;
@@ -65,17 +65,16 @@ internal class NavigationViewItemsFactory : FAElementFactory
 
         nvi.CreatedByNavigationViewItemsFactory = true;
 
-        if (_itemTemplateWrapper != null)
-            if (_itemTemplateWrapper is FAItemTemplateWrapper itw)
-            {
-                var tempArgs = new FAElementFactoryRecycleArgs();
-                tempArgs.Element = newContent as Control;
-                _itemTemplateWrapper.RecycleElement(tempArgs);
+        if (_itemTemplateWrapper is FAItemTemplateWrapper itw)
+        {
+            var tempArgs = new FAElementFactoryRecycleArgs();
+            tempArgs.Element = newContent as Control;
+            _itemTemplateWrapper.RecycleElement(tempArgs);
 
-                nvi.Content = args.Data;
-                nvi.ContentTemplate = itw;
-                return nvi;
-            }
+            nvi.Content = args.Data;
+            nvi.ContentTemplate = itw;
+            return nvi;
+        }
 
         nvi.Content = newContent;
         return nvi;
@@ -114,7 +113,7 @@ internal class NavigationViewItemsFactory : FAElementFactory
         }
     }
 
-    private void UnlinkElementFromParent(FAElementFactoryRecycleArgs args)
+    private static void UnlinkElementFromParent(FAElementFactoryRecycleArgs args)
     {
         // We want to unlink the containers from the parent repeater
         // in case we are required to move it to a different repeater.

@@ -75,7 +75,7 @@ public partial class MainAppSplashContent : UserControl
         fa.StartAnimationGroup(GetFAAnimation(comp));
     }
 
-    private CompositionAnimationGroup GetGradientBarAnimation(Compositor comp, int step)
+    private static CompositionAnimationGroup GetGradientBarAnimation(Compositor comp, int step)
     {
         var ani = comp.CreateVector3KeyFrameAnimation();
         ani.Duration = TimeSpan.FromMilliseconds(600);

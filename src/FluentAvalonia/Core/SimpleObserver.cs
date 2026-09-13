@@ -1,10 +1,7 @@
 ﻿namespace FluentAvalonia.Core;
 
-internal class SimpleObserver<T> : IObserver<T>
+internal class SimpleObserver<T>(Action<T> listener) : IObserver<T>
 {
-    private readonly Action<T> _listener;
-    public SimpleObserver(Action<T> listener) => _listener = listener;
-
     public void OnCompleted()
     {
     }
@@ -13,27 +10,30 @@ internal class SimpleObserver<T> : IObserver<T>
     {
     }
 
-    public void OnNext(T value) => _listener(value);
+    public void OnNext(T value) => listener(value);
 }
 
 internal static class ReactiveExtensions
 {
-    public static IDisposable Subscribe<T>(this IObservable<T> source, Action<T> subAction) =>
-        source.Subscribe(new SimpleObserver<T>(subAction));
-
-    public static IObservable<T> Skip<T>(this IObservable<T> source, int skipCount)
+    extension<T>(IObservable<T> source)
     {
-        return Create<T>(obs =>
+        public IDisposable Subscribe(Action<T> subAction) =>
+            source.Subscribe(new SimpleObserver<T>(subAction));
+
+        public IObservable<T> Skip(int skipCount)
         {
-            var remaining = skipCount;
-            return source.Subscribe(new SimpleObserver<T>(input =>
+            return Create<T>(obs =>
             {
-                if (remaining <= 0)
-                    obs.OnNext(input);
-                else
-                    remaining--;
-            }));
-        });
+                var remaining = skipCount;
+                return source.Subscribe(new SimpleObserver<T>(input =>
+                {
+                    if (remaining <= 0)
+                        obs.OnNext(input);
+                    else
+                        remaining--;
+                }));
+            });
+        }
     }
 
     public static IObservable<TSource> Create<TSource>(Func<IObserver<TSource>, IDisposable> subscribe)
@@ -41,18 +41,11 @@ internal static class ReactiveExtensions
         return new CreateWithDisposableObservable<TSource>(subscribe);
     }
 
-    private sealed class CreateWithDisposableObservable<TSource> : IObservable<TSource>
+    private sealed class CreateWithDisposableObservable<TSource>(Func<IObserver<TSource>, IDisposable> subscribe) : IObservable<TSource>
     {
-        private readonly Func<IObserver<TSource>, IDisposable> _subscribe;
-
-        public CreateWithDisposableObservable(Func<IObserver<TSource>, IDisposable> subscribe)
-        {
-            _subscribe = subscribe;
-        }
-
         public IDisposable Subscribe(IObserver<TSource> observer)
         {
-            return _subscribe(observer);
+            return subscribe(observer);
         }
     }
 }

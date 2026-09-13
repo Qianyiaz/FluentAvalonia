@@ -58,9 +58,7 @@ public class FANavigationViewItemBase : ListBoxItem
         get
         {
             var navView = GetNavigationView;
-            if (navView != null) return navView.GetSplitView;
-
-            return null;
+            return navView?.GetSplitView;
         }
     }
 

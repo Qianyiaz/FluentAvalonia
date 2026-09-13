@@ -124,7 +124,7 @@ internal class UniformGridLayoutState
         return availableSize;
     }
 
-    private double CalculateExtraPixelsInLine(int maxItemsPerLine, double availableSizeMinor,
+    private static double CalculateExtraPixelsInLine(int maxItemsPerLine, double availableSizeMinor,
         double itemSizeMinor, double minorItemSpacing)
     {
         int numItemsPerColumn;

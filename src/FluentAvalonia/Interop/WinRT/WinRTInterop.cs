@@ -10,17 +10,16 @@ internal static partial class WinRTInterop
 
     [LibraryImport("api-ms-win-core-winrt-string-l1-1-0.dll")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvStdcall)])]
-    internal static partial int WindowsCreateString(
+    private static partial int WindowsCreateString(
         [MarshalAs(UnmanagedType.LPWStr)] string sourceString,
         uint length,
         out IntPtr hstring);
 
-    internal static IntPtr WindowsCreateString(string sourceString)
+    private static IntPtr WindowsCreateString(string sourceString)
     {
         ArgumentNullException.ThrowIfNull(sourceString);
 
-        IntPtr hstring;
-        var hr = WindowsCreateString(sourceString, (uint)sourceString.Length, out hstring);
+        var hr = WindowsCreateString(sourceString, (uint)sourceString.Length, out var hstring);
         if (hr < 0)
             throw new InvalidOperationException($"WindowsCreateString failed with HRESULT: 0x{hr:X8}");
         return hstring;
@@ -28,7 +27,7 @@ internal static partial class WinRTInterop
 
     [LibraryImport("api-ms-win-core-winrt-string-l1-1-0.dll")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvStdcall)])]
-    internal static unsafe partial void WindowsDeleteString(IntPtr hString);
+    private static unsafe partial void WindowsDeleteString(IntPtr hString);
 
     internal static T CreateInstance<T>(string fullName) where T : IUnknown
     {
@@ -43,7 +42,7 @@ internal static partial class WinRTInterop
 
         using var unk = MicroComRuntime.CreateProxyFor<IUnknown>(pUnk, true);
         WindowsDeleteString(s);
-        return MicroComRuntime.QueryInterface<T>(unk);
+        return unk.QueryInterface<T>();
     }
 
     private static void EnsureRoInitialized()

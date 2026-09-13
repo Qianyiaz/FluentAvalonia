@@ -235,7 +235,7 @@ public sealed class ControlDefinitionOverlay : TemplatedControl
         }
     }
 
-    private Task<string> GetInheritance(Type t)
+    private static Task<string> GetInheritance(Type t)
     {
         return Task.Run(() =>
         {
@@ -256,7 +256,7 @@ public sealed class ControlDefinitionOverlay : TemplatedControl
         });        
     }
 
-    private Task<List<PseudoclassesList>> GetPseudoclasses(Type t, Type targetType)
+    private static Task<List<PseudoclassesList>> GetPseudoclasses(Type t, Type targetType)
     {
         return Task.Run(() =>
         {
@@ -279,7 +279,7 @@ public sealed class ControlDefinitionOverlay : TemplatedControl
         });
     }
 
-    private Task<List<TemplatePartItem>> GetTemplateParts(Type t)
+    private static Task<List<TemplatePartItem>> GetTemplateParts(Type t)
     {
         return Task.Run(() =>
         {
@@ -645,7 +645,7 @@ public sealed class ControlDefinitionOverlay : TemplatedControl
         }
     }
 
-    private string ResolveType(Type t)
+    private static string ResolveType(Type t)
     {
         if (t.IsGenericType)
         {

@@ -23,13 +23,13 @@ internal enum SelectionState
 /// </remarks>
 internal class SelectionNode : IDisposable
 {
-    private readonly List<SelectionNode> _childrenNodes = new();
+    private readonly List<SelectionNode> _childrenNodes = [];
 
 
     private readonly SelectionModel _manager;
     private readonly SelectionNode _parent;
-    private readonly List<IndexRange> _selected = new();
-    private readonly List<int> _selectedIndicesCached = new();
+    private readonly List<IndexRange> _selected = [];
+    private readonly List<int> _selectedIndicesCached = [];
     private ItemsSourceView _dataSource;
     private int _realizedChildrenNodeCount;
     private int _selectedCount;
@@ -349,16 +349,16 @@ internal class SelectionNode : IDisposable
                 // If this range intersects the remove range, we have to do something
                 if (removeRange.Intersects(range))
                 {
-                    var before = new IndexRange(-1, -1);
+                    new IndexRange(-1, -1);
                     var cut = new IndexRange(-1, -1);
-                    var after = new IndexRange(-1, -1);
+                    new IndexRange(-1, -1);
 
                     // Intersection with the beginning of the range
                     //  Anything to the left of the point (exclusive) stays
                     //  Anything to the right of the point (inclusive) gets clipped
                     if (range.Contains(removeRange.Begin - 1))
                     {
-                        range.Split(removeRange.Begin - 1, out before, out cut);
+                        range.Split(removeRange.Begin - 1, out var before, out cut);
                         toAdd.Add(before);
                     }
 
@@ -366,7 +366,7 @@ internal class SelectionNode : IDisposable
                     //  Anything to the left of the point (inclusive) gets clipped
                     //  Anything to the right of the point (exclusive) stays
                     if (range.Contains(removeRange.End))
-                        if (range.Split(removeRange.End, out cut, out after))
+                        if (range.Split(removeRange.End, out cut, out var after))
                             toAdd.Add(after);
 
                     // Remove this Range from the collection
@@ -480,9 +480,9 @@ internal class SelectionNode : IDisposable
                 // Split the range and remember the left piece to add later
                 if (range.Contains(index - 1))
                 {
-                    var before = new IndexRange(-1, -1);
+                    new IndexRange(-1, -1);
                     var after = new IndexRange(-1, -1);
-                    range.Split(index - 1, out before, out after);
+                    range.Split(index - 1, out var before, out after);
                     toAdd.Add(before);
                     begin = index;
                 }

@@ -24,10 +24,8 @@ public partial class DesignPage : UserControl
 
     private void TabStrip1SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        var vm = DataContext as DesignPageViewModel;
-
 #if DEBUG
-        if (vm == null)
+        if (DataContext is not DesignPageViewModel vm)
             return;
 #endif
 
@@ -44,7 +42,7 @@ public partial class DesignPage : UserControl
         vm.LastSelectedIndex = TabStrip1.SelectedIndex;
     }
 
-    private FASlideNavigationTransitionEffect GetEffect(int oldIndex, int index)
+    private static FASlideNavigationTransitionEffect GetEffect(int oldIndex, int index)
     {
         if (oldIndex < 0)
             return FASlideNavigationTransitionEffect.FromBottom;

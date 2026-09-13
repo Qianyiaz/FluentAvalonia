@@ -106,8 +106,8 @@ public class FACommandBarFlyoutCommandBar : FACommandBar
     {
         if (_horizontallyAccessibleControls == null)
         {
-            _horizontallyAccessibleControls = new List<Control>();
-            _verticallyAccessibleControls = new List<Control>();
+            _horizontallyAccessibleControls = [];
+            _verticallyAccessibleControls = [];
         }
         else
         {
@@ -277,7 +277,7 @@ public class FACommandBarFlyoutCommandBar : FACommandBar
         base.OnKeyDown(args);
     }
 
-    private bool IsControlFocusable(Control control, bool checkTabStop)
+    private static bool IsControlFocusable(Control control, bool checkTabStop)
     {
         return control != null &&
                control.IsVisible && control.IsEnabled &&

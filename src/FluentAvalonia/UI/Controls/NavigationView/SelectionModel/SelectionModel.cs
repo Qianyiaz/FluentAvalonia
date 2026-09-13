@@ -256,7 +256,7 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
 
     public void SetAnchorIndex(int index) => AnchorIndex = new IndexPath(index);
 
-    public void SetAnchorIndex(int groupIndex, int itemIndex) => new IndexPath(groupIndex, itemIndex);
+    public static void SetAnchorIndex(int groupIndex, int itemIndex) => new IndexPath(groupIndex, itemIndex);
 
     public void Select(int index)
     {

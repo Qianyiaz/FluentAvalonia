@@ -72,8 +72,8 @@ public sealed class FAGroupedDataCollectionView : IFACollectionView, IFAAdvanced
 
             if (isLiveShaping)
                 _filterProperties = filterProperties != null
-                    ? new HashSet<string>(filterProperties)
-                    : new HashSet<string>();
+                    ? [.. filterProperties]
+                    : [];
 
             if (sortDescriptions != null)
             {

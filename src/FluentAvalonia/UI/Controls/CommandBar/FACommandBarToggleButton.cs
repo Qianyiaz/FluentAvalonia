@@ -71,7 +71,7 @@ public partial class FACommandBarToggleButton : ToggleButton, IFACommandBarEleme
         if (IsInOverflow)
         {
             var cb = this.FindLogicalAncestorOfType<FACommandBar>();
-            if (cb != null) cb.IsOpen = false;
+            cb?.IsOpen = false;
         }
     }
 

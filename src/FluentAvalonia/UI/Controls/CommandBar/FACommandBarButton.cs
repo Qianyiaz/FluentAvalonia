@@ -97,7 +97,7 @@ public partial class FACommandBarButton : Button, IFACommandBarElement
         if (IsInOverflow)
         {
             var cb = this.FindLogicalAncestorOfType<FACommandBar>();
-            if (cb != null) cb.IsOpen = false;
+            cb?.IsOpen = false;
         }
     }
 

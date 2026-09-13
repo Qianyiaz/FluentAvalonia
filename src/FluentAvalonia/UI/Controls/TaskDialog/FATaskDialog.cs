@@ -25,7 +25,6 @@ public partial class FATaskDialog : ContentControl
     private Button _defaultButton;
     internal bool _hasDeferralActive;
     private Control _host;
-    private bool _ignoreWindowClosingEvent;
     private bool _isOpening;
     private Button _moreDetailsButton;
 
@@ -334,8 +333,6 @@ public partial class FATaskDialog : ContentControl
 
         if (_host is Window w)
         {
-            _ignoreWindowClosingEvent = true;
-
             w.Close(result);
             IsVisible = false;
 
@@ -344,8 +341,6 @@ public partial class FATaskDialog : ContentControl
 
             PseudoClasses.Set(FASharedPseudoclasses.s_pcOpen, false);
             PseudoClasses.Set(s_pcHidden, true);
-
-            _ignoreWindowClosingEvent = false;
         }
         else if (_host is FADialogHost dh)
         {

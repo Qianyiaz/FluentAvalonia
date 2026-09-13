@@ -47,7 +47,7 @@ public partial class MainWindow : FAAppWindow
         }
     }
 
-    private void TryEnableMicaEffect()
+    private static void TryEnableMicaEffect()
     {
         Background = Brushes.Transparent;
         TransparencyLevelHint = new[] { WindowTransparencyLevel.Mica };
@@ -63,8 +63,8 @@ internal class MainAppSplashScreen : IFAApplicationSplashScreen
 
     public string AppName { get; }
     public IImage AppIcon { get; }
-    public object SplashScreenContent => new MainAppSplashContent();
-    public int MinimumShowTime => 2000;
+    public static object SplashScreenContent => new MainAppSplashContent();
+    public static int MinimumShowTime => 2000;
 
     public Action InitApp { get; set; }
 

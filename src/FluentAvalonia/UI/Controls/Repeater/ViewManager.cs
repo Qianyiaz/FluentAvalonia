@@ -40,7 +40,7 @@ internal class ViewManager
         _owner = ir;
         _resetPool = new UniqueIdElementPool(ir);
         _phaser = new Phaser(ir);
-        _pinnedPool = new List<PinnedElementInfo>();
+        _pinnedPool = [];
         // ItemsRepeater is not fully constructed yet. Don't interact with it.
     }
 
@@ -272,7 +272,7 @@ internal class ViewManager
         return focusCandidate;
     }
 
-    internal int GetElementIndex(VirtualizationInfo vInfo)
+    internal static int GetElementIndex(VirtualizationInfo vInfo)
     {
         if (vInfo == null)
             return -1;
@@ -304,7 +304,7 @@ internal class ViewManager
         }
     }
 
-    internal void UpdatePin(Control element, bool addPin)
+    internal static void UpdatePin(Control element, bool addPin)
     {
         var parent = element.GetVisualParent();
         var child = element;
@@ -825,9 +825,11 @@ internal class ViewManager
         // we need to unpin the old one and pin the new one.
         if (_lastFocusedElement != focusedElement)
         {
-            if (_lastFocusedElement != null) UpdatePin(_lastFocusedElement, false /* addPin */);
+            if (_lastFocusedElement != null)
+                UpdatePin(_lastFocusedElement, false /* addPin */);
 
-            if (focusedElement != null) UpdatePin(focusedElement, true /* addPin */);
+            if (focusedElement != null)
+                UpdatePin(focusedElement, true /* addPin */);
 
             _lastFocusedElement = focusedElement;
         }

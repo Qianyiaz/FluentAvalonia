@@ -213,7 +213,7 @@ internal class ViewportManager
 
         // We just finished a measure pass and have a new extent.
         // Let's make sure the scrollers will run its arrange so that they track the anchor.
-        if (_scroller != null) (_scroller as Control).InvalidateArrange();
+        (_scroller as Control)?.InvalidateArrange();
     }
 
     public void OnLayoutChanged(bool isVirtualizing)
@@ -545,7 +545,7 @@ internal class ViewportManager
             RegisterCacheBuildWork();
     }
 
-    private void ValidateCacheLength(double cacheLength)
+    private static void ValidateCacheLength(double cacheLength)
     {
         if (cacheLength < 0 || double.IsInfinity(cacheLength) || double.IsNaN(cacheLength))
             throw new Exception("The maximum cache length must be equal or superior to zero.");

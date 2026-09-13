@@ -10,8 +10,7 @@
                     <ui:FACommandBarButton Label="Button1"
                                            IconSource="Save"
                                            HotKey="Ctrl+S"
-                                           IsCompact="True"
-                                           core:FAVisualStateHelper.ForcedClassesProperty=":labelRight">
+                                           IsCompact="True">
                         <ui:FACommandBarButton.Flyout>
                             <Flyout />
                         </ui:FACommandBarButton.Flyout>

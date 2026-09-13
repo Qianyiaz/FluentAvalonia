@@ -389,7 +389,7 @@ public partial class FACommandBar : ContentControl
     {
         if (_primaryCommands.Count > 0)
         {
-            _primaryItems = new AvaloniaList<IFACommandBarElement>();
+            _primaryItems = [];
             // v2: We take this sub here to add/remove psuedoclasses as necessary based on the 
             // different states. In v1, we let the Styling system do this for us but with 
             // ControlThemes this isn't possible anymore so we have to do it ourselves
@@ -411,9 +411,11 @@ public partial class FACommandBar : ContentControl
                 IsVisible = false
             };
 
-            _overflowItems = new AvaloniaList<IFACommandBarElement>();
-            _overflowItems.Add(_overflowSeparator);
-            _overflowItems.AddRange(_secondaryCommands);
+            _overflowItems =
+            [
+                _overflowSeparator,
+                .. _secondaryCommands
+            ];
 
             _overflowItemsHost.ItemsSource = _overflowItems;
         }
@@ -505,19 +507,19 @@ public partial class FACommandBar : ContentControl
                 return l;
             }
 
-            return new[] { _primaryItems[^1] };
+            return [_primaryItems[^1]];
         }
 
         if (_primaryItems.Count == 0)
             return null;
 
-        return new[] { _primaryItems[^1] };
+        return [_primaryItems[^1]];
     }
 
     private IList<IFACommandBarElement> GetReturnToPrimaryItems()
     {
         if (_overflowItems[_numInOverflow - 1].DynamicOverflowOrder == 0)
-            return new[] { _overflowItems[_numInOverflow - 1] };
+            return [_overflowItems[_numInOverflow - 1]];
 
         var currentGroup = _overflowItems[_numInOverflow - 1].DynamicOverflowOrder;
 
@@ -533,7 +535,7 @@ public partial class FACommandBar : ContentControl
             break;
         }
 
-        return _overflowItems.GetRange(_numInOverflow - count, count).ToList();
+        return [.. _overflowItems.GetRange(_numInOverflow - count, count)];
     }
 
     private void UpdateWidthCacheForItem(IFACommandBarElement item, double wid)
@@ -541,10 +543,7 @@ public partial class FACommandBar : ContentControl
         if (_widthCache == null)
             _widthCache = new Dictionary<IFACommandBarElement, double>();
 
-        if (_widthCache.ContainsKey(item))
-            _widthCache[item] = wid;
-        else
-            _widthCache.Add(item, wid);
+        _widthCache[item] = wid;
     }
 
     private void SetElementVisualStateForOpen(bool open)

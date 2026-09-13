@@ -104,7 +104,7 @@ public class ContentDialogPageViewModel : ViewModelBase
         def.Complete();
     }
 
-    public async void ShowInputDialogAsync()
+    public static async void ShowInputDialogAsync()
     {
         var dialog = new FAContentDialog()
         {

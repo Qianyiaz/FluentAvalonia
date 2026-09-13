@@ -20,11 +20,11 @@ internal static class LinuxThemeResolver
             switch (_desktopEnvironment)
             {
                 case DesktopEnvironment.KDE:
-                    var match = new Regex("^AccentColor=(\\d+),(\\d+),(\\d+)$", RegexOptions.Multiline)
+                    var match = new Regex(@"^AccentColor=(\d+),(\d+),(\d+)$", RegexOptions.Multiline)
                         .Match(_config);
                     if (!match.Success)
                         // Accent color is from the current color scheme
-                        match = new Regex("^\\[Colors:Selection\\].*?BackgroundNormal=(\\d+),(\\d+),(\\d+)",
+                        match = new Regex(@"^\[Colors:Selection\].*?BackgroundNormal=(\d+),(\d+),(\d+)",
                                 RegexOptions.Multiline | RegexOptions.Singleline)
                             .Match(_config);
 
@@ -34,14 +34,14 @@ internal static class LinuxThemeResolver
                     break;
                 case DesktopEnvironment.LXQt:
                     match =
-                        new Regex("^highlight_color=#([\\da-f]{2})([\\da-f]{2})([\\da-f]{2})$", RegexOptions.Multiline)
+                        new Regex(@"^highlight_color=#([\da-f]{2})([\da-f]{2})([\da-f]{2})$", RegexOptions.Multiline)
                             .Match(_config);
                     if (match.Success)
                         aColor = Color2.FromRGB(Convert.ToByte(match.Groups[1].Value, 16),
                             Convert.ToByte(match.Groups[2].Value, 16), Convert.ToByte(match.Groups[3].Value, 16));
                     break;
                 case DesktopEnvironment.LXDE:
-                    match = new Regex("selected_bg_color:#([\\da-f]{2}).{2}([\\da-f]{2}).{2}([\\da-f]{2}).{2}")
+                    match = new Regex(@"selected_bg_color:#([\da-f]{2}).{2}([\da-f]{2}).{2}([\da-f]{2}).{2}")
                         .Match(_config);
                     if (match.Success)
                         aColor = Color2.FromRGB(Convert.ToByte(match.Groups[1].Value, 16),
@@ -118,6 +118,7 @@ internal static class LinuxThemeResolver
             }
             catch
             {
+                // ignored
             }
     }
 

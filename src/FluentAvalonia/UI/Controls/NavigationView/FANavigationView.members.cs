@@ -152,7 +152,7 @@ public partial class FANavigationView : HeaderedContentControl
 
     private IDisposable _splitViewRevokers;
 
-    private bool _tabKeyPrecedesFocusChange;
+    // private bool _tabKeyPrecedesFocusChange;
 
     private TopNavigationViewDataProvider _topDataProvider;
     private ContentControl _topNavAutoSuggestBoxPresenter;
@@ -290,7 +290,7 @@ public partial class FANavigationView : HeaderedContentControl
     }
 
 
-    private bool DoesNavigationViewItemHaveChildren(FANavigationViewItem nvi)
+    private static bool DoesNavigationViewItemHaveChildren(FANavigationViewItem nvi)
     {
         var miSource = nvi?.MenuItemsSource;
         if (miSource != null) return miSource.Count() > 0;
@@ -315,7 +315,7 @@ public partial class FANavigationView : HeaderedContentControl
                 ir == _topNavFooterMenuRepeater);
     }
 
-    private bool IsRootGridOfFlyout(object item)
+    private static bool IsRootGridOfFlyout(object item)
     {
         //TODO: Why do we need the root grid of the flyout?
         return item is Panel p && p.Name == "FlyoutRootGrid";
@@ -336,7 +336,7 @@ public partial class FANavigationView : HeaderedContentControl
         return parentIR;
     }
 
-    private FAItemsRepeater GetParentItemsRepeaterForContainer(FANavigationViewItemBase nvib)
+    private static FAItemsRepeater GetParentItemsRepeaterForContainer(FANavigationViewItemBase nvib)
     {
         return nvib?.FindAncestorOfType<FAItemsRepeater>();
     }
@@ -449,28 +449,28 @@ public partial class FANavigationView : HeaderedContentControl
         TemplateSettings.OverflowButtonVisibility = vis;
     }
 
-    private bool NeedTopPadding() => false; //TitleBar stuff
+    private static bool NeedTopPadding() => false; //TitleBar stuff
 
-    private int GetContainerCountInRepeater(FAItemsRepeater ir)
+    private static int GetContainerCountInRepeater(FAItemsRepeater ir)
     {
         if (ir != null && ir.ItemsSourceView != null) return ir.ItemsSourceView.Count;
 
         return -1;
     }
 
-    private bool DoesRepeaterHaveRealizedContainers(FAItemsRepeater ir)
+    private static bool DoesRepeaterHaveRealizedContainers(FAItemsRepeater ir)
     {
         return ir != null && ir.TryGetElement(0) != null;
     }
 
-    private int GetIndexFromItem(FAItemsRepeater ir, object data)
+    private static int GetIndexFromItem(FAItemsRepeater ir, object data)
     {
         if (ir != null && ir.ItemsSourceView != null) return ir.ItemsSourceView.IndexOf(data);
 
         return -1;
     }
 
-    private object GetItemFromIndex(FAItemsRepeater ir, int index)
+    private static object GetItemFromIndex(FAItemsRepeater ir, int index)
     {
         if (ir != null && ir.ItemsSourceView != null) return ir.ItemsSourceView.GetAt(index);
 
@@ -516,8 +516,7 @@ public partial class FANavigationView : HeaderedContentControl
         if (selItem == null)
             return false;
 
-        var selItemCont = selItem as FANavigationViewItemBase;
-        if (selItemCont == null) selItemCont = GetContainerForIndexPath(_selectionModel.SelectedIndex);
+        if (selItem is not FANavigationViewItemBase selItemCont) selItemCont = GetContainerForIndexPath(_selectionModel.SelectedIndex);
 
         return selItemCont == nvib;
     }
@@ -532,7 +531,7 @@ public partial class FANavigationView : HeaderedContentControl
         return NavigationViewItemOrSettingsContentFromData(SelectedItem);
     }
 
-    private IEnumerable GetChildren(FANavigationViewItem nvi)
+    private static IEnumerable GetChildren(FANavigationViewItem nvi)
     {
         return nvi.MenuItems.Count > 0 ? nvi.MenuItems : nvi.MenuItemsSource;
     }
@@ -573,7 +572,7 @@ public partial class FANavigationView : HeaderedContentControl
         return recTransDir;
     }
 
-    private FANavigationTransitionInfo CreateNavigationTransitionInfo(NavigationRecommendedTransitionDirection recDir)
+    private static FANavigationTransitionInfo CreateNavigationTransitionInfo(NavigationRecommendedTransitionDirection recDir)
     {
         // In current implementation, if click is from overflow item, just recommend FromRight Slide animation.
         if (recDir == NavigationRecommendedTransitionDirection.FromOverflow)

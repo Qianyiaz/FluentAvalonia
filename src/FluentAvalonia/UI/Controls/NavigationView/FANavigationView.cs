@@ -30,13 +30,13 @@ public partial class FANavigationView : HeaderedContentControl
     {
         TemplateSettings = new FANavigationViewTemplateSettings();
         _sizeChangedRevoker = this.GetObservable(BoundsProperty).Subscribe(OnSizeChanged);
-        _selectionModelSource = new AvaloniaList<IEnumerable>(2) { null, null };
+        _selectionModelSource = [null, null];
         _topDataProvider = new TopNavigationViewDataProvider(this);
 
         MenuItems = new AvaloniaList<object>();
         FooterMenuItems = new AvaloniaList<object>();
 
-        _topDataProvider.OnRawDataChanged((args) => OnTopNavDataSourceChanged(args));
+        _topDataProvider.OnRawDataChanged(args => OnTopNavDataSourceChanged(args));
 
         Loaded += OnNavViewLoaded;
 
@@ -322,16 +322,11 @@ public partial class FANavigationView : HeaderedContentControl
 
     protected override void OnKeyDown(KeyEventArgs e)
     {
-        _tabKeyPrecedesFocusChange = false;
         switch (e.Key)
         {
             case Key.Back:
                 if (IsPaneOpen && IsLightDismissable)
                     e.Handled = AttemptClosePaneLightly();
-                break;
-
-            case Key.Tab:
-                _tabKeyPrecedesFocusChange = true;
                 break;
 
             case Key.Left:
@@ -471,8 +466,7 @@ public partial class FANavigationView : HeaderedContentControl
 
     private static void UpdateItemsRepeaterItemsSource(FAItemsRepeater ir, IEnumerable source)
     {
-        if (ir != null)
-            ir.ItemsSource = source;
+        ir?.ItemsSource = source;
     }
 
     private void UpdateFooterRepeaterItemsSource(bool sourceCollectionReset, bool sourceCollectionChanged)
@@ -601,7 +595,7 @@ public partial class FANavigationView : HeaderedContentControl
     private void OnRepeaterGettingFocus(object sender, FocusChangingEventArgs e)
     {
         // Reserved for future XYKeyboardFocus support
-        _tabKeyPrecedesFocusChange = false;
+        // _tabKeyPrecedesFocusChange = false;
     }
 
     private void UpdateNavigationViewItemsFactory()
@@ -1034,7 +1028,7 @@ public partial class FANavigationView : HeaderedContentControl
             var topBeRemovedItemWidth = _topDataProvider.CalculateWidthForItems(itemsToBeRemoved);
             var widthAvailableToRecover = topBeRemovedItemWidth - widthAtLeastToBeRemoved;
             var itemsToBeAdded =
-                FindMovableItemsRecoverToPrimaryList(widthAvailableToRecover, new[] { selOverflowItemIndex });
+                FindMovableItemsRecoverToPrimaryList(widthAvailableToRecover, [selOverflowItemIndex]);
 
             itemsToBeAdded.Add(selOverflowItemIndex);
 
@@ -1128,7 +1122,7 @@ public partial class FANavigationView : HeaderedContentControl
             .Subscribe(OnNavigationViewItemExpandedPropertyChanged));
     }
 
-    private void ClearNavigationViewItemBaseRevokers(FANavigationViewItemBase nvib)
+    private static void ClearNavigationViewItemBaseRevokers(FANavigationViewItemBase nvib)
     {
         var revokers = nvib.GetValue(NavigationViewItemBaseRevokersProperty);
         revokers?.Dispose();
@@ -1386,7 +1380,7 @@ public partial class FANavigationView : HeaderedContentControl
         e.Handled = true;
     }
 
-    private void ToggleIsExpandedNavigationViewItem(FANavigationViewItem nvi)
+    private static void ToggleIsExpandedNavigationViewItem(FANavigationViewItem nvi)
         => ChangeIsExpandedNavigationViewItem(nvi, !nvi.IsExpanded);
 
     private static void ChangeIsExpandedNavigationViewItem(FANavigationViewItem nvi, bool isExpanded)
@@ -1520,8 +1514,7 @@ public partial class FANavigationView : HeaderedContentControl
         if (_footerItemsScrollViewer == null || _leftNavFooterMenuRepeater == null || _leftNavRepeater == null)
         {
             heightForMenuItems = totalHeightHalf;
-            if (_footerItemsScrollViewer != null)
-                _footerItemsScrollViewer.MaxHeight = totalHeightHalf;
+            _footerItemsScrollViewer?.MaxHeight = totalHeightHalf;
         }
         else
         {
@@ -1633,7 +1626,7 @@ public partial class FANavigationView : HeaderedContentControl
         return false;
     }
 
-    private void UpdatePaneTabFocusNavigation()
+    private static void UpdatePaneTabFocusNavigation()
     {
         // Reserved for future XYKeyboardFocus support
     }
@@ -1733,14 +1726,14 @@ public partial class FANavigationView : HeaderedContentControl
 
         if (indexInPrimary > 0)
         {
-            var prev = _topDataProvider.ConvertPrimaryIndexToIndex(new[] { nextIndexInPrimary - 1 });
+            var prev = _topDataProvider.ConvertPrimaryIndexToIndex([nextIndexInPrimary - 1]);
             if (prev[0] != prevIndexInOriginal)
                 return true;
         }
 
         while (nextIndexInPrimary < primaryListSize)
         {
-            var originalIndex = _topDataProvider.ConvertPrimaryIndexToIndex(new[] { nextIndexInPrimary });
+            var originalIndex = _topDataProvider.ConvertPrimaryIndexToIndex([nextIndexInPrimary]);
             if (nextIndexInOriginal != originalIndex[0])
                 return true;
             nextIndexInPrimary++;
@@ -1770,7 +1763,7 @@ public partial class FANavigationView : HeaderedContentControl
         if (widthAtLeastToBeRemoved > 0)
         {
             var itemToBeRemoved =
-                FindMovableItemsToBeRemovedFromPrimaryList(widthAtLeastToBeRemoved, new[] { selItemIndex });
+                FindMovableItemsToBeRemovedFromPrimaryList(widthAtLeastToBeRemoved, [selItemIndex]);
             KeepAtLeastOneItemInPrimaryList(itemToBeRemoved, false);
             _topDataProvider.MoveItemsOutOfPrimaryList(itemToBeRemoved);
         }
@@ -2004,8 +1997,7 @@ public partial class FANavigationView : HeaderedContentControl
                 toggleWidth = OpenPaneLength;
         }
 
-        if (_paneToggleButton != null)
-            _paneToggleButton.Width = toggleWidth;
+        _paneToggleButton?.Width = toggleWidth;
     }
 
     private void UpdateBackAndCloseButtonsVisibility()
@@ -2053,21 +2045,17 @@ public partial class FANavigationView : HeaderedContentControl
             }
         }
 
-        if (_contentLeftPadding != null)
-            _contentLeftPadding.Width = leftPadding;
+        _contentLeftPadding?.Width = leftPadding;
 
-        if (_paneHeaderToggleButtonColumn != null)
-            _paneHeaderToggleButtonColumn.Width = new GridLength(paneHeaderPaddingForToggle);
+        _paneHeaderToggleButtonColumn?.Width = new GridLength(paneHeaderPaddingForToggle);
 
-        if (_paneHeaderCloseButtonColumn != null)
-            _paneHeaderCloseButtonColumn.Width = new GridLength(paneHeaderPaddingForClose);
+        _paneHeaderCloseButtonColumn?.Width = new GridLength(paneHeaderPaddingForClose);
 
         if (_paneTitleHolderFrameworkElement?.IsVisible == true &&
             paneHeaderContentBorderRowMinHeight == 0)
             paneHeaderContentBorderRowMinHeight = _paneTitleHolderFrameworkElement.Bounds.Height;
 
-        if (_paneHeaderContentBorderRow != null)
-            _paneHeaderContentBorderRow.MinHeight = paneHeaderContentBorderRowMinHeight;
+        _paneHeaderContentBorderRow?.MinHeight = paneHeaderContentBorderRowMinHeight;
 
         if (_paneContentGrid != null && _paneContentGrid.RowDefinitions.Count >= _backButtonRowDefinition)
         {
@@ -2344,7 +2332,7 @@ public partial class FANavigationView : HeaderedContentControl
     private static bool IsTopNav(Control c)
         => c.FindAncestorOfType<FANavigationView>(true)?.IsTopNavigationView ?? false;
 
-    private void PlayIndicatorNonSameLevelTopPrimaryAnimation(Control indicator, bool isOutgoing)
+    private static void PlayIndicatorNonSameLevelTopPrimaryAnimation(Control indicator, bool isOutgoing)
     {
         var visual = ElementComposition.GetElementVisual(indicator);
         if (visual == null)
@@ -2584,8 +2572,7 @@ public partial class FANavigationView : HeaderedContentControl
         else if (third != null)
         {
             third();
-            if (_paneTitleOnTopPane != null)
-                _paneTitleOnTopPane.IsVisible = !string.IsNullOrEmpty(PaneTitle) && PaneTitle.Length != 0;
+            _paneTitleOnTopPane?.IsVisible = !string.IsNullOrEmpty(PaneTitle) && PaneTitle.Length != 0;
         }
     }
 
@@ -2770,7 +2757,7 @@ public partial class FANavigationView : HeaderedContentControl
             _paneToggleButton.Margin = thickness;
     }
 
-    private void UpdatePaneShadow()
+    private static void UpdatePaneShadow()
     {
     }
 
@@ -2818,7 +2805,7 @@ public partial class FANavigationView : HeaderedContentControl
         for (var i = 0; i < GetContainerCountInRepeater(ir); i++)
             if (ir.TryGetElement(i) is FANavigationViewItem nvi)
             {
-                var ip = new IndexPath(new[] { isFooterRepeater ? _footerMenuBlockIndex : _mainMenuBlockIndex, i });
+                var ip = new IndexPath([isFooterRepeater ? _footerMenuBlockIndex : _mainMenuBlockIndex, i]);
                 var indexPath = SearchEntireTreeForIndexPath(nvi, data, ip);
                 if (indexPath != IndexPath.Unselected)
                     return indexPath;
@@ -2911,7 +2898,7 @@ public partial class FANavigationView : HeaderedContentControl
         return GetContainerForIndexPath(cont, ip, lastVisible, forceRealize);
     }
 
-    private FANavigationViewItemBase GetContainerForIndexPath(Control first, IndexPath ip, bool lastVisible,
+    private static FANavigationViewItemBase GetContainerForIndexPath(Control first, IndexPath ip, bool lastVisible,
         bool forceRealize)
     {
         var cont = first;

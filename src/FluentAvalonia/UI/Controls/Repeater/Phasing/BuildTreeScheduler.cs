@@ -9,7 +9,7 @@ internal static class BuildTreeScheduler
 
     [ThreadStatic] private static QPCTimer _timer = new();
 
-    [ThreadStatic] private static readonly List<WorkInfo> _pendingWork = new();
+    [ThreadStatic] private static readonly List<WorkInfo> _pendingWork = [];
 
     private static bool _renderingToken;
 

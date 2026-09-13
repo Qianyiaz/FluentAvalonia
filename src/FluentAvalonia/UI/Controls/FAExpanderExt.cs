@@ -47,9 +47,8 @@ public sealed class FAExpanderExt : AvaloniaObject
     private static void HandleExpanderAnimationTypeChanged(AvaloniaPropertyChangedEventArgs args)
     {
         var val = args.GetNewValue<string>();
-        var expander = args.Sender as Expander;
 
-        if (expander == null)
+        if (args.Sender is not Expander expander)
             return;
 
         if (val != null && val.Equals(s_Fluentv2, StringComparison.OrdinalIgnoreCase))

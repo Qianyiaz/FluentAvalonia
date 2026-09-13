@@ -34,7 +34,7 @@ public class FATextCommandBarFlyout : FACommandBarFlyout
         };
     }
 
-    private void InitializeButtonWithUICommand(Button b,
+    private static void InitializeButtonWithUICommand(Button b,
         FAXamlUICommand command, Action executeFunc)
     {
         // WinUI collects the event token for revoking later, but never actually does
@@ -109,7 +109,7 @@ public class FATextCommandBarFlyout : FACommandBarFlyout
         return toAdd;
     }
 
-    private TextControlButtons GetTextBoxButtonsToAdd(TextBox textBox)
+    private static TextControlButtons GetTextBoxButtonsToAdd(TextBox textBox)
     {
         var toAdd = TextControlButtons.None;
 
@@ -136,7 +136,7 @@ public class FATextCommandBarFlyout : FACommandBarFlyout
         return toAdd;
     }
 
-    private TextControlButtons GetTextBlockButtonsToAdd(TextBlock tb)
+    private static TextControlButtons GetTextBlockButtonsToAdd(TextBlock tb)
     {
         // TextBlocks aren't as robust as WinUI, but we should still be able 
         // to make Copy work. SelectAll won't though
@@ -161,7 +161,7 @@ public class FATextCommandBarFlyout : FACommandBarFlyout
     //private TextControlButtons GetRichEditBoxButtonsToAdd() { }
     //private TextControlButtons GetRichTextBlockButtonsToAdd() { }
 
-    private TextControlButtons GetPasswordBoxButtonsToAdd(TextBox textBox)
+    private static TextControlButtons GetPasswordBoxButtonsToAdd(TextBox textBox)
     {
         var toAdd = TextControlButtons.None;
 
@@ -229,7 +229,7 @@ public class FATextCommandBarFlyout : FACommandBarFlyout
                 }
                 else if (target is TextBlock txtB)
                 {
-                    var txt = await ClipboardExtensions.TryGetTextAsync(TopLevel.GetTopLevel(target).Clipboard);
+                    var txt = await TopLevel.GetTopLevel(target).Clipboard.TryGetTextAsync();
                     if (txt != null) txtB.Text = txt;
                 }
             }
@@ -243,15 +243,15 @@ public class FATextCommandBarFlyout : FACommandBarFlyout
         }
     }
 
-    private void ExecuteBoldCommand()
+    private static void ExecuteBoldCommand()
     {
     }
 
-    private void ExecuteItalicCommand()
+    private static void ExecuteItalicCommand()
     {
     }
 
-    private void ExecuteUnderlineCommand()
+    private static void ExecuteUnderlineCommand()
     {
     }
 
@@ -290,7 +290,7 @@ public class FATextCommandBarFlyout : FACommandBarFlyout
             case TextControlButtons.Cut:
             {
                 var button = new FACommandBarButton();
-                InitializeButtonWithUICommand(button, new FAStandardUICommand(FAStandardUICommandKind.Cut),
+                    InitializeButtonWithUICommand(button, new FAStandardUICommand(FAStandardUICommandKind.Cut),
                     ExecuteCutCommand);
                 _buttons.Add(TextControlButtons.Cut, button);
                 return button;
@@ -299,7 +299,7 @@ public class FATextCommandBarFlyout : FACommandBarFlyout
             case TextControlButtons.Copy:
             {
                 var button = new FACommandBarButton();
-                InitializeButtonWithUICommand(button, new FAStandardUICommand(FAStandardUICommandKind.Copy),
+                    InitializeButtonWithUICommand(button, new FAStandardUICommand(FAStandardUICommandKind.Copy),
                     ExecuteCopyCommand);
                 _buttons.Add(TextControlButtons.Copy, button);
                 return button;
@@ -308,7 +308,7 @@ public class FATextCommandBarFlyout : FACommandBarFlyout
             case TextControlButtons.Paste:
             {
                 var button = new FACommandBarButton();
-                InitializeButtonWithUICommand(button, new FAStandardUICommand(FAStandardUICommandKind.Paste),
+                    InitializeButtonWithUICommand(button, new FAStandardUICommand(FAStandardUICommandKind.Paste),
                     ExecutePasteCommand);
                 _buttons.Add(TextControlButtons.Paste, button);
                 return button;
@@ -324,7 +324,7 @@ public class FATextCommandBarFlyout : FACommandBarFlyout
             case TextControlButtons.Undo:
             {
                 var button = new FACommandBarButton();
-                InitializeButtonWithUICommand(button, new FAStandardUICommand(FAStandardUICommandKind.Undo),
+                    InitializeButtonWithUICommand(button, new FAStandardUICommand(FAStandardUICommandKind.Undo),
                     ExecuteUndoCommand);
                 _buttons.Add(TextControlButtons.Undo, button);
                 return button;
@@ -333,7 +333,7 @@ public class FATextCommandBarFlyout : FACommandBarFlyout
             case TextControlButtons.Redo:
             {
                 var button = new FACommandBarButton();
-                InitializeButtonWithUICommand(button, new FAStandardUICommand(FAStandardUICommandKind.Redo),
+                    InitializeButtonWithUICommand(button, new FAStandardUICommand(FAStandardUICommandKind.Redo),
                     ExecuteRedoCommand);
                 _buttons.Add(TextControlButtons.Redo, button);
                 return button;
@@ -342,7 +342,7 @@ public class FATextCommandBarFlyout : FACommandBarFlyout
             case TextControlButtons.SelectAll:
             {
                 var button = new FACommandBarButton();
-                InitializeButtonWithUICommand(button, new FAStandardUICommand(FAStandardUICommandKind.SelectAll),
+                    InitializeButtonWithUICommand(button, new FAStandardUICommand(FAStandardUICommandKind.SelectAll),
                     ExecuteSelectAllCommand);
                 _buttons.Add(TextControlButtons.SelectAll, button);
                 return button;

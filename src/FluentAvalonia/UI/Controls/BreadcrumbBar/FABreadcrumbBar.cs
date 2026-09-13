@@ -427,17 +427,13 @@ public class FABreadcrumbBar : TemplatedControl
 
         // If the focus is in the first visible item, then move to the ellipsis
         var ir = _itemsRepeater;
-        if (ir != null)
+        if (ir?.Layout is BreadcrumbLayout layout)
         {
-            var layout = ir.Layout as BreadcrumbLayout;
-            if (layout != null)
-            {
-                if (_focusedIndex == 1)
-                    movementPrevious = 0;
-                else if (layout.EllipsisIsRendered &&
-                         _focusedIndex == layout.FirstRenderedItemIndexAfterEllipsis)
-                    movementPrevious = -_focusedIndex;
-            }
+            if (_focusedIndex == 1)
+                movementPrevious = 0;
+            else if (layout.EllipsisIsRendered &&
+                     _focusedIndex == layout.FirstRenderedItemIndexAfterEllipsis)
+                movementPrevious = -_focusedIndex;
         }
 
         return MoveFocus(movementPrevious);

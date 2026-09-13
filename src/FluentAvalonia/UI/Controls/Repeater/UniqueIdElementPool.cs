@@ -31,9 +31,8 @@ internal class UniqueIdElementPool
     {
         Debug.Assert(_owner.ItemsSourceView.HasKeyIndexMapping);
 
-        Control element = null;
         var key = _owner.ItemsSourceView.KeyFromIndex(index);
-        if (_elementMap.TryGetValue(key, out element)) _elementMap.Remove(key);
+        if (_elementMap.TryGetValue(key, out var element)) _elementMap.Remove(key);
 
         return element;
     }

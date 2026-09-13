@@ -47,7 +47,7 @@ public sealed class HomePageViewModel : MainPageViewModelBase
 
     public AvaloniaList<RecentItemViewModel> Favorites { get; }
 
-    public string CurrentVersion =>
+    public static string CurrentVersion =>
         typeof(FANavigationView).Assembly.GetName().Version?.ToString();
 
     public async void RefreshRecentItems()

@@ -494,7 +494,7 @@ internal class CollectionWrapper : IAvaloniaList<object>, IList // IList for INC
             list.CopyTo(array, arrayIndex);
         else
             // I hope this is never needed
-            Enumerable.ToList<object>(_collection.Cast<object>()).CopyTo(array, arrayIndex);
+            _collection.Cast<object>().ToList<object>().CopyTo(array, arrayIndex);
     }
 
     public IEnumerator<object> GetEnumerator()

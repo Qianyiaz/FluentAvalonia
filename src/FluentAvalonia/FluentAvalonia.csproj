@@ -1,14 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>disable</Nullable>
         <MicroComGeneratorRuntimeNamespace>MicroCom.Runtime</MicroComGeneratorRuntimeNamespace>
-        <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
         <PackageId>FluentAvaloniaUI.Qianyiaz</PackageId>
         <IsAotCompatible>true</IsAotCompatible>
-
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <NoWarn>$(NoWarn);NU1507</NoWarn>
     </PropertyGroup>
 
@@ -17,34 +15,15 @@
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
 
-    <PropertyGroup>
-        <LangVersion>latest</LangVersion>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    </PropertyGroup>
     <ItemGroup>
         <AvaloniaResource Include="Fonts\*.*"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <PackageReference Include="Avalonia"/>
         <PackageReference Include="Avalonia.Controls.ColorPicker"/>
-        <!--<PackageReference Include="Avalonia.Controls.ItemsRepeater" />-->
         <PackageReference Include="Avalonia.Skia"/>
-        <!--<PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" />-->
         <PackageReference Include="MicroCom.CodeGenerator.MSBuild" PrivateAssets="All"/>
-        <PackageReference Include="MicroCom.Runtime"/>
         <MicroComIdl Include="$(MSBuildThisFileDirectory)\Interop\WinRT\WinRT.idl" CSharpInteropPath="$(MSBuildThisFileDirectory)\Interop\WinRT\WinRT.Generated.cs"/>
     </ItemGroup>
 
     <ItemGroup>
         <InternalsVisibleTo Include="FAControlsGallery"/>
     </ItemGroup>
-
 </Project>

@@ -18,8 +18,7 @@ internal class LayoutContextAdapter : FAVirtualizingLayoutContext
         get => _nonVirtualizingContext?.LayoutState;
         set
         {
-            if (_nonVirtualizingContext != null)
-                _nonVirtualizingContext.LayoutState = value;
+            _nonVirtualizingContext?.LayoutState = value;
         }
     }
 
@@ -30,9 +29,7 @@ internal class LayoutContextAdapter : FAVirtualizingLayoutContext
 
     protected override Control GetOrCreateElementAtCore(int index, FAElementRealizationOptions options)
     {
-        if (_nonVirtualizingContext != null) return _nonVirtualizingContext.Children[index];
-
-        return null;
+        return _nonVirtualizingContext?.Children[index];
     }
 
     protected override void RecycleElementCore(Control element)

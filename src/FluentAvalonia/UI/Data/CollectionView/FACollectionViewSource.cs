@@ -140,7 +140,7 @@ public class FACollectionViewSource : AvaloniaObject, ISupportInitialize
         {
             if (_liveFilterProperties == null)
             {
-                _liveFilterProperties = new AvaloniaList<string>();
+                _liveFilterProperties = [];
                 _liveFilterProperties.CollectionChanged += SortOrFilterListChanged;
             }
 
@@ -157,7 +157,7 @@ public class FACollectionViewSource : AvaloniaObject, ISupportInitialize
         {
             if (_sortDescriptions == null)
             {
-                _sortDescriptions = new AvaloniaList<FASortDescription>();
+                _sortDescriptions = [];
                 _sortDescriptions.CollectionChanged += SortOrFilterListChanged;
             }
 

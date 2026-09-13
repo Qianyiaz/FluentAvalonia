@@ -456,7 +456,7 @@ internal struct MovedItem
 
 internal class MovedItems : IEnumerable<MovedItem>
 {
-    private readonly List<MovedItem> _items = new();
+    private readonly List<MovedItem> _items = [];
 
     public IEnumerator<MovedItem> GetEnumerator() =>
         _items.GetEnumerator();

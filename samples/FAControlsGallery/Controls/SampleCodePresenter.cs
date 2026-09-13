@@ -210,7 +210,7 @@ public sealed partial class SampleCodePresenter : HeaderedContentControl
         _textHost.TextArea.IndentationStrategy.IndentLines(_textHost.Document, 0, _textHost.Document.LineCount);
     }
 
-    private void ShowCopiedFlyout(Button host, string message = "Copied!", bool fail = false)
+    private static void ShowCopiedFlyout(Button host, string message = "Copied!", bool fail = false)
     {
         if (_confirmCopiedFlyout == null)
         {

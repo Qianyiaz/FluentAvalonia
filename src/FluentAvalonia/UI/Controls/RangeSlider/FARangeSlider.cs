@@ -169,9 +169,8 @@ public partial class FARangeSlider : TemplatedControl
         _toolTip = e.NameScope.Find<Control>("ToolTip");
         _toolTipText = e.NameScope.Find<TextBlock>(s_tpToolTipText);
 
-        if (_toolTip != null)
-            if (_toolTip.Parent is Panel p)
-                p.Children.Remove(_toolTip);
+        if (_toolTip?.Parent is Panel p)
+            p.Children.Remove(_toolTip);
 
         _minThumb.DragCompleted += HandleThumbDragCompleted;
         _minThumb.DragDelta += MinThumbDragDelta;
@@ -460,24 +459,26 @@ public partial class FARangeSlider : TemplatedControl
             var rs = RangeStart;
             var re = RangeEnd;
 
-            if (delta > 0)
+            switch (delta)
             {
-                if (FAMathHelpers.IsClose(re, max))
+                case > 0 when Math.Abs(re - max) < 1e-5:
                     return;
-
                 // Drag delta is too large, constrain it back
-                if (re + delta > max)
-                    delta = max - re;
-            }
-            else if (delta < 0)
-            {
-                if (FAMathHelpers.IsClose(rs, min))
+                case > 0:
+                {
+                    if (re + delta > max)
+                        delta = max - re;
+                    break;
+                }
+                case < 0 when Math.Abs(rs - min) < 1e-5:
                     return;
-
-                if (rs + delta < min)
-                    delta = min - rs;
+                case < 0:
+                {
+                    if (rs + delta < min)
+                        delta = min - rs;
+                    break;
+                }
             }
-
 
             RangeStart += delta;
             RangeEnd += delta;

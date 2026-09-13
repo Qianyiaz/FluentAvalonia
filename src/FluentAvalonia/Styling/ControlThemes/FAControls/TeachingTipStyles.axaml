@@ -9,8 +9,7 @@
                               Subtitle="It's easier than ever to see control samples in both light and dark themes!"
                               IconSource="Refresh" IsLightDismissEnabled="False"
                               IsOpen="True" HeroContentPlacement="Auto"
-                              ActionButtonContent="Action" CloseButtonContent="Close"
-                              core:VisualStateHelper.ForcedClassesProperty=":bottom">
+                              ActionButtonContent="Action" CloseButtonContent="Close">
                 <ui:FATeachingTip.HeroContent>
                     <Border Width="100" Height="100" Background="Red" />
                 </ui:FATeachingTip.HeroContent>

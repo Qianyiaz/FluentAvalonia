@@ -23,8 +23,7 @@ public sealed partial class FAInfoBarPanel : Panel
         double hgtOfTallestInHorizontal = 0;
         var nItems = 0;
 
-        var parent = Parent as Control;
-        var minHeight = parent == null ? 0d : parent.MinHeight - Margin.Vertical();
+        var minHeight = Parent is not Control parent ? 0d : parent.MinHeight - Margin.Vertical();
 
         var children = Children;
         var childCount = children.Count;
