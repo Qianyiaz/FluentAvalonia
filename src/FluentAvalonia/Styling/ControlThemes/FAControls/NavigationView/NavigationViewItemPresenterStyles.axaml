@@ -481,7 +481,7 @@
                                      HorizontalAlignment="Center">
                                 <ContentPresenter Name="Icon"
                                                   Content="{Binding TemplateSettings.Icon, RelativeSource={RelativeSource TemplatedParent}}"
-                                                  Foreground="{DynamicResource TopNavigationViewItemForeground}"/>
+                                                  Foreground="{DynamicResource TopNavigationViewItemForeground}" />
                             </Viewbox>
 
                             <ContentPresenter Name="ContentPresenter"
@@ -665,7 +665,8 @@
                                                       Foreground="{DynamicResource NavigationViewItemForeground}">
                                         <ContentPresenter.Transitions>
                                             <Transitions>
-                                                <TransformOperationsTransition Duration="0:0:0.167" Property="RenderTransform" />
+                                                <TransformOperationsTransition Duration="0:0:0.167"
+                                                                               Property="RenderTransform" />
                                             </Transitions>
                                         </ContentPresenter.Transitions>
                                     </ContentPresenter>

@@ -35,6 +35,7 @@ public partial class FAFrame : ContentControl, IFAFrame
 
     private CancellationTokenSource _cts;
     private ContentPresenter _presenter;
+    private TopLevel _subscribedTopLevel;
 
     public FAFrame()
     {
@@ -173,14 +174,21 @@ public partial class FAFrame : ContentControl, IFAFrame
     {
         base.OnAttachedToVisualTree(e);
 
-        if (TopLevel.GetTopLevel(this) is { } tl) tl.BackRequested += OnTopLevelBackRequested;
+        if (TopLevel.GetTopLevel(this) is not { } tl) return;
+        _subscribedTopLevel = tl;
+        _subscribedTopLevel.BackRequested += OnTopLevelBackRequested;
     }
 
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
     {
+        // TopLevel.GetTopLevel(this) will be null here
+        if (_subscribedTopLevel is not null)
+        {
+            _subscribedTopLevel.BackRequested -= OnTopLevelBackRequested;
+            _subscribedTopLevel = null;
+        }
+        
         base.OnDetachedFromVisualTree(e);
-
-        if (TopLevel.GetTopLevel(this) is { } tl) tl.BackRequested -= OnTopLevelBackRequested;
     }
 
     /// <summary>

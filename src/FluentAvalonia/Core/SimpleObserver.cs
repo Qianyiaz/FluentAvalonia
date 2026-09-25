@@ -41,7 +41,8 @@ internal static class ReactiveExtensions
         return new CreateWithDisposableObservable<TSource>(subscribe);
     }
 
-    private sealed class CreateWithDisposableObservable<TSource>(Func<IObserver<TSource>, IDisposable> subscribe) : IObservable<TSource>
+    private sealed class CreateWithDisposableObservable<TSource>(Func<IObserver<TSource>, IDisposable> subscribe)
+        : IObservable<TSource>
     {
         public IDisposable Subscribe(IObserver<TSource> observer)
         {

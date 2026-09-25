@@ -516,7 +516,8 @@ public partial class FANavigationView : HeaderedContentControl
         if (selItem == null)
             return false;
 
-        if (selItem is not FANavigationViewItemBase selItemCont) selItemCont = GetContainerForIndexPath(_selectionModel.SelectedIndex);
+        if (selItem is not FANavigationViewItemBase selItemCont)
+            selItemCont = GetContainerForIndexPath(_selectionModel.SelectedIndex);
 
         return selItemCont == nvib;
     }
@@ -572,7 +573,8 @@ public partial class FANavigationView : HeaderedContentControl
         return recTransDir;
     }
 
-    private static FANavigationTransitionInfo CreateNavigationTransitionInfo(NavigationRecommendedTransitionDirection recDir)
+    private static FANavigationTransitionInfo CreateNavigationTransitionInfo(
+        NavigationRecommendedTransitionDirection recDir)
     {
         // In current implementation, if click is from overflow item, just recommend FromRight Slide animation.
         if (recDir == NavigationRecommendedTransitionDirection.FromOverflow)

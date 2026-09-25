@@ -115,10 +115,7 @@ internal abstract class SplitDataSourceBase<T, TVectorID, AttachedDataType>
     protected void OnClear()
     {
         // Clear all vectors
-        foreach (var vector in splitVectors)
-        {
-            vector?.Clear();
-        }
+        foreach (var vector in splitVectors) vector?.Clear();
 
         flags.Clear();
         _attachedData.Clear();
@@ -154,10 +151,7 @@ internal abstract class SplitDataSourceBase<T, TVectorID, AttachedDataType>
         var vectorID = flags[index];
 
         // Update mapping on all Vectors and Remove Item on vectorID vector;
-        foreach (var vector in splitVectors)
-        {
-            vector?.OnRawDataRemove(index, vectorID);
-        }
+        foreach (var vector in splitVectors) vector?.OnRawDataRemove(index, vectorID);
 
         flags.RemoveAt(index);
         _attachedData.RemoveAt(index);
@@ -181,10 +175,7 @@ internal abstract class SplitDataSourceBase<T, TVectorID, AttachedDataType>
         var data = GetAt(index);
 
         // Update mapping on all Vectors and Insert Item on vectorID vector;
-        foreach (var vector in splitVectors)
-        {
-            vector?.OnRawDataInsert(preferIndex, index, data, vectorID);
-        }
+        foreach (var vector in splitVectors) vector?.OnRawDataInsert(preferIndex, index, data, vectorID);
 
         flags.Insert(index, vectorID);
         _attachedData.Insert(index, defaultAttachedData);

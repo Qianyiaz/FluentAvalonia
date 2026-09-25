@@ -1,4 +1,3 @@
-using Avalonia.Controls;
 using FluentAvalonia.UI.Media.Animation;
 using FluentAvalonia.UI.Navigation;
 

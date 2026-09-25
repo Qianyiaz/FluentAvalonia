@@ -16,10 +16,7 @@ internal class LayoutContextAdapter : FAVirtualizingLayoutContext
     protected internal override object LayoutStateCore
     {
         get => _nonVirtualizingContext?.LayoutState;
-        set
-        {
-            _nonVirtualizingContext?.LayoutState = value;
-        }
+        set { _nonVirtualizingContext?.LayoutState = value; }
     }
 
     protected internal override int ItemCountCore() => _nonVirtualizingContext?.Children.Count ?? 0;

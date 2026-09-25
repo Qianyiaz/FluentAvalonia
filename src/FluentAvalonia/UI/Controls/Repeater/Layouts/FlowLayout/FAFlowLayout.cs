@@ -6,7 +6,6 @@ using System.Diagnostics;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
-using FluentAvalonia.Core;
 
 namespace FluentAvalonia.UI.Controls;
 

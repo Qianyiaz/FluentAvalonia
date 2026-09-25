@@ -84,7 +84,6 @@ public class FARecyclePool
 
                 EnsureOwnerIsPanelOrNull(owner);
                 if (elementInfo.Owner != null && elementInfo.Owner != owner)
-                {
                     // Element is still under its parent. remove it from its parent.
                     if (elementInfo.Owner is Panel panel)
                     {
@@ -92,7 +91,6 @@ public class FARecyclePool
                         if (!foundE)
                             throw new Exception("ItemsRepeater's child not found in its Children collection.");
                     }
-                }
 
                 return elementInfo.Element;
             }

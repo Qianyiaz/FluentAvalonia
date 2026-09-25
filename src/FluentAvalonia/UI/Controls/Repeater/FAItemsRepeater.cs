@@ -112,7 +112,7 @@ public partial class FAItemsRepeater : Panel
         if (layout is FAStackLayout stackLayout && ++_stackLayoutMeasureCounter >= _maxStackLayoutIterations)
         {
 #if DEBUG && REPEATER_TRACE
-                //Log.Debug("MeasureOverride shortcut - {Counter}", _stackLayoutMeasureCounter);
+            //Log.Debug("MeasureOverride shortcut - {Counter}", _stackLayoutMeasureCounter);
 #endif
             // Shortcut the apparent layout cycle by returning the previous desired size.
             // This can occur when children have variable sizes that prevent the ItemsPresenter's desired size from settling.

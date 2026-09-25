@@ -648,7 +648,7 @@ public partial class FATabView : TemplatedControl
                         do
                         {
                             if (ContainerFromIndex(index) is FATabViewItem nextitem && nextitem.IsEffectivelyEnabled
-                                                                                    && nextitem.IsEffectivelyVisible)
+                                && nextitem.IsEffectivelyVisible)
                             {
                                 SelectedItem = ItemFromContainer(nextitem);
                                 break;

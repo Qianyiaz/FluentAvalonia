@@ -387,14 +387,10 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
         var showContent = ShouldShowContent;
 
         if (IsOnLeftNav)
-        {
             ((IPseudoClasses)_presenter?.Classes)?.Set(s_pcIconCollapsed, !showIcon);
-            //Only using IconCollapsed, IconVisible is default
-        }
+        //Only using IconCollapsed, IconVisible is default
         else
-        {
             ((IPseudoClasses)_presenter?.Classes)?.Set(s_pcIconCollapsed, false);
-        }
 
         UpdateVisualStateForToolTip();
 

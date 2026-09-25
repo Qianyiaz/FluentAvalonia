@@ -290,7 +290,7 @@ public class FATextCommandBarFlyout : FACommandBarFlyout
             case TextControlButtons.Cut:
             {
                 var button = new FACommandBarButton();
-                    InitializeButtonWithUICommand(button, new FAStandardUICommand(FAStandardUICommandKind.Cut),
+                InitializeButtonWithUICommand(button, new FAStandardUICommand(FAStandardUICommandKind.Cut),
                     ExecuteCutCommand);
                 _buttons.Add(TextControlButtons.Cut, button);
                 return button;
@@ -299,7 +299,7 @@ public class FATextCommandBarFlyout : FACommandBarFlyout
             case TextControlButtons.Copy:
             {
                 var button = new FACommandBarButton();
-                    InitializeButtonWithUICommand(button, new FAStandardUICommand(FAStandardUICommandKind.Copy),
+                InitializeButtonWithUICommand(button, new FAStandardUICommand(FAStandardUICommandKind.Copy),
                     ExecuteCopyCommand);
                 _buttons.Add(TextControlButtons.Copy, button);
                 return button;
@@ -308,7 +308,7 @@ public class FATextCommandBarFlyout : FACommandBarFlyout
             case TextControlButtons.Paste:
             {
                 var button = new FACommandBarButton();
-                    InitializeButtonWithUICommand(button, new FAStandardUICommand(FAStandardUICommandKind.Paste),
+                InitializeButtonWithUICommand(button, new FAStandardUICommand(FAStandardUICommandKind.Paste),
                     ExecutePasteCommand);
                 _buttons.Add(TextControlButtons.Paste, button);
                 return button;
@@ -324,7 +324,7 @@ public class FATextCommandBarFlyout : FACommandBarFlyout
             case TextControlButtons.Undo:
             {
                 var button = new FACommandBarButton();
-                    InitializeButtonWithUICommand(button, new FAStandardUICommand(FAStandardUICommandKind.Undo),
+                InitializeButtonWithUICommand(button, new FAStandardUICommand(FAStandardUICommandKind.Undo),
                     ExecuteUndoCommand);
                 _buttons.Add(TextControlButtons.Undo, button);
                 return button;
@@ -333,7 +333,7 @@ public class FATextCommandBarFlyout : FACommandBarFlyout
             case TextControlButtons.Redo:
             {
                 var button = new FACommandBarButton();
-                    InitializeButtonWithUICommand(button, new FAStandardUICommand(FAStandardUICommandKind.Redo),
+                InitializeButtonWithUICommand(button, new FAStandardUICommand(FAStandardUICommandKind.Redo),
                     ExecuteRedoCommand);
                 _buttons.Add(TextControlButtons.Redo, button);
                 return button;
@@ -342,7 +342,7 @@ public class FATextCommandBarFlyout : FACommandBarFlyout
             case TextControlButtons.SelectAll:
             {
                 var button = new FACommandBarButton();
-                    InitializeButtonWithUICommand(button, new FAStandardUICommand(FAStandardUICommandKind.SelectAll),
+                InitializeButtonWithUICommand(button, new FAStandardUICommand(FAStandardUICommandKind.SelectAll),
                     ExecuteSelectAllCommand);
                 _buttons.Add(TextControlButtons.SelectAll, button);
                 return button;
