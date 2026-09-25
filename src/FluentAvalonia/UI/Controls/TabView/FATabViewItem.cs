@@ -160,30 +160,35 @@ public partial class FATabViewItem : FASelectorItem
         var devType = e.Pointer.Type;
         var point = e.GetCurrentPoint(this);
 
-        if (devType == PointerType.Mouse || devType == PointerType.Pen)
+        switch (devType)
         {
-            if (point.Properties.IsLeftButtonPressed)
+            case PointerType.Mouse:
+            case PointerType.Pen:
             {
-                _lastPointerPressedPosition = point.Position;
-
-                BeginCheckingForDrag(pointer.Id);
-
-                var mod = TopLevel.GetTopLevel(this).GetPlatformSettings().HotkeyConfiguration.CommandModifiers;
-                var ctrlDown = (e.KeyModifiers & mod) == mod;
-
-                if (ctrlDown)
+                if (point.Properties.IsLeftButtonPressed)
                 {
-                    IsSelected = true;
+                    _lastPointerPressedPosition = point.Position;
 
-                    // Return here so the base class will not pick it up, but let it remain unhandled so someone else could handle it.
-                    return;
+                    BeginCheckingForDrag(pointer.Id);
+
+                    var mod = TopLevel.GetTopLevel(this).GetPlatformSettings().HotkeyConfiguration.CommandModifiers;
+                    var ctrlDown = (e.KeyModifiers & mod) == mod;
+
+                    if (ctrlDown)
+                    {
+                        IsSelected = true;
+
+                        // Return here so the base class will not pick it up, but let it remain unhandled so someone else could handle it.
+                        return;
+                    }
                 }
+
+                break;
             }
-        }
-        else if (devType == PointerType.Touch)
-        {
-            _lastPointerPressedPosition = point.Position;
-            BeginCheckingForDrag(pointer.Id);
+            case PointerType.Touch:
+                _lastPointerPressedPosition = point.Position;
+                BeginCheckingForDrag(pointer.Id);
+                break;
         }
 
         base.OnPointerPressed(e);

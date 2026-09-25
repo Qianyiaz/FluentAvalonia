@@ -127,7 +127,7 @@ public sealed class FAProgressRingAnimatedVisual : Control
         private bool _active;
 
         private SKColor? _background;
-        private float _duration = 2;
+        private readonly float _duration = 2;
         private SKColor _foreground;
         private bool _indeterminate;
         private bool _isAnimatingToValue;

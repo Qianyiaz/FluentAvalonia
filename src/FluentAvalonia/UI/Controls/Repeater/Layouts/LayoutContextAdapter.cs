@@ -6,7 +6,7 @@ namespace FluentAvalonia.UI.Controls;
 
 internal class LayoutContextAdapter : FAVirtualizingLayoutContext
 {
-    private FANonVirtualizingLayoutContext _nonVirtualizingContext;
+    private readonly FANonVirtualizingLayoutContext _nonVirtualizingContext;
 
     public LayoutContextAdapter(FANonVirtualizingLayoutContext nonVirtualizingContext)
     {
@@ -16,7 +16,7 @@ internal class LayoutContextAdapter : FAVirtualizingLayoutContext
     protected internal override object LayoutStateCore
     {
         get => _nonVirtualizingContext?.LayoutState;
-        set { _nonVirtualizingContext?.LayoutState = value; }
+        set => _nonVirtualizingContext?.LayoutState = value;
     }
 
     protected internal override int ItemCountCore() => _nonVirtualizingContext?.Children.Count ?? 0;

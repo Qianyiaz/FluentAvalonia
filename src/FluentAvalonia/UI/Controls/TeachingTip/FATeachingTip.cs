@@ -43,7 +43,7 @@ public partial class FATeachingTip : ContentControl
     private Border _container;
     private Grid _contentRootGrid;
     private KeyFrameAnimation _contractAnimation;
-    private TimeSpan _contractAnimationDuration = TimeSpan.FromMilliseconds(200);
+    private readonly TimeSpan _contractAnimationDuration = TimeSpan.FromMilliseconds(200);
     private IEasing _contractEasingFunction;
     private bool _createNewPopupOnOpen;
 
@@ -54,15 +54,13 @@ public partial class FATeachingTip : ContentControl
     private FATeachingTipHeroContentPlacementMode _currentHeroContentEffectivePlacementMode;
     private Rect _currentTargetBoundsInCoreWindowSpace;
 
-    private Size _currentXamlRootSize;
-
     private KeyFrameAnimation _expandAnimation;
 
     // [Unused] private float _contentElevation = 32f;
     // [Unused] private float _tailElevation = 0f;
     // [Unused] private bool _tailShadowTargetsShadowTarget;
 
-    private TimeSpan _expandAnimationDuration = TimeSpan.FromMilliseconds(300);
+    private readonly TimeSpan _expandAnimationDuration = TimeSpan.FromMilliseconds(300);
 
     // [Unused] private KeyFrameAnimation _expandElevationAnimation;
     // [Unused] private KeyFrameAnimation _contractElevationAnimation;
@@ -101,7 +99,7 @@ public partial class FATeachingTip : ContentControl
     // [Unused] private bool _tipShouldHaveShadow = true;
 
     // [Unused] private bool _tipFollowsTarget;
-    private bool _returnTopForOutOfWindowPlacement = true;
+    private readonly bool _returnTopForOutOfWindowPlacement = true;
     // [Unused]  private ContentControl _popupContentControl;
 
     private Control _rootElement;
@@ -459,7 +457,7 @@ public partial class FATeachingTip : ContentControl
             out double lastColumnWidth)
         {
             firstColumnWidth = secondColumnWidth = nextToLastColumnWidth = lastColumnWidth = 0;
-            if (g == null || g.ColumnDefinitions == null)
+            if (g?.ColumnDefinitions == null)
                 return;
             var numColDefs = g.ColumnDefinitions.Count;
 
@@ -474,7 +472,7 @@ public partial class FATeachingTip : ContentControl
             out double lastRowHeight)
         {
             firstRowHeight = secondRowHeight = nextToLastRowHeight = lastRowHeight = 0;
-            if (g == null || g.RowDefinitions == null)
+            if (g?.RowDefinitions == null)
                 return;
             var numColDefs = g.RowDefinitions.Count;
 
@@ -1152,7 +1150,6 @@ public partial class FATeachingTip : ContentControl
 
         if (_target != null)
         {
-            SetViewportChangedEvent(_target);
             _currentTargetBoundsInCoreWindowSpace = new Rect(_target.Bounds.Size)
                 .TransformToAABB(_target.TransformToVisual(TopLevel.GetTopLevel(_target)) ?? Matrix.Identity);
         }
@@ -1229,7 +1226,7 @@ public partial class FATeachingTip : ContentControl
 
         if (VisualRoot != null)
             _acceleratorKeyActivatedRevoker =
-                (TopLevel.GetTopLevel(this) as Interactive).AddDisposableHandler(KeyDownEvent,
+                TopLevel.GetTopLevel(this).AddDisposableHandler(KeyDownEvent,
                     OnF6PreviewKeyDownClicked, RoutingStrategies.Tunnel);
 
         // Make sure we are in the correct VSM state after ApplyTemplate and moving the template content from the Control to the Popup:
@@ -1419,7 +1416,7 @@ public partial class FATeachingTip : ContentControl
         {
             if (_previouslyFocusedElement != null)
             {
-                _previouslyFocusedElement.Focus(NavigationMethod.Unspecified);
+                _previouslyFocusedElement.Focus();
                 _previouslyFocusedElement = null;
 
                 return true;
@@ -1432,9 +1429,9 @@ public partial class FATeachingTip : ContentControl
             //Prefer the close button to the alternate, except when there is no content.
             if (CloseButtonContent == null) (firstButton, secondButton) = (_alternateCloseButton, _closeButton);
 
-            if (firstButton != null && firstButton.IsVisible)
+            if (firstButton is { IsVisible: true })
                 f6Button = firstButton;
-            else if (secondButton != null && secondButton.IsVisible) f6Button = secondButton;
+            else if (secondButton is { IsVisible: true }) f6Button = secondButton;
 
             if (f6Button != null)
             {
@@ -1474,7 +1471,6 @@ public partial class FATeachingTip : ContentControl
         var xamlRoot = TopLevel.GetTopLevel(this);
         if (xamlRoot != null)
         {
-            _currentXamlRootSize = xamlRoot.ClientSize;
             // In WinUI, they listen for XamlRoot changed, which would be changing the TopLevel in Avalonia
             // which is more than I want to do for a scenario that probably doesn't happen. However my old 
             // code listened for bounds change, so I'm going to keep that as is
@@ -1501,7 +1497,7 @@ public partial class FATeachingTip : ContentControl
         if (IsLightDismissEnabled)
         {
             var focusable = FocusManager.FindFirstFocusableElement(_rootElement);
-            focusable?.Focus(NavigationMethod.Unspecified);
+            focusable?.Focus();
         }
     }
 
@@ -1519,7 +1515,7 @@ public partial class FATeachingTip : ContentControl
         //If we were closed by the close button and we have tracked a previously focused element because F6 was used
         //To give the tip focus, then we return focus when the popup closes.
         if (_lastCloseReason == FATeachingTipCloseReason.CloseButton)
-            _previouslyFocusedElement?.Focus(NavigationMethod.Unspecified);
+            _previouslyFocusedElement?.Focus();
         _previouslyFocusedElement = null;
 
         if (ControlAutomationPeer.FromElement(this) is FATeachingTipAutomationPeer p)
@@ -1569,7 +1565,7 @@ public partial class FATeachingTip : ContentControl
 
     private void ClosePopupWithAnimationIfAvailable()
     {
-        if (_popup != null && _popup.IsOpen == true)
+        if (_popup is { IsOpen: true })
         {
             if (FAUISettings.AreAnimationsEnabled())
                 StartContractToClose();
@@ -1665,9 +1661,7 @@ public partial class FATeachingTip : ContentControl
             if (_target != null && isTargetLoaded)
             {
                 _currentTargetBoundsInCoreWindowSpace = new Rect(_target.Bounds.Size)
-                    .TransformToAABB(_target.TransformToVisual(TopLevel.GetTopLevel(this) as Visual).Value);
-
-                SetViewportChangedEvent(_target);
+                    .TransformToAABB(_target.TransformToVisual(TopLevel.GetTopLevel(this)).Value);
             }
 
             PositionPopup();
@@ -1685,32 +1679,10 @@ public partial class FATeachingTip : ContentControl
         }
     }
 
-    private static void SetViewportChangedEvent(Control target)
-    {
-        // This seems to only be used in the TeachingTipTestHooks stuff from WinUI so this is always false
-        // in normal operation I guess??
-
-        //if (_tipFollowsTarget)
-        //{
-        //    if (target != null)
-        //        target.EffectiveViewportChanged += OnTargetLayoutUpdated;
-
-        //    _effectiveViewportChangedRevoker = new EffectiveViewportRevoker(this, OnTargetLayoutUpdated);
-        //}
-    }
-
-    private void RevokeViewportChangedEvent()
-    {
-        _target?.EffectiveViewportChanged -= OnTargetLayoutUpdated;
-
-        //_effectiveViewportChangedRevoker?.Revoke();
-    }
-
     private void XamlRootChanged(Rect rc)
     {
         Dispatcher.UIThread.Post(() =>
         {
-            _currentXamlRootSize = TopLevel.GetTopLevel(this).ClientSize;
             RepositionPopup();
         }, DispatcherPriority.Render);
     }
@@ -1721,12 +1693,12 @@ public partial class FATeachingTip : ContentControl
         {
             var newTargetBounds = _target != null
                 ? new Rect(_target.Bounds.Size).TransformToAABB(_target
-                    .TransformToVisual(TopLevel.GetTopLevel(this) as Visual).Value)
+                    .TransformToVisual(TopLevel.GetTopLevel(this)).Value)
                 : default;
 
             var newCurrentBounds =
                 new Rect(Bounds.Size).TransformToAABB(
-                    this.TransformToVisual(TopLevel.GetTopLevel(this) as Visual).Value);
+                    this.TransformToVisual(TopLevel.GetTopLevel(this)).Value);
 
             if (newTargetBounds != _currentTargetBoundsInCoreWindowSpace ||
                 newCurrentBounds != _currentBoundsInCoreWindowSpace)
@@ -1768,7 +1740,7 @@ public partial class FATeachingTip : ContentControl
             _expandAnimation.SetScalarParameter("Height", s_defaultTipHeightAndWidth);
         }
 
-        _expandEasingFunction = new SplineEasing(0.1, 0.9, 0.2, 1);
+        _expandEasingFunction = new SplineEasing(0.1, 0.9, 0.2);
 
         _expandAnimation.InsertExpressionKeyFrame(0.0f,
             "Vector3(Min(0.01, 20.0 / Width), Min(0.01, 20.0 / Height), 1.0)");
@@ -1793,7 +1765,7 @@ public partial class FATeachingTip : ContentControl
         if (compositor == null)
             return;
 
-        _contractEasingFunction = new SplineEasing(0.1, 0.9, 0.2, 1);
+        _contractEasingFunction = new SplineEasing(0.1, 0.9, 0.2);
 
         _contractAnimation = compositor.CreateVector3KeyFrameAnimation();
 
@@ -1863,13 +1835,18 @@ public partial class FATeachingTip : ContentControl
             _expandAnimation = null;
         };
 
-        // Since we don't have ScopedBatch animation yet, we have to be hacky to await the
-        // animation to finish before we continue
-        if (_isExpandAnimationPlaying)
-            _scopedBatch.Start(_expandAnimationDuration);
-
-        // Under normal circumstances we would have launched an animation just now, if we did not then we should make sure that the idle state is correct
-        if (!_isExpandAnimationPlaying && !_isContractAnimationPlaying) SetIsIdle(true);
+        switch (_isExpandAnimationPlaying)
+        {
+            // Since we don't have ScopedBatch animation yet, we have to be hacky to await the
+            // animation to finish before we continue
+            case true:
+                _scopedBatch.Start(_expandAnimationDuration);
+                break;
+            // Under normal circumstances we would have launched an animation just now, if we did not then we should make sure that the idle state is correct
+            case false when !_isContractAnimationPlaying:
+                SetIsIdle(true);
+                break;
+        }
     }
 
     private void StartContractToClose()
@@ -2251,7 +2228,7 @@ public partial class FATeachingTip : ContentControl
 
     private Rect GetWindowBounds()
     {
-        return new Rect((TopLevel.GetTopLevel(this) as Visual)?.Bounds.Size ?? default);
+        return new Rect(TopLevel.GetTopLevel(this)?.Bounds.Size ?? default);
     }
 
     private static void GetPlacementFallbackOrder(FATeachingTipPlacementMode preferredPlacement,

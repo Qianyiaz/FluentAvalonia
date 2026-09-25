@@ -192,7 +192,7 @@ public partial class FANumberBox : TemplatedControl
         // never leaves the control, but we click back on it
         // Do this in Preview b/c TextBox will handle pointer event
         if (SpinButtonPlacementMode == FANumberBoxSpinButtonPlacementMode.Compact &&
-            _popup != null && !_popup.IsOpen && IsKeyboardFocusWithin)
+            _popup is { IsOpen: false } && IsKeyboardFocusWithin)
             _popup.IsOpen = true;
     }
 
@@ -423,40 +423,49 @@ public partial class FANumberBox : TemplatedControl
         // :spincollapsed will not be set on TextBox
         var sbm = SpinButtonPlacementMode;
 
-        if (sbm == FANumberBoxSpinButtonPlacementMode.Inline)
+        switch (sbm)
         {
-            PseudoClasses.Set(s_pcSpinVisible, true);
-            PseudoClasses.Set(s_pcSpinPopup, false);
-            PseudoClasses.Set(s_pcSpinCollapsed, false);
-
-            if (_textBox != null)
+            case FANumberBoxSpinButtonPlacementMode.Inline:
             {
-                ((IPseudoClasses)_textBox.Classes).Set(s_pcSpinVisible, true);
-                ((IPseudoClasses)_textBox.Classes).Set(s_pcSpinPopup, false);
+                PseudoClasses.Set(s_pcSpinVisible, true);
+                PseudoClasses.Set(s_pcSpinPopup, false);
+                PseudoClasses.Set(s_pcSpinCollapsed, false);
+
+                if (_textBox != null)
+                {
+                    ((IPseudoClasses)_textBox.Classes).Set(s_pcSpinVisible, true);
+                    ((IPseudoClasses)_textBox.Classes).Set(s_pcSpinPopup, false);
+                }
+
+                break;
             }
-        }
-        else if (sbm == FANumberBoxSpinButtonPlacementMode.Compact)
-        {
-            PseudoClasses.Set(s_pcSpinVisible, false);
-            PseudoClasses.Set(s_pcSpinPopup, true);
-            PseudoClasses.Set(s_pcSpinCollapsed, false);
-
-            if (_textBox != null)
+            case FANumberBoxSpinButtonPlacementMode.Compact:
             {
-                ((IPseudoClasses)_textBox.Classes).Set(s_pcSpinVisible, false);
-                ((IPseudoClasses)_textBox.Classes).Set(s_pcSpinPopup, true);
+                PseudoClasses.Set(s_pcSpinVisible, false);
+                PseudoClasses.Set(s_pcSpinPopup, true);
+                PseudoClasses.Set(s_pcSpinCollapsed, false);
+
+                if (_textBox != null)
+                {
+                    ((IPseudoClasses)_textBox.Classes).Set(s_pcSpinVisible, false);
+                    ((IPseudoClasses)_textBox.Classes).Set(s_pcSpinPopup, true);
+                }
+
+                break;
             }
-        }
-        else
-        {
-            PseudoClasses.Set(s_pcSpinVisible, false);
-            PseudoClasses.Set(s_pcSpinPopup, false);
-            PseudoClasses.Set(s_pcSpinCollapsed, true);
-
-            if (_textBox != null)
+            default:
             {
-                ((IPseudoClasses)_textBox.Classes).Set(s_pcSpinVisible, false);
-                ((IPseudoClasses)_textBox.Classes).Set(s_pcSpinPopup, false);
+                PseudoClasses.Set(s_pcSpinVisible, false);
+                PseudoClasses.Set(s_pcSpinPopup, false);
+                PseudoClasses.Set(s_pcSpinCollapsed, true);
+
+                if (_textBox != null)
+                {
+                    ((IPseudoClasses)_textBox.Classes).Set(s_pcSpinVisible, false);
+                    ((IPseudoClasses)_textBox.Classes).Set(s_pcSpinPopup, false);
+                }
+
+                break;
             }
         }
     }

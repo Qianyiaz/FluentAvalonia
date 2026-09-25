@@ -25,8 +25,7 @@ public enum FAFlowLayoutLineAlignment
 public class FAFlowLayout : FAVirtualizingLayout, IOrientationBasedMeasures, IFlowLayoutAlgorithmDelegates
 {
     public static readonly StyledProperty<FAFlowLayoutLineAlignment> LineAlignmentProperty =
-        AvaloniaProperty.Register<FAFlowLayout, FAFlowLayoutLineAlignment>(nameof(LineAlignment),
-            FAFlowLayoutLineAlignment.Start);
+        AvaloniaProperty.Register<FAFlowLayout, FAFlowLayoutLineAlignment>(nameof(LineAlignment));
 
     public static readonly StyledProperty<double> MinColumnSpacingProperty =
         AvaloniaProperty.Register<FAFlowLayout, double>(nameof(MinColumnSpacing));

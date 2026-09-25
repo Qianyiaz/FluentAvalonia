@@ -642,29 +642,37 @@ public partial class FARangeSlider : TemplatedControl
         if (!ShowValueToolTip)
             return;
 
-        if (open && !ToolTip.GetIsOpen(thumb))
+        switch (open)
         {
-            UnParentToolTip(_toolTip);
-            ToolTip.SetTip(thumb, _toolTip);
-            ToolTip.SetIsOpen(thumb, true);
-            ToolTip.SetPlacement(thumb, PlacementMode.Top);
-            ToolTip.SetVerticalOffset(thumb, -_containerCanvas.Bounds.Height);
-        }
-        else if (!open)
-        {
-            ToolTip.SetIsOpen(thumb, false);
-            UnParentToolTip(_toolTip);
-            ToolTip.SetTip(thumb, null);
+            case true when !ToolTip.GetIsOpen(thumb):
+                UnParentToolTip(_toolTip);
+                ToolTip.SetTip(thumb, _toolTip);
+                ToolTip.SetIsOpen(thumb, true);
+                ToolTip.SetPlacement(thumb, PlacementMode.Top);
+                ToolTip.SetVerticalOffset(thumb, -_containerCanvas.Bounds.Height);
+                break;
+            case false:
+                ToolTip.SetIsOpen(thumb, false);
+                UnParentToolTip(_toolTip);
+                ToolTip.SetTip(thumb, null);
+                break;
         }
     }
 
     private static void UnParentToolTip(Control c)
     {
-        if (c.Parent is Panel p)
-            p.Children.Remove(c);
-        else if (c.Parent is ContentControl cc)
-            cc.Content = null;
-        else if (c.Parent is Decorator d) d.Child = null;
+        switch (c.Parent)
+        {
+            case Panel p:
+                p.Children.Remove(c);
+                break;
+            case ContentControl cc:
+                cc.Content = null;
+                break;
+            case Decorator d:
+                d.Child = null;
+                break;
+        }
     }
 }
 
@@ -672,7 +680,7 @@ public partial class FARangeSlider : TemplatedControl
 // Extension classes can't be nested so its out here as an internal class =(
 internal static class DispatcherTimerExtensions
 {
-    private static ConcurrentDictionary<DispatcherTimer, Action> _debounceInstances = new();
+    private static readonly ConcurrentDictionary<DispatcherTimer, Action> _debounceInstances = new();
 
     public static void Debounce(this DispatcherTimer timer, Action action, TimeSpan interval, bool immediate = false)
     {

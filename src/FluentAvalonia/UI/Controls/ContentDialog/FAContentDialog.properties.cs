@@ -46,8 +46,7 @@ public partial class FAContentDialog
     ///     Defines the <see cref="DefaultButton" /> property
     /// </summary>
     public static readonly StyledProperty<FAContentDialogButton> DefaultButtonProperty =
-        AvaloniaProperty.Register<FAContentDialog, FAContentDialogButton>(nameof(DefaultButton),
-            FAContentDialogButton.None);
+        AvaloniaProperty.Register<FAContentDialog, FAContentDialogButton>(nameof(DefaultButton));
 
     /// <summary>
     ///     Defines the <see cref="IsPrimaryButtonEnabled" /> property

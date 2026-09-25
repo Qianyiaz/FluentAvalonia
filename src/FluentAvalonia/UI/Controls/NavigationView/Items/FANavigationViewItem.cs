@@ -450,21 +450,22 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
     {
         if (HasChildren && _repeater != null)
         {
-            if (ShouldRepeaterShowInFlyout && !_isRepeaterParentedToFlyout)
+            switch (ShouldRepeaterShowInFlyout)
             {
-                _rootGrid.Children.Remove(_repeater);
-                _flyoutContentGrid.Children.Add(_repeater);
-                _isRepeaterParentedToFlyout = true;
+                case true when !_isRepeaterParentedToFlyout:
+                    _rootGrid.Children.Remove(_repeater);
+                    _flyoutContentGrid.Children.Add(_repeater);
+                    _isRepeaterParentedToFlyout = true;
 
-                PropagateDepthToChildren(0);
-            }
-            else if (!ShouldRepeaterShowInFlyout && _isRepeaterParentedToFlyout)
-            {
-                _flyoutContentGrid.Children.Remove(_repeater);
-                _rootGrid.Children.Add(_repeater);
-                _isRepeaterParentedToFlyout = false;
+                    PropagateDepthToChildren(0);
+                    break;
+                case false when _isRepeaterParentedToFlyout:
+                    _flyoutContentGrid.Children.Remove(_repeater);
+                    _rootGrid.Children.Add(_repeater);
+                    _isRepeaterParentedToFlyout = false;
 
-                PropagateDepthToChildren(1);
+                    PropagateDepthToChildren(1);
+                    break;
             }
         }
     }
@@ -480,7 +481,7 @@ public partial class FANavigationViewItem : FANavigationViewItemBase
 
     internal void PropagateDepthToChildren(int depth)
     {
-        if (_repeater == null || _repeater.ItemsSourceView == null)
+        if (_repeater?.ItemsSourceView == null)
             return;
 
         var count = _repeater.ItemsSourceView.Count;

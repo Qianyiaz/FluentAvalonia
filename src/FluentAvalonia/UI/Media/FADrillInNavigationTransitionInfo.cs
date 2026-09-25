@@ -22,7 +22,7 @@ public class FADrillInNavigationTransitionInfo : FANavigationTransitionInfo
     {
         var animation = new Avalonia.Animation.Animation
         {
-            Easing = new SplineEasing(0.1, 0.9, 0.2, 1.0),
+            Easing = new SplineEasing(0.1, 0.9, 0.2),
             Children =
             {
                 new KeyFrame

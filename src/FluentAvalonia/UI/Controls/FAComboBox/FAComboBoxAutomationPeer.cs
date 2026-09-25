@@ -120,7 +120,7 @@ public class FAComboBoxAutomationPeer : SelectingItemsControlAutomationPeer,
             {
                 var result = AutomationProperties.GetName(c);
 
-                if (result is null && c is ContentControl cc && cc.Presenter?.Child is TextBlock text)
+                if (result is null && c is ContentControl { Presenter.Child: TextBlock text })
                     result = text.Text;
 
                 if (result is null) result = c.GetValue(ContentControl.ContentProperty)?.ToString();

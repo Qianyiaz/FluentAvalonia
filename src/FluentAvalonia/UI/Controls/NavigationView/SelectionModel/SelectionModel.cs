@@ -51,7 +51,7 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
                 // Only update selection and raise SelectionChanged event when:
                 // - we switch from SelectionMode::Multiple to SelectionMode::Single and
                 // - more than one item was selected at the time of the switch
-                if (value && selectedIndices != null && selectedIndices.Count > 1)
+                if (value && selectedIndices is { Count: > 1 })
                 {
                     // We want to be single select, so make sure there is only 
                     // one selected item.
@@ -74,7 +74,7 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
             {
                 var path = new List<int>();
                 var current = _rootNode;
-                while (current != null && current.AnchorIndex >= 0)
+                while (current is { AnchorIndex: >= 0 })
                 {
                     path.Add(current.AnchorIndex);
                     current = current.GetAt(current.AnchorIndex, false);
@@ -103,7 +103,7 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
         {
             var selectedIndex = IndexPath.Unselected;
             var selectedIndices = SelectedIndices;
-            if (selectedIndices != null && selectedIndices.Count > 0) selectedIndex = selectedIndices[0];
+            if (selectedIndices is { Count: > 0 }) selectedIndex = selectedIndices[0];
 
             return selectedIndex;
         }
@@ -125,7 +125,7 @@ internal class SelectionModel : INotifyPropertyChanged, IDisposable
         {
             object item = null;
             var selectedItems = SelectedItems;
-            if (selectedItems != null && selectedItems.Count > 0) item = selectedItems[0];
+            if (selectedItems is { Count: > 0 }) item = selectedItems[0];
 
             return item;
         }

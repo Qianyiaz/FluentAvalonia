@@ -7,7 +7,7 @@ namespace FluentAvalonia.UI.Controls;
 /// </summary>
 public class FATabViewTabDragCompletedEventArgs : EventArgs
 {
-    private DragItemsCompletedEventArgs _innerArgs;
+    private readonly DragItemsCompletedEventArgs _innerArgs;
 
     internal FATabViewTabDragCompletedEventArgs(DragItemsCompletedEventArgs args, object item, FATabViewItem tab)
     {

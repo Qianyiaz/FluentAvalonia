@@ -174,7 +174,7 @@ public partial class FANavigationView : HeaderedContentControl
     ///     Defines the <see cref="IsBackEnabled" /> property
     /// </summary>
     public static readonly StyledProperty<bool> IsBackEnabledProperty =
-        AvaloniaProperty.Register<FANavigationView, bool>(nameof(IsBackEnabled), false);
+        AvaloniaProperty.Register<FANavigationView, bool>(nameof(IsBackEnabled));
 
     /// <summary>
     ///     Defines the <see cref="IsPaneOpen" /> property
@@ -244,8 +244,7 @@ public partial class FANavigationView : HeaderedContentControl
     ///     Defines the <see cref="PaneDisplayMode" /> property
     /// </summary>
     public static readonly StyledProperty<FANavigationViewPaneDisplayMode> PaneDisplayModeProperty =
-        AvaloniaProperty.Register<FANavigationView, FANavigationViewPaneDisplayMode>(nameof(PaneDisplayMode),
-            FANavigationViewPaneDisplayMode.Auto);
+        AvaloniaProperty.Register<FANavigationView, FANavigationViewPaneDisplayMode>(nameof(PaneDisplayMode));
 
     /// <summary>
     ///     Defines the <see cref="PaneFooter" /> property
@@ -541,7 +540,7 @@ public partial class FANavigationView : HeaderedContentControl
     public object SelectedItem
     {
         get;
-        set { SetAndRaise(SelectedItemProperty, ref field, value); }
+        set => SetAndRaise(SelectedItemProperty, ref field, value);
     }
 
     //WinUI uses an enum here, but only has Disabled/Enabled, so just use bool

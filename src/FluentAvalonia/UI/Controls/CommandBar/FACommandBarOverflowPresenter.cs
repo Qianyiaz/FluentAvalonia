@@ -90,64 +90,70 @@ public class FACommandBarOverflowPresenter : ItemsControl
     private void RegisterItems(IList l)
     {
         for (var i = 0; i < l.Count; i++)
-            if (l[i] is FACommandBarButton cbb)
+            switch (l[i])
             {
-                if (cbb.IconSource != null)
-                    _hasIcons++;
+                case FACommandBarButton cbb:
+                {
+                    if (cbb.IconSource != null)
+                        _hasIcons++;
 
-                cbb.IsInOverflow = true;
-            }
-            else if (l[i] is FACommandBarToggleButton cbtb)
-            {
-                _hasToggle++;
+                    cbb.IsInOverflow = true;
+                    break;
+                }
+                case FACommandBarToggleButton cbtb:
+                {
+                    _hasToggle++;
 
-                if (cbtb.IconSource != null)
-                    _hasIcons++;
+                    if (cbtb.IconSource != null)
+                        _hasIcons++;
 
-                cbtb.IsInOverflow = true;
-            }
-            else if (l[i] is FACommandBarElementContainer cont)
-            {
-                cont.IsInOverflow = true;
-            }
-            else if (l[i] is FACommandBarSeparator sep)
-            {
-                sep.IsInOverflow = true;
+                    cbtb.IsInOverflow = true;
+                    break;
+                }
+                case FACommandBarElementContainer cont:
+                    cont.IsInOverflow = true;
+                    break;
+                case FACommandBarSeparator sep:
+                    sep.IsInOverflow = true;
+                    break;
             }
     }
 
     private void UnregisterItems(IList l)
     {
         for (var i = 0; i < l.Count; i++)
-            if (l[i] is FACommandBarButton cbb)
+            switch (l[i])
             {
-                if (cbb.IconSource != null)
-                    _hasIcons--;
+                case FACommandBarButton cbb:
+                {
+                    if (cbb.IconSource != null)
+                        _hasIcons--;
 
-                cbb.IsInOverflow = false;
-                ((IPseudoClasses)cbb.Classes).Set(s_pcIcons, false);
-                ((IPseudoClasses)cbb.Classes).Set(s_pcToggle, false);
-            }
-            else if (l[i] is FACommandBarToggleButton cbtb)
-            {
-                _hasToggle--;
+                    cbb.IsInOverflow = false;
+                    ((IPseudoClasses)cbb.Classes).Set(s_pcIcons, false);
+                    ((IPseudoClasses)cbb.Classes).Set(s_pcToggle, false);
+                    break;
+                }
+                case FACommandBarToggleButton cbtb:
+                {
+                    _hasToggle--;
 
-                if (cbtb.IconSource != null)
-                    _hasIcons--;
+                    if (cbtb.IconSource != null)
+                        _hasIcons--;
 
-                cbtb.IsInOverflow = false;
-                ((IPseudoClasses)cbtb.Classes).Set(s_pcIcons, false);
-                ((IPseudoClasses)cbtb.Classes).Set(s_pcToggle, false);
-            }
-            else if (l[i] is FACommandBarElementContainer cont)
-            {
-                cont.IsInOverflow = false;
-                ((IPseudoClasses)cont.Classes).Set(s_pcIcons, false);
-                ((IPseudoClasses)cont.Classes).Set(s_pcToggle, false);
-            }
-            else if (l[i] is FACommandBarSeparator sep)
-            {
-                sep.IsInOverflow = false;
+                    cbtb.IsInOverflow = false;
+                    ((IPseudoClasses)cbtb.Classes).Set(s_pcIcons, false);
+                    ((IPseudoClasses)cbtb.Classes).Set(s_pcToggle, false);
+                    break;
+                }
+                case FACommandBarElementContainer cont:
+                    cont.IsInOverflow = false;
+                    ((IPseudoClasses)cont.Classes).Set(s_pcIcons, false);
+                    ((IPseudoClasses)cont.Classes).Set(s_pcToggle, false);
+                    break;
+                case FACommandBarSeparator sep:
+                    sep.IsInOverflow = false;
+                    break;
             }
     }
 
@@ -158,7 +164,7 @@ public class FACommandBarOverflowPresenter : ItemsControl
         var icon = _hasIcons > 0;
         var toggle = _hasToggle > 0;
         for (var i = 0; i < items.Count; i++)
-            if (items[i] is Control c && c.Classes is IPseudoClasses pc)
+            if (items[i] is Control { Classes: IPseudoClasses pc })
             {
                 pc.Set(s_pcIcons, icon);
                 pc.Set(s_pcToggle, toggle);

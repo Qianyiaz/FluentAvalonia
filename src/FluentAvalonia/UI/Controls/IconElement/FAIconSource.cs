@@ -40,32 +40,35 @@ public class IconSourceConverter : TypeConverter
 
     public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
     {
-        if (value is FASymbol symbol) return new FASymbolIconSource { Symbol = symbol };
-
-        if (value is IImage img) return new FAImageIconSource { Source = img };
-
-        if (value is string val)
+        switch (value)
         {
-            //First we try if the text is a valid Symbol
-            if (Enum.TryParse<FASymbol>(val, out var sym)) return new FASymbolIconSource { Symbol = sym };
-
-            //Try a PathIcon
-            if (FAPathIcon.IsDataValid(val, out var g)) return new FAPathIconSource { Data = g };
-
-            try
+            case FASymbol symbol:
+                return new FASymbolIconSource { Symbol = symbol };
+            case IImage img:
+                return new FAImageIconSource { Source = img };
+            case string val:
             {
-                if (Uri.TryCreate(val, UriKind.RelativeOrAbsolute, out var result))
-                    return new FABitmapIconSource { UriSource = result };
-            }
-            catch
-            {
-            }
+                //First we try if the text is a valid Symbol
+                if (Enum.TryParse<FASymbol>(val, out var sym)) return new FASymbolIconSource { Symbol = sym };
 
-            //If we've reached this point, we'll make a FontIcon
-            //Glyph can be anything (sort of), so we don't need to Try/Catch
-            return new FAFontIconSource { Glyph = val };
+                //Try a PathIcon
+                if (FAPathIcon.IsDataValid(val, out var g)) return new FAPathIconSource { Data = g };
+
+                try
+                {
+                    if (Uri.TryCreate(val, UriKind.RelativeOrAbsolute, out var result))
+                        return new FABitmapIconSource { UriSource = result };
+                }
+                catch
+                {
+                }
+
+                //If we've reached this point, we'll make a FontIcon
+                //Glyph can be anything (sort of), so we don't need to Try/Catch
+                return new FAFontIconSource { Glyph = val };
+            }
+            default:
+                return base.ConvertFrom(context, culture, value);
         }
-
-        return base.ConvertFrom(context, culture, value);
     }
 }

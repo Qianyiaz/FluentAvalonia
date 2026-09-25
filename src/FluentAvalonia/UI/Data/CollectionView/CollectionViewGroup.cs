@@ -142,7 +142,7 @@ internal class SpecializedCollectionViewGroup : CollectionViewGroup, IComparer<o
             if (filter != null && !filter(item))
                 continue;
 
-            if (sortDesc != null && sortDesc.Count > 0)
+            if (sortDesc is { Count: > 0 })
             {
                 var targetIndex = _view.BinarySearch(item, this);
                 if (targetIndex < 0)
@@ -313,7 +313,7 @@ internal class SpecializedCollectionViewGroup : CollectionViewGroup, IComparer<o
             if (filter != null && !filter(item))
                 continue;
 
-            if (sortDesc != null && sortDesc.Count > 0)
+            if (sortDesc is { Count: > 0 })
             {
                 var targetIndex = _view.BinarySearch(item, this);
                 if (targetIndex < 0)
@@ -350,7 +350,7 @@ internal class SpecializedCollectionViewGroup : CollectionViewGroup, IComparer<o
 
         var newViewIndex = _view.Count;
 
-        if (sortDesc != null && sortDesc.Count > 0)
+        if (sortDesc is { Count: > 0 })
         {
             //_sortProperties.Clear();
             newViewIndex = _view.BinarySearch(newItem, this);
@@ -433,7 +433,7 @@ internal class SpecializedCollectionViewGroup : CollectionViewGroup, IComparer<o
 
 internal class CollectionWrapper : IAvaloniaList<object>, IList // IList for INCC compatibility
 {
-    private IEnumerable _collection;
+    private readonly IEnumerable _collection;
 
     public CollectionWrapper(IEnumerable collection)
     {
@@ -456,7 +456,7 @@ internal class CollectionWrapper : IAvaloniaList<object>, IList // IList for INC
 
     public int Count => _collection.Count();
 
-    public bool IsReadOnly => _collection is ICollection<object> col && col.IsReadOnly;
+    public bool IsReadOnly => _collection is ICollection<object> { IsReadOnly: true };
 
     public event NotifyCollectionChangedEventHandler CollectionChanged;
     public event PropertyChangedEventHandler PropertyChanged;

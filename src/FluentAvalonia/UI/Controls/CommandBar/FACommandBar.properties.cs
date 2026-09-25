@@ -81,8 +81,7 @@ public partial class FACommandBar
     ///     Defines the <see cref="ItemsAlignment" /> property
     /// </summary>
     public static readonly StyledProperty<FACommandBarItemsAlignment> ItemsAlignmentProperty =
-        AvaloniaProperty.Register<FACommandBar, FACommandBarItemsAlignment>(nameof(ItemsAlignment),
-            FACommandBarItemsAlignment.Left);
+        AvaloniaProperty.Register<FACommandBar, FACommandBarItemsAlignment>(nameof(ItemsAlignment));
 
     /// <summary>
     ///     Defines the <see cref="DefaultLabelPosition" /> property

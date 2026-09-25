@@ -52,8 +52,8 @@ public class FABreadcrumbBar : TemplatedControl
     private BreadcrumbIterable _itemsIterable;
 
     private FAItemsRepeater _itemsRepeater;
-    private BreadcrumbElementFactory _itemsRepeaterElementFactory;
-    private BreadcrumbLayout _itemsRepeaterLayout;
+    private readonly BreadcrumbElementFactory _itemsRepeaterElementFactory;
+    private readonly BreadcrumbLayout _itemsRepeaterLayout;
     private FABreadcrumbBarItem _lastBreadcrumbBarItem;
 
     public FABreadcrumbBar()
@@ -308,8 +308,7 @@ public class FABreadcrumbBar : TemplatedControl
 
     internal IEnumerable<object> HiddenElements()
     {
-        if (_itemsRepeater != null && _itemsRepeaterLayout != null &&
-            _itemsRepeaterLayout.EllipsisIsRendered)
+        if (_itemsRepeater != null && _itemsRepeaterLayout is { EllipsisIsRendered: true })
             return GetHiddenElementsList(_itemsRepeaterLayout.FirstRenderedItemIndexAfterEllipsis);
 
         return null;
@@ -471,24 +470,31 @@ public class FABreadcrumbBar : TemplatedControl
         var keyIsLeft = args.Key == Key.Left;
         var keyIsRight = args.Key == Key.Right;
 
-        // Moving to the next element
-        if ((flowDirectionIsLtr && keyIsRight) || (!flowDirectionIsLtr && keyIsLeft))
+        switch (flowDirectionIsLtr)
         {
-            if (MoveFocusNext())
+            // Moving to the next element
+            case true when keyIsRight:
+            case false when keyIsLeft:
             {
-                args.Handled = true;
-                return;
+                if (MoveFocusNext())
+                {
+                    args.Handled = true;
+                    return;
+                }
+                // Gamepad
+                break;
             }
-            // Gamepad
-        }
-        else if ((flowDirectionIsLtr && keyIsLeft) || (!flowDirectionIsLtr && keyIsRight))
-        {
-            if (MoveFocusPrevious())
+            case true when keyIsLeft:
+            case false when keyIsRight:
             {
-                args.Handled = true;
-                return;
+                if (MoveFocusPrevious())
+                {
+                    args.Handled = true;
+                    return;
+                }
+                // Gamepad
+                break;
             }
-            // Gamepad
         }
     }
 

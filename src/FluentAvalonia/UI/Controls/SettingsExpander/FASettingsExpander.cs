@@ -172,9 +172,7 @@ public partial class FASettingsExpander : HeaderedItemsControl, ICommandSource
     {
         base.ClearContainerForItemOverride(container);
 
-        if (container is FASettingsExpanderItem sei)
-            if (sei.IconSource != null)
-                _iconCount--;
+        if (container is FASettingsExpanderItem { IconSource: not null }) _iconCount--;
     }
 
     protected override Size MeasureOverride(Size availableSize)

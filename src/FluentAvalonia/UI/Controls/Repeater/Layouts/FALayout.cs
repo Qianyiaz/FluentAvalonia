@@ -47,28 +47,34 @@ public abstract class FALayout : AvaloniaObject
 
     private static FAVirtualizingLayoutContext GetVirtualizingLayoutContext(FALayoutContext context)
     {
-        if (context is FAVirtualizingLayoutContext vlc) return vlc;
-
-        if (context is FANonVirtualizingLayoutContext nvlc)
+        switch (context)
         {
-            var adapter = nvlc.GetVirtualizingContextAdapter();
-            return adapter;
+            case FAVirtualizingLayoutContext vlc:
+                return vlc;
+            case FANonVirtualizingLayoutContext nvlc:
+            {
+                var adapter = nvlc.GetVirtualizingContextAdapter();
+                return adapter;
+            }
+            default:
+                throw new NotImplementedException();
         }
-
-        throw new NotImplementedException();
     }
 
     private static FANonVirtualizingLayoutContext GetNonVirtualizingLayoutContext(FALayoutContext context)
     {
-        if (context is FANonVirtualizingLayoutContext nvlc) return nvlc;
-
-        if (context is FAVirtualizingLayoutContext vlc)
+        switch (context)
         {
-            var adapter = vlc.GetNonVirtualizingContextAdapter();
-            return adapter;
+            case FANonVirtualizingLayoutContext nvlc:
+                return nvlc;
+            case FAVirtualizingLayoutContext vlc:
+            {
+                var adapter = vlc.GetNonVirtualizingContextAdapter();
+                return adapter;
+            }
+            default:
+                throw new NotImplementedException();
         }
-
-        throw new NotImplementedException();
     }
 
     /// <summary>
@@ -76,19 +82,22 @@ public abstract class FALayout : AvaloniaObject
     /// </summary>
     public void InitializeForContext(FALayoutContext context)
     {
-        if (this is FAVirtualizingLayout vl)
+        switch (this)
         {
-            var vc = GetVirtualizingLayoutContext(context);
-            vl.InitializeForContextCore(vc);
-        }
-        else if (this is FANonVirtualizingLayout nvl)
-        {
-            var nvc = GetNonVirtualizingLayoutContext(context);
-            nvl.InitializeForContextCore(nvc);
-        }
-        else
-        {
-            throw new NotImplementedException();
+            case FAVirtualizingLayout vl:
+            {
+                var vc = GetVirtualizingLayoutContext(context);
+                vl.InitializeForContextCore(vc);
+                break;
+            }
+            case FANonVirtualizingLayout nvl:
+            {
+                var nvc = GetNonVirtualizingLayoutContext(context);
+                nvl.InitializeForContextCore(nvc);
+                break;
+            }
+            default:
+                throw new NotImplementedException();
         }
     }
 
@@ -97,19 +106,22 @@ public abstract class FALayout : AvaloniaObject
     /// </summary>
     public void UninitializeForContext(FALayoutContext context)
     {
-        if (this is FAVirtualizingLayout vl)
+        switch (this)
         {
-            var vc = GetVirtualizingLayoutContext(context);
-            vl.UninitializeForContextCore(vc);
-        }
-        else if (this is FANonVirtualizingLayout nvl)
-        {
-            var nvc = GetNonVirtualizingLayoutContext(context);
-            nvl.UninitializeForContextCore(nvc);
-        }
-        else
-        {
-            throw new NotImplementedException();
+            case FAVirtualizingLayout vl:
+            {
+                var vc = GetVirtualizingLayoutContext(context);
+                vl.UninitializeForContextCore(vc);
+                break;
+            }
+            case FANonVirtualizingLayout nvl:
+            {
+                var nvc = GetNonVirtualizingLayoutContext(context);
+                nvl.UninitializeForContextCore(nvc);
+                break;
+            }
+            default:
+                throw new NotImplementedException();
         }
     }
 
@@ -120,19 +132,21 @@ public abstract class FALayout : AvaloniaObject
     /// </summary>
     public Size Measure(FALayoutContext context, Size availableSize)
     {
-        if (this is FAVirtualizingLayout vl)
+        switch (this)
         {
-            var vc = GetVirtualizingLayoutContext(context);
-            return vl.MeasureOverride(vc, availableSize);
+            case FAVirtualizingLayout vl:
+            {
+                var vc = GetVirtualizingLayoutContext(context);
+                return vl.MeasureOverride(vc, availableSize);
+            }
+            case FANonVirtualizingLayout nvl:
+            {
+                var nvc = GetNonVirtualizingLayoutContext(context);
+                return nvl.MeasureOverride(nvc, availableSize);
+            }
+            default:
+                throw new NotImplementedException();
         }
-
-        if (this is FANonVirtualizingLayout nvl)
-        {
-            var nvc = GetNonVirtualizingLayoutContext(context);
-            return nvl.MeasureOverride(nvc, availableSize);
-        }
-
-        throw new NotImplementedException();
     }
 
     /// <summary>
@@ -142,19 +156,21 @@ public abstract class FALayout : AvaloniaObject
     /// </summary>
     public Size Arrange(FALayoutContext context, Size finalSize)
     {
-        if (this is FAVirtualizingLayout vl)
+        switch (this)
         {
-            var vc = GetVirtualizingLayoutContext(context);
-            return vl.ArrangeOverride(vc, finalSize);
+            case FAVirtualizingLayout vl:
+            {
+                var vc = GetVirtualizingLayoutContext(context);
+                return vl.ArrangeOverride(vc, finalSize);
+            }
+            case FANonVirtualizingLayout nvl:
+            {
+                var nvc = GetNonVirtualizingLayoutContext(context);
+                return nvl.ArrangeOverride(nvc, finalSize);
+            }
+            default:
+                throw new NotImplementedException();
         }
-
-        if (this is FANonVirtualizingLayout nvl)
-        {
-            var nvc = GetNonVirtualizingLayoutContext(context);
-            return nvl.ArrangeOverride(nvc, finalSize);
-        }
-
-        throw new NotImplementedException();
     }
 
     /// <summary>

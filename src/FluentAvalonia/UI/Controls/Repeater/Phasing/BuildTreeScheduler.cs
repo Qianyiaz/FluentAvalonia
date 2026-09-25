@@ -4,10 +4,10 @@ namespace FluentAvalonia.UI.Controls;
 
 internal static class BuildTreeScheduler
 {
-    private static double _budgetInMs = 40;
+    private static readonly double _budgetInMs = 40;
     private static readonly object _lockObj = new();
 
-    [ThreadStatic] private static QPCTimer _timer = new();
+    [ThreadStatic] private static readonly QPCTimer _timer = new();
 
     [ThreadStatic] private static readonly List<WorkInfo> _pendingWork = [];
 
@@ -79,5 +79,5 @@ internal struct WorkInfo
 
     public void InvokeWorkFunc() => _workFunc.Invoke();
 
-    private Action _workFunc;
+    private readonly Action _workFunc;
 }

@@ -91,19 +91,23 @@ public class FATextCommandBarFlyout : FACommandBarFlyout
         var toAdd = TextControlButtons.None;
         var target = Target;
 
-        // Since we don't have RichTextBox, RichTextBlock, or PasswordBox, we'll just let TextBox get all
-        // of those where appropriate. TextBlock will stay the same. Basically no Bold/Italic/Underline
-        // commands until RichTextBox is added to Avalonia
-        if (target is TextBox tbTarget)
+        switch (target)
         {
-            if (tbTarget.PasswordChar != default(char))
-                toAdd = GetPasswordBoxButtonsToAdd(tbTarget);
-            else
-                toAdd = GetTextBoxButtonsToAdd(tbTarget);
-        }
-        else if (target is TextBlock txtTarget) // This also handles SelectableTextBlock
-        {
-            toAdd = GetTextBlockButtonsToAdd(txtTarget);
+            // Since we don't have RichTextBox, RichTextBlock, or PasswordBox, we'll just let TextBox get all
+            // of those where appropriate. TextBlock will stay the same. Basically no Bold/Italic/Underline
+            // commands until RichTextBox is added to Avalonia
+            case TextBox tbTarget:
+            {
+                if (tbTarget.PasswordChar != default(char))
+                    toAdd = GetPasswordBoxButtonsToAdd(tbTarget);
+                else
+                    toAdd = GetTextBoxButtonsToAdd(tbTarget);
+                break;
+            }
+            // This also handles SelectableTextBlock
+            case TextBlock txtTarget:
+                toAdd = GetTextBlockButtonsToAdd(txtTarget);
+                break;
         }
 
         return toAdd;
@@ -201,11 +205,18 @@ public class FATextCommandBarFlyout : FACommandBarFlyout
         {
             try
             {
-                if (target is TextBox tb)
-                    tb.Copy();
-                else if (target is SelectableTextBlock stb)
-                    stb.Copy();
-                else if (target is TextBlock txtB) await TopLevel.GetTopLevel(Target).Clipboard.SetTextAsync(txtB.Text);
+                switch (target)
+                {
+                    case TextBox tb:
+                        tb.Copy();
+                        break;
+                    case SelectableTextBlock stb:
+                        stb.Copy();
+                        break;
+                    case TextBlock txtB:
+                        await TopLevel.GetTopLevel(Target).Clipboard.SetTextAsync(txtB.Text);
+                        break;
+                }
             }
             catch
             {
@@ -223,14 +234,17 @@ public class FATextCommandBarFlyout : FACommandBarFlyout
         {
             try
             {
-                if (target is TextBox tb)
+                switch (target)
                 {
-                    tb.Paste();
-                }
-                else if (target is TextBlock txtB)
-                {
-                    var txt = await TopLevel.GetTopLevel(target).Clipboard.TryGetTextAsync();
-                    if (txt != null) txtB.Text = txt;
+                    case TextBox tb:
+                        tb.Paste();
+                        break;
+                    case TextBlock txtB:
+                    {
+                        var txt = await TopLevel.GetTopLevel(target).Clipboard.TryGetTextAsync();
+                        if (txt != null) txtB.Text = txt;
+                        break;
+                    }
                 }
             }
             catch

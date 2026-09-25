@@ -50,42 +50,49 @@ public class IconElementConverter : TypeConverter
 
     public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
     {
-        if (value is FASymbol symbol) return new FASymbolIcon { Symbol = symbol };
-
-        if (value is FAIconSource ico)
+        switch (value)
         {
-            if (ico is FAFontIconSource fis) return FAIconHelpers.CreateFontIconFromFontIconSource(fis);
-
-            if (ico is FASymbolIconSource sis) return FAIconHelpers.CreateSymbolIconFromSymbolIconSource(sis);
-
-            if (ico is FAPathIconSource pis) return FAIconHelpers.CreatePathIconFromPathIconSource(pis);
-
-            if (ico is FABitmapIconSource bis) return FAIconHelpers.CreateBitmapIconFromBitmapIconSource(bis);
-        }
-        else if (value is IImage img)
-        {
-            return new FAImageIcon { Source = img };
-        }
-        else if (value is string val)
-        {
-            //First we try if the text is a valid Symbol
-            if (Enum.TryParse<FASymbol>(val, out var sym)) return new FASymbolIcon { Symbol = sym };
-
-            //Try a PathIcon
-            if (FAPathIcon.IsDataValid(val, out var g)) return new FAPathIcon { Data = g };
-
-            try
+            case FASymbol symbol:
+                return new FASymbolIcon { Symbol = symbol };
+            case FAIconSource ico:
             {
-                if (Uri.TryCreate(val, UriKind.RelativeOrAbsolute, out var result))
-                    return new FABitmapIcon { UriSource = result };
-            }
-            catch
-            {
-            }
+                switch (ico)
+                {
+                    case FAFontIconSource fis:
+                        return FAIconHelpers.CreateFontIconFromFontIconSource(fis);
+                    case FASymbolIconSource sis:
+                        return FAIconHelpers.CreateSymbolIconFromSymbolIconSource(sis);
+                    case FAPathIconSource pis:
+                        return FAIconHelpers.CreatePathIconFromPathIconSource(pis);
+                    case FABitmapIconSource bis:
+                        return FAIconHelpers.CreateBitmapIconFromBitmapIconSource(bis);
+                }
 
-            // If we've reached this point, we'll make a FontIcon
-            // Glyph can be anything (sort of), so we don't need to Try/Catch
-            return new FAFontIcon { Glyph = val };
+                break;
+            }
+            case IImage img:
+                return new FAImageIcon { Source = img };
+            case string val:
+            {
+                //First we try if the text is a valid Symbol
+                if (Enum.TryParse<FASymbol>(val, out var sym)) return new FASymbolIcon { Symbol = sym };
+
+                //Try a PathIcon
+                if (FAPathIcon.IsDataValid(val, out var g)) return new FAPathIcon { Data = g };
+
+                try
+                {
+                    if (Uri.TryCreate(val, UriKind.RelativeOrAbsolute, out var result))
+                        return new FABitmapIcon { UriSource = result };
+                }
+                catch
+                {
+                }
+
+                // If we've reached this point, we'll make a FontIcon
+                // Glyph can be anything (sort of), so we don't need to Try/Catch
+                return new FAFontIcon { Glyph = val };
+            }
         }
 
         return base.ConvertFrom(context, culture, value);

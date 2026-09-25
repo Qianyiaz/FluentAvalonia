@@ -163,5 +163,5 @@ internal struct IndexPath : IComparable<IndexPath>, IEquatable<IndexPath>
         return (x ?? default).CompareTo(y ?? default) != 0;
     }
 
-    private IList<int> _path;
+    private readonly IList<int> _path;
 }

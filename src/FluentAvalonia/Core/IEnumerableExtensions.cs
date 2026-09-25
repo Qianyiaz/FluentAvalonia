@@ -14,12 +14,15 @@ internal static class IEnumerableExtensions
     /// </summary>
     public static int Count(this IEnumerable items)
     {
-        if (items == null)
-            return 0;
-
-        if (items is ICollection collec) return collec.Count;
-
-        return Enumerable.Count(items.Cast<object>());
+        switch (items)
+        {
+            case null:
+                return 0;
+            case ICollection collec:
+                return collec.Count;
+            default:
+                return Enumerable.Count(items.Cast<object>());
+        }
     }
 
     /// <summary>

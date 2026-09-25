@@ -384,7 +384,7 @@ public partial class FAItemsRepeater : Panel
         {
             var element = children[i];
             var virtInfo = TryGetVirtualizationInfo(element);
-            if (virtInfo != null && virtInfo.IsRealized && virtInfo.Index == index) result = element;
+            if (virtInfo is { IsRealized: true } && virtInfo.Index == index) result = element;
         }
 
         return result;
@@ -529,14 +529,21 @@ public partial class FAItemsRepeater : Panel
             {
                 _processingItemsSourceChange = args;
 
-                if (layout is FAVirtualizingLayout vl)
-                    vl.OnItemsChangedCore(GetLayoutContext(), newValue, args);
-                else if (layout is FANonVirtualizingLayout)
+                switch (layout)
+                {
+                    case FAVirtualizingLayout vl:
+                        vl.OnItemsChangedCore(GetLayoutContext(), newValue, args);
+                        break;
                     // Walk through all the elements and make sure they are cleared for
                     // non-virtualizing layouts.
-                    foreach (var child in Children)
-                        if (GetVirtualizationInfo(child).IsRealized)
-                            ClearElementImpl(child);
+                    case FANonVirtualizingLayout:
+                    {
+                        foreach (var child in Children)
+                            if (GetVirtualizationInfo(child).IsRealized)
+                                ClearElementImpl(child);
+                        break;
+                    }
+                }
             }
             finally
             {
@@ -602,7 +609,7 @@ public partial class FAItemsRepeater : Panel
                 _transitionManager.OnTransitionProviderChanged(newValue.CreateDefaultItemTransitionProvider());
         }
 
-        var isVirtualizingLayout = newValue != null && newValue is FAVirtualizingLayout;
+        var isVirtualizingLayout = newValue is FAVirtualizingLayout;
         _viewportManager.OnLayoutChanged(isVirtualizingLayout);
         InvalidateMeasure();
     }

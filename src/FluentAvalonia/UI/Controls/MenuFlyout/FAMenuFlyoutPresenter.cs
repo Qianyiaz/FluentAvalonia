@@ -63,25 +63,32 @@ public class FAMenuFlyoutPresenter : ItemsControl
         mfib.InternalParent = this;
         var iconCount = _iconCount;
         var toggleCount = _toggleCount;
-        if (element is FAToggleMenuFlyoutItem tmfi)
+        switch (element)
         {
-            if (tmfi.IconSource != null) iconCount++;
+            case FAToggleMenuFlyoutItem tmfi:
+            {
+                if (tmfi.IconSource != null) iconCount++;
 
-            toggleCount++;
-        }
-        else if (element is FARadioMenuFlyoutItem rmfi)
-        {
-            if (rmfi.IconSource != null) iconCount++;
+                toggleCount++;
+                break;
+            }
+            case FARadioMenuFlyoutItem rmfi:
+            {
+                if (rmfi.IconSource != null) iconCount++;
 
-            toggleCount++;
-        }
-        else if (element is FAMenuFlyoutItem mfi)
-        {
-            if (mfi.IconSource != null) iconCount++;
-        }
-        else if (element is FAMenuFlyoutSubItem mfsi)
-        {
-            if (mfsi.IconSource != null) iconCount++;
+                toggleCount++;
+                break;
+            }
+            case FAMenuFlyoutItem mfi:
+            {
+                if (mfi.IconSource != null) iconCount++;
+                break;
+            }
+            case FAMenuFlyoutSubItem mfsi:
+            {
+                if (mfsi.IconSource != null) iconCount++;
+                break;
+            }
         }
 
         if (iconCount != _iconCount || _toggleCount != toggleCount)
@@ -103,25 +110,32 @@ public class FAMenuFlyoutPresenter : ItemsControl
         var iconCount = _iconCount;
         var toggleCount = _toggleCount;
 
-        if (element is FAToggleMenuFlyoutItem tmfi)
+        switch (element)
         {
-            if (tmfi.IconSource != null) iconCount--;
+            case FAToggleMenuFlyoutItem tmfi:
+            {
+                if (tmfi.IconSource != null) iconCount--;
 
-            toggleCount--;
-        }
-        else if (element is FARadioMenuFlyoutItem rmfi)
-        {
-            if (rmfi.IconSource != null) iconCount--;
+                toggleCount--;
+                break;
+            }
+            case FARadioMenuFlyoutItem rmfi:
+            {
+                if (rmfi.IconSource != null) iconCount--;
 
-            toggleCount--;
-        }
-        else if (element is FAMenuFlyoutItem mfi)
-        {
-            if (mfi.IconSource != null) iconCount--;
-        }
-        else if (element is FAMenuFlyoutSubItem mfsi)
-        {
-            if (mfsi.IconSource != null) iconCount--;
+                toggleCount--;
+                break;
+            }
+            case FAMenuFlyoutItem mfi:
+            {
+                if (mfi.IconSource != null) iconCount--;
+                break;
+            }
+            case FAMenuFlyoutSubItem mfsi:
+            {
+                if (mfsi.IconSource != null) iconCount--;
+                break;
+            }
         }
 
         if (iconCount != _iconCount || _toggleCount != toggleCount)
@@ -230,7 +244,7 @@ public class FAMenuFlyoutPresenter : ItemsControl
             case Key.Enter:
             {
                 var current = TopLevel.GetTopLevel(this).FocusManager.GetFocusedElement();
-                if (current is FAMenuFlyoutItemBase mfib && mfib.Focusable && mfib.IsEffectivelyEnabled)
+                if (current is FAMenuFlyoutItemBase { Focusable: true, IsEffectivelyEnabled: true } mfib)
                 {
                     if (mfib is FAMenuFlyoutSubItem mfsi)
                     {
@@ -335,7 +349,7 @@ public class FAMenuFlyoutPresenter : ItemsControl
         Dispatcher.UIThread.Post(() =>
         {
             var item = GetRealizedContainers()
-                .Where(x => x.Focusable && x.IsEffectivelyEnabled)
+                .Where(x => x is { Focusable: true, IsEffectivelyEnabled: true })
                 .FirstOrDefault();
 
             item?.Focus(fromKeyboard ? NavigationMethod.Directional : NavigationMethod.Unspecified);
@@ -355,9 +369,15 @@ public class FAMenuFlyoutPresenter : ItemsControl
 
     internal void CloseMenu()
     {
-        if (InternalParent is FAMenuFlyoutSubItem mfsi)
-            mfsi.Close(true);
-        else if (InternalParent is FAMenuFlyout fmf) fmf.Close();
+        switch (InternalParent)
+        {
+            case FAMenuFlyoutSubItem mfsi:
+                mfsi.Close(true);
+                break;
+            case FAMenuFlyout fmf:
+                fmf.Close();
+                break;
+        }
     }
 
     private void UpdateVisualState()

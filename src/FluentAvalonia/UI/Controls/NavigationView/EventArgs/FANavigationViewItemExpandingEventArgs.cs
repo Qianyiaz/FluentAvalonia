@@ -5,7 +5,7 @@
 /// </summary>
 public class FANavigationViewItemExpandingEventArgs : EventArgs
 {
-    private FANavigationView _navigationView;
+    private readonly FANavigationView _navigationView;
 
     public FANavigationViewItemExpandingEventArgs(FANavigationView navigationView)
     {

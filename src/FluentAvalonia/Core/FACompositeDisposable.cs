@@ -4,7 +4,7 @@ namespace FluentAvalonia.Core;
 
 internal class FADisposable : IDisposable
 {
-    private Action _dispose;
+    private readonly Action _dispose;
 
     public FADisposable(Action dispose)
     {

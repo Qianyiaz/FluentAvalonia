@@ -207,44 +207,45 @@ public class FACollectionViewSource : AvaloniaObject, ISupportInitialize
         if (_isInitializing)
             return;
 
-        if (Source is IFACollectionViewFactory factory)
+        switch (Source)
         {
-            View = factory.CreateView();
-            return;
-        }
-
-        if (Source is { } ie)
-        {
-            if (_isSourceGrouped)
+            case IFACollectionViewFactory factory:
+                View = factory.CreateView();
+                return;
+            case { } ie:
             {
-                // We have to completely recreate the view if the source changes,
-                // live shaping changes, or the itemsbinding changes
-                // The other properties can be updated without a full recreation
-                if (_view is FAGroupedDataCollectionView gdcv &&
-                    gdcv.Source == _source && gdcv.IsLiveShapingEnabled == _isLiveShapingEnabled &&
-                    gdcv.ItemsBinding == _itemsBinding)
+                if (_isSourceGrouped)
                 {
-                    gdcv.UpdateViewFromCollectionViewSource(_filter, _liveFilterProperties, _sortDescriptions);
-                    return;
+                    // We have to completely recreate the view if the source changes,
+                    // live shaping changes, or the itemsbinding changes
+                    // The other properties can be updated without a full recreation
+                    if (_view is FAGroupedDataCollectionView gdcv &&
+                        gdcv.Source == _source && gdcv.IsLiveShapingEnabled == _isLiveShapingEnabled &&
+                        gdcv.ItemsBinding == _itemsBinding)
+                    {
+                        gdcv.UpdateViewFromCollectionViewSource(_filter, _liveFilterProperties, _sortDescriptions);
+                        return;
+                    }
+
+                    View = new FAGroupedDataCollectionView(ie, _itemsBinding, _isLiveShapingEnabled,
+                        _filter, _liveFilterProperties, _sortDescriptions);
+                }
+                else
+                {
+                    // Same as above
+                    if (_view is FAIterableCollectionView icv &&
+                        icv.Source == _source && icv.IsLiveShapingEnabled == _isLiveShapingEnabled)
+                        icv.UpdateViewFromCollectionViewSource(_filter, _liveFilterProperties, _sortDescriptions);
+                    else
+                        View = new FAIterableCollectionView(ie, _isLiveShapingEnabled,
+                            _filter, _liveFilterProperties, _sortDescriptions);
                 }
 
-                View = new FAGroupedDataCollectionView(ie, _itemsBinding, _isLiveShapingEnabled,
-                    _filter, _liveFilterProperties, _sortDescriptions);
+                break;
             }
-            else
-            {
-                // Same as above
-                if (_view is FAIterableCollectionView icv &&
-                    icv.Source == _source && icv.IsLiveShapingEnabled == _isLiveShapingEnabled)
-                    icv.UpdateViewFromCollectionViewSource(_filter, _liveFilterProperties, _sortDescriptions);
-                else
-                    View = new FAIterableCollectionView(ie, _isLiveShapingEnabled,
-                        _filter, _liveFilterProperties, _sortDescriptions);
-            }
-        }
-        else
-        {
-            View = null;
+            default:
+                View = null;
+                break;
         }
     }
 }

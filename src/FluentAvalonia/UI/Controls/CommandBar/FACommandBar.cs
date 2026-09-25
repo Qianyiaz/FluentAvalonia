@@ -232,10 +232,9 @@ public partial class FACommandBar : ContentControl
     /// </summary>
     protected virtual void OnOpened()
     {
-        if (_overflowItems != null)
+        if (_overflowItems is { Count: > 0 })
             // TODO: Focus via keyboard
-            if (_overflowItems.Count > 0)
-                (_overflowItems[0] as Control).Focus();
+            (_overflowItems[0] as Control).Focus();
 
         Opened?.Invoke(this, EventArgs.Empty);
     }
@@ -435,7 +434,7 @@ public partial class FACommandBar : ContentControl
             {
                 var items = e.NewItems;
                 for (var i = 0; i < items.Count; i++)
-                    if (items[i] is Control c && c.Classes is IPseudoClasses pc)
+                    if (items[i] is Control { Classes: IPseudoClasses pc })
                     {
                         pc.Set(s_pcLabelCollapsed, pos == FACommandBarDefaultLabelPosition.Collapsed);
                         pc.Set(s_pcLabelRight, pos == FACommandBarDefaultLabelPosition.Right);
@@ -450,7 +449,7 @@ public partial class FACommandBar : ContentControl
                 var items = e.OldItems;
                 if (items != null)
                     for (var i = 0; i < items.Count; i++)
-                        if (items[i] is Control c && c.Classes is IPseudoClasses pc)
+                        if (items[i] is Control { Classes: IPseudoClasses pc })
                         {
                             pc.Set(s_pcLabelCollapsed, false);
                             pc.Set(s_pcLabelRight, false);
@@ -552,7 +551,7 @@ public partial class FACommandBar : ContentControl
             return;
 
         for (int i = 0, ct = _primaryItems.Count; i < ct; i++)
-            if (_primaryItems[i] is Control c && c.Classes is IPseudoClasses pc)
+            if (_primaryItems[i] is Control { Classes: IPseudoClasses pc })
                 pc.Set(FASharedPseudoclasses.s_pcOpen, open);
     }
 }

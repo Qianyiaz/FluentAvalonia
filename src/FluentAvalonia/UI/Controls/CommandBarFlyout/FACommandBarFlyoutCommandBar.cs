@@ -61,29 +61,28 @@ public class FACommandBarFlyoutCommandBar : FACommandBar
                         for (var i = 0; i < PrimaryCommands.Count; i++)
                             if (IsControlFocusable(PrimaryCommands[i] as Control, false))
                             {
-                                (PrimaryCommands[i] as InputElement).Focus(NavigationMethod.Unspecified);
+                                (PrimaryCommands[i] as InputElement).Focus();
                                 handled = true;
                                 break;
                             }
 
                         if (!handled)
-                            if (_moreButton != null && _moreButton.IsVisible)
-                                _moreButton.Focus(NavigationMethod.Unspecified);
+                            if (_moreButton is { IsVisible: true })
+                                _moreButton.Focus();
                     }
                     else
                     {
-                        if (_moreButton != null && _moreButton.IsVisible)
-                            _moreButton.Focus(NavigationMethod.Unspecified);
+                        if (_moreButton is { IsVisible: true })
+                            _moreButton.Focus();
                     }
                 }, DispatcherPriority.Loaded);
         };
 
         Closing += (_, _) =>
         {
-            if (_owningFlyout != null && _owningFlyout.IsOpen)
-                if (_owningFlyout.AlwaysExpanded)
-                    // Don't close the secondary commands list when the flyout is AlwaysExpanded
-                    IsOpen = true;
+            if (_owningFlyout is { IsOpen: true, AlwaysExpanded: true })
+                // Don't close the secondary commands list when the flyout is AlwaysExpanded
+                IsOpen = true;
         };
 
         PrimaryCommands.CollectionChanged += (_, _) => { PopulateAccessibleControls(); };
@@ -199,7 +198,7 @@ public class FACommandBarFlyoutCommandBar : FACommandBar
                             }
 
                         if (!args.Handled)
-                            if (_moreButton != null && _moreButton.IsVisible)
+                            if (_moreButton is { IsVisible: true })
                             {
                                 _moreButton.Focus(NavigationMethod.Tab);
                                 args.Handled = true;
@@ -279,9 +278,7 @@ public class FACommandBarFlyoutCommandBar : FACommandBar
 
     private static bool IsControlFocusable(Control control, bool checkTabStop)
     {
-        return control != null &&
-               control.IsVisible && control.IsEnabled &&
-               control.Focusable; // && (checkTabStop && KeyboardNavigation.GetIsTabStop(control as InputElement));
+        return control is { IsVisible: true, IsEnabled: true, Focusable: true }; // && (checkTabStop && KeyboardNavigation.GetIsTabStop(control as InputElement));
     }
 
     internal void SetOwningFlyout(FACommandBarFlyout f)

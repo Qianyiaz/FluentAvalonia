@@ -263,7 +263,7 @@ internal class TopNavigationViewDataProvider : SplitDataSourceBase<object, Navig
 
     public static bool IsValidWidth(double width)
     {
-        return width >= 0 && width < double.MaxValue;
+        return width is >= 0 and < double.MaxValue;
     }
 
     public bool IsValidWidthForItem(int index)

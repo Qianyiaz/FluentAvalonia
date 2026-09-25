@@ -129,24 +129,28 @@ public partial class FATaskDialog : ContentControl
 
     private void OnKeyDownPreview(object sender, KeyEventArgs e)
     {
-        if (e.Key == Key.Escape)
+        switch (e.Key)
         {
-            Hide();
-            e.Handled = true;
-        }
-        else if (e.Key == Key.Enter)
-        {
-            if (_defaultButton != null && _defaultButton.DataContext is FATaskDialogButton b)
-            {
-                if (b.Command?.CanExecute(b.CommandParameter) == true) b.Command.Execute(b.CommandParameter);
-
-                b.RaiseClick();
-
-                if (b is FATaskDialogCommand com && !com.ClosesOnInvoked)
-                    return;
-
-                CloseCore(b.DialogResult);
+            case Key.Escape:
+                Hide();
                 e.Handled = true;
+                break;
+            case Key.Enter:
+            {
+                if (_defaultButton is { DataContext: FATaskDialogButton b })
+                {
+                    if (b.Command?.CanExecute(b.CommandParameter) == true) b.Command.Execute(b.CommandParameter);
+
+                    b.RaiseClick();
+
+                    if (b is FATaskDialogCommand { ClosesOnInvoked: false })
+                        return;
+
+                    CloseCore(b.DialogResult);
+                    e.Handled = true;
+                }
+
+                break;
             }
         }
     }
@@ -181,22 +185,21 @@ public partial class FATaskDialog : ContentControl
         void UnparentDialog()
         {
             _xamlOwner = (Control)Parent;
-            if (_xamlOwner is Panel p)
+            switch (_xamlOwner)
             {
-                _xamlOwnerChildIndex = p.Children.IndexOf(this);
-                p.Children.RemoveAt(_xamlOwnerChildIndex);
-            }
-            else if (_xamlOwner is ContentControl icc)
-            {
-                icc.Content = null;
-            }
-            else if (_xamlOwner is ContentPresenter icp)
-            {
-                icp.Content = null;
-            }
-            else if (_xamlOwner is Decorator d)
-            {
-                d.Child = null;
+                case Panel p:
+                    _xamlOwnerChildIndex = p.Children.IndexOf(this);
+                    p.Children.RemoveAt(_xamlOwnerChildIndex);
+                    break;
+                case ContentControl icc:
+                    icc.Content = null;
+                    break;
+                case ContentPresenter icp:
+                    icp.Content = null;
+                    break;
+                case Decorator d:
+                    d.Child = null;
+                    break;
             }
         }
 
@@ -319,57 +322,67 @@ public partial class FATaskDialog : ContentControl
     {
         void ReturnDialogToParent()
         {
-            if (_xamlOwner == null)
-                return;
-
-            if (_xamlOwner is Panel p)
-                p.Children.Insert(_xamlOwnerChildIndex, this);
-            else if (_xamlOwner is Decorator d)
-                d.Child = this;
-            else if (_xamlOwner is ContentControl icc)
-                icc.Content = this;
-            else if (_xamlOwner is ContentPresenter icp) icp.Content = this;
+            switch (_xamlOwner)
+            {
+                case null:
+                    return;
+                case Panel p:
+                    p.Children.Insert(_xamlOwnerChildIndex, this);
+                    break;
+                case Decorator d:
+                    d.Child = this;
+                    break;
+                case ContentControl icc:
+                    icc.Content = this;
+                    break;
+                case ContentPresenter icp:
+                    icp.Content = this;
+                    break;
+            }
         }
 
-        if (_host is Window w)
+        switch (_host)
         {
-            w.Close(result);
-            IsVisible = false;
+            case Window w:
+                w.Close(result);
+                IsVisible = false;
 
-            w.Content = null;
-            ReturnDialogToParent();
+                w.Content = null;
+                ReturnDialogToParent();
 
-            PseudoClasses.Set(FASharedPseudoclasses.s_pcOpen, false);
-            PseudoClasses.Set(s_pcHidden, true);
-        }
-        else if (_host is FADialogHost dh)
-        {
-            IsHitTestVisible = false;
+                PseudoClasses.Set(FASharedPseudoclasses.s_pcOpen, false);
+                PseudoClasses.Set(s_pcHidden, true);
+                break;
+            case FADialogHost dh:
+            {
+                IsHitTestVisible = false;
 
-            Focus();
+                Focus();
 
-            PseudoClasses.Set(FASharedPseudoclasses.s_pcOpen, false);
-            PseudoClasses.Set(s_pcHidden, true);
+                PseudoClasses.Set(FASharedPseudoclasses.s_pcOpen, false);
+                PseudoClasses.Set(s_pcHidden, true);
 
-            // Let the close animation finish (now 0.167s in new WinUI update...)
-            // We'll wait just a touch longer to be sure
-            await Task.Delay(200);
+                // Let the close animation finish (now 0.167s in new WinUI update...)
+                // We'll wait just a touch longer to be sure
+                await Task.Delay(200);
 
-            IsHitTestVisible = true;
-            IsVisible = false;
+                IsHitTestVisible = true;
+                IsVisible = false;
 
-            dh.Content = null;
-            ReturnDialogToParent();
+                dh.Content = null;
+                ReturnDialogToParent();
 
-            var overlayLayer = OverlayLayer.GetOverlayLayer(dh);
-            // If OverlayLayer isn't found here, this may be a reentrant call (hit ESC multiple times quickly, etc)
-            // Don't fail, and return. If this isn't reentrant, there's bigger issues...
-            if (overlayLayer == null)
-                return;
+                var overlayLayer = OverlayLayer.GetOverlayLayer(dh);
+                // If OverlayLayer isn't found here, this may be a reentrant call (hit ESC multiple times quickly, etc)
+                // Don't fail, and return. If this isn't reentrant, there's bigger issues...
+                if (overlayLayer == null)
+                    return;
 
-            overlayLayer.Children.Remove(dh);
+                overlayLayer.Children.Remove(dh);
 
-            _tcs.TrySetResult(result);
+                _tcs.TrySetResult(result);
+                break;
+            }
         }
     }
 
@@ -379,15 +392,14 @@ public partial class FATaskDialog : ContentControl
             return;
 
         // TaskDialogCommandHost is a TaskDialogButtonHost, this captures everything
-        if (e.Source is Visual v && v.FindAncestorOfType<FATaskDialogButtonHost>(true) is { } b)
+        if (e.Source is Visual v && v.FindAncestorOfType<FATaskDialogButtonHost>(true) is { DataContext: FATaskDialogControl tdb })
             // DataContext for the hosts are the user defined buttons/commands, get the dialog from that
-            if (b.DataContext is FATaskDialogControl tdb)
-            {
-                if (tdb is FATaskDialogCommand com && !com.ClosesOnInvoked)
-                    return;
+        {
+            if (tdb is FATaskDialogCommand { ClosesOnInvoked: false })
+                return;
 
-                Hide(tdb.DialogResult);
-            }
+            Hide(tdb.DialogResult);
+        }
     }
 
     public void SetProgressBarState(double value, FATaskDialogProgressState state)
@@ -467,63 +479,69 @@ public partial class FATaskDialog : ContentControl
         var iconCount = 0;
         var normalCommandCount = 0;
         for (var i = 0; i < _commands.Count; i++)
-            if (_commands[i] is FATaskDialogCheckBox tdcb)
+            switch (_commands[i])
             {
-                var com = new CheckBox
+                case FATaskDialogCheckBox tdcb:
                 {
-                    [!ContentProperty] = tdcb[!FATaskDialogControl.TextProperty],
-                    DataContext = tdcb,
-                    [!IsEnabledProperty] = tdcb[!FATaskDialogControl.IsEnabledProperty],
-                    [!ToggleButton.IsCheckedProperty] = tdcb[!FATaskDialogRadioButton.IsCheckedProperty]
-                };
+                    var com = new CheckBox
+                    {
+                        [!ContentProperty] = tdcb[!FATaskDialogControl.TextProperty],
+                        DataContext = tdcb,
+                        [!IsEnabledProperty] = tdcb[!FATaskDialogControl.IsEnabledProperty],
+                        [!ToggleButton.IsCheckedProperty] = tdcb[!FATaskDialogRadioButton.IsCheckedProperty]
+                    };
 
-                com.Classes.Add(s_cFATDCom);
+                    com.Classes.Add(s_cFATDCom);
 
-                commands.Add(com);
-            }
-            else if (_commands[i] is FATaskDialogRadioButton tdrb)
-            {
-                var com = new RadioButton
-                {
-                    [!ContentProperty] = tdrb[!FATaskDialogControl.TextProperty],
-                    DataContext = tdrb,
-                    [!IsEnabledProperty] = tdrb[!FATaskDialogControl.IsEnabledProperty],
-                    [!ToggleButton.IsCheckedProperty] = tdrb[!FATaskDialogRadioButton.IsCheckedProperty]
-                };
-
-                com.Classes.Add(s_cFATDCom);
-
-                commands.Add(com);
-            }
-            else if (_commands[i] is { } tdc)
-            {
-                var com = new FATaskDialogCommandHost
-                {
-                    [!ContentProperty] = tdc[!FATaskDialogControl.TextProperty],
-                    DataContext = tdc,
-                    [!IsEnabledProperty] = tdc[!FATaskDialogControl.IsEnabledProperty],
-                    [!Button.CommandParameterProperty] = tdc[!FATaskDialogButton.CommandParameterProperty],
-                    [!Button.CommandProperty] = tdc[!FATaskDialogButton.CommandProperty],
-                    [!FATaskDialogButtonHost.IconSourceProperty] = tdc[!FATaskDialogButton.IconSourceProperty]
-                };
-
-                if (tdc.IsDefault)
-                {
-                    if (foundDefault)
-                        throw new InvalidOperationException(
-                            "Cannot set 'IsDefault' property on more than one item in a TaskDialog");
-
-                    foundDefault = true;
-                    com.Classes.Add(FASharedPseudoclasses.s_cAccent);
-                    _defaultButton = com;
+                    commands.Add(com);
+                    break;
                 }
+                case FATaskDialogRadioButton tdrb:
+                {
+                    var com = new RadioButton
+                    {
+                        [!ContentProperty] = tdrb[!FATaskDialogControl.TextProperty],
+                        DataContext = tdrb,
+                        [!IsEnabledProperty] = tdrb[!FATaskDialogControl.IsEnabledProperty],
+                        [!ToggleButton.IsCheckedProperty] = tdrb[!FATaskDialogRadioButton.IsCheckedProperty]
+                    };
 
-                commands.Add(com);
+                    com.Classes.Add(s_cFATDCom);
 
-                // Icons are only supported on "normal" TaskDialogCommands
-                if (tdc.IconSource != null)
-                    iconCount++;
-                normalCommandCount++;
+                    commands.Add(com);
+                    break;
+                }
+                case { } tdc:
+                {
+                    var com = new FATaskDialogCommandHost
+                    {
+                        [!ContentProperty] = tdc[!FATaskDialogControl.TextProperty],
+                        DataContext = tdc,
+                        [!IsEnabledProperty] = tdc[!FATaskDialogControl.IsEnabledProperty],
+                        [!Button.CommandParameterProperty] = tdc[!FATaskDialogButton.CommandParameterProperty],
+                        [!Button.CommandProperty] = tdc[!FATaskDialogButton.CommandProperty],
+                        [!FATaskDialogButtonHost.IconSourceProperty] = tdc[!FATaskDialogButton.IconSourceProperty]
+                    };
+
+                    if (tdc.IsDefault)
+                    {
+                        if (foundDefault)
+                            throw new InvalidOperationException(
+                                "Cannot set 'IsDefault' property on more than one item in a TaskDialog");
+
+                        foundDefault = true;
+                        com.Classes.Add(FASharedPseudoclasses.s_cAccent);
+                        _defaultButton = com;
+                    }
+
+                    commands.Add(com);
+
+                    // Icons are only supported on "normal" TaskDialogCommands
+                    if (tdc.IconSource != null)
+                        iconCount++;
+                    normalCommandCount++;
+                    break;
+                }
             }
 
         if (iconCount != normalCommandCount)

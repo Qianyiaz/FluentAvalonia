@@ -258,10 +258,15 @@ public partial class FANavigationView : HeaderedContentControl
             UpdatePaneVisibility();
             UpdateVisualStateForDisplayModeGroup(DisplayMode);
 
-            if (!IsPaneVisible && IsPaneOpen)
-                ClosePane();
-            else if (IsPaneVisible && DisplayMode == FANavigationViewDisplayMode.Expanded && !IsPaneOpen)
-                OpenPane();
+            switch (IsPaneVisible)
+            {
+                case false when IsPaneOpen:
+                    ClosePane();
+                    break;
+                case true when DisplayMode == FANavigationViewDisplayMode.Expanded && !IsPaneOpen:
+                    OpenPane();
+                    break;
+            }
         }
         else if (change.Property == AutoCompleteBoxProperty)
         {
@@ -508,11 +513,11 @@ public partial class FANavigationView : HeaderedContentControl
 
         if (IsTopNavigationView)
         {
-            UpdateItemsRepeaterItemsSource(_topNavFooterMenuRepeater, _selectionModelSource[1] as IEnumerable);
+            UpdateItemsRepeaterItemsSource(_topNavFooterMenuRepeater, _selectionModelSource[1]);
         }
         else if (_leftNavFooterMenuRepeater != null)
         {
-            UpdateItemsRepeaterItemsSource(_leftNavFooterMenuRepeater, _selectionModelSource[1] as IEnumerable);
+            UpdateItemsRepeaterItemsSource(_leftNavFooterMenuRepeater, _selectionModelSource[1]);
             _leftNavFooterMenuRepeater.InvalidateMeasure();
             _leftNavFooterMenuRepeater.InvalidateArrange();
             UpdatePaneLayout();
@@ -758,7 +763,7 @@ public partial class FANavigationView : HeaderedContentControl
         if (isInModeWithFlyout && selIndex != IndexPath.Unselected && !DoesNavigationViewItemHaveChildren(selItem))
         {
             var rootItem = GetContainerForIndex(selIndex.GetAt(1), selIndex.GetAt(0) == _footerMenuBlockIndex);
-            if (rootItem is FANavigationViewItem nvi && nvi.ShouldRepeaterShowInFlyout)
+            if (rootItem is FANavigationViewItem { ShouldRepeaterShowInFlyout: true } nvi)
                 nvi.IsExpanded = false;
         }
     }
@@ -767,9 +772,8 @@ public partial class FANavigationView : HeaderedContentControl
     {
         FANavigationViewItemBase container = null;
         if (nextItem != null)
-            container = NavigationViewItemBaseOrSettingsContentFromData(nextItem) as FANavigationViewItemBase
-                        ?? GetContainerForIndexPath(_selectionModel.SelectedIndex, false, true) as
-                            FANavigationViewItemBase;
+            container = NavigationViewItemBaseOrSettingsContentFromData(nextItem)
+                        ?? GetContainerForIndexPath(_selectionModel.SelectedIndex, false, true);
 
         SelectionChanged?.Invoke(this, new FANavigationViewSelectionChangedEventArgs
         {
@@ -1073,7 +1077,7 @@ public partial class FANavigationView : HeaderedContentControl
     private bool UpdateSelectedItemFromMenuItems(IEnumerable menuItems, bool foundFirstSelected = false)
     {
         for (var i = 0; i < menuItems.Count(); i++)
-            if (menuItems.ElementAt(i) is FANavigationViewItem nvi && nvi.IsSelected)
+            if (menuItems.ElementAt(i) is FANavigationViewItem { IsSelected: true } nvi)
             {
                 if (!foundFirstSelected)
                     try
@@ -1137,32 +1141,36 @@ public partial class FANavigationView : HeaderedContentControl
         var isContainerSelectedInModel = IsContainerTheSelectedItemInTheSelectionModel(nvi);
         var isSelectedInContainer = nvi.IsSelected;
 
-        if (isSelectedInContainer && !isContainerSelectedInModel)
+        switch (isSelectedInContainer)
         {
-            UpdateSelectionModelSelection(GetIndexPathForContainer(nvi));
-        }
-        else if (!isSelectedInContainer && isContainerSelectedInModel)
-        {
-            var indexPath = GetIndexPathForContainer(nvi);
-            var indexPathFromModel = _selectionModel.SelectedIndex;
-
-            if (indexPathFromModel != IndexPath.Unselected)
+            case true when !isContainerSelectedInModel:
+                UpdateSelectionModelSelection(GetIndexPathForContainer(nvi));
+                break;
+            case false when isContainerSelectedInModel:
             {
-                if (indexPath.CompareTo(indexPathFromModel) == 0)
-                {
-                    _selectionModel.DeselectAt(indexPath);
-                }
-                else if (!IsPaneOpen && indexPath.GetSize() == 0)
-                {
-                    UpdateIsChildSelected(indexPathFromModel, IndexPath.Unselected);
-                    if (_prevIndicator == null && _nextIndicator == null && _activeIndicator != null)
-                    {
-                        ResetElementAnimationProperties(_activeIndicator, 0);
-                        _activeIndicator = null;
-                    }
+                var indexPath = GetIndexPathForContainer(nvi);
+                var indexPathFromModel = _selectionModel.SelectedIndex;
 
-                    _selectionModel.DeselectAt(indexPathFromModel);
+                if (indexPathFromModel != IndexPath.Unselected)
+                {
+                    if (indexPath.CompareTo(indexPathFromModel) == 0)
+                    {
+                        _selectionModel.DeselectAt(indexPath);
+                    }
+                    else if (!IsPaneOpen && indexPath.GetSize() == 0)
+                    {
+                        UpdateIsChildSelected(indexPathFromModel, IndexPath.Unselected);
+                        if (_prevIndicator == null && _nextIndicator == null && _activeIndicator != null)
+                        {
+                            ResetElementAnimationProperties(_activeIndicator, 0);
+                            _activeIndicator = null;
+                        }
+
+                        _selectionModel.DeselectAt(indexPathFromModel);
+                    }
                 }
+
+                break;
             }
         }
 
@@ -1354,7 +1362,7 @@ public partial class FANavigationView : HeaderedContentControl
             return null;
 
         for (var i = 0; i < isv.Count; i++)
-            if (ir.TryGetElement(i) is { } c && c.Focusable)
+            if (ir.TryGetElement(i) is { Focusable: true } c)
                 return c;
 
         return null;
@@ -1366,7 +1374,7 @@ public partial class FANavigationView : HeaderedContentControl
             return null;
 
         for (var i = isv.Count - 1; i >= 0; i--)
-            if (ir.TryGetElement(i) is { } c && c.Focusable)
+            if (ir.TryGetElement(i) is { Focusable: true } c)
                 return c;
 
         return null;
@@ -1458,22 +1466,23 @@ public partial class FANavigationView : HeaderedContentControl
         var dMode = FANavigationViewDisplayMode.Compact;
         var paneDisplayMode = PaneDisplayMode;
 
-        if (paneDisplayMode == FANavigationViewPaneDisplayMode.Auto)
+        switch (paneDisplayMode)
         {
-            if (width >= ExpandedModeThresholdWidth) dMode = FANavigationViewDisplayMode.Expanded;
-            else if (width > 0 && width < CompactModeThresholdWidth) dMode = FANavigationViewDisplayMode.Minimal;
-        }
-        else if (paneDisplayMode == FANavigationViewPaneDisplayMode.Left)
-        {
-            dMode = FANavigationViewDisplayMode.Expanded;
-        }
-        else if (paneDisplayMode == FANavigationViewPaneDisplayMode.LeftCompact)
-        {
-            dMode = FANavigationViewDisplayMode.Compact;
-        }
-        else if (paneDisplayMode == FANavigationViewPaneDisplayMode.LeftMinimal)
-        {
-            dMode = FANavigationViewDisplayMode.Minimal;
+            case FANavigationViewPaneDisplayMode.Auto:
+            {
+                if (width >= ExpandedModeThresholdWidth) dMode = FANavigationViewDisplayMode.Expanded;
+                else if (width > 0 && width < CompactModeThresholdWidth) dMode = FANavigationViewDisplayMode.Minimal;
+                break;
+            }
+            case FANavigationViewPaneDisplayMode.Left:
+                dMode = FANavigationViewDisplayMode.Expanded;
+                break;
+            case FANavigationViewPaneDisplayMode.LeftCompact:
+                dMode = FANavigationViewDisplayMode.Compact;
+                break;
+            case FANavigationViewPaneDisplayMode.LeftMinimal:
+                dMode = FANavigationViewDisplayMode.Minimal;
+                break;
         }
 
         if (!forceSetDisplayMode && _initialNonForcedModeUpdate)
@@ -2057,7 +2066,7 @@ public partial class FANavigationView : HeaderedContentControl
 
         _paneHeaderContentBorderRow?.MinHeight = paneHeaderContentBorderRowMinHeight;
 
-        if (_paneContentGrid != null && _paneContentGrid.RowDefinitions.Count >= _backButtonRowDefinition)
+        if (_paneContentGrid is { RowDefinitions.Count: >= _backButtonRowDefinition })
         {
             var backButtonRowHeight = 0;
             if (!IsOverlay && showBack)
@@ -2097,13 +2106,15 @@ public partial class FANavigationView : HeaderedContentControl
         if (IsTopNavigationView)
             return NavigationViewVisualStateDisplayMode.Minimal;
 
-        if (pdm == FANavigationViewPaneDisplayMode.Left ||
-            (pdm == FANavigationViewPaneDisplayMode.Auto && dMode == FANavigationViewDisplayMode.Expanded))
-            return NavigationViewVisualStateDisplayMode.Expanded;
-
-        if (pdm == FANavigationViewPaneDisplayMode.LeftCompact ||
-            (pdm == FANavigationViewPaneDisplayMode.Auto && dMode == FANavigationViewDisplayMode.Compact))
-            return NavigationViewVisualStateDisplayMode.Compact;
+        switch (pdm)
+        {
+            case FANavigationViewPaneDisplayMode.Left:
+            case FANavigationViewPaneDisplayMode.Auto when dMode == FANavigationViewDisplayMode.Expanded:
+                return NavigationViewVisualStateDisplayMode.Expanded;
+            case FANavigationViewPaneDisplayMode.LeftCompact:
+            case FANavigationViewPaneDisplayMode.Auto when dMode == FANavigationViewDisplayMode.Compact:
+                return NavigationViewVisualStateDisplayMode.Compact;
+        }
 
         if (ShouldShowBackButton || ShouldShowCloseButton)
             return NavigationViewVisualStateDisplayMode.MinimalWithBackButton;
@@ -2372,7 +2383,7 @@ public partial class FANavigationView : HeaderedContentControl
         }
 
         var easing1 = new SplineEasing(0.9, 0.1, 1, 0.2);
-        var easing2 = new SplineEasing(0.1, 0.9, 0.2, 1.0);
+        var easing2 = new SplineEasing(0.1, 0.9, 0.2);
         var step = new StepEasingFunction { Steps = 5 };
 
         if (isOutgoing)
@@ -2763,11 +2774,13 @@ public partial class FANavigationView : HeaderedContentControl
 
     private T GetContainerForData<T>(object data) where T : Control
     {
-        if (data == null)
-            return default;
-
-        if (data is T t)
-            return t;
+        switch (data)
+        {
+            case null:
+                return default;
+            case T t:
+                return t;
+        }
 
         var mainRepeater = IsTopNavigationView ? _topNavRepeater : _leftNavRepeater;
         var itemIndex = GetIndexFromItem(mainRepeater, data);
@@ -2790,7 +2803,7 @@ public partial class FANavigationView : HeaderedContentControl
             return ir.TryGetElement(index);
 
         for (var i = 0; i < GetContainerCountInRepeater(ir); i++)
-            if (ir.TryGetElement(i) is FANavigationViewItem nvi && nvi.GetRepeater != null)
+            if (ir.TryGetElement(i) is FANavigationViewItem { GetRepeater: not null } nvi)
             {
                 var foundElement = SearchEntireTreeForContainer(nvi.GetRepeater, data);
                 if (foundElement != null)

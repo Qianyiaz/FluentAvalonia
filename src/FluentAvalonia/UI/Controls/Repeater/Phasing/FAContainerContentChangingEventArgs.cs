@@ -10,7 +10,7 @@ public class FAContainerContentChangingEventArgs : EventArgs
 {
     private readonly Phaser _phaser;
 
-    private VirtualizationInfo _virtInfo;
+    private readonly VirtualizationInfo _virtInfo;
 
     internal TypedEventHandler<FAItemsRepeater, FAContainerContentChangingEventArgs> callback;
 

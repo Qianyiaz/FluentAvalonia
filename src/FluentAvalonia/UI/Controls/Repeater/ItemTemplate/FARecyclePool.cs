@@ -100,7 +100,7 @@ public class FARecyclePool
 
     private static void EnsureOwnerIsPanelOrNull(Control owner)
     {
-        if (owner == null || (owner != null && owner is Panel))
+        if (owner == null || owner is Panel)
             return;
 
         throw new InvalidOperationException("Owner must to be a Panel or null.");
@@ -134,7 +134,7 @@ public class FARecyclePool
             Owner = owner;
         }
 
-        public Control Element;
-        public Panel Owner;
+        public readonly Control Element;
+        public readonly Panel Owner;
     }
 }

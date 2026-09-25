@@ -114,7 +114,7 @@ internal class PooledList<T> : IList<T>, IList, IDisposable
 
     object IList.this[int index]
     {
-        get { return this[index]; }
+        get => this[index];
         set
         {
             try
@@ -192,7 +192,7 @@ internal class PooledList<T> : IList<T>, IList, IDisposable
     /// </summary>
     public T this[int index]
     {
-        get { return _items[index]; }
+        get => _items[index];
 
         set
         {
@@ -999,10 +999,7 @@ internal class PooledList<T> : IList<T>, IList, IDisposable
 
         public T Current => _current!;
 
-        object IEnumerator.Current
-        {
-            get { return Current; }
-        }
+        object IEnumerator.Current => Current;
 
         void IEnumerator.Reset()
         {

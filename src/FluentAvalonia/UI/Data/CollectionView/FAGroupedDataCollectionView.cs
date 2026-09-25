@@ -16,13 +16,13 @@ public sealed class FAGroupedDataCollectionView : IFACollectionView, IFAAdvanced
     private static BindingEvaluator<object> _helper;
     private int _count;
     private Predicate<object> _filter;
-    private HashSet<string> _filterProperties;
-    private bool _hasSortOrFilter;
+    private readonly HashSet<string> _filterProperties;
+    private readonly bool _hasSortOrFilter;
     private bool _ignoreGroupChanges;
-    private BindingBase _itemsBinding;
+    private readonly BindingBase _itemsBinding;
     private IList<FASortDescription> _sortDescriptions;
 
-    private IEnumerable _source;
+    private readonly IEnumerable _source;
 
     public FAGroupedDataCollectionView(IEnumerable collection, BindingBase itemsBinding = null)
         : this(collection, itemsBinding, false, null, null, null)
@@ -181,7 +181,7 @@ public sealed class FAGroupedDataCollectionView : IFACollectionView, IFAAdvanced
 
     public int Count => _count;
 
-    public bool IsReadOnly => _source is IList l && l.IsReadOnly;
+    public bool IsReadOnly => _source is IList { IsReadOnly: true };
 
     public object CurrentItem => GetItemAtIndex(CurrentPosition);
 
@@ -287,7 +287,7 @@ public sealed class FAGroupedDataCollectionView : IFACollectionView, IFAAdvanced
 
     IEnumerator IEnumerable.GetEnumerator() => new GroupEnumerator(this);
 
-    bool IList.IsFixedSize => _source is IList l && l.IsFixedSize;
+    bool IList.IsFixedSize => _source is IList { IsFixedSize: true };
 
     bool ICollection.IsSynchronized => false;
 
@@ -527,6 +527,8 @@ public sealed class FAGroupedDataCollectionView : IFACollectionView, IFAAdvanced
                 break;
         }
 
+        return;
+
         IList<object> PopulateINCCList(int groupStart, int groupCount, int itemCount)
         {
             var l = new List<object>(itemCount);
@@ -591,11 +593,13 @@ public sealed class FAGroupedDataCollectionView : IFACollectionView, IFAAdvanced
         int TranslateGroupIndexToFlattenedIndex(int index)
         {
             var gIndex = CollectionGroups.IndexOf(sender);
-            if (gIndex == -1)
-                throw new ArgumentException("Invalid group index");
-
-            if (gIndex == 0)
-                return index;
+            switch (gIndex)
+            {
+                case -1:
+                    throw new ArgumentException("Invalid group index");
+                case 0:
+                    return index;
+            }
 
             var count = 0;
             for (var i = 0; i < gIndex; i++) count += CollectionGroups[i].GroupItems?.Count ?? 0;
@@ -789,6 +793,6 @@ public sealed class FAGroupedDataCollectionView : IFACollectionView, IFAAdvanced
 
         private int _curPos = -1;
         private int _lastGroupIndex = -1;
-        private FAGroupedDataCollectionView _owner;
+        private readonly FAGroupedDataCollectionView _owner;
     }
 }

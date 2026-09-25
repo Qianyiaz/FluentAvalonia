@@ -39,7 +39,7 @@ public partial class FAInfoBar : ContentControl
 
         _appliedTemplate = true;
 
-        UpdateVisibility(_notifyOpen, true);
+        UpdateVisibility(_notifyOpen);
         _notifyOpen = false;
 
         UpdateSeverity();

@@ -5,7 +5,7 @@
 /// </summary>
 public class FANavigationViewItemCollapsedEventArgs : EventArgs
 {
-    private FANavigationView _navigationView;
+    private readonly FANavigationView _navigationView;
 
     public FANavigationViewItemCollapsedEventArgs(FANavigationView navigationView)
     {

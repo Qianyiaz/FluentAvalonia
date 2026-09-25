@@ -14,13 +14,15 @@ public class FAColorToBrushConv : IValueConverter
     /// <inheritdoc />
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        if (value is Color c)
-            return new SolidColorBrush(c);
-
-        if (value is Color2 c2)
-            return new SolidColorBrush(c2);
-
-        return BindingOperations.DoNothing;
+        switch (value)
+        {
+            case Color c:
+                return new SolidColorBrush(c);
+            case Color2 c2:
+                return new SolidColorBrush(c2);
+            default:
+                return BindingOperations.DoNothing;
+        }
     }
 
     /// <inheritdoc />

@@ -157,7 +157,7 @@ public partial class FASettingsExpanderItem : ContentControl, ICommandSource
     {
         base.OnPointerMoved(e);
 
-        if (_allowInteraction && !e.Handled && e.Pointer.Captured != null)
+        if (_allowInteraction && e is { Handled: false, Pointer.Captured: not null })
         {
             // We do this because we don't get PointerExited events when the pointer
             // has a control captured - but to match normal behavior when moving the

@@ -80,9 +80,15 @@ public class FASortDescription
         {
             if (field == null)
             {
-                if (Property is Binding b)
-                    field = b.Path;
-                else if (Property is CompiledBindingExtension cbe) field = cbe.Path.ToString();
+                switch (Property)
+                {
+                    case Binding b:
+                        field = b.Path;
+                        break;
+                    case CompiledBindingExtension cbe:
+                        field = cbe.Path.ToString();
+                        break;
+                }
             }
 
             return field;

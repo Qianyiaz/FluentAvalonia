@@ -5,11 +5,11 @@ namespace FluentAvalonia.UI.Controls;
 
 internal abstract class SplitDataSourceBase<T, TVectorID, AttachedDataType>
 {
-    private List<AttachedDataType> _attachedData = [];
+    private readonly List<AttachedDataType> _attachedData = [];
 
     // length is the same as data source, and used to identify which SplitVector it belongs to.
-    private List<TVectorID> flags = [];
-    private SplitVector<T, TVectorID>[] splitVectors;
+    private readonly List<TVectorID> flags = [];
+    private readonly SplitVector<T, TVectorID>[] splitVectors;
 
     public SplitDataSourceBase(int vectorIdSize)
     {
@@ -200,9 +200,9 @@ internal abstract class SplitDataSourceBase<T, TVectorID, AttachedDataType>
 internal class SplitVector<T, TVectorId>
 {
     private TVectorId _vectorID;
-    private Func<T, int> indexFunctionFromDataSource;
-    private List<int> indicesInOriginalVector = [];
-    private IList<T> vector;
+    private readonly Func<T, int> indexFunctionFromDataSource;
+    private readonly List<int> indicesInOriginalVector = [];
+    private readonly IList<T> vector;
 
     public SplitVector(TVectorId id, Func<T, int> indexOfFunction)
     {

@@ -39,7 +39,7 @@ internal class ViewportManager
     private double _maximumHorizontalCacheLength = 2;
     private double _maximumVerticalCacheLength = 2;
 
-    private FAItemsRepeater _owner;
+    private readonly FAItemsRepeater _owner;
 
     // This is what is pending and not been accounted for. 
     // Sometimes the scrolling surface cannot service a shift (for example

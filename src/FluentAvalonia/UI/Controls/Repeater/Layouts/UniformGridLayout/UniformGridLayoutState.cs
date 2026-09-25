@@ -158,26 +158,32 @@ internal class UniformGridLayoutState
             extraMinorPixelsForEachItem = CalculateExtraPixelsInLine(maxItemsPerLine,
                 availableSizeMinor, itemSizeMinor, minorItemSpacing);
 
-        if (stretch == FAUniformGridLayoutItemsStretch.Fill)
+        switch (stretch)
         {
-            if (orientation == Orientation.Horizontal)
-                _effectiveItemWidth += extraMinorPixelsForEachItem;
-            else
-                _effectiveItemHeight += extraMinorPixelsForEachItem;
-        }
-        else if (stretch == FAUniformGridLayoutItemsStretch.Uniform)
-        {
-            var itemSizeMajor = orientation == Orientation.Horizontal ? _effectiveItemHeight : _effectiveItemWidth;
-            var extraMajorPixelsForEachItem = itemSizeMajor * (extraMinorPixelsForEachItem / itemSizeMinor);
-            if (orientation == Orientation.Horizontal)
+            case FAUniformGridLayoutItemsStretch.Fill:
             {
-                _effectiveItemWidth += extraMinorPixelsForEachItem;
-                _effectiveItemHeight += extraMajorPixelsForEachItem;
+                if (orientation == Orientation.Horizontal)
+                    _effectiveItemWidth += extraMinorPixelsForEachItem;
+                else
+                    _effectiveItemHeight += extraMinorPixelsForEachItem;
+                break;
             }
-            else
+            case FAUniformGridLayoutItemsStretch.Uniform:
             {
-                _effectiveItemHeight += extraMinorPixelsForEachItem;
-                _effectiveItemWidth += extraMajorPixelsForEachItem;
+                var itemSizeMajor = orientation == Orientation.Horizontal ? _effectiveItemHeight : _effectiveItemWidth;
+                var extraMajorPixelsForEachItem = itemSizeMajor * (extraMinorPixelsForEachItem / itemSizeMinor);
+                if (orientation == Orientation.Horizontal)
+                {
+                    _effectiveItemWidth += extraMinorPixelsForEachItem;
+                    _effectiveItemHeight += extraMajorPixelsForEachItem;
+                }
+                else
+                {
+                    _effectiveItemHeight += extraMinorPixelsForEachItem;
+                    _effectiveItemWidth += extraMajorPixelsForEachItem;
+                }
+
+                break;
             }
         }
     }

@@ -56,6 +56,6 @@ public partial class FAFontIcon : FAIconElement
     private void GenerateText()
     {
         _textLayout = new TextLayout(Glyph, new Typeface(FontFamily, FontStyle, FontWeight),
-            FontSize, Foreground, TextAlignment.Left);
+            FontSize, Foreground);
     }
 }

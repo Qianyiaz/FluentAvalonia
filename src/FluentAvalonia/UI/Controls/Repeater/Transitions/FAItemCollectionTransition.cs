@@ -10,7 +10,7 @@ public class FAItemCollectionTransition
     private Rect _newBounds;
     private Rect _oldBounds;
 
-    private WeakReference<FAItemCollectionTransitionProvider> _owningProvider;
+    private readonly WeakReference<FAItemCollectionTransitionProvider> _owningProvider;
     private FAItemCollectionTransitionProgress _progress;
 
     public FAItemCollectionTransition(FAItemCollectionTransitionProvider provider, Control element,

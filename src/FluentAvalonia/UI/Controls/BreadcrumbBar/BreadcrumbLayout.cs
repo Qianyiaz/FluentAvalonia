@@ -7,7 +7,7 @@ internal class BreadcrumbLayout : FANonVirtualizingLayout
 {
     private Size _availableSize;
 
-    private WeakReference<FABreadcrumbBar>
+    private readonly WeakReference<FABreadcrumbBar>
         _breadcrumb; // weak_ref because the BreadcrumbBar already points to us via m_itemsRepeaterLayout
 
     private FABreadcrumbBarItem _ellipsisButton;

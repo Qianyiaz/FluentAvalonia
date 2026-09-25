@@ -725,7 +725,7 @@ internal class FlowLayoutAlgorithm : IOrientationBasedMeasures
         else
             // Should have 0 origin for non-virtualizing layout since we always start from
             // the first item
-            Debug.Assert(_lastExtent.X == 0 && _lastExtent.Y == 0);
+            Debug.Assert(_lastExtent is { X: 0, Y: 0 });
     }
 
     internal Control GetElementIfRealized(int dataIndex)

@@ -67,7 +67,7 @@ public sealed class FAExpanderExt : AvaloniaObject
     {
         private readonly Expander _expander;
         private Size _contentSize;
-        private IDisposable _expandedChangedNotice;
+        private readonly IDisposable _expandedChangedNotice;
         private Border _expanderContent;
 
         public ExpanderInfo(Expander expander)
@@ -167,7 +167,7 @@ public sealed class FAExpanderExt : AvaloniaObject
         {
             _expanderContent.SetCurrentValue(Visual.IsVisibleProperty, true);
 
-            if (_expander.Parent is FASettingsExpander se && se.Presenter != null)
+            if (_expander.Parent is FASettingsExpander { Presenter: not null } se)
             {
                 // SettingsExpander does not use Virtualization, so it's safe here to use
                 // Infinity to measure

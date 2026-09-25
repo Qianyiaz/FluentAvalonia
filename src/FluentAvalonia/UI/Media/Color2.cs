@@ -54,10 +54,7 @@ public struct Color2 : IEquatable<Color2>
     /// <summary>
     ///     Gets the Alpha channel of the color, [0,255]
     /// </summary>
-    public byte A
-    {
-        get { return (byte)Math.Round(_alpha * 255); }
-    }
+    public byte A => (byte)Math.Round(_alpha * 255);
 
     /// <summary>
     ///     Gets the Red channel of the color. If color is not an RGB color, it is converted to one. [0,255]
@@ -833,24 +830,33 @@ public struct Color2 : IEquatable<Color2>
         if (value.Contains("#", StringComparison.Ordinal))
         {
             var v = value.Slice(1);
-            if (v.Length == 3 || v.Length == 4)
+            switch (v.Length)
             {
-                Span<char> normal = stackalloc char[v.Length * 2];
-
-                for (var i = 0; i < v.Length; i++) normal[i * 2] = normal[i * 2 + 1] = v[i];
-
-                if (uint.TryParse(normal, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var result))
+                case 3:
+                case 4:
                 {
-                    ec = FromUInt(result | (v.Length == 3 ? 0xff000000 : 0u));
-                    return true;
+                    Span<char> normal = stackalloc char[v.Length * 2];
+
+                    for (var i = 0; i < v.Length; i++) normal[i * 2] = normal[i * 2 + 1] = v[i];
+
+                    if (uint.TryParse(normal, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var result))
+                    {
+                        ec = FromUInt(result | (v.Length == 3 ? 0xff000000 : 0u));
+                        return true;
+                    }
+
+                    break;
                 }
-            }
-            else if (v.Length == 6 || v.Length == 8)
-            {
-                if (uint.TryParse(v, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var result))
+                case 6:
+                case 8:
                 {
-                    ec = FromUInt(result | (v.Length == 6 ? 0xff000000 : 0u));
-                    return true;
+                    if (uint.TryParse(v, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var result))
+                    {
+                        ec = FromUInt(result | (v.Length == 6 ? 0xff000000 : 0u));
+                        return true;
+                    }
+
+                    break;
                 }
             }
         }
@@ -1376,10 +1382,15 @@ public struct Color2 : IEquatable<Color2>
             h *= 60;
         }
 
-        if (h < 0)
-            h += 360;
-        else if (h >= 360)
-            h -= 360;
+        switch (h)
+        {
+            case < 0:
+                h += 360;
+                break;
+            case >= 360:
+                h -= 360;
+                break;
+        }
     }
 
     public static void HSLToRGB(float h, float s, float l, out float r, out float g, out float b)
@@ -1448,10 +1459,15 @@ public struct Color2 : IEquatable<Color2>
                 h = 4 + (r - g) / delta;
 
             h *= 60;
-            if (h < 0)
-                h += 360;
-            else if (h >= 360)
-                h -= 360;
+            switch (h)
+            {
+                case < 0:
+                    h += 360;
+                    break;
+                case >= 360:
+                    h -= 360;
+                    break;
+            }
         }
     }
 

@@ -85,7 +85,7 @@ public sealed class FATabViewListView : ListBox
             if (e.Source is Visual v && v.FindAncestorOfType<FATabViewItem>(true) is { } tvi)
             {
                 var index = IndexFromContainer(tvi);
-                UpdateSelection(index, true);
+                UpdateSelection(index);
                 e.Handled = true;
             }
         };
@@ -377,7 +377,7 @@ public sealed class FATabViewListView : ListBox
             // Note: That Avalonia also has the restriction that INCC collections must also implement
             // the non-generic IList, so we'll also check the IsReadOnly property
             var src = ItemsSource;
-            if (src != null && (src is not INotifyCollectionChanged || (src is IList l && l.IsReadOnly)))
+            if (src != null && (src is not INotifyCollectionChanged || src is IList { IsReadOnly: true }))
             {
                 CancelDrag();
                 Logger.TryGet(LogEventLevel.Debug, "TabView")?
@@ -466,6 +466,7 @@ public sealed class FATabViewListView : ListBox
 
         ComputeEdgeScrollVelocity(e.GetPosition(this), out var pVelocity);
         SetPendingAutoPanVelocity(pVelocity);
+        return;
 
         static void Process(bool isInReorder, bool canReorder, DragEventArgs args)
         {
@@ -564,32 +565,37 @@ public sealed class FATabViewListView : ListBox
         if (dragIndex < insertIndex) insertIndex--;
 
         var itemsSource = ItemsSource;
-        // Avalonia enforces the constraint that INCC must be IList, so this is safe
-        if (itemsSource is IList l)
+        switch (itemsSource)
         {
-            try
-            {
-                // In the event the user has a list that isn't mutable and we got to this
-                // point somehow (we check when reorder starts), don't crash the app
-                // Just silently fail here
+            // Avalonia enforces the constraint that INCC must be IList, so this is safe
+            case IList l:
+                try
+                {
+                    // In the event the user has a list that isn't mutable and we got to this
+                    // point somehow (we check when reorder starts), don't crash the app
+                    // Just silently fail here
 
-                l.RemoveAt(dragIndex);
-                l.Insert(insertIndex, data);
-            }
-            catch
+                    l.RemoveAt(dragIndex);
+                    l.Insert(insertIndex, data);
+                }
+                catch
+                {
+                }
+
+                break;
+            case null:
             {
-            }
-        }
-        else if (itemsSource == null)
-        {
-            var items = Items;
-            try
-            {
-                items.RemoveAt(dragIndex);
-                items.Insert(insertIndex, data);
-            }
-            catch
-            {
+                var items = Items;
+                try
+                {
+                    items.RemoveAt(dragIndex);
+                    items.Insert(insertIndex, data);
+                }
+                catch
+                {
+                }
+
+                break;
             }
         }
 
@@ -748,12 +754,15 @@ public sealed class FATabViewListView : ListBox
     internal Orientation? GetLogicalOrientation()
     {
         var panel = ItemsPanelRoot;
-        if (panel is VirtualizingStackPanel vsp)
-            return vsp.Orientation;
-        if (panel is StackPanel sp)
-            return sp.Orientation;
-
-        return null;
+        switch (panel)
+        {
+            case VirtualizingStackPanel vsp:
+                return vsp.Orientation;
+            case StackPanel sp:
+                return sp.Orientation;
+            default:
+                return null;
+        }
     }
 
     internal void HandleTabStripLocationChanged(FATabViewTabStripLocation newLocation, string oldClass, string newClass)
@@ -778,33 +787,49 @@ public sealed class FATabViewListView : ListBox
                 if (item is FATabViewItem tvi)
                     tvi.HandleTabStripLocationChanged(newLocation);
 
-            // If we have a Stacking Panel, adjust its orientation
-            // If user uses any other type of panel, do nothing & log warning
-            // User will need to monitor changes and adjust their panel accordingly
-            if (panel is VirtualizingStackPanel vsp)
+            switch (panel)
             {
-                if (vsp.Orientation == Orientation.Vertical &&
-                    (newLocation == FATabViewTabStripLocation.Top || newLocation == FATabViewTabStripLocation.Bottom))
-                    vsp.Orientation = Orientation.Horizontal;
-                else if (vsp.Orientation == Orientation.Horizontal &&
-                         (newLocation == FATabViewTabStripLocation.Left ||
-                          newLocation == FATabViewTabStripLocation.Right))
-                    vsp.Orientation = Orientation.Vertical;
-            }
-            else if (panel is StackPanel sp)
-            {
-                if (sp.Orientation == Orientation.Vertical &&
-                    (newLocation == FATabViewTabStripLocation.Top || newLocation == FATabViewTabStripLocation.Bottom))
-                    sp.Orientation = Orientation.Horizontal;
-                else if (sp.Orientation == Orientation.Horizontal &&
-                         (newLocation == FATabViewTabStripLocation.Left ||
-                          newLocation == FATabViewTabStripLocation.Right))
-                    sp.Orientation = Orientation.Vertical;
-            }
-            else
-            {
-                Logger.Sink?.Log(LogEventLevel.Warning, "TabView", this,
-                    "User has TabView with non-stacking panel, which may not be compatible with TabStripLocation changes");
+                // If we have a Stacking Panel, adjust its orientation
+                // If user uses any other type of panel, do nothing & log warning
+                // User will need to monitor changes and adjust their panel accordingly
+                case VirtualizingStackPanel vsp:
+                {
+                    switch (vsp.Orientation)
+                    {
+                        case Orientation.Vertical when
+                            (newLocation == FATabViewTabStripLocation.Top || newLocation == FATabViewTabStripLocation.Bottom):
+                            vsp.Orientation = Orientation.Horizontal;
+                            break;
+                        case Orientation.Horizontal when
+                            (newLocation == FATabViewTabStripLocation.Left ||
+                             newLocation == FATabViewTabStripLocation.Right):
+                            vsp.Orientation = Orientation.Vertical;
+                            break;
+                    }
+
+                    break;
+                }
+                case StackPanel sp:
+                {
+                    switch (sp.Orientation)
+                    {
+                        case Orientation.Vertical when
+                            (newLocation == FATabViewTabStripLocation.Top || newLocation == FATabViewTabStripLocation.Bottom):
+                            sp.Orientation = Orientation.Horizontal;
+                            break;
+                        case Orientation.Horizontal when
+                            (newLocation == FATabViewTabStripLocation.Left ||
+                             newLocation == FATabViewTabStripLocation.Right):
+                            sp.Orientation = Orientation.Vertical;
+                            break;
+                    }
+
+                    break;
+                }
+                default:
+                    Logger.Sink?.Log(LogEventLevel.Warning, "TabView", this,
+                        "User has TabView with non-stacking panel, which may not be compatible with TabStripLocation changes");
+                    break;
             }
         }
     }

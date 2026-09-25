@@ -56,15 +56,13 @@ public partial class FATabView
     ///     Defines the <see cref="TabWidthMode" /> property
     /// </summary>
     public static readonly StyledProperty<FATabViewWidthMode> TabWidthModeProperty =
-        AvaloniaProperty.Register<FATabView, FATabViewWidthMode>(nameof(TabWidthMode),
-            FATabViewWidthMode.Equal);
+        AvaloniaProperty.Register<FATabView, FATabViewWidthMode>(nameof(TabWidthMode));
 
     /// <summary>
     ///     Defines the <see cref="CloseButtonOverlayMode" /> property
     /// </summary>
     public static readonly StyledProperty<FATabViewCloseButtonOverlayMode> CloseButtonOverlayModeProperty =
-        AvaloniaProperty.Register<FATabView, FATabViewCloseButtonOverlayMode>(nameof(CloseButtonOverlayMode),
-            FATabViewCloseButtonOverlayMode.Auto);
+        AvaloniaProperty.Register<FATabView, FATabViewCloseButtonOverlayMode>(nameof(CloseButtonOverlayMode));
 
     /// <summary>
     ///     Definse the <see cref="TabStripHeader" /> property
@@ -131,7 +129,7 @@ public partial class FATabView
     ///     Defines the <see cref="CanDragTabs" /> property
     /// </summary>
     public static readonly StyledProperty<bool> CanDragTabsProperty =
-        AvaloniaProperty.Register<FATabView, bool>(nameof(CanDragTabs), false);
+        AvaloniaProperty.Register<FATabView, bool>(nameof(CanDragTabs));
 
     /// <summary>
     ///     Defines the <see cref="CanReorderTabs" /> property
@@ -193,12 +191,11 @@ public partial class FATabView
     ///     Defines the <see cref="VerticalPaneDisplayMode" /> property
     /// </summary>
     public static readonly StyledProperty<SplitViewDisplayMode> VerticalPaneDisplayModeProperty =
-        AvaloniaProperty.Register<FATabView, SplitViewDisplayMode>(nameof(VerticalPaneDisplayMode),
-            SplitViewDisplayMode.Inline);
+        AvaloniaProperty.Register<FATabView, SplitViewDisplayMode>(nameof(VerticalPaneDisplayMode));
 
     // These two come from the WinUI port, so they don't follow the normal naming convention for parity upstream
-    private static string c_tabViewItemMinWidthName = "TabViewItemMinWidth";
-    private static string c_tabViewItemMaxWidthName = "TabViewItemMaxWidth";
+    private static readonly string c_tabViewItemMinWidthName = "TabViewItemMinWidth";
+    private static readonly string c_tabViewItemMaxWidthName = "TabViewItemMaxWidth";
 
     // private static readonly string SR_TabViewCloseButtonTooltipWithKA = "TabViewCloseButtonTooltipWithKA";
     // private static readonly string SR_TabViewAddButtonTooltip = "TabViewAddButtonTooltip";

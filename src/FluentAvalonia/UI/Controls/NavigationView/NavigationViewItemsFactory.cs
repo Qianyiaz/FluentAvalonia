@@ -22,11 +22,17 @@ internal class NavigationViewItemsFactory : FAElementFactory
         _itemTemplateWrapper = newValue as IFAElementFactory;
         if (_itemTemplateWrapper == null)
         {
-            // ItemTemplate set does not implement IElementFactoryShim. We also 
-            // want to support DataTemplate and DataTemplateSelectors automagically.
-            if (newValue is IDataTemplate dt)
-                _itemTemplateWrapper = new FAItemTemplateWrapper(dt);
-            else if (newValue is FADataTemplateSelector dts) _itemTemplateWrapper = new FAItemTemplateWrapper(dts);
+            switch (newValue)
+            {
+                // ItemTemplate set does not implement IElementFactoryShim. We also 
+                // want to support DataTemplate and DataTemplateSelectors automagically.
+                case IDataTemplate dt:
+                    _itemTemplateWrapper = new FAItemTemplateWrapper(dt);
+                    break;
+                case FADataTemplateSelector dts:
+                    _itemTemplateWrapper = new FAItemTemplateWrapper(dts);
+                    break;
+            }
         }
 
         _navViewPool = new List<FANavigationViewItem>(4);
@@ -84,24 +90,23 @@ internal class NavigationViewItemsFactory : FAElementFactory
     {
         if (args.Element != null)
         {
-            if (args.Element is FANavigationViewItem nvi)
+            if (args.Element is FANavigationViewItem { CreatedByNavigationViewItemsFactory: true } nvi)
                 // Check whether we wrapped the element in a NavigationViewItem ourselves.
                 // If yes, we are responsible for recycling it.
-                if (nvi.CreatedByNavigationViewItemsFactory)
+            {
+                nvi.CreatedByNavigationViewItemsFactory = false;
+                UnlinkElementFromParent(args);
+                args.Element = null;
+
+                _navViewPool.Add(nvi);
+
+                // Retrieve the proper element that requires recycling for a user defined item template
+                // and update the args correspondingly
+                if (_itemTemplateWrapper != null)
                 {
-                    nvi.CreatedByNavigationViewItemsFactory = false;
-                    UnlinkElementFromParent(args);
-                    args.Element = null;
-
-                    _navViewPool.Add(nvi);
-
-                    // Retrieve the proper element that requires recycling for a user defined item template
-                    // and update the args correspondingly
-                    if (_itemTemplateWrapper != null)
-                    {
-                        // TODO: Retrieve the element and add to the args
-                    }
+                    // TODO: Retrieve the element and add to the args
                 }
+            }
 
             // Do not recycle SettingsItem
             var isSettingsItem = _settingsItem != null && _settingsItem == args.Element;

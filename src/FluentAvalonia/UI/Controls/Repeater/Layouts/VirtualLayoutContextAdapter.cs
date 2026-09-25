@@ -7,7 +7,7 @@ internal class VirtualLayoutContextAdapter : FANonVirtualizingLayoutContext
 {
     private ChildrenCollection _children;
 
-    private WeakReference<FAVirtualizingLayoutContext> _virtualizingContext;
+    private readonly WeakReference<FAVirtualizingLayoutContext> _virtualizingContext;
 
     public VirtualLayoutContextAdapter(FAVirtualizingLayoutContext context)
     {
@@ -37,7 +37,7 @@ internal class VirtualLayoutContextAdapter : FANonVirtualizingLayoutContext
     // with returning a generic type
     private class ChildrenCollection : IReadOnlyList<Control>
     {
-        private FAVirtualizingLayoutContext _context;
+        private readonly FAVirtualizingLayoutContext _context;
 
         public ChildrenCollection(FAVirtualizingLayoutContext context)
         {
@@ -46,10 +46,7 @@ internal class VirtualLayoutContextAdapter : FANonVirtualizingLayoutContext
 
         public int Count => _context.ItemCount;
 
-        public Control this[int index]
-        {
-            get => _context.GetOrCreateElementAt(index, FAElementRealizationOptions.None);
-        }
+        public Control this[int index] => _context.GetOrCreateElementAt(index, FAElementRealizationOptions.None);
 
         public IEnumerator<Control> GetEnumerator()
         {

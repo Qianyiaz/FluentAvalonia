@@ -78,7 +78,7 @@ public partial class FANavigationView : HeaderedContentControl
     private RowDefinition _itemsContainerRow;
     private IDisposable _itemsContainerSizeRevoker;
 
-    private NavigationViewItemsFactory _itemsFactory;
+    private readonly NavigationViewItemsFactory _itemsFactory;
 
     private FANavigationViewItem _lastItemExpandedIntoFlyout;
     private object _lastSelectedItemPendingAnimationInTopNav;
@@ -134,8 +134,8 @@ public partial class FANavigationView : HeaderedContentControl
     // A flag to track that the selectionchange is caused by selection a item in topnav overflow menu
     private bool _selectionChangeFromOverflowMenu;
 
-    private SelectionModel _selectionModel;
-    private AvaloniaList<IEnumerable> _selectionModelSource;
+    private readonly SelectionModel _selectionModel;
+    private readonly AvaloniaList<IEnumerable> _selectionModelSource;
 
 
     // flag is used to stop recursive call. eg:
@@ -154,7 +154,7 @@ public partial class FANavigationView : HeaderedContentControl
 
     // private bool _tabKeyPrecedesFocusChange;
 
-    private TopNavigationViewDataProvider _topDataProvider;
+    private readonly TopNavigationViewDataProvider _topDataProvider;
     private ContentControl _topNavAutoSuggestBoxPresenter;
     private Border _topNavContentOverlayAreaGrid;
     private FAItemsRepeater _topNavFooterMenuRepeater;
@@ -178,7 +178,7 @@ public partial class FANavigationView : HeaderedContentControl
 
     private bool IsTopPrimaryListVisible => _topNavRepeater != null && TemplateSettings.TopPaneVisibility;
 
-    internal bool IsOverlay => _splitView != null && _splitView.DisplayMode == SplitViewDisplayMode.Overlay;
+    internal bool IsOverlay => _splitView is { DisplayMode: SplitViewDisplayMode.Overlay };
 
     private bool IsLightDismissable => _splitView != null && _splitView.DisplayMode != SplitViewDisplayMode.Inline &&
                                        _splitView.DisplayMode != SplitViewDisplayMode.CompactInline;
@@ -318,7 +318,7 @@ public partial class FANavigationView : HeaderedContentControl
     private static bool IsRootGridOfFlyout(object item)
     {
         //TODO: Why do we need the root grid of the flyout?
-        return item is Panel p && p.Name == "FlyoutRootGrid";
+        return item is Panel { Name: "FlyoutRootGrid" };
     }
 
     private FAItemsRepeater GetParentRootItemsRepeaterForContainer(FANavigationViewItemBase nvib)
@@ -453,26 +453,26 @@ public partial class FANavigationView : HeaderedContentControl
 
     private static int GetContainerCountInRepeater(FAItemsRepeater ir)
     {
-        if (ir != null && ir.ItemsSourceView != null) return ir.ItemsSourceView.Count;
+        if (ir is { ItemsSourceView: not null }) return ir.ItemsSourceView.Count;
 
         return -1;
     }
 
     private static bool DoesRepeaterHaveRealizedContainers(FAItemsRepeater ir)
     {
-        return ir != null && ir.TryGetElement(0) != null;
+        return ir?.TryGetElement(0) != null;
     }
 
     private static int GetIndexFromItem(FAItemsRepeater ir, object data)
     {
-        if (ir != null && ir.ItemsSourceView != null) return ir.ItemsSourceView.IndexOf(data);
+        if (ir is { ItemsSourceView: not null }) return ir.ItemsSourceView.IndexOf(data);
 
         return -1;
     }
 
     private static object GetItemFromIndex(FAItemsRepeater ir, int index)
     {
-        if (ir != null && ir.ItemsSourceView != null) return ir.ItemsSourceView.GetAt(index);
+        if (ir is { ItemsSourceView: not null }) return ir.ItemsSourceView.GetAt(index);
 
         return null;
     }
@@ -524,12 +524,15 @@ public partial class FANavigationView : HeaderedContentControl
 
     internal FANavigationViewItem GetSelectedContainer()
     {
-        if (SelectedItem == null)
-            return null;
-
-        if (SelectedItem is FANavigationViewItem nvi) return nvi;
-
-        return NavigationViewItemOrSettingsContentFromData(SelectedItem);
+        switch (SelectedItem)
+        {
+            case null:
+                return null;
+            case FANavigationViewItem nvi:
+                return nvi;
+            default:
+                return NavigationViewItemOrSettingsContentFromData(SelectedItem);
+        }
     }
 
     private static IEnumerable GetChildren(FANavigationViewItem nvi)

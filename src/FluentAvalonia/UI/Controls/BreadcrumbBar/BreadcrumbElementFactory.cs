@@ -9,11 +9,15 @@ internal class BreadcrumbElementFactory : FAElementFactory
 
     public void UserElementFactory(object newValue)
     {
-        if (newValue is IDataTemplate template)
-            _itemTemplateWrapper = new FAItemTemplateWrapper(template);
-        else if (newValue is FADataTemplateSelector dts)
-            _itemTemplateWrapper = new FAItemTemplateWrapper(dts);
-        else if (newValue is IFAElementFactory ef) _itemTemplateWrapper = ef;
+        switch (newValue)
+        {
+            case IDataTemplate template:
+                _itemTemplateWrapper = new FAItemTemplateWrapper(template);
+                break;
+            case FADataTemplateSelector dts:
+                _itemTemplateWrapper = new FAItemTemplateWrapper(dts);
+                break;
+        }
     }
 
     protected override Control GetElementCore(FAElementFactoryGetArgs args)

@@ -83,11 +83,16 @@ internal static partial class NumberBoxParser
 
     public static int GetPrecedenceValue(char c)
     {
-        if (c == '*' || c == '/') return 1;
-
-        if (c == '^') return 2;
-
-        return 0;
+        switch (c)
+        {
+            case '*':
+            case '/':
+                return 1;
+            case '^':
+                return 2;
+            default:
+                return 0;
+        }
     }
 
     // Converts a list of tokens from infix format (e.g. "3 + 5") to postfix (e.g. "3 5 +")
@@ -97,50 +102,55 @@ internal static partial class NumberBoxParser
         var operatorTokens = new Stack<MathToken>();
 
         foreach (var token in infixTokens)
-            if (token.Type == MathTokenType.Numeric)
+            switch (token.Type)
             {
-                postFixTokens.Add(token);
-            }
-            else if (token.Type == MathTokenType.Operator)
-            {
-                while (operatorTokens.Count != 0)
+                case MathTokenType.Numeric:
+                    postFixTokens.Add(token);
+                    break;
+                case MathTokenType.Operator:
                 {
-                    var top = operatorTokens.Peek();
-                    if (top.Type != MathTokenType.Parenthesis &&
-                        GetPrecedenceValue(top.Char) >= GetPrecedenceValue(token.Char))
+                    while (operatorTokens.Count != 0)
                     {
-                        postFixTokens.Add(top);
-                        operatorTokens.Pop();
+                        var top = operatorTokens.Peek();
+                        if (top.Type != MathTokenType.Parenthesis &&
+                            GetPrecedenceValue(top.Char) >= GetPrecedenceValue(token.Char))
+                        {
+                            postFixTokens.Add(top);
+                            operatorTokens.Pop();
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+
+                    operatorTokens.Push(token);
+                    break;
+                }
+                case MathTokenType.Parenthesis:
+                {
+                    if (token.Char == '(')
+                    {
+                        operatorTokens.Push(token);
                     }
                     else
                     {
-                        break;
-                    }
-                }
+                        while (operatorTokens.Count != 0 && operatorTokens.Peek().Char != '(')
+                        {
+                            // Pop operators onto output until we reach a left paren
+                            postFixTokens.Add(operatorTokens.Peek());
+                            operatorTokens.Pop();
+                        }
 
-                operatorTokens.Push(token);
-            }
-            else if (token.Type == MathTokenType.Parenthesis)
-            {
-                if (token.Char == '(')
-                {
-                    operatorTokens.Push(token);
-                }
-                else
-                {
-                    while (operatorTokens.Count != 0 && operatorTokens.Peek().Char != '(')
-                    {
-                        // Pop operators onto output until we reach a left paren
-                        postFixTokens.Add(operatorTokens.Peek());
+                        if (operatorTokens.Count == 0)
+                            // Broken parenthesis
+                            return null;
+
+                        // Pop left paren and discard
                         operatorTokens.Pop();
                     }
 
-                    if (operatorTokens.Count == 0)
-                        // Broken parenthesis
-                        return null;
-
-                    // Pop left paren and discard
-                    operatorTokens.Pop();
+                    break;
                 }
             }
 
@@ -162,50 +172,53 @@ internal static partial class NumberBoxParser
         var stack = new Stack<double?>();
 
         foreach (var token in tokens)
-            if (token.Type == MathTokenType.Operator)
+            switch (token.Type)
             {
-                // There has to be at least two values on the stack to apply
-                if (stack.Count < 2) return null;
-
-                var op1 = stack.Pop().Value;
-                var op2 = stack.Pop().Value;
-
-                double? result = 0;
-
-                switch (token.Char)
+                case MathTokenType.Operator:
                 {
-                    case '-':
-                        result = op2 - op1;
-                        break;
+                    // There has to be at least two values on the stack to apply
+                    if (stack.Count < 2) return null;
 
-                    case '+':
-                        result = op1 + op2;
-                        break;
+                    var op1 = stack.Pop().Value;
+                    var op2 = stack.Pop().Value;
 
-                    case '*':
-                        result = op1 * op2;
-                        break;
+                    double? result = 0;
 
-                    case '/':
-                        if (op1 == 0) return double.NaN;
+                    switch (token.Char)
+                    {
+                        case '-':
+                            result = op2 - op1;
+                            break;
 
-                        result = op2 / op1;
-                        break;
+                        case '+':
+                            result = op1 + op2;
+                            break;
 
-                    case '^':
-                        result = double.Pow(op2, op1);
-                        break;
+                        case '*':
+                            result = op1 * op2;
+                            break;
 
-                    default:
-                        result = null;
-                        break;
+                        case '/':
+                            if (op1 == 0) return double.NaN;
+
+                            result = op2 / op1;
+                            break;
+
+                        case '^':
+                            result = double.Pow(op2, op1);
+                            break;
+
+                        default:
+                            result = null;
+                            break;
+                    }
+
+                    stack.Push(result);
+                    break;
                 }
-
-                stack.Push(result);
-            }
-            else if (token.Type == MathTokenType.Numeric)
-            {
-                stack.Push(token.Value);
+                case MathTokenType.Numeric:
+                    stack.Push(token.Value);
+                    break;
             }
 
         if (stack.Count != 1) return null;
@@ -216,7 +229,7 @@ internal static partial class NumberBoxParser
     public static double? Compute(string expr)
     {
         var tokens = GetTokens(expr.AsSpan());
-        if (tokens != null && tokens.Count > 0)
+        if (tokens is { Count: > 0 })
         {
             // Rearrange to postfix notation
             var postfixTokens = ConvertInfixToPostfix(tokens);

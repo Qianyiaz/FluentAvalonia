@@ -39,8 +39,7 @@ public partial class FARangeSlider
     ///     Defines the <see cref="RangeStart" /> property
     /// </summary>
     public static readonly StyledProperty<double> RangeStartProperty =
-        AvaloniaProperty.Register<FARangeSlider, double>(nameof(RangeStart),
-            0, defaultBindingMode: BindingMode.TwoWay);
+        AvaloniaProperty.Register<FARangeSlider, double>(nameof(RangeStart), defaultBindingMode: BindingMode.TwoWay);
 
     /// <summary>
     ///     Defines the <see cref="RangeEnd" /> property
@@ -66,7 +65,7 @@ public partial class FARangeSlider
     ///     Defines the <see cref="MinimumRange" /> property
     /// </summary>
     public static readonly StyledProperty<double> MinimumRangeProperty =
-        AvaloniaProperty.Register<FARangeSlider, double>(nameof(MinimumRange), 0d);
+        AvaloniaProperty.Register<FARangeSlider, double>(nameof(MinimumRange));
 
 
     /// <summary>

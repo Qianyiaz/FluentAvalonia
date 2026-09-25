@@ -81,12 +81,17 @@ public class FACommandBarFlyout : PopupFlyoutBase
                         e.NewItems.Cast<IFACommandBarElement>());
 
                     for (var i = 0; i < e.NewItems.Count; i++)
-                        if (e.NewItems[i] is FACommandBarButton b)
-                            b.Click += OnCommandBarButtonInSecondaryCommandsClick;
-                        else if (e.NewItems[i] is FACommandBarToggleButton tb)
+                        switch (e.NewItems[i])
+                        {
+                            case FACommandBarButton b:
+                                b.Click += OnCommandBarButtonInSecondaryCommandsClick;
+                                break;
                             // Fortunately Click is fired even on ToggleButton so we
                             // don't need to hook Checked/Unchecked
-                            tb.Click += OnCommandBarButtonInSecondaryCommandsClick;
+                            case FACommandBarToggleButton tb:
+                                tb.Click += OnCommandBarButtonInSecondaryCommandsClick;
+                                break;
+                        }
 
                     break;
 
@@ -94,12 +99,17 @@ public class FACommandBarFlyout : PopupFlyoutBase
                     _commandBar.SecondaryCommands.RemoveRange(e.OldStartingIndex, e.OldItems.Count);
 
                     for (var i = 0; i < e.OldItems.Count; i++)
-                        if (e.OldItems[i] is FACommandBarButton b)
-                            b.Click -= OnCommandBarButtonInSecondaryCommandsClick;
-                        else if (e.OldItems[i] is FACommandBarToggleButton tb)
+                        switch (e.OldItems[i])
+                        {
+                            case FACommandBarButton b:
+                                b.Click -= OnCommandBarButtonInSecondaryCommandsClick;
+                                break;
                             // Fortunately Click is fired even on ToggleButton so we
                             // don't need to hook Checked/Unchecked
-                            tb.Click -= OnCommandBarButtonInSecondaryCommandsClick;
+                            case FACommandBarToggleButton tb:
+                                tb.Click -= OnCommandBarButtonInSecondaryCommandsClick;
+                                break;
+                        }
 
                     break;
 
@@ -114,12 +124,17 @@ public class FACommandBarFlyout : PopupFlyoutBase
                     _commandBar.SecondaryCommands.Clear();
                     if (e.OldItems != null)
                         for (var i = 0; i < e.OldItems.Count; i++)
-                            if (e.OldItems[i] is FACommandBarButton b)
-                                b.Click -= OnCommandBarButtonInSecondaryCommandsClick;
-                            else if (e.OldItems[i] is FACommandBarToggleButton tb)
+                            switch (e.OldItems[i])
+                            {
+                                case FACommandBarButton b:
+                                    b.Click -= OnCommandBarButtonInSecondaryCommandsClick;
+                                    break;
                                 // Fortunately Click is fired even on ToggleButton so we
                                 // don't need to hook Checked/Unchecked
-                                tb.Click -= OnCommandBarButtonInSecondaryCommandsClick;
+                                case FACommandBarToggleButton tb:
+                                    tb.Click -= OnCommandBarButtonInSecondaryCommandsClick;
+                                    break;
+                            }
 
                     break;
             }
@@ -178,12 +193,17 @@ public class FACommandBarFlyout : PopupFlyoutBase
             _commandBar.SecondaryCommands.AddRange(SecondaryCommands);
 
             for (var i = 0; i < SecondaryCommands.Count; i++)
-                if (SecondaryCommands[i] is FACommandBarButton b)
-                    b.Click += OnCommandBarButtonInSecondaryCommandsClick;
-                else if (SecondaryCommands[i] is FACommandBarToggleButton tb)
+                switch (SecondaryCommands[i])
+                {
+                    case FACommandBarButton b:
+                        b.Click += OnCommandBarButtonInSecondaryCommandsClick;
+                        break;
                     // Fortunately Click is fired even on ToggleButton so we
                     // don't need to hook Checked/Unchecked
-                    tb.Click += OnCommandBarButtonInSecondaryCommandsClick;
+                    case FACommandBarToggleButton tb:
+                        tb.Click += OnCommandBarButtonInSecondaryCommandsClick;
+                        break;
+                }
         }
 
         if (AlwaysExpanded)

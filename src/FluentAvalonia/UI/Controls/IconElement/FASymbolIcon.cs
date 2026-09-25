@@ -22,7 +22,7 @@ public class FASymbolIcon : FAIconElement
     public static readonly StyledProperty<double> FontSizeProperty =
         TextElement.FontSizeProperty.AddOwner<FASymbolIcon>();
 
-    private static FontFamily _symbolFontFamily;
+    private static readonly FontFamily _symbolFontFamily;
 
     private TextLayout _textLayout;
 
@@ -103,6 +103,6 @@ public class FASymbolIcon : FAIconElement
 
         _textLayout = new TextLayout(glyph,
             new Typeface(_symbolFontFamily),
-            FontSize, Foreground, TextAlignment.Left);
+            FontSize, Foreground);
     }
 }

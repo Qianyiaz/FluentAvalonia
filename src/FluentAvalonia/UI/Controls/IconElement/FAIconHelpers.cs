@@ -21,11 +21,9 @@ public static class FAIconHelpers
         };
 
         if (fis.IsSet(FAIconSource.ForegroundProperty))
-            fi.Bind(TextElement.ForegroundProperty, fis.GetBindingObservable(FAIconSource.ForegroundProperty),
-                BindingPriority.LocalValue);
+            fi.Bind(TextElement.ForegroundProperty, fis.GetBindingObservable(FAIconSource.ForegroundProperty));
         else
-            fi.Bind(TextElement.ForegroundProperty, fis.GetBindingObservable(FAIconSource.ForegroundProperty).Skip(1),
-                BindingPriority.LocalValue);
+            fi.Bind(TextElement.ForegroundProperty, fis.GetBindingObservable(FAIconSource.ForegroundProperty).Skip(1));
 
         return fi;
     }
@@ -40,11 +38,9 @@ public static class FAIconHelpers
         };
 
         if (pis.IsSet(FAIconSource.ForegroundProperty))
-            pi.Bind(TextElement.ForegroundProperty, pis.GetBindingObservable(FAIconSource.ForegroundProperty),
-                BindingPriority.LocalValue);
+            pi.Bind(TextElement.ForegroundProperty, pis.GetBindingObservable(FAIconSource.ForegroundProperty));
         else
-            pi.Bind(TextElement.ForegroundProperty, pis.GetBindingObservable(FAIconSource.ForegroundProperty).Skip(1),
-                BindingPriority.LocalValue);
+            pi.Bind(TextElement.ForegroundProperty, pis.GetBindingObservable(FAIconSource.ForegroundProperty).Skip(1));
 
         return pi;
     }
@@ -58,11 +54,9 @@ public static class FAIconHelpers
         };
 
         if (sis.IsSet(FAIconSource.ForegroundProperty))
-            si.Bind(TextElement.ForegroundProperty, sis.GetBindingObservable(FAIconSource.ForegroundProperty),
-                BindingPriority.LocalValue);
+            si.Bind(TextElement.ForegroundProperty, sis.GetBindingObservable(FAIconSource.ForegroundProperty));
         else
-            si.Bind(TextElement.ForegroundProperty, sis.GetBindingObservable(FAIconSource.ForegroundProperty).Skip(1),
-                BindingPriority.LocalValue);
+            si.Bind(TextElement.ForegroundProperty, sis.GetBindingObservable(FAIconSource.ForegroundProperty).Skip(1));
 
         return si;
     }
@@ -76,11 +70,9 @@ public static class FAIconHelpers
         bi.LinkToBitmapIconSource(bis);
 
         if (bis.IsSet(FAIconSource.ForegroundProperty))
-            bi.Bind(TextElement.ForegroundProperty, bis.GetBindingObservable(FAIconSource.ForegroundProperty),
-                BindingPriority.LocalValue);
+            bi.Bind(TextElement.ForegroundProperty, bis.GetBindingObservable(FAIconSource.ForegroundProperty));
         else
-            bi.Bind(TextElement.ForegroundProperty, bis.GetBindingObservable(FAIconSource.ForegroundProperty).Skip(1),
-                BindingPriority.LocalValue);
+            bi.Bind(TextElement.ForegroundProperty, bis.GetBindingObservable(FAIconSource.ForegroundProperty).Skip(1));
 
         return bi;
     }
@@ -93,26 +85,28 @@ public static class FAIconHelpers
         };
 
         if (iis.IsSet(FAIconSource.ForegroundProperty))
-            ii.Bind(TextElement.ForegroundProperty, iis.GetBindingObservable(FAIconSource.ForegroundProperty),
-                BindingPriority.LocalValue);
+            ii.Bind(TextElement.ForegroundProperty, iis.GetBindingObservable(FAIconSource.ForegroundProperty));
         else
-            ii.Bind(TextElement.ForegroundProperty, iis.GetBindingObservable(FAIconSource.ForegroundProperty).Skip(1),
-                BindingPriority.LocalValue);
+            ii.Bind(TextElement.ForegroundProperty, iis.GetBindingObservable(FAIconSource.ForegroundProperty).Skip(1));
 
         return ii;
     }
 
     internal static FAIconElement CreateFromUnknown(FAIconSource src)
     {
-        if (src is FABitmapIconSource bis) return CreateBitmapIconFromBitmapIconSource(bis);
-
-        if (src is FAFontIconSource fis) return CreateFontIconFromFontIconSource(fis);
-
-        if (src is FAPathIconSource pis) return CreatePathIconFromPathIconSource(pis);
-
-        if (src is FASymbolIconSource sis) return CreateSymbolIconFromSymbolIconSource(sis);
-
-        if (src is FAImageIconSource iis) return CreateImageIconFromImageIconSource(iis);
+        switch (src)
+        {
+            case FABitmapIconSource bis:
+                return CreateBitmapIconFromBitmapIconSource(bis);
+            case FAFontIconSource fis:
+                return CreateFontIconFromFontIconSource(fis);
+            case FAPathIconSource pis:
+                return CreatePathIconFromPathIconSource(pis);
+            case FASymbolIconSource sis:
+                return CreateSymbolIconFromSymbolIconSource(sis);
+            case FAImageIconSource iis:
+                return CreateImageIconFromImageIconSource(iis);
+        }
 
         if (_customConverters != null)
         {

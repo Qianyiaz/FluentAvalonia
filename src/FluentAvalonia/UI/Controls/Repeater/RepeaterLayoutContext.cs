@@ -5,7 +5,7 @@ namespace FluentAvalonia.UI.Controls;
 
 internal class RepeaterLayoutContext : FAVirtualizingLayoutContext
 {
-    private WeakReference<FAItemsRepeater> _owner;
+    private readonly WeakReference<FAItemsRepeater> _owner;
 
     public RepeaterLayoutContext(FAItemsRepeater owner)
     {

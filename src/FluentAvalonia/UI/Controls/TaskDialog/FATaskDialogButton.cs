@@ -70,7 +70,7 @@ public class FATaskDialogButton : FATaskDialogControl
     /// </summary>
     public static readonly FATaskDialogButton CloseButton = new(FATaskDialogStandardResult.Close);
 
-    private bool _isStandard;
+    private readonly bool _isStandard;
 
     public FATaskDialogButton()
     {

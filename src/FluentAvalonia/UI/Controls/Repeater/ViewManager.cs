@@ -33,7 +33,7 @@ internal class ViewManager
     private Control _lastFocusedElement;
     private int _lastRealizedElementIndexHeldByLayout = LastRealizedElementIndexDefault;
 
-    private Phaser _phaser;
+    private readonly Phaser _phaser;
 
     public ViewManager(FAItemsRepeater ir)
     {
@@ -222,7 +222,7 @@ internal class ViewManager
         {
             var child = children[i];
             var virtInfo = FAItemsRepeater.TryGetVirtualizationInfo(child);
-            if (virtInfo != null && virtInfo.IsHeldByLayout)
+            if (virtInfo is { IsHeldByLayout: true })
             {
                 var currentIndex = virtInfo.Index;
                 if (currentIndex < clearedIndex)
@@ -483,7 +483,7 @@ internal class ViewManager
 
     internal void OnLayoutChanging()
     {
-        if (_owner.ItemsSourceView != null && _owner.ItemsSourceView.HasKeyIndexMapping)
+        if (_owner.ItemsSourceView is { HasKeyIndexMapping: true })
             _isDataSourceStableResetPending = true;
     }
 
@@ -535,7 +535,7 @@ internal class ViewManager
             {
                 var child = children[i];
                 var virtInfo = FAItemsRepeater.TryGetVirtualizationInfo(child);
-                if (virtInfo != null && virtInfo.IsHeldByLayout)
+                if (virtInfo is { IsHeldByLayout: true })
                 {
                     // Only give back elements held by layout. If someone else is holding it, they will be served by other methods.
                     var childIndex = virtInfo.Index;

@@ -15,8 +15,8 @@ public class FAItemsSourceView
 {
     private int _cachedSize = -1;
     private IDisposable _eventToken;
-    private IFAKeyIndexMapping _uniqueIdMapping;
-    private IEnumerable _vector;
+    private readonly IFAKeyIndexMapping _uniqueIdMapping;
+    private readonly IEnumerable _vector;
 
     public FAItemsSourceView(IEnumerable source)
     {
@@ -160,12 +160,15 @@ public class FAItemsSourceView
 
     private void ListenToCollectionChanges()
     {
-        if (_vector == null)
-            throw new Exception("No source attached");
-
-        if (_vector is INotifyCollectionChanged incc)
-            _eventToken = incc.GetWeakCollectionChangedObservable()
-                .Subscribe(new SimpleObserver<NotifyCollectionChangedEventArgs>(OnCollectionChanged));
+        switch (_vector)
+        {
+            case null:
+                throw new Exception("No source attached");
+            case INotifyCollectionChanged incc:
+                _eventToken = incc.GetWeakCollectionChangedObservable()
+                    .Subscribe(new SimpleObserver<NotifyCollectionChangedEventArgs>(OnCollectionChanged));
+                break;
+        }
     }
 
     private void OnCollectionChanged(NotifyCollectionChangedEventArgs args)

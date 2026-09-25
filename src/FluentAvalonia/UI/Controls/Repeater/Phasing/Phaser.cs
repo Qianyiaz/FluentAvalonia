@@ -50,7 +50,7 @@ internal class Phaser
     {
         MarkCallbackReceived();
 
-        if (_pendingElements != null && _pendingElements.Count > 0 && !BuildTreeScheduler.ShouldYield())
+        if (_pendingElements is { Count: > 0 } && !BuildTreeScheduler.ShouldYield())
         {
             var visibleWindow = _owner.VisibleWindow;
             SortElements(visibleWindow);
@@ -100,22 +100,26 @@ internal class Phaser
                 }
 
                 var pendingCount = _pendingElements.Count;
-                if (currentIndex == -1)
+                switch (currentIndex)
                 {
-                    // Reached the top, start from the bottom again
-                    currentIndex = pendingCount - 1;
-                }
-                else if (currentIndex > -1 && currentIndex < pendingCount - 1)
-                {
-                    // If the next element is oustide the visible window and there are elements in the visible window
-                    // go back to the visible window.
-                    var nextItemIsVisible = visibleWindow.Intersects(
-                        _pendingElements[currentIndex].LastArrangeBounds);
-                    if (!nextItemIsVisible)
+                    case -1:
+                        // Reached the top, start from the bottom again
+                        currentIndex = pendingCount - 1;
+                        break;
+                    case > -1 when currentIndex < pendingCount - 1:
                     {
-                        var haveVisibleItems = visibleWindow.Intersects(
-                            _pendingElements[pendingCount - 1].LastArrangeBounds);
-                        if (haveVisibleItems) currentIndex = pendingCount - 1;
+                        // If the next element is oustide the visible window and there are elements in the visible window
+                        // go back to the visible window.
+                        var nextItemIsVisible = visibleWindow.Intersects(
+                            _pendingElements[currentIndex].LastArrangeBounds);
+                        if (!nextItemIsVisible)
+                        {
+                            var haveVisibleItems = visibleWindow.Intersects(
+                                _pendingElements[pendingCount - 1].LastArrangeBounds);
+                            if (haveVisibleItems) currentIndex = pendingCount - 1;
+                        }
+
+                        break;
                     }
                 }
             } while (_pendingElements.Count > 0 && !BuildTreeScheduler.ShouldYield());
@@ -161,16 +165,18 @@ internal class Phaser
             var rhsBounds = rhs.LastArrangeBounds;
             var rhsIntersects = visibleWindow.Intersects(rhsBounds);
 
-            if ((lhsIntersects && rhsIntersects) ||
-                (!lhsIntersects && !rhsIntersects))
+            switch (lhsIntersects)
+            {
+                case true when rhsIntersects:
                 // Both are in the visible window or both are not
-                return lhs.Phase.CompareTo(rhs.Phase); // ??
-
-            if (lhsIntersects)
+                case false when !rhsIntersects:
+                    return lhs.Phase.CompareTo(rhs.Phase); // ??
                 // Left is in the visible window
-                return 0; // C++ returns false
-
-            return 1; // C++ returns true
+                case true:
+                    return 0; // C++ returns false
+                default:
+                    return 1; // C++ returns true
+            }
         });
     }
 

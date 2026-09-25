@@ -136,8 +136,7 @@ public partial class FANumberBox
     ///     Defines the <see cref="SpinButtonPlacementMode" /> property
     /// </summary>
     public static readonly StyledProperty<FANumberBoxSpinButtonPlacementMode> SpinButtonPlacementModeProperty =
-        AvaloniaProperty.Register<FANumberBox, FANumberBoxSpinButtonPlacementMode>(nameof(SpinButtonPlacementMode),
-            FANumberBoxSpinButtonPlacementMode.Hidden);
+        AvaloniaProperty.Register<FANumberBox, FANumberBoxSpinButtonPlacementMode>(nameof(SpinButtonPlacementMode));
 
     /// <summary>
     ///     Defines the <see cref="Text" /> property

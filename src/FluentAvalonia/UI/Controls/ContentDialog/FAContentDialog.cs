@@ -50,25 +50,32 @@ public partial class FAContentDialog : ContentControl, ICustomKeyboardNavigation
         if (current == null)
             return (false, null);
 
-        if (direction == NavigationDirection.Next)
+        switch (direction)
         {
-            for (var i = 0; i < children.Count; i++)
-                if (children[i] == current)
-                {
-                    if (i == children.Count - 1) return (true, children[0]);
+            case NavigationDirection.Next:
+            {
+                for (var i = 0; i < children.Count; i++)
+                    if (children[i] == current)
+                    {
+                        if (i == children.Count - 1) return (true, children[0]);
 
-                    return (true, children[i + 1]);
-                }
-        }
-        else if (direction == NavigationDirection.Previous)
-        {
-            for (var i = children.Count - 1; i >= 0; i--)
-                if (children[i] == current)
-                {
-                    if (i == 0) return (true, children[^1]);
+                        return (true, children[i + 1]);
+                    }
 
-                    return (true, children[i - 1]);
-                }
+                break;
+            }
+            case NavigationDirection.Previous:
+            {
+                for (var i = children.Count - 1; i >= 0; i--)
+                    if (children[i] == current)
+                    {
+                        if (i == 0) return (true, children[^1]);
+
+                        return (true, children[i - 1]);
+                    }
+
+                break;
+            }
         }
 
         return (false, null);
@@ -242,32 +249,33 @@ public partial class FAContentDialog : ContentControl, ICustomKeyboardNavigation
         }
         else
         {
-            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime al)
+            switch (Application.Current.ApplicationLifetime)
             {
-                var windows = al.Windows;
-                for (var i = 0; i < windows.Count; i++)
-                    if (windows[i].IsActive)
-                    {
-                        topLevel = windows[i];
-                        break;
-                    }
+                case IClassicDesktopStyleApplicationLifetime al:
+                {
+                    var windows = al.Windows;
+                    for (var i = 0; i < windows.Count; i++)
+                        if (windows[i].IsActive)
+                        {
+                            topLevel = windows[i];
+                            break;
+                        }
 
-                if (topLevel == null)
-                    topLevel = al.MainWindow ??
-                               throw new NotSupportedException("No TopLevel root found to parent ContentDialog");
+                    if (topLevel == null)
+                        topLevel = al.MainWindow ??
+                                   throw new NotSupportedException("No TopLevel root found to parent ContentDialog");
 
-                ol = OverlayLayer.GetOverlayLayer(topLevel);
-            }
-            else if (Application.Current.ApplicationLifetime is ISingleViewApplicationLifetime sl)
-            {
-                topLevel = TopLevel.GetTopLevel(sl.MainView);
-                ol = OverlayLayer.GetOverlayLayer(sl.MainView);
-            }
-            else
-            {
-                throw new InvalidOperationException(
-                    "No TopLevel found for ContentDialog and no ApplicationLifetime is set. " +
-                    "Please either supply a valid ApplicationLifetime or TopLevel to ShowAsync()");
+                    ol = OverlayLayer.GetOverlayLayer(topLevel);
+                    break;
+                }
+                case ISingleViewApplicationLifetime sl:
+                    topLevel = TopLevel.GetTopLevel(sl.MainView);
+                    ol = OverlayLayer.GetOverlayLayer(sl.MainView);
+                    break;
+                default:
+                    throw new InvalidOperationException(
+                        "No TopLevel found for ContentDialog and no ApplicationLifetime is set. " +
+                        "Please either supply a valid ApplicationLifetime or TopLevel to ShowAsync()");
             }
         }
 
@@ -522,7 +530,7 @@ public partial class FAContentDialog : ContentControl, ICustomKeyboardNavigation
 
         if (_lastFocus != null)
         {
-            _lastFocus.Focus(NavigationMethod.Unspecified);
+            _lastFocus.Focus();
             _lastFocus = null;
         }
 
@@ -538,13 +546,21 @@ public partial class FAContentDialog : ContentControl, ICustomKeyboardNavigation
 
         if (_originalHost != null)
         {
-            if (_originalHost is Panel p)
-                p.Children.Insert(_originalHostIndex, this);
-            else if (_originalHost is Decorator d)
-                d.Child = this;
-            else if (_originalHost is ContentControl cc)
-                cc.Content = this;
-            else if (_originalHost is ContentPresenter cp) cp.Content = this;
+            switch (_originalHost)
+            {
+                case Panel p:
+                    p.Children.Insert(_originalHostIndex, this);
+                    break;
+                case Decorator d:
+                    d.Child = this;
+                    break;
+                case ContentControl cc:
+                    cc.Content = this;
+                    break;
+                case ContentPresenter cp:
+                    cp.Content = this;
+                    break;
+            }
         }
 
         _hotkeyDownVisual = null;

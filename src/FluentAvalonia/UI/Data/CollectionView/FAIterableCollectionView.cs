@@ -17,12 +17,12 @@ public sealed class FAIterableCollectionView : IFACollectionView, IFAAdvancedCol
     private static BindingEvaluator<object> _bindingHelper;
     private int _deferCounter;
     private Predicate<object> _filter;
-    private HashSet<string> _filterProperties;
-    private bool _hasFilterOrSort;
+    private readonly HashSet<string> _filterProperties;
+    private readonly bool _hasFilterOrSort;
 
     private IList<FASortDescription> _sortDescriptions;
-    private IEnumerable _source;
-    private ItemsSourceView _sourceView;
+    private readonly IEnumerable _source;
+    private readonly ItemsSourceView _sourceView;
     private List<object> _view;
 
     public FAIterableCollectionView(IEnumerable collection)
@@ -351,7 +351,7 @@ public sealed class FAIterableCollectionView : IFACollectionView, IFAAdvancedCol
     Task<FALoadMoreItemsResult> IFACollectionView.LoadMoreItemsAsync(uint count) =>
         throw new NotImplementedException();
 
-    bool IList.IsFixedSize => _source is IList l && l.IsFixedSize;
+    bool IList.IsFixedSize => _source is IList { IsFixedSize: true };
 
     bool ICollection.IsSynchronized => false;
 
@@ -536,7 +536,7 @@ public sealed class FAIterableCollectionView : IFACollectionView, IFAAdvancedCol
             if (_filter != null && !_filter(item))
                 continue;
 
-            if (_sortDescriptions != null && _sortDescriptions.Count > 0)
+            if (_sortDescriptions is { Count: > 0 })
             {
                 var targetIndex = _view.BinarySearch(item, this);
                 if (targetIndex < 0)
@@ -605,7 +605,7 @@ public sealed class FAIterableCollectionView : IFACollectionView, IFAAdvancedCol
 
         var newViewIndex = _view.Count;
 
-        if (_sortDescriptions != null && _sortDescriptions.Count > 0)
+        if (_sortDescriptions is { Count: > 0 })
         {
             //_sortProperties.Clear();
             newViewIndex = _view.BinarySearch(newItem, this);

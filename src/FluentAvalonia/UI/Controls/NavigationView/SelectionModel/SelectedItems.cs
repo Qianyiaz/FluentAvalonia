@@ -16,10 +16,10 @@ internal struct SelectedItemInfo
 
 internal class SelectedItems<T> : IReadOnlyList<T>
 {
-    private Func<IList<SelectedItemInfo>, int, T> _getAtImpl;
+    private readonly Func<IList<SelectedItemInfo>, int, T> _getAtImpl;
 
-    private IList<SelectedItemInfo> _infos;
-    private int _totalCount;
+    private readonly IList<SelectedItemInfo> _infos;
+    private readonly int _totalCount;
 
     public SelectedItems(IList<SelectedItemInfo> infos,
         Func<IList<SelectedItemInfo>, int, T> getAtImpl)
@@ -50,7 +50,7 @@ internal class SelectedItems<T> : IReadOnlyList<T>
     {
         private int _currentIndex;
 
-        private IReadOnlyList<TInner> _owner;
+        private readonly IReadOnlyList<TInner> _owner;
 
         public Iterator(IReadOnlyList<TInner> owner)
         {

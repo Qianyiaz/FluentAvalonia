@@ -50,7 +50,7 @@ public class FAImageIcon : FAIconElement
     {
         var size = Bounds.Size;
         var src = Source;
-        if (src != null && size.Width > 0 && size.Height > 0)
+        if (src != null && size is { Width: > 0, Height: > 0 })
         {
             var viewport = new Rect(size);
 

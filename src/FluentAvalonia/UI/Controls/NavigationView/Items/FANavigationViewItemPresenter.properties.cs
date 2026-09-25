@@ -72,10 +72,7 @@ public partial class FANavigationViewItemPresenter
         set => SetValue(InfoBadgeProperty, value);
     }
 
-    internal FANavigationViewItem GetNVI
-    {
-        get { return this.FindAncestorOfType<FANavigationViewItem>(); }
-    }
+    internal FANavigationViewItem GetNVI => this.FindAncestorOfType<FANavigationViewItem>();
 
     internal Control SelectionIndicator => _selectionIndicator;
 }

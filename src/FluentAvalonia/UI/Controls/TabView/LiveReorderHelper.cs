@@ -88,6 +88,7 @@ internal class LiveReorderHelper
         _liveReorderIndices = new LiveReorderIndices(draggedIndex, dragOverIndex, itemsCount);
 
         if (previousDragOverIndex == draggedIndex || previousDragOverIndex != dragOverIndex) StartLiveReorderTimer();
+        return;
 
         static bool IsInBottomHalf(Point pt, Rect rc, Orientation orientation)
         {
@@ -147,86 +148,92 @@ internal class LiveReorderHelper
     {
         // This estimates the container index given the current pointer position
         var panel = ItemsPanelRoot;
-        if (panel is VirtualizingStackPanel vsp)
+        switch (panel)
         {
-            var firstRealized = _firstCachedContainerIndex;
-            var lastRealized = firstRealized + _cachedContainerBounds.Count - 1;
-            var orientation = vsp.Orientation;
-            _movedItems.AsSpan();
-            var closestIndex = -1;
-            var closestDist = double.PositiveInfinity;
-            Rect closestItemRect = default;
-
-            // Loop over the currently realized items to find the closest
-            for (var i = firstRealized; i <= lastRealized; i++)
+            case VirtualizingStackPanel vsp:
             {
-                // If the item is currently in our MovedItems list, it may not be 
-                // where it usually is, so we can't test the actual Bounds or we'll
-                // estimate the wrong index, but we have the original bounds saved
-                var rc = _cachedContainerBounds[i - firstRealized];
-                double dist;
+                var firstRealized = _firstCachedContainerIndex;
+                var lastRealized = firstRealized + _cachedContainerBounds.Count - 1;
+                var orientation = vsp.Orientation;
+                _movedItems.AsSpan();
+                var closestIndex = -1;
+                var closestDist = double.PositiveInfinity;
+                Rect closestItemRect = default;
 
-                if (orientation == Orientation.Horizontal)
+                // Loop over the currently realized items to find the closest
+                for (var i = firstRealized; i <= lastRealized; i++)
                 {
-                    var cx = double.Clamp(dragPoint.X, rc.X, rc.Right);
-                    dist = double.Abs(dragPoint.X - cx);
-                }
-                else
-                {
-                    var cy = double.Clamp(dragPoint.Y, rc.Y, rc.Bottom);
-                    dist = double.Abs(dragPoint.Y - cy);
+                    // If the item is currently in our MovedItems list, it may not be 
+                    // where it usually is, so we can't test the actual Bounds or we'll
+                    // estimate the wrong index, but we have the original bounds saved
+                    var rc = _cachedContainerBounds[i - firstRealized];
+                    double dist;
+
+                    if (orientation == Orientation.Horizontal)
+                    {
+                        var cx = double.Clamp(dragPoint.X, rc.X, rc.Right);
+                        dist = double.Abs(dragPoint.X - cx);
+                    }
+                    else
+                    {
+                        var cy = double.Clamp(dragPoint.Y, rc.Y, rc.Bottom);
+                        dist = double.Abs(dragPoint.Y - cy);
+                    }
+
+                    if (dist < closestDist)
+                    {
+                        closestDist = dist;
+                        closestIndex = i;
+                        closestItemRect = rc;
+                    }
                 }
 
-                if (dist < closestDist)
+                if (requestingInsertionIndex)
                 {
-                    closestDist = dist;
-                    closestIndex = i;
-                    closestItemRect = rc;
+                    switch (orientation)
+                    {
+                        case Orientation.Horizontal:
+                        {
+                            if (dragPoint.X - closestItemRect.X >= closestItemRect.Width * 0.5) closestIndex++;
+                            break;
+                        }
+                        case Orientation.Vertical:
+                        {
+                            if (dragPoint.Y - closestItemRect.Y >= closestItemRect.Height * 0.5) closestIndex++;
+                            break;
+                        }
+                    }
                 }
+
+                return closestIndex;
             }
+            case StackPanel:
+                //var children = sp.Children;
+                //var orientation = sp.Orientation;
+                //var movedItems = _movedItems.AsSpan();
 
-            if (requestingInsertionIndex)
-            {
-                if (orientation == Orientation.Horizontal)
-                {
-                    if (dragPoint.X - closestItemRect.X >= closestItemRect.Width * 0.5) closestIndex++;
-                }
-                else if (orientation == Orientation.Vertical)
-                {
-                    if (dragPoint.Y - closestItemRect.Y >= closestItemRect.Height * 0.5) closestIndex++;
-                }
-            }
-
-            return closestIndex;
-        }
-
-        if (panel is StackPanel)
-        {
-            //var children = sp.Children;
-            //var orientation = sp.Orientation;
-            //var movedItems = _movedItems.AsSpan();
-
-            //for (int i = 0; i < children.Count; i++)
-            //{
-            //    // If the item is currently in our MovedItems list, it may not be 
-            //    // where it usually is, so we can't test the actual Bounds or we'll
-            //    // estimate the wrong index, but we have the original bounds saved
-            //    if (IsInMovedItems(movedItems, i, out var rc))
-            //    {
-            //        if (rc.Contains(dragPoint))
-            //        {
-            //            return i;
-            //        }
-            //    }
-            //    else
-            //    {
-            //        // The item is not in moved items, so it is safe to use the Bounds directly
-            //        if (children[i].Bounds.Contains(dragPoint))
-            //        {
-            //            return i;
-            //        }
-            //    }
-            //}
+                //for (int i = 0; i < children.Count; i++)
+                //{
+                //    // If the item is currently in our MovedItems list, it may not be 
+                //    // where it usually is, so we can't test the actual Bounds or we'll
+                //    // estimate the wrong index, but we have the original bounds saved
+                //    if (IsInMovedItems(movedItems, i, out var rc))
+                //    {
+                //        if (rc.Contains(dragPoint))
+                //        {
+                //            return i;
+                //        }
+                //    }
+                //    else
+                //    {
+                //        // The item is not in moved items, so it is safe to use the Bounds directly
+                //        if (children[i].Bounds.Contains(dragPoint))
+                //        {
+                //            return i;
+                //        }
+                //    }
+                //}
+                break;
         }
 
         return -1;
@@ -304,6 +311,7 @@ internal class LiveReorderHelper
         }
 
         AddNewItemForLiveReorder(endIndex, endIndex - increment, newItems, _liveReorderIndices.itemsCount, this);
+        return;
 
         // Debug.WriteLine($"TotalNewItems: {newItems.Count}");
 
@@ -375,26 +383,32 @@ internal class LiveReorderHelper
         // if that TabView didn't start the dragdrop operation
 
         var panel = ItemsPanelRoot;
-        if (panel is VirtualizingStackPanel vsp)
+        switch (panel)
         {
-            var firstRealized = vsp.FirstRealizedIndex;
-            var lastRealized = vsp.LastRealizedIndex;
-            _firstCachedContainerIndex = firstRealized;
-            _cachedContainerBounds ??= new List<Rect>(lastRealized - firstRealized + 1);
-
-            for (var i = firstRealized; i <= lastRealized; i++)
+            case VirtualizingStackPanel vsp:
             {
-                var cont = _owner.ContainerFromIndex(i);
-                _cachedContainerBounds.Add(cont.Bounds);
+                var firstRealized = vsp.FirstRealizedIndex;
+                var lastRealized = vsp.LastRealizedIndex;
+                _firstCachedContainerIndex = firstRealized;
+                _cachedContainerBounds ??= new List<Rect>(lastRealized - firstRealized + 1);
+
+                for (var i = firstRealized; i <= lastRealized; i++)
+                {
+                    var cont = _owner.ContainerFromIndex(i);
+                    _cachedContainerBounds.Add(cont.Bounds);
+                }
+
+                break;
             }
-        }
-        else if (panel is StackPanel)
-        {
-            _firstCachedContainerIndex = 0;
-            var itemCount = _owner.ItemCount;
-            _cachedContainerBounds ??= new List<Rect>(itemCount);
-            // Stack Panels don't virtualize and arrange in order so this is safe
-            for (var i = 0; i < itemCount; i++) _cachedContainerBounds.Add(panel.Children[i].Bounds);
+            case StackPanel:
+            {
+                _firstCachedContainerIndex = 0;
+                var itemCount = _owner.ItemCount;
+                _cachedContainerBounds ??= new List<Rect>(itemCount);
+                // Stack Panels don't virtualize and arrange in order so this is safe
+                for (var i = 0; i < itemCount; i++) _cachedContainerBounds.Add(panel.Children[i].Bounds);
+                break;
+            }
         }
     }
 

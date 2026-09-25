@@ -134,10 +134,7 @@ public partial class FAFrame : ContentControl
     /// <summary>
     ///     Gets the number of entries in the navigation back stack.
     /// </summary>
-    public int BackStackDepth
-    {
-        get => _backStack.Count;
-    }
+    public int BackStackDepth => _backStack.Count;
 
     /// <summary>
     ///     Gets a value that indicates whether there is at least one entry in back navigation history.

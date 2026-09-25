@@ -15,10 +15,10 @@ internal class ElementManager
 {
     private FAVirtualizingLayoutContext _context;
     private int _firstRealizedDataIndex = -1;
-    private List<Rect> _realizedElementLayoutBounds = [];
-    private List<Control> _realizedElements = [];
+    private readonly List<Rect> _realizedElementLayoutBounds = [];
+    private readonly List<Control> _realizedElements = [];
 
-    private bool _useLayoutBounds;
+    private readonly bool _useLayoutBounds;
 
     public ElementManager(bool useLayoutBounds = true)
     {

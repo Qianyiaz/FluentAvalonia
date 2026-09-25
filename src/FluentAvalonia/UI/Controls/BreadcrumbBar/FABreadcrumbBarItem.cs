@@ -219,9 +219,15 @@ public class FABreadcrumbBarItem : ContentControl
 
     internal void SetEllipsisDropDownItemDataTemplate(object newDataTemplate)
     {
-        if (newDataTemplate is IDataTemplate dataTemplate)
-            _ellipsisDropDownItemDataTemplate = dataTemplate;
-        else if (newDataTemplate == null) _ellipsisDropDownItemDataTemplate = null;
+        switch (newDataTemplate)
+        {
+            case IDataTemplate dataTemplate:
+                _ellipsisDropDownItemDataTemplate = dataTemplate;
+                break;
+            case null:
+                _ellipsisDropDownItemDataTemplate = null;
+                break;
+        }
     }
 
     internal void SetIndex(int index) => _index = index;

@@ -8,7 +8,7 @@ public delegate void FADeferralCompletedHandler();
 /// </summary>
 public class FADeferral
 {
-    private FADeferralCompletedHandler _handler;
+    private readonly FADeferralCompletedHandler _handler;
 
     /// <summary>
     ///     Initializes a new Deferral object and specifies a <see cref="FADeferralCompletedHandler" /> to be called

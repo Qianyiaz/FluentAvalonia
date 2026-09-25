@@ -25,7 +25,7 @@ public class FAItemsRepeaterAutomationPeer : ControlAutomationPeer
         {
             var childPeer = childrenPeers[i];
             if (GetElement((ControlAutomationPeer)childPeer, repeater) is { } c)
-                if (FAItemsRepeater.GetVirtualizationInfo(c) is { } vi && vi.IsRealized)
+                if (FAItemsRepeater.GetVirtualizationInfo(c) is { IsRealized: true } vi)
                     realizedPeers.Add((vi.Index, childPeer));
         }
 

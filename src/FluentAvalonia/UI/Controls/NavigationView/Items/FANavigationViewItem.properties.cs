@@ -187,9 +187,7 @@ public partial class FANavigationViewItem
 
     private bool HasChildren =>
         (MenuItems != null && MenuItems.Count() > 0) ||
-        (MenuItemsSource != null && _repeater != null &&
-         _repeater.ItemsSourceView != null &&
-         _repeater.ItemsSourceView.Count > 0) ||
+        (MenuItemsSource != null && _repeater is { ItemsSourceView.Count: > 0 }) ||
         HasUnrealizedChildren;
 
     private bool ShouldShowIcon => IconSource != null;

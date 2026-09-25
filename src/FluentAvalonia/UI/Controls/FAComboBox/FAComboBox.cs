@@ -30,7 +30,7 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
 
     private Popup _popup;
 
-    private FACompositeDisposable _subscriptionsOnOpen = new();
+    private readonly FACompositeDisposable _subscriptionsOnOpen = new();
     private TextBox _textBox;
 
     static FAComboBox()
@@ -160,75 +160,94 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
         var isOpen = IsDropDownOpen;
         var isEditable = IsEditable;
 
-        if ((e.Key == Key.F4 && e.KeyModifiers.HasFlag(KeyModifiers.Alt) == false) ||
-            ((e.Key == Key.Down || e.Key == Key.Up) && e.KeyModifiers.HasFlag(KeyModifiers.Alt)))
+        switch (e.Key)
         {
-            IsDropDownOpen = !isOpen;
-            e.Handled = true;
-        }
-        else if (e.Key == Key.Escape)
-        {
-            if (isOpen) IsDropDownOpen = false;
+            case Key.F4 when e.KeyModifiers.HasFlag(KeyModifiers.Alt) == false:
+            case Key.Down or Key.Up when e.KeyModifiers.HasFlag(KeyModifiers.Alt):
+                IsDropDownOpen = !isOpen;
+                e.Handled = true;
+                break;
+            case Key.Escape:
+            {
+                if (isOpen) IsDropDownOpen = false;
 
-            // Two cases for this:
-            // 1- If isOpen, since we change the selection box based on keyboard navigaton without changing
-            //    the SelectedItem, we need to revert to the actual selection if its cancelled
-            // 2- If !isOpen, and editable, user can revert their text change by pressing escape
-            UpdateSelectionBoxItem(SelectedItem);
-            if (isEditable && SelectedItem is null)
-                // UWP behavior - even if text is set, hitting escape will clear the text if no
-                // item is selected
-                Text = null;
-            e.Handled = true;
-        }
-        else if (!isOpen && !isEditable && (e.Key == Key.Enter || e.Key == Key.Space))
-        {
-            IsDropDownOpen = true;
-            e.Handled = true;
-        }
-        else if (isEditable && e.Key == Key.Enter)
-        {
-            if (_textBox is not null && _textBox.IsFocused)
-                OnTextSubmittedCore();
-            else
-                SelectFocusedItem();
-            IsDropDownOpen = false;
-            e.Handled = true;
-        }
-        else if (isOpen && (e.Key == Key.Enter || e.Key == Key.Space))
-        {
-            SelectFocusedItem();
-            IsDropDownOpen = false;
-            e.Handled = true;
-        }
-        else if (!isOpen)
-        {
-            if (e.Key == Key.Down)
-            {
-                if (!isEditable)
-                    SelectNext();
-                else
-                    IsDropDownOpen = true;
+                // Two cases for this:
+                // 1- If isOpen, since we change the selection box based on keyboard navigaton without changing
+                //    the SelectedItem, we need to revert to the actual selection if its cancelled
+                // 2- If !isOpen, and editable, user can revert their text change by pressing escape
+                UpdateSelectionBoxItem(SelectedItem);
+                if (isEditable && SelectedItem is null)
+                    // UWP behavior - even if text is set, hitting escape will clear the text if no
+                    // item is selected
+                    Text = null;
                 e.Handled = true;
+                break;
             }
-            else if (e.Key == Key.Up)
+            default:
             {
-                if (!isEditable)
-                    SelectPrevious();
-                else
+                if (!isOpen && !isEditable && (e.Key == Key.Enter || e.Key == Key.Space))
+                {
                     IsDropDownOpen = true;
-                e.Handled = true;
-            }
-        }
-        // This part of code is needed just to acquire initial focus, subsequent focus navigation will be done by ItemsControl.
-        else if (isOpen && SelectedIndex < 0 && ItemCount > 0 &&
-                 (e.Key == Key.Up || e.Key == Key.Down) && IsFocused == true)
-        {
-            var firstChild = Presenter?.Panel?.Children.FirstOrDefault(c => CanFocus(c));
-            if (firstChild != null)
-            {
-                firstChild.Focus(NavigationMethod.Directional);
-                e.Handled = true;
+                    e.Handled = true;
+                }
+                else if (isEditable && e.Key == Key.Enter)
+                {
+                    if (_textBox is not null && _textBox.IsFocused)
+                        OnTextSubmittedCore();
+                    else
+                        SelectFocusedItem();
+                    IsDropDownOpen = false;
+                    e.Handled = true;
+                }
+                else switch (isOpen)
+                {
+                    case true when (e.Key == Key.Enter || e.Key == Key.Space):
+                        SelectFocusedItem();
+                        IsDropDownOpen = false;
+                        e.Handled = true;
+                        break;
+                    case false:
+                    {
+                        switch (e.Key)
+                        {
+                            case Key.Down:
+                            {
+                                if (!isEditable)
+                                    SelectNext();
+                                else
+                                    IsDropDownOpen = true;
+                                e.Handled = true;
+                                break;
+                            }
+                            case Key.Up:
+                            {
+                                if (!isEditable)
+                                    SelectPrevious();
+                                else
+                                    IsDropDownOpen = true;
+                                e.Handled = true;
+                                break;
+                            }
+                        }
+
+                        break;
+                    }
+                    // This part of code is needed just to acquire initial focus, subsequent focus navigation will be done by ItemsControl.
+                    case true when SelectedIndex < 0 && ItemCount > 0 &&
+                                   (e.Key == Key.Up || e.Key == Key.Down) && IsFocused == true:
+                    {
+                        var firstChild = Presenter?.Panel?.Children.FirstOrDefault(c => CanFocus(c));
+                        if (firstChild != null)
+                        {
+                            firstChild.Focus(NavigationMethod.Directional);
+                            e.Handled = true;
+                        }
+
+                        break;
+                    }
+                }
+
+                break;
             }
         }
     }
@@ -262,7 +281,7 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
     {
         base.OnPointerPressed(e);
 
-        if (!e.Handled && e.Source is Visual src)
+        if (e is { Handled: false, Source: Visual src })
             if (_popup?.IsInsidePopup(src) == true)
                 return;
         PseudoClasses.Set(FASharedPseudoclasses.s_pcPressed, true);
@@ -270,7 +289,7 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
 
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
     {
-        if (!e.Handled && e.Source is Visual src)
+        if (e is { Handled: false, Source: Visual src })
         {
             if (_popup?.IsInsidePopup(src) == true)
             {
@@ -340,6 +359,8 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
 
             ClearTextBoxSelection();
         }
+
+        return;
 
         bool HasImplicitFocus()
         {
@@ -510,8 +531,8 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
         {
             Debug.Assert(thisRoot == popupRoot);
             // Overlay popups are in use, this is the easiest
-            var pt = new Point(0, 0).Transform(this.TransformToVisual(thisRoot as Visual).Value);
-            var pt2 = new Point(0, 0).Transform(child.TransformToVisual(thisRoot as Visual).Value);
+            var pt = new Point(0, 0).Transform(this.TransformToVisual(thisRoot).Value);
+            var pt2 = new Point(0, 0).Transform(child.TransformToVisual(thisRoot).Value);
 
             isPopupAbove = pt2.Y < pt.Y;
         }
@@ -595,45 +616,46 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
 
         if (item is ContentControl contentControl) item = contentControl.Content;
 
-        if (item is Control control)
+        switch (item)
         {
-            control.Measure(Size.Infinity);
-
-            var sbi = SelectionBoxItem;
-            var displayItem = sbi as Rectangle ?? new Rectangle();
-
-            displayItem.Width = control.DesiredSize.Width;
-            displayItem.Height = control.DesiredSize.Height;
-
-            if (displayItem.Fill is VisualBrush vb)
-                vb.Visual = control;
-            else
-                displayItem.Fill = new VisualBrush
-                {
-                    Visual = control,
-                    Stretch = Stretch.None,
-                    AlignmentX = AlignmentX.Left
-                };
-
-            if (sbi != displayItem) SelectionBoxItem = displayItem;
-
-            UpdateFlowDirection();
-        }
-        else
-        {
-            if (item is string)
+            case Control control:
             {
+                control.Measure(Size.Infinity);
+
+                var sbi = SelectionBoxItem;
+                var displayItem = sbi as Rectangle ?? new Rectangle();
+
+                displayItem.Width = control.DesiredSize.Width;
+                displayItem.Height = control.DesiredSize.Height;
+
+                if (displayItem.Fill is VisualBrush vb)
+                    vb.Visual = control;
+                else
+                    displayItem.Fill = new VisualBrush
+                    {
+                        Visual = control,
+                        Stretch = Stretch.None,
+                        AlignmentX = AlignmentX.Left
+                    };
+
+                if (sbi != displayItem) SelectionBoxItem = displayItem;
+
+                UpdateFlowDirection();
+                break;
+            }
+            case string:
                 // If the item is a raw string, don't use the template or nothing will show
                 SelectionBoxItemTemplate = null;
                 SelectionBoxItem = item;
-            }
-            else
+                break;
+            default:
             {
                 var template = _displayMemberTemplate ?? ItemTemplate;
                 if (template is not null)
                     SelectionBoxItemTemplate = template;
 
                 SelectionBoxItem = item;
+                break;
             }
         }
     }
@@ -759,9 +781,13 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
 
     private string FormatValue(object item)
     {
-        if (item is ContentControl cc) return cc.Content.ToString();
-
-        if (item is string s) return s;
+        switch (item)
+        {
+            case ContentControl cc:
+                return cc.Content.ToString();
+            case string s:
+                return s;
+        }
 
         var result = GetBindingEvaluator().Evaluate(item)?.ToString();
         _displayMemberBindingEvaluator.ClearDataContext();
@@ -866,6 +892,8 @@ public partial class FAComboBox : HeaderedSelectingItemsControl
             _ignoreTextSelectionChange = false;
             if (_textBox != null) _currentTextSelectionStart = _textBox.SelectionStart;
         }
+
+        return;
 
         static bool Compare(string text1, string text2, int minLength)
         {
