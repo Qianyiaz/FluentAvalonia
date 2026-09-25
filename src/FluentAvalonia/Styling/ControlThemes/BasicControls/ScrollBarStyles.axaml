@@ -62,14 +62,13 @@
                                Fill="{TemplateBinding Background}"
                                Stroke="{TemplateBinding BorderBrush}"
                                StrokeThickness="{DynamicResource ScrollBarThumbStrokeThickness}"
-                               RadiusX="{Binding CornerRadius, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource TopLeftCornerRadiusToDoubleConv}}"
-                               RadiusY="{Binding CornerRadius, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource TopLeftCornerRadiusToDoubleConv}}" />
+                               RadiusX="{Binding Source={StaticResource ScrollBarCornerRadius}, Converter={StaticResource TopLeftCornerRadiusToDoubleConv}}"
+                               RadiusY="{Binding Source={StaticResource ScrollBarCornerRadius}, Converter={StaticResource TopLeftCornerRadiusToDoubleConv}}" />
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
         <Setter Property="Transitions">
             <Transitions>
-                <CornerRadiusTransition Property="CornerRadius" Duration="0:0:0.1" />
                 <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1" />
             </Transitions>
         </Setter>
@@ -216,7 +215,6 @@
                                            BorderBrush="{DynamicResource ScrollBarThumbBorderBrush}"
                                            Width="{StaticResource ScrollBarVerticalThumbMinWidth}"
                                            MinHeight="{StaticResource ScrollBarVerticalThumbMinHeight}"
-                                           CornerRadius="{TemplateBinding CornerRadius}"
                                            RenderTransformOrigin="100%,50%"
                                            AutomationProperties.Name="Position" />
                                 </Track>
@@ -311,7 +309,6 @@
                                            BorderBrush="{DynamicResource ScrollBarThumbBorderBrush}"
                                            MinWidth="{DynamicResource ScrollBarHorizontalThumbMinWidth}"
                                            Height="{DynamicResource ScrollBarHorizontalThumbMinHeight}"
-                                           CornerRadius="{TemplateBinding CornerRadius}"
                                            RenderTransformOrigin="50%,100%" />
                                 </Track>
 

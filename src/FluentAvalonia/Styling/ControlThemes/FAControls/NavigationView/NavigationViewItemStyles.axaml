@@ -80,6 +80,10 @@
         <Style Selector="^:topoverflow /template/ uip|FANavigationViewItemPresenter">
             <Setter Property="Theme" Value="{DynamicResource NavigationViewItemPresenterWhenOnTopPaneOverflow}" />
         </Style>
+
+        <Style Selector="^.settings /template/ uip|FANavigationViewItemPresenter">
+            <Setter Property="Theme" Value="{DynamicResource NavigationViewItemPresenterWhenSettings}" />
+        </Style>
     </ControlTheme>
 
 </ResourceDictionary>

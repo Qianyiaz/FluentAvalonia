@@ -125,8 +125,13 @@
                                 Background="{DynamicResource ComboBoxBackgroundFocused}"
                                 BorderBrush="{DynamicResource ComboBoxBackgroundBorderBrushFocused}" />
 
+                        <!-- 修复：去掉 Classes="ComboBoxItemPill"，直接内联属性 -->
                         <Border Name="Pill"
-                                Classes="ComboBoxItemPill"
+                                HorizontalAlignment="Left"
+                                Height="{StaticResource ComboBoxItemPillHeight}"
+                                Width="{StaticResource ComboBoxItemPillWidth}"
+                                Background="{DynamicResource ComboBoxItemPillFillBrush}"
+                                CornerRadius="1.5"
                                 Margin="1 0 0 0"
                                 Opacity="0" />
 

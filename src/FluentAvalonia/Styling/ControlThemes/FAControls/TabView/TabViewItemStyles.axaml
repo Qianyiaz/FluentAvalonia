@@ -10,7 +10,7 @@
                         <ui:FATabViewItem Header="Item1">
                             <Border Background="Transparent" />
                         </ui:FATabViewItem>
-                        <ui:TabViewItem Header="Item1" />
+                        <!-- <ui:TabViewItem Header="Item1" /> -->
                     </ui:FATabView.TabItems>
                 </ui:FATabView>
             </Panel>

@@ -51,7 +51,7 @@
                 <MergeResourceInclude Source="/Styling/ControlThemes/BasicControls/FlyoutPresenterStyles.axaml" />
                 <MergeResourceInclude Source="/Styling/ControlThemes/BasicControls/DatePickerStyles.axaml" />
                 <MergeResourceInclude Source="/Styling/ControlThemes/BasicControls/TimePickerStyles.axaml" />
-                <MergeResourceInclude Source="/Styling/ControlThemes/BasicControls/TitleBarStyles.axaml" />
+                <!-- <MergeResourceInclude Source="/Styling/ControlThemes/BasicControls/TitleBarStyles.axaml" /> -->
                 <MergeResourceInclude
                     Source="/Styling/ControlThemes/BasicControls/TransitioningContentControlStyles.axaml" />
                 <MergeResourceInclude Source="/Styling/ControlThemes/BasicControls/ColorPicker/ColorPickerStyles.axaml" />
