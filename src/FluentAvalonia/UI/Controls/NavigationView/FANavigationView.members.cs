@@ -156,7 +156,7 @@ public partial class FANavigationView : HeaderedContentControl
 
     private readonly TopNavigationViewDataProvider _topDataProvider;
     private ContentControl _topNavAutoSuggestBoxPresenter;
-    private Border _topNavContentOverlayAreaGrid;
+    // private Border _topNavContentOverlayAreaGrid;
     private FAItemsRepeater _topNavFooterMenuRepeater;
     private Grid _topNavGrid;
     private Button _topNavOverflowButton;
@@ -225,11 +225,13 @@ public partial class FANavigationView : HeaderedContentControl
         }
     }
 
+    /*
     private int GetNavigationViewItemCountInPrimaryList =>
         _topDataProvider?.NavigationViewItemCountInPrimaryList ?? 0;
 
     private int GetNavigationViewItemCountInTopNav =>
         _topDataProvider?.NavigationViewItemCountInTopNav ?? 0;
+        */
 
     private double GetTopNavigationViewActualWidth => _topNavGrid.Bounds.Width;
 
@@ -237,7 +239,7 @@ public partial class FANavigationView : HeaderedContentControl
 
     internal SplitView GetSplitView => _splitView;
 
-    //Con't logic for pane arrow key navigation
+    /*//Con't logic for pane arrow key navigation
     private bool VerifyInPane(Visual focus, Visual parent)
     {
         if (parent == null)
@@ -276,7 +278,7 @@ public partial class FANavigationView : HeaderedContentControl
         }
 
         return start;
-    }
+    }*/
 
     private double GetPaneToggleButtonWidth() =>
         this.TryFindResource(s_resPaneToggleButtonWidth, out var value) ? (double)value : 40;
@@ -295,7 +297,7 @@ public partial class FANavigationView : HeaderedContentControl
         var miSource = nvi?.MenuItemsSource;
         if (miSource != null) return miSource.Count() > 0;
         return nvi != null &&
-               ((nvi.MenuItems != null && nvi.MenuItems.Count() > 0) || nvi.HasUnrealizedChildren);
+               (nvi.MenuItems is { Count: > 0 } || nvi.HasUnrealizedChildren);
     }
 
     private bool IsSelectionSuppressed(object item)
@@ -430,10 +432,10 @@ public partial class FANavigationView : HeaderedContentControl
         return null;
     }
 
-    private Control ContainerFromMenuItem(object item)
-    {
-        return NavigationViewItemBaseOrSettingsContentFromData(item);
-    }
+    // private Control ContainerFromMenuItem(object item)
+    // {
+    //     return NavigationViewItemBaseOrSettingsContentFromData(item);
+    // }
 
     private double MeasureTopNavigationViewDesiredWidth(Size availableSize) =>
         LayoutHelper.MeasureChild(_topNavGrid, availableSize, new Thickness()).Width;
@@ -449,7 +451,7 @@ public partial class FANavigationView : HeaderedContentControl
         TemplateSettings.OverflowButtonVisibility = vis;
     }
 
-    private static bool NeedTopPadding() => false; //TitleBar stuff
+    // private static bool NeedTopPadding() => false; //TitleBar stuff
 
     private static int GetContainerCountInRepeater(FAItemsRepeater ir)
     {
@@ -540,12 +542,12 @@ public partial class FANavigationView : HeaderedContentControl
         return nvi.MenuItems.Count > 0 ? nvi.MenuItems : nvi.MenuItemsSource;
     }
 
-    private FAItemsRepeater GetChildRepeaterForIndexPath(IndexPath ip)
-    {
-        if (GetContainerForIndexPath(ip) is FANavigationViewItem nvi) return nvi.GetRepeater;
-
-        return null;
-    }
+    // private FAItemsRepeater GetChildRepeaterForIndexPath(IndexPath ip)
+    // {
+    //     if (GetContainerForIndexPath(ip) is FANavigationViewItem nvi) return nvi.GetRepeater;
+    //
+    //     return null;
+    // }
 
     private NavigationRecommendedTransitionDirection GetRecommendedTransitionDirection(Control prev, Control next)
     {
@@ -680,8 +682,6 @@ public partial class FANavigationView : HeaderedContentControl
 
         _itemsContainerSizeRevoker?.Dispose();
         _itemsContainerSizeRevoker = null;
-
-        _itemsContainerSizeRevoker?.Dispose();
 
         // Skip selectionChangedRevoker, .net will kill that for us
         // autoSuggestBoxQuerySubmitted

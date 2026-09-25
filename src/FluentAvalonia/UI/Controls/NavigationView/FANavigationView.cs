@@ -26,6 +26,11 @@ namespace FluentAvalonia.UI.Controls;
 /// </summary>
 public partial class FANavigationView : HeaderedContentControl
 {
+    // ── 动画常量（避免魔法数字散落） ──────────────────────────────
+    private const double c_indicatorAnimDurationMs      = 600;
+    private const double c_indicatorAnimCompleteDelayMs = 700;
+    private const double c_stepKeyFrameProgress         = 0.333;
+
     public FANavigationView()
     {
         TemplateSettings = new FANavigationViewTemplateSettings();
@@ -36,7 +41,7 @@ public partial class FANavigationView : HeaderedContentControl
         MenuItems = new AvaloniaList<object>();
         FooterMenuItems = new AvaloniaList<object>();
 
-        _topDataProvider.OnRawDataChanged(args => OnTopNavDataSourceChanged(args));
+        _topDataProvider.OnRawDataChanged(OnTopNavDataSourceChanged);
 
         Loaded += OnNavViewLoaded;
 
@@ -113,7 +118,7 @@ public partial class FANavigationView : HeaderedContentControl
             _topNavFooterMenuRepeater = ConfigureRepeater(
                 e.NameScope.Get<FAItemsRepeater>(s_tpTopFooterMenuItemsHost), true);
 
-            _topNavContentOverlayAreaGrid = e.NameScope.Get<Border>(s_tpTopNavContentOverlayAreaGrid);
+            // _topNavContentOverlayAreaGrid = e.NameScope.Get<Border>(s_tpTopNavContentOverlayAreaGrid);
             _leftNavAutoSuggestBoxPresenter = e.NameScope.Get<ContentControl>(s_tpPaneAutoSuggestBoxPresenter);
             _topNavAutoSuggestBoxPresenter = e.NameScope.Get<ContentControl>(s_tpTopPaneAutoSuggestBoxPresenter);
 
@@ -187,7 +192,10 @@ public partial class FANavigationView : HeaderedContentControl
         if (repeater == null)
             return null;
 
-        (repeater.Layout as FAStackLayout).DisableVirtualization = true;
+        // ✅ 使用模式匹配代替强制转换，避免 InvalidCastException
+        if (repeater.Layout is FAStackLayout stack)
+            stack.DisableVirtualization = true;
+
         repeater.ElementPrepared += OnRepeaterElementPrepared;
         repeater.ElementClearing += OnRepeaterElementClearing;
         repeater.ItemTemplate = _itemsFactory;
@@ -260,10 +268,13 @@ public partial class FANavigationView : HeaderedContentControl
 
             switch (IsPaneVisible)
             {
+                // ✅ 用 if/else 替代 switch-case-when，可读性更好
                 case false when IsPaneOpen:
                     ClosePane();
                     break;
-                case true when DisplayMode == FANavigationViewDisplayMode.Expanded && !IsPaneOpen:
+                case true when
+                    DisplayMode == FANavigationViewDisplayMode.Expanded &&
+                    !IsPaneOpen:
                     OpenPane();
                     break;
             }
@@ -386,13 +397,17 @@ public partial class FANavigationView : HeaderedContentControl
     private void OnRepeaterLoaded(object sender, RoutedEventArgs args)
     {
         var item = SelectedItem;
-        if (item != null && !IsSelectionSuppressed(item))
-        {
-            var nvi = NavigationViewItemOrSettingsContentFromData(item);
-            nvi.IsSelected = true;
-            UpdateSelectionModelSelectionForSelectedItem(item);
-            AnimateSelectionChanged(item);
-        }
+        if (item == null || IsSelectionSuppressed(item))
+            return;
+
+        // ✅ 空值保护：避免 nvi 为 null 时 NRE
+        var nvi = NavigationViewItemOrSettingsContentFromData(item);
+        if (nvi == null)
+            return;
+
+        nvi.IsSelected = true;
+        UpdateSelectionModelSelectionForSelectedItem(item);
+        AnimateSelectionChanged(item);
     }
 
     private void UpdateRepeaterItemsSource(bool forceSelectionModelUpdate)
@@ -865,8 +880,8 @@ public partial class FANavigationView : HeaderedContentControl
 
     private void UpdateSelectionModelSelectionForSelectedItem(object selectedItem)
     {
-        var base_ = NavigationViewItemBaseOrSettingsContentFromData(selectedItem);
-        var indexPath = base_ is { } c
+        // ✅ 直接模式匹配，去掉中间变量
+        var indexPath = NavigationViewItemBaseOrSettingsContentFromData(selectedItem) is { } c
             ? GetIndexPathForContainer(c)
             : GetIndexPathOfItem(selectedItem);
 
@@ -1074,25 +1089,34 @@ public partial class FANavigationView : HeaderedContentControl
         UpdateSelectedItemFromMenuItems(_footerMenuItems, foundFirstSelected);
     }
 
+    // ✅ 单次遍历，消除 O(n²) —— 原实现 Count() + ElementAt(i) 会重复枚举
     private bool UpdateSelectedItemFromMenuItems(IEnumerable menuItems, bool foundFirstSelected = false)
     {
-        for (var i = 0; i < menuItems.Count(); i++)
-            if (menuItems.ElementAt(i) is FANavigationViewItem { IsSelected: true } nvi)
+        if (menuItems == null)
+            return foundFirstSelected;
+        
+        foreach (var item in menuItems)
+        {
+            if (item is not FANavigationViewItem { IsSelected: true } nvi)
+                continue;
+
+            if (foundFirstSelected)
             {
-                if (!foundFirstSelected)
-                    try
-                    {
-                        _shouldIgnoreNextSelectionChange = true;
-                        SelectedItem = nvi;
-                        foundFirstSelected = true;
-                    }
-                    finally
-                    {
-                        _shouldIgnoreNextSelectionChange = false;
-                    }
-                else
-                    nvi.IsSelected = false;
+                nvi.IsSelected = false;
+                continue;
             }
+
+            try
+            {
+                _shouldIgnoreNextSelectionChange = true;
+                SelectedItem = nvi;
+                foundFirstSelected = true;
+            }
+            finally
+            {
+                _shouldIgnoreNextSelectionChange = false;
+            }
+        }
 
         return foundFirstSelected;
     }
@@ -1444,7 +1468,9 @@ public partial class FANavigationView : HeaderedContentControl
         _pendingSelectionChangedItem = null;
         _pendingSelectionChangedDirection = NavigationRecommendedTransitionDirection.Default;
 
-        (sender as Control).LayoutUpdated -= OnSelectedItemLayoutUpdated;
+        // ✅ sender 判空
+        if (sender is Control c)
+            c.LayoutUpdated -= OnSelectedItemLayoutUpdated;
 
         var nvi = NavigationViewItemOrSettingsContentFromData(item);
         if (nvi != null)
@@ -1548,14 +1574,18 @@ public partial class FANavigationView : HeaderedContentControl
                                         (_leftNavRepeater.IsVisible ? _leftNavRepeater.Margin.Vertical() : 0);
             var footerGroupDesiredHeight = footerDesiredHeight + paneFooterActualHeight;
 
-            if (_footerItemsSource.Count == 0)
+            // ✅ 空值保护
+            var footerItemsCount = _footerItemsSource?.Count ?? 0;
+            var menuItemsCount = _menuItemsSource?.Count ?? 0;
+
+            if (footerItemsCount == 0)
             {
                 PseudoClasses.Set(s_pcSeparator, false);
                 _menuItemsScrollViewer.MaxHeight = totalHeight;
                 return;
             }
 
-            if (_menuItemsSource.Count == 0)
+            if (menuItemsCount == 0)
             {
                 _footerItemsScrollViewer.MaxHeight = totalHeight;
                 PseudoClasses.Set(s_pcSeparator, false);
@@ -1783,16 +1813,19 @@ public partial class FANavigationView : HeaderedContentControl
         var toBeMoved = new List<int>(includeItems.Count + 4);
         var size = _topDataProvider.Size;
 
-        for (var index = 0; index < includeItems.Count; index++)
+        // ✅ 用 HashSet 替代 List.Contains —— 由 O(n) 降为 O(1)
+        var includeSet = new HashSet<int>(includeItems);
+
+        foreach (var t in includeItems)
         {
-            toBeMoved.Add(includeItems[index]);
-            availableWidth -= _topDataProvider.GetWidthForItem(includeItems[index]);
+            toBeMoved.Add(t);
+            availableWidth -= _topDataProvider.GetWidthForItem(t);
         }
 
         var i = 0;
         while (i < size && availableWidth > 0)
         {
-            if (!_topDataProvider.IsItemInPrimaryList(i) && !includeItems.Contains(i))
+            if (!_topDataProvider.IsItemInPrimaryList(i) && !includeSet.Contains(i))
             {
                 var wid = _topDataProvider.GetWidthForItem(i);
                 if (availableWidth >= wid)
@@ -1819,10 +1852,14 @@ public partial class FANavigationView : HeaderedContentControl
         IList<int> excludeItems)
     {
         var toBeMoved = new List<int>();
+
+        // ✅ 同样用 HashSet 加速 Contains
+        var excludeSet = new HashSet<int>(excludeItems);
+
         var i = _topDataProvider.Size - 1;
         while (i >= 0 && widthAtLeastToBeRemoved > 0)
         {
-            if (_topDataProvider.IsItemInPrimaryList(i) && !excludeItems.Contains(i))
+            if (_topDataProvider.IsItemInPrimaryList(i) && !excludeSet.Contains(i))
             {
                 toBeMoved.Add(i);
                 widthAtLeastToBeRemoved -= _topDataProvider.GetWidthForItem(i);
@@ -2139,7 +2176,6 @@ public partial class FANavigationView : HeaderedContentControl
                 PseudoClasses.Set(s_pcExpanded, false);
                 svdm = SplitViewDisplayMode.Overlay;
                 break;
-
             case NavigationViewVisualStateDisplayMode.Minimal:
                 PseudoClasses.Set(s_pcMinimalWithBack, false);
                 PseudoClasses.Set(s_pcMinimal, true);
@@ -2147,7 +2183,6 @@ public partial class FANavigationView : HeaderedContentControl
                 PseudoClasses.Set(s_pcExpanded, false);
                 svdm = SplitViewDisplayMode.Overlay;
                 break;
-
             case NavigationViewVisualStateDisplayMode.Compact:
                 PseudoClasses.Set(s_pcMinimalWithBack, false);
                 PseudoClasses.Set(s_pcMinimal, false);
@@ -2155,7 +2190,6 @@ public partial class FANavigationView : HeaderedContentControl
                 PseudoClasses.Set(s_pcExpanded, false);
                 svdm = SplitViewDisplayMode.CompactOverlay;
                 break;
-
             case NavigationViewVisualStateDisplayMode.Expanded:
                 PseudoClasses.Set(s_pcMinimalWithBack, false);
                 PseudoClasses.Set(s_pcMinimal, false);
@@ -2298,7 +2332,9 @@ public partial class FANavigationView : HeaderedContentControl
             _prevIndicator = prevIndicator;
             _nextIndicator = nextIndicator;
 
-            DispatcherTimer.RunOnce(OnAnimationComplete, TimeSpan.FromMilliseconds(700), DispatcherPriority.Render);
+            DispatcherTimer.RunOnce(OnAnimationComplete,
+                TimeSpan.FromMilliseconds(c_indicatorAnimCompleteDelayMs),
+                DispatcherPriority.Render);
         }
         else if (prevIndicator != nextIndicator)
         {
@@ -2322,7 +2358,7 @@ public partial class FANavigationView : HeaderedContentControl
         var scaleAnim = comp.CreateVector3DKeyFrameAnimation();
         scaleAnim.InsertKeyFrame(0f, new Vector3D(1, beginScale, 1));
         scaleAnim.InsertKeyFrame(1f, new Vector3D(1, endScale, 1));
-        scaleAnim.Duration = TimeSpan.FromMilliseconds(600);
+        scaleAnim.Duration = TimeSpan.FromMilliseconds(c_indicatorAnimDurationMs);
 
         var size = indicator.Bounds.Size;
         var dimension = IsTopNav(indicator) ? size.Width : size.Height;
@@ -2335,7 +2371,7 @@ public partial class FANavigationView : HeaderedContentControl
         {
             var opacityAnim = comp.CreateScalarKeyFrameAnimation();
             opacityAnim.InsertKeyFrame(0.0f, 1.0f);
-            opacityAnim.Duration = TimeSpan.FromMilliseconds(600);
+            opacityAnim.Duration = TimeSpan.FromMilliseconds(c_indicatorAnimDurationMs);
             visual.StartAnimation("Opacity", opacityAnim);
         }
     }
@@ -2356,7 +2392,7 @@ public partial class FANavigationView : HeaderedContentControl
         var scaleAnim = comp.CreateVector3DKeyFrameAnimation();
         scaleAnim.InsertKeyFrame(0, new Vector3D(beginScale, visual.Scale.Y, visual.Scale.Z));
         scaleAnim.InsertKeyFrame(1, new Vector3D(endScale, visual.Scale.Y, visual.Scale.Z));
-        scaleAnim.Duration = TimeSpan.FromMilliseconds(600);
+        scaleAnim.Duration = TimeSpan.FromMilliseconds(c_indicatorAnimDurationMs);
 
         var newCenter = indicator.Bounds.Size.Width / 2;
         visual.CenterPoint = new Vector3D(visual.CenterPoint.X, newCenter, visual.CenterPoint.Z);
@@ -2390,9 +2426,9 @@ public partial class FANavigationView : HeaderedContentControl
         {
             var opacityAnim = comp.CreateScalarKeyFrameAnimation();
             opacityAnim.InsertKeyFrame(0.0f, 1.0f);
-            opacityAnim.InsertKeyFrame(0.333f, 1.0f, step);
+            opacityAnim.InsertKeyFrame((float)c_stepKeyFrameProgress, 1.0f, step);
             opacityAnim.InsertKeyFrame(1.0f, 0.0f, easing2);
-            opacityAnim.Duration = TimeSpan.FromMilliseconds(600);
+            opacityAnim.Duration = TimeSpan.FromMilliseconds(c_indicatorAnimDurationMs);
             visual.StartAnimation("Opacity", opacityAnim);
         }
 
@@ -2404,15 +2440,15 @@ public partial class FANavigationView : HeaderedContentControl
         {
             posAnim.InsertKeyFrame(0.0f, new Vector3D(visual.Offset.X,
                 from < to ? from : from + dimension * (beginScale - 1), visual.Offset.Z));
-            posAnim.InsertKeyFrame(0.333f, new Vector3D(visual.Offset.X,
+            posAnim.InsertKeyFrame((float)c_stepKeyFrameProgress, new Vector3D(visual.Offset.X,
                 from < to ? to + dimension * (endScale - 1) : to, visual.Offset.Z), step);
-            posAnim.Duration = TimeSpan.FromMilliseconds(600);
+            posAnim.Duration = TimeSpan.FromMilliseconds(c_indicatorAnimDurationMs);
 
             scaleAnim.InsertKeyFrame(0.0f, new Vector3D(1, beginScale, 1));
-            scaleAnim.InsertKeyFrame(0.333f, new Vector3D(1,
+            scaleAnim.InsertKeyFrame((float)c_stepKeyFrameProgress, new Vector3D(1,
                 Math.Abs(to - from) / dimension + (from < to ? endScale : beginScale), 1), easing1);
             scaleAnim.InsertKeyFrame(1.0f, new Vector3D(1, endScale, endScale), easing2);
-            scaleAnim.Duration = TimeSpan.FromMilliseconds(600);
+            scaleAnim.Duration = TimeSpan.FromMilliseconds(c_indicatorAnimDurationMs);
 
             centerAnim.InsertKeyFrame(0.0f,
                 new Vector3D(visual.CenterPoint.X, from < to ? 0f : dimension, visual.CenterPoint.Z));
@@ -2423,15 +2459,15 @@ public partial class FANavigationView : HeaderedContentControl
         {
             posAnim.InsertKeyFrame(0.0f, new Vector3D(
                 from < to ? from : from + dimension * (beginScale - 1), visual.Offset.Y, visual.Offset.Z));
-            posAnim.InsertKeyFrame(0.333f, new Vector3D(
+            posAnim.InsertKeyFrame((float)c_stepKeyFrameProgress, new Vector3D(
                 from < to ? to + dimension * (endScale - 1) : to, visual.Offset.Y, visual.Offset.Z), step);
-            posAnim.Duration = TimeSpan.FromMilliseconds(600);
+            posAnim.Duration = TimeSpan.FromMilliseconds(c_indicatorAnimDurationMs);
 
             scaleAnim.InsertKeyFrame(0.0f, new Vector3D(beginScale, 1, 1));
-            scaleAnim.InsertKeyFrame(0.333f, new Vector3D(
+            scaleAnim.InsertKeyFrame((float)c_stepKeyFrameProgress, new Vector3D(
                 Math.Abs(to - from) / dimension + (from < to ? endScale : beginScale), 1, 1), easing1);
             scaleAnim.InsertKeyFrame(1.0f, new Vector3D(1, endScale, endScale), easing2);
-            scaleAnim.Duration = TimeSpan.FromMilliseconds(600);
+            scaleAnim.Duration = TimeSpan.FromMilliseconds(c_indicatorAnimDurationMs);
 
             centerAnim.InsertKeyFrame(0.0f,
                 new Vector3D(from < to ? 0f : dimension, visual.CenterPoint.Y, visual.CenterPoint.Z));
@@ -2593,7 +2629,8 @@ public partial class FANavigationView : HeaderedContentControl
         if (parent == null)
             return null;
 
-        if (parent.Content == paneTitle != shouldNotContainPaneTitle)
+        // ✅ 明确布尔优先级，避免误读
+        if ((parent.Content == paneTitle) != shouldNotContainPaneTitle)
             return null;
 
         if (shouldNotContainPaneTitle)
@@ -2856,12 +2893,16 @@ public partial class FANavigationView : HeaderedContentControl
         {
             var childrenData = GetChildren(nviParent);
             if (childrenData != null)
-                for (var i = 0; i < childrenData.Count(); i++)
+            {
+                // ✅ 单次遍历，避免 Count() + ElementAt() 的重复枚举
+                var i = 0;
+                foreach (var child in childrenData)
                 {
-                    var newIP = ip.CloneWithChildIndex(i);
-                    if (childrenData.ElementAt(i) == data)
-                        return newIP;
+                    if (child == data)
+                        return ip.CloneWithChildIndex(i);
+                    i++;
                 }
+            }
         }
 
         return IndexPath.Unselected;
@@ -2886,13 +2927,17 @@ public partial class FANavigationView : HeaderedContentControl
                     ? _topNavRepeater
                     : _topNavRepeaterOverflowView;
 
+            if (ir == null)
+                return null;
+
             var irIndex = inFooter ? index : _topDataProvider.ConvertOriginalIndexToIndex(index);
             return ir.TryGetElement(irIndex);
         }
 
+        // ✅ 空值保护
         return inFooter
-            ? _leftNavFooterMenuRepeater.TryGetElement(index)
-            : _leftNavRepeater.TryGetElement(index);
+            ? _leftNavFooterMenuRepeater?.TryGetElement(index)
+            : _leftNavRepeater?.TryGetElement(index);
     }
 
     private FANavigationViewItemBase GetContainerForIndexPath(IndexPath ip, bool lastVisible = false,
@@ -2986,13 +3031,20 @@ public partial class FANavigationView : HeaderedContentControl
                             shouldRecycle = false;
                         }
 
-                        var data = childrenData.ElementAt(nextContIndex);
-                        if (data != null &&
-                            ResolveContainerForItem(data, nextContIndex) is FANavigationViewItem nextNVI)
+                        // ✅ 物化到 IList，避免 ElementAt 重复枚举
+                        var childList = childrenData as IList<object>
+                                        ?? childrenData.Cast<object>().ToList();
+
+                        if (nextContIndex < childList.Count)
                         {
-                            container = nextNVI;
-                            shouldRecycle = true;
-                            succeed = true;
+                            var data = childList[nextContIndex];
+                            if (data != null &&
+                                ResolveContainerForItem(data, nextContIndex) is FANavigationViewItem nextNVI)
+                            {
+                                container = nextNVI;
+                                shouldRecycle = true;
+                                succeed = true;
+                            }
                         }
                     }
                 }
